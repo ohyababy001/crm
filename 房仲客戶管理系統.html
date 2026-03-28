@@ -330,7 +330,9 @@
 
         @media (max-width: 768px) {
             /* 全域防溢出 */
-            html, body { overflow-x: hidden; width: 100%; }
+            html, body { overflow-x: hidden !important; width: 100% !important; }
+            * { box-sizing: border-box !important; }
+            .modal-body input, .modal-body select, .modal-body textarea { max-width: 100% !important; }
 
             /* Header */
             .header { padding: 10px 12px; gap: 8px; flex-wrap: wrap; }
@@ -365,10 +367,9 @@
             #namePhoneIdRow { flex-direction: column !important; gap: 8px; }
 
             /* c-row (人員列) 兩欄換行 */
-            .c-row { flex-wrap: wrap !important; gap: 6px !important; position: relative; padding-right: 22px; }
-            .c-row > input[type="text"] { flex: 1 1 45% !important; min-width: 0 !important; box-sizing: border-box; }
-            .c-row > select { flex: 1 1 45% !important; min-width: 0 !important; }
-            .c-row > .c-del { position: absolute; right: 0; top: 0; }
+            .c-row { flex-wrap: wrap !important; gap: 6px !important; }
+            .c-row > input[type="text"] { flex: 1 1 calc(50% - 16px) !important; min-width: 0 !important; max-width: 100% !important; }
+            .c-row > select { flex: 1 1 calc(50% - 16px) !important; min-width: 0 !important; max-width: 100% !important; }
 
             /* 庫存坪數/車位改直排 */
             #szParkingRow { flex-direction: column !important; }
