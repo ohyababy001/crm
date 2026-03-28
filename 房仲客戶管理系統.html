@@ -564,6 +564,65 @@
 </head>
 <body>
 
+<!-- PIN 鎖定畫面 -->
+<div id="pinLock" style="position:fixed;inset:0;background:#292524;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px">
+    <div style="font-size:40px">🔒</div>
+    <div style="color:#FAFAF9;font-size:18px;font-weight:600">請輸入 PIN 碼</div>
+    <div style="display:flex;gap:10px" id="pinDots">
+        <span class="pin-dot"></span><span class="pin-dot"></span><span class="pin-dot"></span>
+        <span class="pin-dot"></span><span class="pin-dot"></span><span class="pin-dot"></span>
+    </div>
+    <div id="pinError" style="color:#EF4444;font-size:14px;height:20px"></div>
+    <div style="display:grid;grid-template-columns:repeat(3,70px);gap:10px">
+        <button class="pin-btn" onclick="pinInput(1)">1</button>
+        <button class="pin-btn" onclick="pinInput(2)">2</button>
+        <button class="pin-btn" onclick="pinInput(3)">3</button>
+        <button class="pin-btn" onclick="pinInput(4)">4</button>
+        <button class="pin-btn" onclick="pinInput(5)">5</button>
+        <button class="pin-btn" onclick="pinInput(6)">6</button>
+        <button class="pin-btn" onclick="pinInput(7)">7</button>
+        <button class="pin-btn" onclick="pinInput(8)">8</button>
+        <button class="pin-btn" onclick="pinInput(9)">9</button>
+        <button class="pin-btn" onclick="pinClear()" style="font-size:16px">清除</button>
+        <button class="pin-btn" onclick="pinInput(0)">0</button>
+        <button class="pin-btn" onclick="pinDelete()" style="font-size:20px">⌫</button>
+    </div>
+</div>
+<style>
+    .pin-dot { width:14px;height:14px;border-radius:50%;border:2px solid #A8A29E;background:transparent;display:inline-block; }
+    .pin-dot.filled { background:#FAFAF9;border-color:#FAFAF9; }
+    .pin-btn { width:70px;height:70px;border-radius:50%;border:2px solid #A8A29E;background:transparent;color:#FAFAF9;font-size:28px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .1s; }
+    .pin-btn:active { background:rgba(255,255,255,0.2); }
+</style>
+<script>
+var _pin = '';
+var _correctPin = '501450';
+// 記住裝置：驗證過就不用再輸入
+if (localStorage.getItem('pinOK') === _correctPin) {
+    document.getElementById('pinLock').style.display = 'none';
+}
+function pinInput(n) {
+    if (_pin.length >= 6) return;
+    _pin += n;
+    updatePinDots();
+    if (_pin.length === 6) {
+        if (_pin === _correctPin) {
+            localStorage.setItem('pinOK', _correctPin);
+            document.getElementById('pinLock').style.display = 'none';
+        } else {
+            document.getElementById('pinError').textContent = 'PIN 碼錯誤';
+            setTimeout(function(){ _pin=''; updatePinDots(); document.getElementById('pinError').textContent=''; }, 1000);
+        }
+    }
+}
+function pinDelete() { _pin = _pin.slice(0,-1); updatePinDots(); }
+function pinClear() { _pin = ''; updatePinDots(); }
+function updatePinDots() {
+    var dots = document.querySelectorAll('.pin-dot');
+    dots.forEach(function(d,i){ d.classList.toggle('filled', i < _pin.length); });
+}
+</script>
+
 <header class="header">
     <div class="header-title">🏠 房仲客戶管理</div>
     <div class="search-wrap">
