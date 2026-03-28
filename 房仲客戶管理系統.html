@@ -634,6 +634,7 @@
                 <option value="oldest">最早加入</option>
                 <option value="name">姓名排序</option>
                 <option value="lastContact">最近聯絡</option>
+                <option value="nextSchedule">預計時間</option>
             </select>
         </div>
 
@@ -1717,6 +1718,11 @@ function setFilter(type, btn) {
     document.getElementById('filterTitle').textContent = titles[type];
     document.getElementById('buyerFilter').classList.toggle('on', type === '經營買方');
     document.getElementById('sortSel').style.display = (type === '成交客戶' || type === '租案管理') ? 'none' : '';
+    // 預設排序
+    var sel = document.getElementById('sortSel');
+    if (type === '經營買方' || type === '庫存屋主') sel.value = 'lastContact';
+    else if (type === '商機募集') sel.value = 'nextSchedule';
+    else if (type !== '成交客戶' && type !== '租案管理') sel.value = 'newest';
     render();
 }
 
@@ -1804,6 +1810,13 @@ function getData() {
             if (s==='oldest') return (a.created||'').localeCompare(b.created||'');
             if (s==='name')   return a.name.localeCompare(b.name,'zh');
             if (s==='lastContact') return (b.lastContact||'').localeCompare(a.lastContact||'');
+            if (s==='nextSchedule') {
+                var aNext = (a.schedules||[]).filter(function(x){return x.date>=localDateISO();}).sort(function(x,y){return x.date.localeCompare(y.date);})[0];
+                var bNext = (b.schedules||[]).filter(function(x){return x.date>=localDateISO();}).sort(function(x,y){return x.date.localeCompare(y.date);})[0];
+                var aDate = aNext ? aNext.date : '9999-12-31';
+                var bDate = bNext ? bNext.date : '9999-12-31';
+                return aDate.localeCompare(bDate);
+            }
             return 0;
         });
     }
