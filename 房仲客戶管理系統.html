@@ -329,19 +329,22 @@
 
 
         @media (max-width: 768px) {
+            /* 全域防溢出 */
+            html, body { overflow-x: hidden; width: 100%; }
+
             /* Header */
             .header { padding: 10px 12px; gap: 8px; flex-wrap: wrap; }
             .header-title { font-size: 16px; }
             .search-wrap { order: 3; flex-basis: 100%; max-width: 100%; }
             .btn-add { padding: 8px 14px; font-size: 13px; }
 
-            /* Layout: 隱藏側邊欄 */
+            /* Layout */
             .sidebar { display: none; }
             .layout { flex-direction: column; }
-            .main { padding: 10px 8px; }
+            .main { padding: 10px 8px; padding-bottom: 70px; }
 
             /* 卡片 */
-            .card { padding: 8px 10px; gap: 8px; flex-wrap: wrap; }
+            .card { padding: 8px 10px; gap: 8px; flex-wrap: wrap; position: relative; }
             .avatar { width: 36px; height: 36px; font-size: 14px; }
             .card-main { width: auto; flex: 1; min-width: 80px; }
             .card-name { font-size: 15px; }
@@ -349,36 +352,47 @@
             .card-meta { width: auto; flex: 1 1 100%; }
             .card-notes-col { display: none; }
             .card-right { display: none; }
-            .card-bottom-right { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); }
-            .card { position: relative; }
 
-            /* 表單 Modal */
-            .overlay { padding: 0; align-items: flex-end; }
-            .modal { max-width: 100%; max-height: 100vh; border-radius: 14px 14px 0 0; }
-            .modal-body { padding: 14px 12px; }
+            /* Modal 全螢幕 */
+            .overlay { padding: 0 !important; }
+            .modal { max-width: 100% !important; width: 100% !important; max-height: 100vh !important; height: 100vh; border-radius: 0 !important; box-sizing: border-box; }
+            .modal-body { padding: 14px 12px; box-sizing: border-box; overflow-x: hidden; }
+            .modal-head { border-radius: 0; }
+
+            /* 表單 */
             .form-row { grid-template-columns: 1fr; }
             .fg.full { grid-column: 1; }
             #namePhoneIdRow { flex-direction: column; gap: 6px; }
+            .type-sec .c-row { flex-wrap: wrap; }
+            .c-row { flex-wrap: wrap; }
+            .c-row input, .c-row select { min-width: 0 !important; }
+
+            /* 類型按鈕換行 */
+            .tp-row { flex-wrap: wrap; }
+
+            /* 管理費換行 */
+            .fg.full > div { flex-wrap: wrap; }
 
             /* 預覽 Modal */
-            #dModal { padding-top: 0; align-items: flex-end; }
-            #dModal .modal { max-height: 95vh; border-radius: 14px 14px 0 0; }
+            #dModal { padding-top: 0 !important; }
             .det-head { padding: 12px; }
             .det-body { padding: 10px 12px; }
             .det-name { font-size: 18px; }
 
-            /* 主列表標題 */
+            /* 主列表 */
             .main-bar h2 { font-size: 16px; }
             .sort-sel { font-size: 12px; }
-
-            /* 庫存坪數車位那排 */
-            #namePhoneIdRow,
-            .type-sec .c-row { flex-wrap: wrap; }
 
             /* 手機底部導航 */
             .mobile-nav { display: flex !important; }
             .mobile-nav.hide-nav { display: none !important; }
-            .main { padding-bottom: 70px; }
+
+            /* 所有 flex 容器防溢出 */
+            .type-sec, .modal-body, .det-body { max-width: 100%; overflow-x: hidden; }
+            .type-sec input, .type-sec select { max-width: 100%; box-sizing: border-box; }
+            .input-grp { min-width: 0; }
+            .deal-box { overflow-x: hidden; }
+            .deal-row { flex-wrap: wrap; }
         }
 
         /* 手機底部導航列 */
