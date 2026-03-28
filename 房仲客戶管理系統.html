@@ -366,24 +366,51 @@
             .fg.full { grid-column: 1; }
             #namePhoneIdRow { flex-direction: column !important; gap: 8px; }
 
-            /* c-row (人員列) 兩欄換行 — 覆蓋 inline style */
+            /* 標題列隱藏，改用 placeholder */
+            .c-row:has(> span:first-child) { display: none !important; }
+
+            /* c-row (人員列) 兩欄換行 */
             .c-row { flex-wrap: wrap !important; gap: 6px !important; }
             .c-row input { flex: 1 1 calc(50% - 10px) !important; min-width: 80px !important; max-width: 100% !important; }
             .c-row select { flex: 1 1 calc(50% - 10px) !important; min-width: 60px !important; max-width: 100% !important; }
             .c-row .roc-date-wrap { flex: 1 1 calc(50% - 10px) !important; }
             .c-row .roc-date-wrap input { flex: 1 !important; min-width: 50px !important; }
 
+            /* 三地址：select 縮小，地址放大 */
+            #bAddrList .c-row select { flex: 0 0 60px !important; }
+            #bAddrList .c-row input { flex: 1 1 calc(100% - 70px) !important; }
+
+            /* 成交地址：類型縮小，郵遞區號縮小，地址放大 */
+            #cAddrList .c-row select { flex: 0 0 60px !important; }
+            #cAddrList .c-row input:first-of-type { flex: 0 0 55px !important; }
+            #cAddrList .c-row input:last-of-type { flex: 1 !important; }
+
+            /* 租案社區縮小，地址放大 */
+            #rentalAddrRow { grid-template-columns: 1fr 2fr !important; }
+
+            /* 房型需求：每排 4 個 */
+            .room-picker { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 6px !important; }
+            .room-picker .rm-btn { width: 100% !important; text-align: center; padding: 8px 4px !important; }
+
+            /* 附屬設備改三欄 */
+            .equip-item { width: calc(33.3% - 6px) !important; }
+
+            /* 良民證換行到租補下方 */
+            .cond-btn[onclick*="GoodCitizen"] { order: -1; }
+
             /* 庫存坪數/車位改直排 */
             #szParkingRow { flex-direction: column !important; }
             #szParkingRow > .fg { flex: none !important; width: 100% !important; min-width: 0 !important; }
 
-            /* 庫存社區/地址改直排 */
-            #sellerAddrRow { grid-template-columns: 1fr !important; }
-
-            /* 庫存開價/底價/服務費改直排 */
-            #sellerPriceRow { flex-direction: column !important; gap: 8px !important; }
-            #sellerPriceRow > .fg { flex: none !important; width: 100% !important; }
-
+            /* 庫存基本：姓名/電話一排，身份證獨立一排 */
+            #sellerBasicRow1 { grid-template-columns: 1fr 1fr !important; }
+            /* 庫存生日/地址 */
+            #sellerBasicRow2 { grid-template-columns: 1fr 2fr !important; }
+            /* 庫存社區/地址 */
+            #sellerAddrRow { grid-template-columns: 1fr 2fr !important; }
+            /* 庫存開價/底價/服務費改兩欄 */
+            #sellerPriceRow { flex-wrap: wrap !important; gap: 8px !important; }
+            #sellerPriceRow > .fg { flex: 1 1 45% !important; min-width: 0 !important; }
             /* 庫存合約日期 */
             #sellerContractRow { grid-template-columns: 1fr 1fr !important; }
 
@@ -768,12 +795,12 @@
             <!-- 庫存屋主 -->
             <div class="type-sec" id="s-庫存屋主">
                 <!-- 屋主基本資料 -->
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px">
+                <div id="sellerBasicRow1" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span></label><input id="f-sName" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-sPhone" placeholder="" onblur="autoPhone(this)"></div>
                     <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-sIdNo" placeholder=""></div>
                 </div>
-                <div style="display:grid;grid-template-columns:1fr 3fr;gap:10px;margin-bottom:6px">
+                <div id="sellerBasicRow2" style="display:grid;grid-template-columns:1fr 3fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-sBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                     <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-sOwnerAddr" placeholder=""></div>
                 </div>
@@ -958,7 +985,7 @@
                 <!-- 共用物件資料 -->
                 <div class="fg" style="margin-top:8px"><label>客戶來源</label><input id="f-rSource" placeholder=""></div>
                 <div class="sec-title" style="margin-top:4px">物件資料</div>
-                <div style="display:grid;grid-template-columns:1fr 3fr;gap:10px;margin-bottom:6px">
+                <div id="rentalAddrRow" style="display:grid;grid-template-columns:1fr 3fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>社區／大樓</label><input id="f-rCommunity" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>物件地址</label><input id="f-rAddr" placeholder=""></div>
                 </div>
@@ -2597,7 +2624,7 @@ function addBAddrRow(data) {
     var d = data || {};
     var html = '<div class="c-row" id="ba-'+bAddrId+'">' +
         '<select style="width:75px;flex-shrink:0"><option value="住家"'+(d.type==='住家'?' selected':'')+'>住家</option><option value="公司"'+(d.type==='公司'?' selected':'')+'>公司</option><option value="學區"'+(d.type==='學區'?' selected':'')+'>學區</option><option value="娘家"'+(d.type==='娘家'?' selected':'')+'>娘家</option><option value="其他"'+(d.type==='其他'?' selected':'')+'>其他</option></select>' +
-        '<input type="text" style="flex:1;min-width:0" placeholder="" value="'+esc(d.addr||'')+'">' +
+        '<input type="text" style="flex:1;min-width:0" placeholder="地址" value="'+esc(d.addr||'')+'">' +
         '<button type="button" class="c-del" onclick="this.parentElement.remove()">✕</button></div>';
     document.getElementById('bAddrList').insertAdjacentHTML('beforeend', html);
 }
@@ -2773,10 +2800,10 @@ function addRPersonRow(listId, label, data) {
     rpId++;
     var d = data || {};
     var html = '<div class="c-row" id="rp-'+rpId+'" style="flex-wrap:wrap">' +
-        '<input type="text" style="flex:1;min-width:0" placeholder="" value="'+esc(d.name||'')+'" onblur="lookupName(this)">' +
-        '<input type="text" style="flex:1;min-width:0" placeholder="" value="'+esc(d.phone||'')+'" onblur="autoPhone(this)">' +
-        '<input type="text" style="flex:1;min-width:0" placeholder="" value="'+esc(d.idNo||'')+'">' +
-        '<input type="text" style="flex:1;min-width:0" placeholder="" value="'+esc(d.occupation||'')+'">' +
+        '<input type="text" style="flex:1;min-width:0" placeholder="姓名" value="'+esc(d.name||'')+'" onblur="lookupName(this)">' +
+        '<input type="text" style="flex:1;min-width:0" placeholder="電話" value="'+esc(d.phone||'')+'" onblur="autoPhone(this)">' +
+        '<input type="text" style="flex:1;min-width:0" placeholder="身份證字號" value="'+esc(d.idNo||'')+'">' +
+        '<input type="text" style="flex:1;min-width:0" placeholder="職業" value="'+esc(d.occupation||'')+'">' +
         '<button type="button" class="c-del" onclick="this.parentElement.remove()">✕</button></div>';
     document.getElementById(listId).insertAdjacentHTML('beforeend', html);
 }
@@ -2872,9 +2899,9 @@ function addDPersonRow(data) {
     dPersonId++;
     var d = data || {};
     var html = '<div class="c-row" id="dp-'+dPersonId+'">' +
-        '<input type="text" style="flex:1;min-width:0" placeholder="" value="'+esc(d.name||'')+'" onblur="lookupName(this)">' +
-        '<input type="text" style="flex:1;min-width:0" placeholder="" value="'+esc(d.phone||'')+'" onblur="autoPhone(this)">' +
-        '<input type="text" style="flex:1;min-width:0" placeholder="" value="'+esc(d.idNo||'')+'">' +
+        '<input type="text" style="flex:1;min-width:0" placeholder="姓名" value="'+esc(d.name||'')+'" onblur="lookupName(this)">' +
+        '<input type="text" style="flex:1;min-width:0" placeholder="電話" value="'+esc(d.phone||'')+'" onblur="autoPhone(this)">' +
+        '<input type="text" style="flex:1;min-width:0" placeholder="身份證字號" value="'+esc(d.idNo||'')+'">' +
         '<button type="button" class="c-del" onclick="this.parentElement.remove()">✕</button></div>';
     document.getElementById('dPersonList').insertAdjacentHTML('beforeend', html);
 }
@@ -3032,10 +3059,10 @@ function addCContactRow(data) {
     cRowId++;
     var d = data || {};
     var html = '<div class="c-row" id="cc-'+cRowId+'">' +
-        '<input type="text" style="flex:1;min-width:0" placeholder="" value="'+esc(d.name||'')+'" onblur="lookupName(this)">' +
-        '<input type="text" style="flex:1;min-width:0" placeholder="" value="'+esc(d.phone||'')+'" onblur="autoPhone(this)">' +
-        '<input type="text" style="flex:1;min-width:0" placeholder="" value="'+esc(d.idNo||'')+'">' +
-        '<div class="roc-date-wrap" style="flex:1;min-width:0"><input type="text" placeholder="" style="min-width:0;flex:1" value="'+esc(d.birthday?isoToROC(d.birthday):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>' +
+        '<input type="text" style="flex:1;min-width:0" placeholder="姓名" value="'+esc(d.name||'')+'" onblur="lookupName(this)">' +
+        '<input type="text" style="flex:1;min-width:0" placeholder="電話" value="'+esc(d.phone||'')+'" onblur="autoPhone(this)">' +
+        '<input type="text" style="flex:1;min-width:0" placeholder="身份證字號" value="'+esc(d.idNo||'')+'">' +
+        '<div class="roc-date-wrap" style="flex:1;min-width:0"><input type="text" placeholder="生日" style="min-width:0;flex:1" value="'+esc(d.birthday?isoToROC(d.birthday):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>' +
         '<button type="button" class="c-del" onclick="this.parentElement.remove()">✕</button></div>';
     document.getElementById('cContactList').insertAdjacentHTML('beforeend', html);
 }
@@ -3044,8 +3071,8 @@ function addCAddrRow(data) {
     var d = data || {};
     var html = '<div class="c-row" id="ca-'+cRowId+'">' +
         '<select style="width:70px"><option value="住家"'+(d.type==='住家'?' selected':'')+'>住家</option><option value="公司"'+(d.type==='公司'?' selected':'')+'>公司</option><option value="戶籍"'+(d.type==='戶籍'?' selected':'')+'>戶籍</option><option value="其他"'+(d.type==='其他'?' selected':'')+'>其他</option></select>' +
-        '<input type="text" style="width:76px" placeholder="" value="'+esc(d.zip||'')+'">' +
-        '<input type="text" style="flex:1" placeholder="" value="'+esc(d.addr||'')+'">' +
+        '<input type="text" style="width:76px" placeholder="郵遞區號" value="'+esc(d.zip||'')+'">' +
+        '<input type="text" style="flex:1" placeholder="地址" value="'+esc(d.addr||'')+'">' +
         '<button type="button" class="c-del" onclick="this.parentElement.remove()">✕</button></div>';
     document.getElementById('cAddrList').insertAdjacentHTML('beforeend', html);
 }
