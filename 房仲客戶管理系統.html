@@ -3865,53 +3865,54 @@ function manualSync() {
 
 function cloudRestore() {
     if (!confirm('確定要從雲端還原？將覆蓋目前本機的所有資料。')) return;
-    var status = document.getElementById('cloudStatus');
-    status.textContent = '還原中…';
-    document.getElementById('btnRestore').disabled = true;
+    var statusEl = document.getElementById('cloudStatus');
+    var btnEl = document.getElementById('btnRestore');
+    if (statusEl) statusEl.textContent = '還原中…';
+    if (btnEl) btnEl.disabled = true;
 
     var cbName = 'cloudCb_' + Date.now();
     var script = document.createElement('script');
     window[cbName] = function(data) {
         try {
-            if (data.ok && data.payload) {
-                var raw = String(data.payload);
-
-                // 1. URL encoded: data=%7B...%7D
+            if (Array.isArray(data)) {
+                // doGet 直接回傳陣列
+                DB = data;
+                DB.forEach(function(c) { if (!c.types) c.types = c.type ? [c.type] : []; });
+                persist(); render();
+                if (statusEl) statusEl.textContent = '✅ 還原成功（共 ' + DB.length + ' 筆）';
+                alert('還原成功，共 ' + DB.length + ' 筆資料');
+            } else if (data && typeof data === 'object') {
+                // 可能是包裹格式
+                var raw = data.payload ? String(data.payload) : JSON.stringify(data);
                 if (raw.indexOf('data=') === 0 || raw.indexOf('payload=') === 0) {
-                    var eqPos = raw.indexOf('=');
-                    raw = decodeURIComponent(raw.substring(eqPos + 1));
+                    raw = decodeURIComponent(raw.substring(raw.indexOf('=') + 1));
                 }
-
-                // 2. 如果是 {action:backup, payload:"[...]"} 結構
-                try {
-                    var obj = JSON.parse(raw);
-                    if (obj && obj.payload && typeof obj.payload === 'string') raw = obj.payload;
-                } catch(e) {}
-
-                // 3. 處理轉義的引號 \" → "
+                try { var obj = JSON.parse(raw); if (obj && obj.payload && typeof obj.payload === 'string') raw = obj.payload; } catch(e) {}
                 if (raw.indexOf('\\"') >= 0) raw = raw.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
-
                 var restored = JSON.parse(raw);
                 if (!Array.isArray(restored)) throw new Error('資料格式錯誤');
                 DB = restored;
                 DB.forEach(function(c) { if (!c.types) c.types = c.type ? [c.type] : []; });
-                persist();
-                render();
-                status.textContent = '✅ 還原成功（' + (data.time||'') + '，共 ' + DB.length + ' 筆）';
+                persist(); render();
+                if (statusEl) statusEl.textContent = '✅ 還原成功（共 ' + DB.length + ' 筆）';
+                alert('還原成功，共 ' + DB.length + ' 筆資料');
             } else {
-                status.textContent = '⚠️ 雲端沒有備份資料';
+                if (statusEl) statusEl.textContent = '⚠️ 雲端沒有備份資料';
+                alert('雲端沒有備份資料');
             }
         } catch(err) {
-            status.textContent = '❌ 還原失敗：' + err.message;
+            if (statusEl) statusEl.textContent = '❌ 還原失敗：' + err.message;
+            alert('還原失敗：' + err.message);
         }
-        document.getElementById('btnRestore').disabled = false;
+        if (btnEl) btnEl.disabled = false;
         delete window[cbName];
         if (script.parentNode) script.parentNode.removeChild(script);
     };
     script.src = CLOUD_URL + '?callback=' + cbName + '&t=' + Date.now();
     script.onerror = function() {
-        status.textContent = '❌ 連線失敗';
-        document.getElementById('btnRestore').disabled = false;
+        if (statusEl) statusEl.textContent = '❌ 連線失敗';
+        if (btnEl) btnEl.disabled = false;
+        alert('連線失敗，請檢查網路');
         delete window[cbName];
         if (script.parentNode) script.parentNode.removeChild(script);
     };
