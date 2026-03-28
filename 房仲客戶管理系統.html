@@ -275,41 +275,6 @@
         .expire-banner .expire-item { cursor:pointer; padding: 3px 0; }
         .expire-banner .expire-item:hover { text-decoration: underline; }
 
-        /* Attachments */
-        .attach-zone { margin-top: 12px; border: 1.5px dashed var(--border); border-radius: 10px; padding: 10px 14px; background: #FAFAF8; }
-        .attach-zone .sec-title { margin: 0 0 8px; font-size: 13px; }
-        .attach-drop { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; border: 2px dashed #CBD5E1; border-radius: 8px; cursor: pointer; color: var(--muted); font-size: 13px; transition: all .15s; background: white; }
-        .attach-drop:hover { border-color: var(--wood); color: var(--wood); background: #F5F3F0; }
-        .attach-drop.dragover { border-color: var(--wood); background: #EDE8E0; }
-        .attach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-top: 8px; }
-        .attach-item { position: relative; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: white; cursor: pointer; }
-        .attach-thumb { width: 100%; height: 80px; object-fit: cover; display: block; }
-        .attach-file-icon { width: 100%; height: 80px; display: flex; align-items: center; justify-content: center; font-size: 32px; background: #F5F3F0; color: var(--muted); }
-        .attach-name { font-size: 11px; padding: 4px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
-        .attach-del { position: absolute; top: 2px; right: 2px; width: 20px; height: 20px; border-radius: 50%; background: rgba(0,0,0,0.5); color: white; border: none; cursor: pointer; font-size: 12px; line-height: 20px; text-align: center; display: none; }
-        .attach-item:hover .attach-del { display: block; }
-        .attach-uploading { opacity: 0.6; }
-        .attach-progress { position: absolute; bottom: 22px; left: 4px; right: 4px; height: 4px; background: #E2E8F0; border-radius: 2px; }
-        .attach-progress-bar { height: 100%; background: var(--wood); border-radius: 2px; transition: width .3s; animation: progress-pulse 1.5s ease-in-out infinite; }
-        @keyframes progress-pulse { 0%,100%{width:30%} 50%{width:80%} }
-        .attach-status { font-size: 10px; text-align: center; padding: 2px 4px; }
-        .attach-status.uploading { color: #92400E; background: #FEF3C7; }
-        .attach-status.success { color: #065F46; background: #D1FAE5; }
-        .attach-status.failed { color: #991B1B; background: #FEE2E2; cursor: pointer; font-weight: 600; }
-        .attach-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-        .attach-actions { display: flex; gap: 6px; }
-        .attach-actions button { padding: 3px 10px; border: 1px solid var(--border); border-radius: 6px; background: white; font-size: 11px; cursor: pointer; color: var(--muted); transition: all .12s; }
-        .attach-actions button:hover { border-color: #94A3B8; color: var(--text); }
-        .attach-actions button.danger:hover { border-color: #EF4444; color: #EF4444; }
-        .attach-item.selected { outline: 2px solid var(--wood); outline-offset: -2px; }
-        .attach-check { position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; accent-color: var(--wood); cursor: pointer; display: none; z-index: 2; }
-        .attach-zone.select-mode .attach-check { display: block; }
-        .attach-zone.select-mode .attach-del { display: none !important; }
-        .attach-zone.select-mode .attach-item { cursor: default; }
-        .det-attach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; margin-top: 6px; }
-        .det-attach-item { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; cursor: pointer; background: white; }
-        .det-attach-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-
         /* Dashboard */
         .dashboard { padding: 0; }
         .dash-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
@@ -1395,6 +1360,7 @@ const ARCHIVABLE = ['經營買方','庫存屋主','租案管理','商機募集']
 
 const TC = { '經營買方':'buyer','庫存屋主':'seller','租案管理':'rental','成交客戶':'closed','商機募集':'potential' };
 const TYPES = ['經營買方','庫存屋主','租案管理','成交客戶','商機募集'];
+var _ctEls = {}, _caEls = {};
 
 var CLOUD_URL = 'https://script.google.com/macros/s/AKfycbyKZfyP9__lWhLjsEtSvwrfZha-7mxeYzrfFCX0fDV7je4UPPOTAEJ1b1Gl0Q2rejpf/exec';
 var _syncTimer = null;
@@ -1421,11 +1387,27 @@ function autoSync() {
     input.style.display = 'none';
     form.appendChild(input);
     document.body.appendChild(form);
-    form.submit();
-    setTimeout(function() {
+    function cleanup() {
+        try { document.body.removeChild(iframe); } catch(e){}
+        try { document.body.removeChild(form); } catch(e){}
+    }
+    iframe.onload = function() {
         if (status) status.textContent = '☁️ 已同步 ' + new Date().toLocaleTimeString('zh-TW');
-        try { document.body.removeChild(iframe); document.body.removeChild(form); } catch(e){}
-    }, 3000);
+        cleanup();
+    };
+    iframe.onerror = function() {
+        if (status) status.textContent = '☁️ 同步失敗';
+        cleanup();
+    };
+    form.submit();
+    document.body.removeChild(form);
+    // Fallback timeout in case neither onload nor onerror fires
+    setTimeout(function() {
+        if (status && status.textContent === '☁️ 同步中…') {
+            status.textContent = '☁️ 已同步 ' + new Date().toLocaleTimeString('zh-TW');
+        }
+        try { document.body.removeChild(iframe); } catch(e){}
+    }, 10000);
 }
 
 // ── 封存 ──
@@ -2056,8 +2038,9 @@ function render() {
     TYPES.forEach(t => {
         var active = liveDB.filter(c => hasType(c,t) && !c.archived).length;
         var arch = liveDB.filter(c => hasType(c,t) && c.archived).length;
-        document.getElementById('ct-'+t).textContent = active;
-        var archEl = document.getElementById('ca-'+t);
+        var ctEl = _ctEls[t] || (_ctEls[t] = document.getElementById('ct-'+t));
+        if (ctEl) ctEl.textContent = active;
+        var archEl = _caEls[t] || (_caEls[t] = document.getElementById('ca-'+t));
         if (archEl) archEl.textContent = arch ? '（封存 '+arch+'）' : '';
     });
     // 封存切換按鈕：僅在可封存的類型頁面顯示
