@@ -2193,7 +2193,7 @@ function renderCard(c) {
             </div>
             <div class="card-bottom-right">
                 <div style="display:flex;gap:6px">
-                    <button class="btn-ic" onclick="event.stopPropagation();openDriveFolder('${c.id}')" oncontextmenu="event.preventDefault();event.stopPropagation();setDriveFolder('${c.id}')" title="${c.driveFolderUrl ? '開啟雲端資料夾（右鍵重新指定）' : '指定雲端資料夾'}">${c.driveFolderUrl ? '📁' : '<span style="opacity:0.3">📁</span>'}</button>
+                    <button class="btn-ic" onclick="event.stopPropagation();openDriveFolder('${c.id}')" oncontextmenu="event.preventDefault();event.stopPropagation();setDriveFolder('${c.id}')" title="${c.driveFolderUrl ? '開啟雲端資料夾（右鍵重新指定）' : '指定雲端資料夾'}">${c.driveFolderUrl ? '📂' : '<span style="opacity:0.3">📁</span>'}</button>
                     <button class="btn-ic" onclick="event.stopPropagation();openEdit('${c.id}','${c._viewAs||''}')" title="編輯">✏️</button>
                     ${archBtn}
                     <button class="btn-ic del" onclick="event.stopPropagation();del('${c.id}')" title="刪除">🗑️</button>
@@ -2407,7 +2407,7 @@ function showDet(id, viewAs) {
                 ${c.created ? `<span style="font-size:12px;color:var(--muted)">建檔${esc(isoToROC((c.created||'').slice(0,10)))}</span>` : ''}
                 <div style="display:flex;align-items:center;gap:4px;margin:0 auto" id="detNavWrap"></div>
                 <div style="display:flex;gap:12px;align-items:center">
-                    <button class="btn-ic" onclick="openDriveFolder('${c.id}')" title="${c.driveFolderUrl ? '開啟雲端資料夾（右鍵可重新指定）' : '指定雲端資料夾'}" oncontextmenu="event.preventDefault();setDriveFolder('${c.id}')" style="font-size:20px;padding:6px 10px">${c.driveFolderUrl ? '📁' : '<span style="opacity:0.3">📁</span>'}</button>
+                    <button class="btn-ic" onclick="openDriveFolder('${c.id}')" title="${c.driveFolderUrl ? '開啟雲端資料夾（右鍵可重新指定）' : '指定雲端資料夾'}" oncontextmenu="event.preventDefault();setDriveFolder('${c.id}')" style="font-size:20px;padding:6px 10px">${c.driveFolderUrl ? '📂' : '<span style="opacity:0.3">📁</span>'}</button>
                     <button class="btn-ic" onclick="closeDet();openEdit('${c.id}','${detViewAs}')" title="編輯" style="font-size:20px;padding:6px 10px">✏️</button>
                     <button class="btn-ic del" onclick="closeDet();del('${c.id}')" title="刪除" style="font-size:20px;padding:6px 10px">🗑️</button>
                     <div style="width:12px"></div>
