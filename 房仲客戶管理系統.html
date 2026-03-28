@@ -2002,7 +2002,7 @@ function render() {
     if (showThisMonthMode) document.getElementById('filterTitle').textContent = '本月新增';
     document.getElementById('dashboard').style.display = isDashboard ? 'block' : 'none';
     document.getElementById('grid').style.display = isDashboard ? 'none' : '';
-    document.getElementById('sortSel').style.display = (isDashboard || curFilter === '租案管理') ? 'none' : '';
+    document.getElementById('sortSel').style.display = (isDashboard || curFilter === '租案管理' || curFilter === '成交客戶') ? 'none' : '';
     if (isDashboard) { renderDashboard(); return; }
 
     // 到期提醒
