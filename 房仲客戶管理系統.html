@@ -366,11 +366,10 @@
 
             /* 表單：兩欄改單欄 */
             .form-row { grid-template-columns: 1fr !important; }
-            #s-經營買方 .form-row { grid-template-columns: 1fr 1fr !important; }
+            #emailSourceRow { grid-template-columns: 1fr 1fr !important; }
             .fg.full { grid-column: 1; }
-            #namePhoneIdRow { flex-wrap: wrap !important; }
-            #namePhoneIdRow > div:first-child { flex: 1 1 100% !important; }
-            #namePhoneIdRow > div:nth-child(2), #namePhoneIdRow > div:nth-child(3) { flex: 1 1 45% !important; }
+            #namePhoneIdRow { flex-wrap: nowrap !important; flex-direction: row !important; gap: 6px !important; }
+            #namePhoneIdRow > div { flex: 1 !important; min-width: 0 !important; }
 
             /* 標題列隱藏，改用 placeholder */
             .c-row:has(> span:first-child) { display: none !important; }
@@ -717,7 +716,7 @@
                     <input id="f-idNo" placeholder="">
                 </div>
             </div>
-            <div class="form-row">
+            <div class="form-row" id="emailSourceRow">
                 <div class="fg" id="emailGroup">
                     <label>Email</label>
                     <input id="fe" type="email" placeholder="">
@@ -2408,7 +2407,7 @@ function showDet(id, viewAs) {
             <div style="display:flex;align-items:center;width:100%">
                 ${c.created ? `<span style="font-size:12px;color:var(--muted)">建檔${esc(isoToROC((c.created||'').slice(0,10)))}</span>` : ''}
                 <div style="display:flex;align-items:center;gap:4px;margin:0 auto" id="detNavWrap"></div>
-                <div style="display:flex;gap:12px;align-items:center">
+                <div style="display:flex;gap:12px;align-items:center;margin-left:auto">
                     <button class="btn-ic" onclick="openDriveFolder('${c.id}')" title="${c.driveFolderUrl ? '開啟雲端資料夾（右鍵可重新指定）' : '指定雲端資料夾'}" oncontextmenu="event.preventDefault();setDriveFolder('${c.id}')" style="font-size:20px;padding:6px 10px">${c.driveFolderUrl ? '📂' : '<span style="opacity:0.3">📁</span>'}</button>
                     <button class="btn-ic" onclick="closeDet();openEdit('${c.id}','${detViewAs}')" title="編輯" style="font-size:20px;padding:6px 10px">✏️</button>
                     <button class="btn-ic del" onclick="closeDet();del('${c.id}')" title="刪除" style="font-size:20px;padding:6px 10px">🗑️</button>
