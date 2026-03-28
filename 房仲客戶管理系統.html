@@ -359,45 +359,34 @@
             .modal-body { padding: 14px 12px; box-sizing: border-box; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
             .modal-head { border-radius: 0; }
 
-            /* 表單：所有欄位強制單欄全寬 */
+            /* 表單：兩欄改單欄 */
             .form-row { grid-template-columns: 1fr !important; }
             .fg.full { grid-column: 1; }
             #namePhoneIdRow { flex-direction: column !important; gap: 8px; }
 
-            /* type-sec 內所有 flex 橫排改直排 */
-            .type-sec > div[style*="display:flex"],
-            .type-sec > div[style*="display:grid"],
-            .type-sec .form-row { display: flex !important; flex-direction: column !important; gap: 8px; }
-
-            /* c-row (人員列) 改成兩欄換行 */
-            .c-row { flex-wrap: wrap !important; gap: 6px !important; }
+            /* c-row (人員列) 兩欄換行 */
+            .c-row { flex-wrap: wrap !important; gap: 6px !important; position: relative; padding-right: 22px; }
             .c-row input[type="text"] { flex: 1 1 45% !important; min-width: 0 !important; box-sizing: border-box; }
             .c-row select { flex: 1 1 45% !important; min-width: 0 !important; }
-            .c-row .c-del { position: absolute; right: -2px; top: -2px; }
-            .c-row { position: relative; padding-right: 20px; }
+            .c-row .c-del { position: absolute; right: 0; top: 0; }
 
             /* 庫存坪數/車位改直排 */
             #szParkingRow { flex-direction: column !important; }
             #szParkingRow > .fg { flex: none !important; width: 100% !important; min-width: 0 !important; }
 
-            /* 租案：租金/坪數/車位等那排改直排 */
-            .type-sec > div[style*="grid-template-columns"] { display: flex !important; flex-direction: column !important; gap: 8px !important; }
+            /* 管理費兩欄換行 */
+            .fg.full > div[style*="flex-wrap"] { gap: 8px !important; }
+            .fg.full > div[style*="flex-wrap"] > div { flex: 1 1 45% !important; min-width: 60px !important; }
 
-            /* 管理費改成兩欄 */
-            .fg.full > div { flex-wrap: wrap !important; gap: 6px !important; }
-            .fg.full > div > div { flex: 1 1 45% !important; min-width: 60px !important; }
-
-            /* 成交物件內部欄位 */
+            /* 成交物件內部 */
             .deal-row { flex-wrap: wrap !important; }
-            .deal-row > .fg { flex: 1 1 100% !important; }
+            .deal-row > .fg { flex: 1 1 100% !important; min-width: 0 !important; }
 
-            /* 輸入框放大 */
-            .modal-body input, .modal-body select, .modal-body textarea {
-                font-size: 16px !important; /* 防 iOS 自動放大 */
-                padding: 10px !important;
-            }
-            .input-grp input { padding: 10px 8px !important; }
-            .input-sfx { font-size: 14px !important; padding: 10px 8px !important; }
+            /* 防 iOS 自動縮放 */
+            .modal-body input, .modal-body select, .modal-body textarea { font-size: 16px !important; }
+
+            /* input-grp 不換行 */
+            .input-grp { flex-wrap: nowrap !important; flex-direction: row !important; }
 
             /* 預覽 Modal */
             #dModal { padding-top: 0 !important; }
