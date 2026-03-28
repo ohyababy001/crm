@@ -377,6 +377,7 @@
 
             /* 手機底部導航 */
             .mobile-nav { display: flex !important; }
+            .mobile-nav.hide-nav { display: none !important; }
             .main { padding-bottom: 70px; }
         }
 
@@ -3883,7 +3884,7 @@ function cloudRestore() {
     document.body.appendChild(script);
 }
 </script>
-<nav class="mobile-nav" id="mobileNav">
+<nav class="mobile-nav" id="mobileNav" style="z-index:150">
     <button onclick="mobileFilter('all')" id="mnav-all" class="active"><span class="nav-icon">📋</span>總覽</button>
     <button onclick="mobileFilter('經營買方')" id="mnav-經營買方"><span class="nav-icon">🏠</span>買方</button>
     <button onclick="mobileFilter('庫存屋主')" id="mnav-庫存屋主"><span class="nav-icon">🏢</span>屋主</button>
@@ -3896,10 +3897,23 @@ function mobileFilter(type) {
     document.querySelectorAll('.mobile-nav button').forEach(function(b){ b.classList.remove('active'); });
     var btn = document.getElementById('mnav-'+type);
     if (btn) btn.classList.add('active');
-    // 呼叫原有的 setFilter
     var sideBtn = document.querySelector('.filter-btn');
     setFilter(type, sideBtn);
 }
+// 有 modal 打開時隱藏底部導航
+var _mnavObs = new MutationObserver(function() {
+    var nav = document.getElementById('mobileNav');
+    if (!nav) return;
+    var anyOpen = document.querySelectorAll('.overlay');
+    var visible = false;
+    anyOpen.forEach(function(o) { if (o.style.display === 'flex') visible = true; });
+    nav.style.display = visible ? 'none' : '';
+});
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.overlay').forEach(function(o) {
+        _mnavObs.observe(o, { attributes: true, attributeFilter: ['style'] });
+    });
+});
 </script>
 <script>
 if ('serviceWorker' in navigator) {
