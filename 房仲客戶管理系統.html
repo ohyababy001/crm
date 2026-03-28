@@ -366,8 +366,11 @@
 
             /* 表單：兩欄改單欄 */
             .form-row { grid-template-columns: 1fr !important; }
+            #s-經營買方 .form-row { grid-template-columns: 1fr 1fr !important; }
             .fg.full { grid-column: 1; }
-            #namePhoneIdRow { flex-direction: column !important; gap: 8px; }
+            #namePhoneIdRow { flex-wrap: wrap !important; }
+            #namePhoneIdRow > div:first-child { flex: 1 1 100% !important; }
+            #namePhoneIdRow > div:nth-child(2), #namePhoneIdRow > div:nth-child(3) { flex: 1 1 45% !important; }
 
             /* 標題列隱藏，改用 placeholder */
             .c-row:has(> span:first-child) { display: none !important; }
@@ -381,7 +384,7 @@
             .c-row .roc-date-wrap input { flex: 1 !important; min-width: 50px !important; }
 
             /* 三地址：select 縮小，地址放大 */
-            #bAddrList .c-row select { flex: 0 0 60px !important; }
+            #bAddrList .c-row select { flex: 0 0 70px !important; }
             #bAddrList .c-row input { flex: 1 1 calc(100% - 70px) !important; }
 
             /* 成交地址：類型縮小，郵遞區號縮小，地址放大 */
@@ -390,7 +393,7 @@
             #cAddrList .c-row input:last-of-type { flex: 1 !important; }
 
             /* 租案社區縮小，地址放大 */
-            #rentalAddrRow { grid-template-columns: 1fr 2fr !important; }
+            #rentalAddrRow { grid-template-columns: 1fr 2.5fr !important; }
 
             /* 房型需求：每排 4 個 */
             .room-picker { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 6px !important; }
@@ -399,29 +402,28 @@
             /* 附屬設備改三欄 */
             .equip-item { width: calc(33.3% - 6px) !important; }
 
-            /* 良民證換行到租補下方 */
-            .cond-btn[onclick*="GoodCitizen"] { order: -1; }
 
-            /* 庫存坪數/車位改直排 */
-            #szParkingRow { flex-direction: column !important; }
-            #szParkingRow > .fg { flex: none !important; width: 100% !important; min-width: 0 !important; }
+            /* 庫存坪數並排/車位獨立 */
+            #szParkingRow { flex-direction: row !important; flex-wrap: wrap !important; }
+            #szParkingRow > .fg:nth-child(1), #szParkingRow > .fg:nth-child(2) { flex: 1 1 45% !important; width: auto !important; }
+            #szParkingRow > .fg:nth-child(3) { flex: 1 1 100% !important; width: 100% !important; }
 
-            /* 庫存基本：姓名/電話一排，身份證獨立一排 */
+            /* 庫存基本：姓名/電話一排 */
             #sellerBasicRow1 { grid-template-columns: 1fr 1fr !important; }
-            /* 庫存生日/地址 */
-            #sellerBasicRow2 { grid-template-columns: 1fr 2fr !important; }
+            /* 庫存身份證/生日並排 */
+            #sellerBasicRow2 { grid-template-columns: 1fr 1fr !important; }
             /* 庫存社區/地址 */
-            #sellerAddrRow { grid-template-columns: 1fr 2fr !important; }
-            /* 庫存開價/底價/服務費改兩欄 */
-            #sellerPriceRow { flex-wrap: wrap !important; gap: 8px !important; }
-            #sellerPriceRow > .fg { flex: 1 1 45% !important; min-width: 0 !important; }
+            #sellerAddrRow { grid-template-columns: 1fr 2.5fr !important; }
+            /* 庫存開價/底價/服務費改三欄 */
+            #sellerPriceRow { flex-direction: row !important; flex-wrap: nowrap !important; }
+            #sellerPriceRow > .fg { flex: 1 !important; }
             /* 庫存合約日期 */
             #sellerContractRow { grid-template-columns: 1fr 1fr !important; }
 
-            /* 經營買方預算改直排 */
-            #budgetRow { flex-direction: column !important; gap: 8px !important; }
-            #budgetRow > .fg { flex: none !important; width: 100% !important; }
-            #budgetRow > span { display: none; }
+            /* 經營買方預算改橫排 */
+            #budgetRow { flex-wrap: nowrap !important; flex-direction: row !important; }
+            #budgetRow > .fg { flex: 1 !important; }
+            #budgetRow > span { display: inline !important; }
 
             /* 管理費兩欄換行 */
             .fg.full > div[style*="flex-wrap"], .fg.full > div[style*="flex:"] { flex-wrap: wrap !important; gap: 8px !important; }
@@ -432,9 +434,9 @@
             .deal-row { flex-wrap: wrap !important; }
             .deal-row > .fg { flex: 1 1 100% !important; min-width: 0 !important; }
 
-            /* 附屬設備 grid 改兩欄 */
+            /* 附屬設備 grid 改三欄 */
             .equip-grid { gap: 4px 8px !important; }
-            .equip-item { width: calc(50% - 6px) !important; }
+            .equip-item { width: calc(33.3% - 6px) !important; }
 
             /* 租案租金/坪數/車位改兩欄 */
             #rentalInfoRow { grid-template-columns: 1fr 1fr !important; }
@@ -462,8 +464,8 @@
             /* form-row 間距縮小 */
             .form-row { gap: 8px !important; }
 
-            /* 設備清單兩欄 */
-            .equip-item { width: calc(50% - 4px) !important; }
+            /* 設備清單三欄 */
+            .equip-item { width: calc(33.3% - 4px) !important; }
             #equipCustomList .c-row > div { width: calc(50% - 3px) !important; }
 
             /* textarea 高度 */
@@ -799,13 +801,15 @@
             <!-- 庫存屋主 -->
             <div class="type-sec" id="s-庫存屋主">
                 <!-- 屋主基本資料 -->
-                <div id="sellerBasicRow1" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px">
+                <div id="sellerBasicRow1" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span></label><input id="f-sName" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-sPhone" placeholder="" onblur="autoPhone(this)"></div>
-                    <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-sIdNo" placeholder=""></div>
                 </div>
-                <div id="sellerBasicRow2" style="display:grid;grid-template-columns:1fr 3fr;gap:10px;margin-bottom:6px">
+                <div id="sellerBasicRow2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px">
+                    <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-sIdNo" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-sBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
+                </div>
+                <div id="sellerBasicRow3" style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-sOwnerAddr" placeholder=""></div>
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
@@ -897,8 +901,8 @@
                         </div>
                     </div>
                     <div id="sellerContractRow" class="fg full" style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;margin-bottom:10px">
-                        <div class="fg" style="margin-bottom:0"><label>合約立約日</label><div class="roc-date-wrap"><input id="f-contractStart" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
-                        <div class="fg" style="margin-bottom:0"><label>合約到期日</label><div class="roc-date-wrap"><input id="f-contractEnd" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
+                        <div class="fg" style="margin-bottom:0"><label>立約日</label><div class="roc-date-wrap"><input id="f-contractStart" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
+                        <div class="fg" style="margin-bottom:0"><label>到期日</label><div class="roc-date-wrap"><input id="f-contractEnd" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                         <button type="button" class="bf-chip" onclick="renewContract()" style="padding:7px 14px;font-size:13px;white-space:nowrap;margin-bottom:1px">續約</button>
                     </div>
                     <div class="fg full" id="sRenewalHistory" style="display:none;margin-bottom:10px">
@@ -1573,7 +1577,7 @@ var FIELD_LABELS = {
     name:'姓名', phone:'電話', idNo:'身份證字號', email:'Email', status:'跟進狀態', source:'來源', notes:'備註',
     contractType:'約種', community:'社區大樓', sAddr:'物件地址', sPrice:'開價', sFloorPrice:'底價',
     sLandSz:'土地坪數', sSz:'建物坪數', layout:'格局', parking:'車位類型', parkingPrice:'車位價格', parkingNo:'車位編號',
-    contractStart:'合約立約日', contractEnd:'合約到期日',
+    contractStart:'立約日', contractEnd:'到期日',
     budget:'預算', roomTypes:'房型需求', areaDisplay:'需求區域', floor:'樓層', bOther:'三地址',
     want:'想要', noWant:'不想要',
     rLandlord:'房東姓名', rLandlordPhone:'房東電話', rTenant:'租客姓名', rTenantPhone:'租客電話',
@@ -2245,7 +2249,7 @@ function typeDetail(c) {
             dRow('土地坪數',c.sLandSz ? c.sLandSz + (c.sLandSz.includes('坪')?'':'坪') : ''),
             dRow('建物坪數',c.sSz ? c.sSz + (c.sSz.includes('坪')?'':'坪') : ''), dRow('格局',c.layout),
             dRow('車位',c.parking), dRow('車位價格', c.parkingPrice ? c.parkingPrice+(c.parkingPrice.includes('萬')?'':'萬') : ''), dRow('車位編號',c.parkingNo),
-            dRow('合約立約日',isoToROC(c.contractStart)), dRow('合約到期日',isoToROC(c.contractEnd))
+            dRow('立約日',isoToROC(c.contractStart)), dRow('到期日',isoToROC(c.contractEnd))
         ];
         // 管理費明細
         var mgmtParts = [];
@@ -2529,7 +2533,7 @@ function cancelMsg() { if (_msgCancelFn) _msgCancelFn(); closeMsgModal(); }
 var sRenewals = [];
 function renewContract() {
     var oldEnd = document.getElementById('f-contractEnd').value;
-    if (!oldEnd) { alert('請先填寫合約到期日'); return; }
+    if (!oldEnd) { alert('請先填寫到期日'); return; }
 
     // 用一個隱藏的 input 當 calTarget
     var fakeInput = document.createElement('input');
