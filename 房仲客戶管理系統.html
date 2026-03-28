@@ -406,7 +406,7 @@
             .room-picker .rm-btn { width: 100% !important; text-align: center; padding: 8px 4px !important; }
 
             /* 附屬設備改三欄 */
-            .equip-item { width: calc(33.3% - 6px) !important; }
+            .equip-item { width: calc(50% - 6px) !important; }
 
 
             /* 庫存坪數並排/車位獨立 */
@@ -456,7 +456,7 @@
 
             /* 附屬設備 grid 改三欄 */
             .equip-grid { gap: 4px 8px !important; }
-            .equip-item { width: calc(33.3% - 6px) !important; }
+            .equip-item { width: calc(50% - 6px) !important; }
 
             /* 租案租金/坪數/車位改兩欄 */
             #rentalInfoRow { grid-template-columns: 1fr 1fr !important; }
@@ -485,7 +485,7 @@
             .form-row { gap: 8px !important; }
 
             /* 設備清單三欄 */
-            .equip-item { width: calc(33.3% - 4px) !important; }
+            .equip-item { width: calc(50% - 4px) !important; }
             #equipCustomList .c-row > div { width: calc(50% - 3px) !important; }
 
             /* textarea 高度 */
@@ -958,15 +958,17 @@
                         <input type="checkbox" id="f-rSubsidy" style="display:none">
                         <input type="checkbox" id="f-rSocialHouse" style="display:none">
                         <input type="checkbox" id="f-rRegister" style="display:none">
+                        <input type="checkbox" id="f-rTax" style="display:none">
                         <input type="checkbox" id="f-rPet" style="display:none">
                         <input type="checkbox" id="f-rAltar" style="display:none">
                         <input type="checkbox" id="f-rGoodCitizen" style="display:none">
                         <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rSubsidy')" style="padding:4px 12px;font-size:13px">租補</button>
                         <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rSocialHouse')" style="padding:4px 12px;font-size:13px">社宅</button>
                         <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rRegister')" style="padding:4px 12px;font-size:13px">設籍</button>
+                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rTax')" style="padding:4px 12px;font-size:13px">報稅</button>
                         <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rPet')" style="padding:4px 12px;font-size:13px">寵物</button>
-                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rAltar')" style="padding:4px 12px;font-size:13px">神明桌</button>
-                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rGoodCitizen')" style="padding:4px 12px;font-size:13px">良民證</button>
+                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rAltar')" style="padding:4px 12px;font-size:13px">神桌</button>
+                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rGoodCitizen')" style="padding:4px 12px;font-size:13px">良民</button>
                     </div>
                     <div class="c-row c-row-header" style="margin-bottom:2px">
                         <span style="flex:1;font-size:13px;color:var(--text);font-weight:600;min-width:0;padding-left:11px">姓名</span>
@@ -993,15 +995,17 @@
                         <input type="checkbox" id="f-rSubsidy2" style="display:none">
                         <input type="checkbox" id="f-rSocialHouse2" style="display:none">
                         <input type="checkbox" id="f-rRegister2" style="display:none">
+                        <input type="checkbox" id="f-rTax2" style="display:none">
                         <input type="checkbox" id="f-rPet2" style="display:none">
                         <input type="checkbox" id="f-rAltar2" style="display:none">
                         <input type="checkbox" id="f-rGoodCitizen2" style="display:none">
                         <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rSubsidy2')" style="padding:4px 12px;font-size:13px">租補</button>
                         <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rSocialHouse2')" style="padding:4px 12px;font-size:13px">社宅</button>
                         <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rRegister2')" style="padding:4px 12px;font-size:13px">設籍</button>
+                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rTax2')" style="padding:4px 12px;font-size:13px">報稅</button>
                         <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rPet2')" style="padding:4px 12px;font-size:13px">寵物</button>
-                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rAltar2')" style="padding:4px 12px;font-size:13px">神明桌</button>
-                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rGoodCitizen2')" style="padding:4px 12px;font-size:13px">良民證</button>
+                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rAltar2')" style="padding:4px 12px;font-size:13px">神桌</button>
+                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rGoodCitizen2')" style="padding:4px 12px;font-size:13px">良民</button>
                     </div>
                     <div class="c-row c-row-header" style="margin-bottom:2px">
                         <span style="flex:1;font-size:13px;color:var(--text);font-weight:600;min-width:0;padding-left:11px">姓名</span>
@@ -2298,8 +2302,8 @@ function typeDetail(c) {
         tts.forEach(function(p){ rows.push(dRow('租客', (p.name||'')+(p.phone?'　'+p.phone:'')+(p.idNo?'　'+p.idNo:'')+(p.occupation?'　'+p.occupation:''))); });
         rows = rows.concat([dRow('來源',c.rSource),
             dRow('社區大樓',c.rCommunity),
-            dRow('房東條件', [c.rSubsidy?'租補':'',c.rSocialHouse?'社宅':'',c.rRegister?'設籍':'',c.rPet?'寵物':'',c.rAltar?'神明桌':''].filter(Boolean).join('、')),
-            dRow('租客條件', [c.rSubsidy2?'租補':'',c.rSocialHouse2?'社宅':'',c.rRegister2?'設籍':'',c.rPet2?'寵物':'',c.rAltar2?'神明桌':''].filter(Boolean).join('、')),
+            dRow('房東條件', [c.rSubsidy?'租補':'',c.rSocialHouse?'社宅':'',c.rRegister?'設籍':'',c.rTax?'報稅':'',c.rPet?'寵物':'',c.rAltar?'神桌':'',c.rGoodCitizen?'良民':''].filter(Boolean).join('、')),
+            dRow('租客條件', [c.rSubsidy2?'租補':'',c.rSocialHouse2?'社宅':'',c.rRegister2?'設籍':'',c.rTax2?'報稅':'',c.rPet2?'寵物':'',c.rAltar2?'神桌':'',c.rGoodCitizen2?'良民':''].filter(Boolean).join('、')),
             (c.rEquipment && Object.keys(c.rEquipment).length ? dRow('附屬設備', Object.keys(c.rEquipment).map(function(k){ return k+' '+c.rEquipment[k]; }).join('、')) : ''),
             dRow('物件地址',c.rAddr),
             dRow('租金',c.rent ? c.rent+(c.rent.includes('元')?'':'元')+(c.rRentPeriod?'／'+c.rRentPeriod:'') : ''),
@@ -3425,7 +3429,7 @@ function resetForm() {
     document.getElementById('f-rParking').value = '';
     document.getElementById('rParkingNoGroup').style.display = 'none';
     document.getElementById('f-rRentPeriod').value = '月繳';
-    ['f-rSubsidy','f-rSocialHouse','f-rRegister','f-rPet','f-rAltar','f-rGoodCitizen','f-rSubsidy2','f-rSocialHouse2','f-rRegister2','f-rPet2','f-rAltar2','f-rGoodCitizen2'].forEach(function(id){ var el=document.getElementById(id); if(el) el.checked=false; });
+    ['f-rSubsidy','f-rSocialHouse','f-rRegister','f-rTax','f-rPet','f-rAltar','f-rGoodCitizen','f-rSubsidy2','f-rSocialHouse2','f-rRegister2','f-rTax2','f-rPet2','f-rAltar2','f-rGoodCitizen2'].forEach(function(id){ var el=document.getElementById(id); if(el) el.checked=false; });
     syncCondBtns();
     activeRentalTab = '房東';
     var rh = document.getElementById('rRenewalHistory'); if(rh) rh.style.display='none';
@@ -3546,11 +3550,13 @@ function openEdit(id, viewAs) {
     document.getElementById('f-rSubsidy').checked = !!c.rSubsidy;
     document.getElementById('f-rSocialHouse').checked = !!c.rSocialHouse;
     document.getElementById('f-rRegister').checked = !!c.rRegister;
+    document.getElementById('f-rTax').checked = !!c.rTax;
     document.getElementById('f-rPet').checked = !!c.rPet;
     document.getElementById('f-rAltar').checked = !!c.rAltar;
     document.getElementById('f-rSubsidy2').checked = !!c.rSubsidy2;
     document.getElementById('f-rSocialHouse2').checked = !!c.rSocialHouse2;
     document.getElementById('f-rRegister2').checked = !!c.rRegister2;
+    document.getElementById('f-rTax2').checked = !!c.rTax2;
     document.getElementById('f-rPet2').checked = !!c.rPet2;
     document.getElementById('f-rAltar2').checked = !!c.rAltar2;
     document.getElementById('f-rGoodCitizen').checked = !!c.rGoodCitizen;
@@ -3747,11 +3753,13 @@ function saveClient() {
         rSubsidy:document.getElementById('f-rSubsidy').checked,
         rSocialHouse:document.getElementById('f-rSocialHouse').checked,
         rRegister:document.getElementById('f-rRegister').checked,
+        rTax:document.getElementById('f-rTax').checked,
         rPet:document.getElementById('f-rPet').checked,
         rAltar:document.getElementById('f-rAltar').checked,
         rSubsidy2:document.getElementById('f-rSubsidy2').checked,
         rSocialHouse2:document.getElementById('f-rSocialHouse2').checked,
         rRegister2:document.getElementById('f-rRegister2').checked,
+        rTax2:document.getElementById('f-rTax2').checked,
         rPet2:document.getElementById('f-rPet2').checked,
         rAltar2:document.getElementById('f-rAltar2').checked,
         rGoodCitizen:document.getElementById('f-rGoodCitizen').checked,
