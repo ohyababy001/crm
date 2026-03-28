@@ -919,11 +919,13 @@
                             </div>
                         </div>
                     </div>
-                    <div id="sellerContractRow" style="display:grid;grid-template-columns:3fr 3fr 1fr;gap:8px;align-items:end;margin-bottom:10px">
-                        <div class="fg" style="margin-bottom:0"><label>立約日</label><div class="roc-date-wrap"><input id="f-contractStart" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
-                        <div class="fg" style="margin-bottom:0"><label>到期日</label><div class="roc-date-wrap"><input id="f-contractEnd" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
-                        <button type="button" class="bf-chip" onclick="renewContract()" style="padding:10px 18px;font-size:15px;text-align:center;white-space:nowrap">續約</button>
-                    </div>
+                </div>
+                <div id="sellerContractRow" style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;margin-bottom:10px;width:100%">
+                    <div class="fg" style="margin-bottom:0"><label>立約日</label><div class="roc-date-wrap"><input id="f-contractStart" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
+                    <div class="fg" style="margin-bottom:0"><label>到期日</label><div class="roc-date-wrap"><input id="f-contractEnd" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
+                    <button type="button" class="bf-chip" onclick="renewContract()" style="padding:10px 18px;font-size:15px;text-align:center;white-space:nowrap">續約</button>
+                </div>
+                <div class="form-row">
                     <div class="fg full" id="sRenewalHistory" style="display:none;margin-bottom:10px">
                         <label>到期日歷程</label>
                         <div id="sRenewalList" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div>
