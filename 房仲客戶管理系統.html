@@ -953,8 +953,8 @@
                         <button type="button" class="bf-chip rll-type" onclick="toggleRoleType('landlord','成交客戶',this)" style="padding:4px 12px;font-size:13px">成交客戶</button>
                         <button type="button" class="bf-chip rll-type" onclick="toggleRoleType('landlord','商機募集',this)" style="padding:4px 12px;font-size:13px">商機募集</button>
                     </div>
-                    <div style="display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
-                        <span style="font-size:15px;color:var(--text);line-height:30px;font-weight:700">租屋條件：</span>
+                    <div style="display:flex;margin-bottom:14px;align-items:flex-start">
+                        <span style="font-size:15px;color:var(--text);line-height:30px;font-weight:700;flex-shrink:0">租屋條件：</span>
                         <input type="checkbox" id="f-rSubsidy" style="display:none">
                         <input type="checkbox" id="f-rSocialHouse" style="display:none">
                         <input type="checkbox" id="f-rRegister" style="display:none">
@@ -962,13 +962,15 @@
                         <input type="checkbox" id="f-rPet" style="display:none">
                         <input type="checkbox" id="f-rAltar" style="display:none">
                         <input type="checkbox" id="f-rGoodCitizen" style="display:none">
-                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rSubsidy')" style="padding:4px 12px;font-size:13px">租補</button>
-                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rSocialHouse')" style="padding:4px 12px;font-size:13px">社宅</button>
-                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rRegister')" style="padding:4px 12px;font-size:13px">設籍</button>
-                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rTax')" style="padding:4px 12px;font-size:13px">報稅</button>
-                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rPet')" style="padding:4px 12px;font-size:13px">寵物</button>
-                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rAltar')" style="padding:4px 12px;font-size:13px">神桌</button>
-                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rGoodCitizen')" style="padding:4px 12px;font-size:13px">良民</button>
+                        <div style="display:flex;gap:4px;flex-wrap:wrap">
+                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rSubsidy')" style="padding:4px 12px;font-size:13px">租補</button>
+                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rSocialHouse')" style="padding:4px 12px;font-size:13px">社宅</button>
+                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rRegister')" style="padding:4px 12px;font-size:13px">設籍</button>
+                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rTax')" style="padding:4px 12px;font-size:13px">報稅</button>
+                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rPet')" style="padding:4px 12px;font-size:13px">寵物</button>
+                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rAltar')" style="padding:4px 12px;font-size:13px">神桌</button>
+                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rGoodCitizen')" style="padding:4px 12px;font-size:13px">良民</button>
+                        </div>
                     </div>
                     <div class="c-row c-row-header" style="margin-bottom:2px">
                         <span style="flex:1;font-size:13px;color:var(--text);font-weight:600;min-width:0;padding-left:11px">姓名</span>
@@ -990,8 +992,8 @@
                         <button type="button" class="bf-chip rtt-type" onclick="toggleRoleType('tenant','成交客戶',this)" style="padding:4px 12px;font-size:13px">成交客戶</button>
                         <button type="button" class="bf-chip rtt-type" onclick="toggleRoleType('tenant','商機募集',this)" style="padding:4px 12px;font-size:13px">商機募集</button>
                     </div>
-                    <div style="display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
-                        <span style="font-size:15px;color:var(--text);line-height:30px;font-weight:700">租屋條件：</span>
+                    <div style="display:flex;margin-bottom:14px;align-items:flex-start">
+                        <span style="font-size:15px;color:var(--text);line-height:30px;font-weight:700;flex-shrink:0">租屋條件：</span>
                         <input type="checkbox" id="f-rSubsidy2" style="display:none">
                         <input type="checkbox" id="f-rSocialHouse2" style="display:none">
                         <input type="checkbox" id="f-rRegister2" style="display:none">
@@ -999,13 +1001,15 @@
                         <input type="checkbox" id="f-rPet2" style="display:none">
                         <input type="checkbox" id="f-rAltar2" style="display:none">
                         <input type="checkbox" id="f-rGoodCitizen2" style="display:none">
-                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rSubsidy2')" style="padding:4px 12px;font-size:13px">租補</button>
-                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rSocialHouse2')" style="padding:4px 12px;font-size:13px">社宅</button>
-                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rRegister2')" style="padding:4px 12px;font-size:13px">設籍</button>
-                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rTax2')" style="padding:4px 12px;font-size:13px">報稅</button>
-                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rPet2')" style="padding:4px 12px;font-size:13px">寵物</button>
-                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rAltar2')" style="padding:4px 12px;font-size:13px">神桌</button>
-                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rGoodCitizen2')" style="padding:4px 12px;font-size:13px">良民</button>
+                        <div style="display:flex;gap:4px;flex-wrap:wrap">
+                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rSubsidy2')" style="padding:4px 12px;font-size:13px">租補</button>
+                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rSocialHouse2')" style="padding:4px 12px;font-size:13px">社宅</button>
+                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rRegister2')" style="padding:4px 12px;font-size:13px">設籍</button>
+                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rTax2')" style="padding:4px 12px;font-size:13px">報稅</button>
+                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rPet2')" style="padding:4px 12px;font-size:13px">寵物</button>
+                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rAltar2')" style="padding:4px 12px;font-size:13px">神桌</button>
+                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rGoodCitizen2')" style="padding:4px 12px;font-size:13px">良民</button>
+                        </div>
                     </div>
                     <div class="c-row c-row-header" style="margin-bottom:2px">
                         <span style="flex:1;font-size:13px;color:var(--text);font-weight:600;min-width:0;padding-left:11px">姓名</span>
