@@ -336,10 +336,10 @@
             .modal-body input, .modal-body select, .modal-body textarea { max-width: 100% !important; }
 
             /* Header */
-            .header { padding: 10px 12px; gap: 8px; flex-wrap: wrap; }
-            .header-title { font-size: 16px; }
-            .search-wrap { order: 3; flex-basis: 100%; max-width: 100%; }
-            .btn-add { padding: 8px 14px; font-size: 13px; }
+            .header { padding: 10px 12px; gap: 6px; flex-wrap: wrap; }
+            .header-title { font-size: 16px; flex: 1 1 100%; }
+            .search-wrap { order: 3; flex: 1 1 calc(50% - 4px); max-width: calc(50% - 4px); }
+            .btn-add { order: 4; flex: 1 1 calc(50% - 4px); max-width: calc(50% - 4px); padding: 10px 0; font-size: 14px; text-align: center; }
 
             /* Layout */
             .sidebar { display: none; }
