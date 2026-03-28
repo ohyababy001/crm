@@ -424,9 +424,10 @@
             /* 庫存開價/底價/服務費改三欄 */
             #sellerPriceRow { flex-direction: row !important; flex-wrap: nowrap !important; }
             #sellerPriceRow > .fg { flex: 1 !important; }
-            /* 庫存合約日期：跟租案一樣 3fr 3fr 1fr */
-            #sellerContractRow { display: grid !important; grid-template-columns: 3fr 3fr 1fr !important; }
+            /* 庫存合約日期：立約日到期日各半滿版，續約換行半寬 */
+            #sellerContractRow { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
             #sellerContractRow > .fg { width: auto !important; }
+            #sellerContractRow > button { grid-column: 1; width: 100% !important; }
 
             /* 經營買方預算改橫排 */
             #budgetRow { flex-wrap: nowrap !important; flex-direction: row !important; }
@@ -509,7 +510,7 @@
             /* 預覽 Modal */
             #dModal { padding-top: 0 !important; }
             .det-head { padding: 12px; }
-            .det-head > div:first-child { flex-wrap: wrap !important; justify-content: center !important; gap: 8px !important; }
+            .det-head > div:first-child { flex-wrap: nowrap !important; gap: 6px !important; }
             .det-body { padding: 10px 12px; }
             .det-name { font-size: 18px; }
 
@@ -567,6 +568,7 @@
         <button onclick="cloudRestore()">📥 還原</button>
         <button onclick="autoSync()">☁️ 同步</button>
         <button onclick="clearCache()">🔄 更新</button>
+        <button onclick="openTrash()" style="color:#EF4444">🗑️</button>
     </div>
     <button class="btn-add" onclick="openAdd()">＋ 新增客戶</button>
 </header>
@@ -577,7 +579,6 @@
     <button onclick="mobileFilter('租案管理')" id="mnav-租案管理">租案</button>
     <button onclick="mobileFilter('成交客戶')" id="mnav-成交客戶">成交</button>
     <button onclick="mobileFilter('商機募集')" id="mnav-商機募集">商機</button>
-    <button onclick="openTrash()" style="color:#EF4444">🗑️</button>
 </nav>
 
 <div class="layout">
@@ -2419,8 +2420,8 @@ function showDet(id, viewAs) {
         <div class="det-head" style="flex-direction:column;gap:6px">
             <div style="display:flex;align-items:center;width:100%">
                 ${c.created ? `<span style="font-size:12px;color:var(--muted)">建檔${esc(isoToROC((c.created||'').slice(0,10)))}</span>` : ''}
-                <div style="display:flex;align-items:center;gap:4px;flex-shrink:0" id="detNavWrap"></div>
-                <div style="display:flex;gap:16px;align-items:center;flex-shrink:0;margin-left:auto">
+                <div style="display:flex;align-items:center;gap:4px;flex:1;justify-content:center" id="detNavWrap"></div>
+                <div style="display:flex;gap:16px;align-items:center;flex-shrink:0">
                     <button class="btn-ic" onclick="openDriveFolder('${c.id}')" title="${c.driveFolderUrl ? '開啟雲端資料夾（右鍵可重新指定）' : '指定雲端資料夾'}" oncontextmenu="event.preventDefault();setDriveFolder('${c.id}')" style="font-size:20px;padding:6px 10px">${c.driveFolderUrl ? '📂' : '<span style="opacity:0.3">📁</span>'}</button>
                     <button class="btn-ic" onclick="closeDet();openEdit('${c.id}','${detViewAs}')" title="編輯" style="font-size:20px;padding:6px 10px">✏️</button>
                     <button class="btn-ic del" onclick="closeDet();del('${c.id}')" title="刪除" style="font-size:20px;padding:6px 10px">🗑️</button>
