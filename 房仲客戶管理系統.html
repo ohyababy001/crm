@@ -445,13 +445,13 @@
 
             /* 成交物件：買賣方1份 日期2份 社區2份，地址全寬，價格半寬 */
             .deal-box { overflow: hidden; }
-            .deal-row:first-child { flex-wrap: nowrap !important; }
-            .deal-row:first-child > .fg:nth-child(1) { flex: 1 !important; min-width: 0 !important; }
-            .deal-row:first-child > .fg:nth-child(2) { flex: 2 !important; min-width: 0 !important; }
-            .deal-row:first-child > .fg:nth-child(3) { flex: 2 !important; min-width: 0 !important; }
-            .deal-row:last-child { flex-wrap: wrap !important; }
-            .deal-row:last-child > .fg:first-child { flex: 1 1 100% !important; }
-            .deal-row:last-child > .fg:last-child { flex: 0 0 50% !important; width: 50% !important; }
+            .deal-row:nth-child(2) { flex-wrap: nowrap !important; }
+            .deal-row:nth-child(2) > .fg:nth-child(1) { flex: 1 !important; min-width: 0 !important; }
+            .deal-row:nth-child(2) > .fg:nth-child(2) { flex: 2 !important; min-width: 0 !important; }
+            .deal-row:nth-child(2) > .fg:nth-child(3) { flex: 2 !important; min-width: 0 !important; }
+            .deal-row:nth-child(3) { flex-wrap: wrap !important; }
+            .deal-row:nth-child(3) > .fg:first-child { flex: 1 1 100% !important; }
+            .deal-row:nth-child(3) > .fg:last-child { flex: 0 0 50% !important; width: 50% !important; }
 
             /* 附屬設備 grid 改三欄 */
             .equip-grid { gap: 4px 8px !important; }
@@ -548,10 +548,10 @@
         }
         .mobile-nav button {
             flex: 1; border: none; background: none; padding: 8px 4px;
-            font-size: 12px; color: var(--muted); cursor: pointer;
+            font-size: 15px; font-weight: 600; color: var(--muted); cursor: pointer;
             white-space: nowrap; border-radius: 8px;
         }
-        .mobile-nav button.active { color: var(--deep); font-weight: 700; background: var(--bg); }
+        .mobile-nav button.active { color: var(--deep); font-weight: 800; background: var(--bg); }
     </style>
 </head>
 <body>
@@ -919,7 +919,7 @@
                             </div>
                         </div>
                     </div>
-                    <div id="sellerContractRow" style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;margin-bottom:10px">
+                    <div id="sellerContractRow" style="display:grid;grid-template-columns:3fr 3fr 1fr;gap:8px;align-items:end;margin-bottom:10px">
                         <div class="fg" style="margin-bottom:0"><label>立約日</label><div class="roc-date-wrap"><input id="f-contractStart" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                         <div class="fg" style="margin-bottom:0"><label>到期日</label><div class="roc-date-wrap"><input id="f-contractEnd" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                         <button type="button" class="bf-chip" onclick="renewContract()" style="padding:10px 18px;font-size:15px;text-align:center;white-space:nowrap">續約</button>
@@ -948,7 +948,7 @@
                         <button type="button" class="bf-chip rll-type" onclick="toggleRoleType('landlord','成交客戶',this)" style="padding:4px 12px;font-size:13px">成交客戶</button>
                         <button type="button" class="bf-chip rll-type" onclick="toggleRoleType('landlord','商機募集',this)" style="padding:4px 12px;font-size:13px">商機募集</button>
                     </div>
-                    <div style="margin-bottom:14px">
+                    <div style="display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
                         <span style="font-size:15px;color:var(--text);line-height:30px;font-weight:700">租屋條件：</span>
                         <input type="checkbox" id="f-rSubsidy" style="display:none">
                         <input type="checkbox" id="f-rSocialHouse" style="display:none">
@@ -956,14 +956,12 @@
                         <input type="checkbox" id="f-rPet" style="display:none">
                         <input type="checkbox" id="f-rAltar" style="display:none">
                         <input type="checkbox" id="f-rGoodCitizen" style="display:none">
-                        <div style="display:grid;grid-template-columns:repeat(5,auto);gap:4px;justify-content:start;margin-top:4px">
-                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rSubsidy')" style="padding:4px 12px;font-size:13px">租補</button>
-                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rSocialHouse')" style="padding:4px 12px;font-size:13px">社宅</button>
-                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rRegister')" style="padding:4px 12px;font-size:13px">設籍</button>
-                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rPet')" style="padding:4px 12px;font-size:13px">寵物</button>
-                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rAltar')" style="padding:4px 12px;font-size:13px">神明桌</button>
-                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rGoodCitizen')" style="padding:4px 12px;font-size:13px">良民證</button>
-                        </div>
+                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rSubsidy')" style="padding:4px 12px;font-size:13px">租補</button>
+                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rSocialHouse')" style="padding:4px 12px;font-size:13px">社宅</button>
+                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rRegister')" style="padding:4px 12px;font-size:13px">設籍</button>
+                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rPet')" style="padding:4px 12px;font-size:13px">寵物</button>
+                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rAltar')" style="padding:4px 12px;font-size:13px">神明桌</button>
+                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rGoodCitizen')" style="padding:4px 12px;font-size:13px">良民證</button>
                     </div>
                     <div class="c-row c-row-header" style="margin-bottom:2px">
                         <span style="flex:1;font-size:13px;color:var(--text);font-weight:600;min-width:0;padding-left:11px">姓名</span>
@@ -985,7 +983,7 @@
                         <button type="button" class="bf-chip rtt-type" onclick="toggleRoleType('tenant','成交客戶',this)" style="padding:4px 12px;font-size:13px">成交客戶</button>
                         <button type="button" class="bf-chip rtt-type" onclick="toggleRoleType('tenant','商機募集',this)" style="padding:4px 12px;font-size:13px">商機募集</button>
                     </div>
-                    <div style="margin-bottom:14px">
+                    <div style="display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
                         <span style="font-size:15px;color:var(--text);line-height:30px;font-weight:700">租屋條件：</span>
                         <input type="checkbox" id="f-rSubsidy2" style="display:none">
                         <input type="checkbox" id="f-rSocialHouse2" style="display:none">
@@ -993,14 +991,12 @@
                         <input type="checkbox" id="f-rPet2" style="display:none">
                         <input type="checkbox" id="f-rAltar2" style="display:none">
                         <input type="checkbox" id="f-rGoodCitizen2" style="display:none">
-                        <div style="display:grid;grid-template-columns:repeat(5,auto);gap:4px;justify-content:start;margin-top:4px">
-                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rSubsidy2')" style="padding:4px 12px;font-size:13px">租補</button>
-                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rSocialHouse2')" style="padding:4px 12px;font-size:13px">社宅</button>
-                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rRegister2')" style="padding:4px 12px;font-size:13px">設籍</button>
-                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rPet2')" style="padding:4px 12px;font-size:13px">寵物</button>
-                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rAltar2')" style="padding:4px 12px;font-size:13px">神明桌</button>
-                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rGoodCitizen2')" style="padding:4px 12px;font-size:13px">良民證</button>
-                        </div>
+                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rSubsidy2')" style="padding:4px 12px;font-size:13px">租補</button>
+                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rSocialHouse2')" style="padding:4px 12px;font-size:13px">社宅</button>
+                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rRegister2')" style="padding:4px 12px;font-size:13px">設籍</button>
+                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rPet2')" style="padding:4px 12px;font-size:13px">寵物</button>
+                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rAltar2')" style="padding:4px 12px;font-size:13px">神明桌</button>
+                        <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rGoodCitizen2')" style="padding:4px 12px;font-size:13px">良民證</button>
                     </div>
                     <div class="c-row c-row-header" style="margin-bottom:2px">
                         <span style="flex:1;font-size:13px;color:var(--text);font-weight:600;min-width:0;padding-left:11px">姓名</span>
@@ -2420,7 +2416,7 @@ function showDet(id, viewAs) {
             <div style="display:flex;align-items:center;width:100%">
                 ${c.created ? `<span style="font-size:12px;color:var(--muted)">建檔${esc(isoToROC((c.created||'').slice(0,10)))}</span>` : ''}
                 <div style="display:flex;align-items:center;gap:4px;flex-shrink:0" id="detNavWrap"></div>
-                <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;margin-left:auto">
+                <div style="display:flex;gap:16px;align-items:center;flex-shrink:0;margin-left:auto">
                     <button class="btn-ic" onclick="openDriveFolder('${c.id}')" title="${c.driveFolderUrl ? '開啟雲端資料夾（右鍵可重新指定）' : '指定雲端資料夾'}" oncontextmenu="event.preventDefault();setDriveFolder('${c.id}')" style="font-size:20px;padding:6px 10px">${c.driveFolderUrl ? '📂' : '<span style="opacity:0.3">📁</span>'}</button>
                     <button class="btn-ic" onclick="closeDet();openEdit('${c.id}','${detViewAs}')" title="編輯" style="font-size:20px;padding:6px 10px">✏️</button>
                     <button class="btn-ic del" onclick="closeDet();del('${c.id}')" title="刪除" style="font-size:20px;padding:6px 10px">🗑️</button>
