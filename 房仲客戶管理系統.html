@@ -566,6 +566,7 @@
     <div class="mobile-cloud">
         <button onclick="cloudRestore()">📥 還原</button>
         <button onclick="autoSync()">☁️ 同步</button>
+        <button onclick="clearCache()">🔄 更新</button>
     </div>
     <button class="btn-add" onclick="openAdd()">＋ 新增客戶</button>
 </header>
@@ -4083,6 +4084,23 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
+}
+function clearCache() {
+    if (!confirm('清除快取並重新載入？（客戶資料不受影響）')) return;
+    if ('caches' in window) {
+        caches.keys().then(function(names) {
+            return Promise.all(names.map(function(n) { return caches.delete(n); }));
+        }).then(function() {
+            if (navigator.serviceWorker) {
+                navigator.serviceWorker.getRegistrations().then(function(regs) {
+                    regs.forEach(function(r) { r.unregister(); });
+                });
+            }
+            window.location.reload(true);
+        });
+    } else {
+        window.location.reload(true);
+    }
 }
 </script>
 </body>
