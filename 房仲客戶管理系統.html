@@ -3198,7 +3198,7 @@ function applyTypePicker() {
     var hideBasic = isRental || isClosed || isSeller || isDev;
     document.getElementById('statusGroup').style.display = 'none';
     document.getElementById('flcGroup').style.display = 'none';
-    document.getElementById('namePhoneIdRow').style.display = hideBasic ? 'none' : '';
+    document.getElementById('namePhoneIdRow').style.display = hideBasic ? 'none' : 'flex';
     document.getElementById('emailGroup').style.display = hideBasic ? 'none' : '';
     document.getElementById('sourceGroup').style.display = hideBasic ? 'none' : '';
     // 成交客戶：自動加空白行
@@ -3422,7 +3422,7 @@ function resetForm() {
     var eb = document.getElementById('equipBody'); if(eb) eb.classList.remove('on');
     document.getElementById('f-rMgmtType').value = '';
     document.getElementById('rMgmtTotal').textContent = '0 元';
-    document.getElementById('namePhoneIdRow').style.display = '';
+    document.getElementById('namePhoneIdRow').style.display = 'flex';
     document.getElementById('emailGroup').style.display = '';
     document.getElementById('sourceGroup').style.display = '';
     clearDPersons();
