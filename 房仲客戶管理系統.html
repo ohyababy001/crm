@@ -410,9 +410,37 @@
 
             /* input-grp 保持橫排 */
             .input-grp { flex-wrap: nowrap !important; flex-direction: row !important; min-width: 0 !important; }
+            .input-grp input { min-width: 0 !important; }
 
-            /* 預算區波浪號 */
-            .budget-sep { display: block; text-align: center; }
+            /* Modal 寬度修正 */
+            .modal { box-sizing: border-box !important; }
+            .modal-body { box-sizing: border-box !important; overflow-x: hidden !important; }
+
+            /* form-row 間距縮小 */
+            .form-row { gap: 8px !important; }
+
+            /* 設備清單兩欄 */
+            .equip-item { width: calc(50% - 4px) !important; }
+            #equipCustomList .c-row > div { width: calc(50% - 3px) !important; }
+
+            /* textarea 高度 */
+            .fg textarea { min-height: 60px !important; }
+
+            /* 所有 flex 子元素防溢出 */
+            .modal-body * { min-width: 0; box-sizing: border-box; }
+
+            /* 庫存合約日期那排 */
+            .fg.full[style*="grid-template-columns"] {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 8px !important;
+            }
+
+            /* 庫存屋主 form-row 內的欄位 */
+            #s-庫存屋主 .form-row .fg { min-width: 0 !important; }
+
+            /* 租案物件資料區 */
+            #s-租案管理 .form-row { grid-template-columns: 1fr !important; }
 
             /* 預覽 Modal */
             #dModal { padding-top: 0 !important; }
