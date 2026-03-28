@@ -189,6 +189,7 @@
         .modal-body { padding: 18px 22px; }
         .sec-title { font-size: 13px; font-weight: 700; color: #475569; letter-spacing: 0.3px; padding-bottom: 6px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .hidden { display: none !important; }
         .fg { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
         .fg.full { grid-column: 1 / -1; }
         .fg label { font-size: 13px; font-weight: 600; padding-left: 4px; }
@@ -881,32 +882,31 @@
                     </div>
                 </div>
                 <div class="form-row">
-                    <div class="fg"><label>格局</label><input id="f-layout" placeholder="" onblur="autoLayout(this)"></div>
                     <div class="fg full">
                         <label>管理費</label>
                         <div style="display:flex;gap:4px;flex-wrap:wrap">
                             <div style="flex:1;min-width:80px">
-                                <div style="font-size:11px;color:var(--muted);margin-bottom:2px">建物</div>
+                                <div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">建物</div>
                                 <div class="input-grp"><input id="f-sMgmtBuilding" placeholder="" style="min-width:0;flex:1" oninput="calcMgmtTotal()"><span class="input-sfx">元</span></div>
                             </div>
                             <div style="flex:1;min-width:80px">
-                                <div style="font-size:11px;color:var(--muted);margin-bottom:2px">汽車位</div>
+                                <div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">汽車位</div>
                                 <div class="input-grp"><input id="f-sMgmtCar" placeholder="" style="min-width:0;flex:1" oninput="calcMgmtTotal()"><span class="input-sfx">元</span></div>
                             </div>
                             <div style="flex:1;min-width:80px">
-                                <div style="font-size:11px;color:var(--muted);margin-bottom:2px">機車位</div>
+                                <div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">機車位</div>
                                 <div class="input-grp"><input id="f-sMgmtMoto" placeholder="" style="min-width:0;flex:1" oninput="calcMgmtTotal()"><span class="input-sfx">元</span></div>
                             </div>
                             <div style="flex:1;min-width:80px">
-                                <div style="font-size:11px;color:var(--muted);margin-bottom:2px">其他</div>
+                                <div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">其他</div>
                                 <div class="input-grp"><input id="f-sMgmtOther" placeholder="" style="min-width:0;flex:1" oninput="calcMgmtTotal()"><span class="input-sfx">元</span></div>
                             </div>
                             <div style="flex:1;min-width:80px">
-                                <div style="font-size:11px;font-weight:700;color:var(--deep);margin-bottom:2px">合計</div>
+                                <div style="font-size:11px;font-weight:700;color:var(--deep);margin-bottom:2px;padding-left:4px">合計</div>
                                 <div style="padding:7px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE8E0;color:#5C4A32;text-align:center" id="sMgmtTotal">0 元</div>
                             </div>
                             <div style="flex:0 0 90px">
-                                <div style="font-size:11px;color:var(--muted);margin-bottom:2px">繳費方式</div>
+                                <div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">繳費方式</div>
                                 <select id="f-sMgmtPeriod" style="width:100%;padding:7px 4px;border:1px solid var(--border);border-radius:8px;font-size:13px">
                                     <option value="">選擇</option>
                                     <option value="月繳">月繳</option>
@@ -920,7 +920,7 @@
                     <div id="sellerContractRow" style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;margin-bottom:10px">
                         <div class="fg" style="margin-bottom:0"><label>立約日</label><div class="roc-date-wrap"><input id="f-contractStart" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                         <div class="fg" style="margin-bottom:0"><label>到期日</label><div class="roc-date-wrap"><input id="f-contractEnd" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
-                        <button type="button" class="bf-chip" onclick="renewContract()" style="padding:8px 0;font-size:14px;text-align:center;white-space:nowrap">續約</button>
+                        <button type="button" class="bf-chip" onclick="renewContract()" style="padding:10px 18px;font-size:15px;text-align:center;white-space:nowrap">續約</button>
                     </div>
                     <div class="fg full" id="sRenewalHistory" style="display:none;margin-bottom:10px">
                         <label>到期日歷程</label>
@@ -1063,7 +1063,7 @@
                     <label>管理費</label>
                     <div style="display:flex;gap:4px;flex-wrap:wrap">
                         <div style="flex:0 0 70px">
-                            <div style="font-size:11px;color:var(--muted);margin-bottom:2px">&nbsp;</div>
+                            <div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">&nbsp;</div>
                             <select id="f-rMgmtType" style="width:100%;padding:7px 4px;border:1px solid var(--border);border-radius:8px;font-size:13px">
                                 <option value="">選擇</option>
                                 <option value="含管">含</option>
@@ -1071,23 +1071,23 @@
                             </select>
                         </div>
                         <div style="flex:1;min-width:80px">
-                            <div style="font-size:11px;color:var(--muted);margin-bottom:2px">建物</div>
+                            <div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">建物</div>
                             <div class="input-grp"><input id="f-rMgmtBuilding" placeholder="" style="min-width:0;flex:1" oninput="calcRMgmtTotal()"><span class="input-sfx">元</span></div>
                         </div>
                         <div style="flex:1;min-width:80px">
-                            <div style="font-size:11px;color:var(--muted);margin-bottom:2px">汽車位</div>
+                            <div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">汽車位</div>
                             <div class="input-grp"><input id="f-rMgmtCar" placeholder="" style="min-width:0;flex:1" oninput="calcRMgmtTotal()"><span class="input-sfx">元</span></div>
                         </div>
                         <div style="flex:1;min-width:80px">
-                            <div style="font-size:11px;color:var(--muted);margin-bottom:2px">機車位</div>
+                            <div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">機車位</div>
                             <div class="input-grp"><input id="f-rMgmtMoto" placeholder="" style="min-width:0;flex:1" oninput="calcRMgmtTotal()"><span class="input-sfx">元</span></div>
                         </div>
                         <div style="flex:1;min-width:80px">
-                            <div style="font-size:11px;color:var(--muted);margin-bottom:2px">其他</div>
+                            <div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">其他</div>
                             <div class="input-grp"><input id="f-rMgmtOther" placeholder="" style="min-width:0;flex:1" oninput="calcRMgmtTotal()"><span class="input-sfx">元</span></div>
                         </div>
                         <div style="flex:1;min-width:80px">
-                            <div style="font-size:11px;font-weight:700;color:var(--deep);margin-bottom:2px">合計</div>
+                            <div style="font-size:11px;font-weight:700;color:var(--deep);margin-bottom:2px;padding-left:4px">合計</div>
                             <div style="padding:7px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE8E0;color:#5C4A32;text-align:center" id="rMgmtTotal">0 元</div>
                         </div>
                     </div>
@@ -1095,7 +1095,7 @@
                 <div style="display:grid;grid-template-columns:3fr 3fr 1fr;gap:8px;align-items:end;margin-bottom:10px">
                     <div class="fg" style="margin-bottom:0"><label>起租日</label><div class="roc-date-wrap"><input id="f-rStartDate" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                     <div class="fg" style="margin-bottom:0"><label>到期日</label><div class="roc-date-wrap"><input id="f-rEndDate" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
-                    <button type="button" class="bf-chip" onclick="renewLease()" style="padding:8px 0;font-size:14px;text-align:center;white-space:nowrap">續約</button>
+                    <button type="button" class="bf-chip" onclick="renewLease()" style="padding:10px 18px;font-size:15px;text-align:center;white-space:nowrap">續約</button>
                 </div>
                 <div class="fg full" id="rRenewalHistory" style="display:none;margin-bottom:10px">
                     <label>到期日歷程</label>
@@ -2448,9 +2448,9 @@ function showDet(id, viewAs) {
     var navWrap = document.getElementById('detNavWrap');
     var prevStyle = detIdx <= 0 ? 'opacity:0.3;pointer-events:none' : '';
     var nextStyle = detIdx >= detListCache.length - 1 ? 'opacity:0.3;pointer-events:none' : '';
-    navWrap.innerHTML = '<button class="btn-ic" onclick="navDet(-1)" title="上一筆" style="font-size:14px;padding:4px 8px;'+prevStyle+'">◀</button>' +
-        '<span style="font-size:12px;color:var(--muted)">' + (detIdx+1) + ' / ' + detListCache.length + '</span>' +
-        '<button class="btn-ic" onclick="navDet(1)" title="下一筆" style="font-size:14px;padding:4px 8px;'+nextStyle+'">▶</button>';
+    navWrap.innerHTML = '<button class="btn-ic" onclick="navDet(-1)" title="上一筆" style="font-size:20px;padding:6px 10px;'+prevStyle+'">◀</button>' +
+        '<span style="font-size:14px;color:var(--muted)">' + (detIdx+1) + ' / ' + detListCache.length + '</span>' +
+        '<button class="btn-ic" onclick="navDet(1)" title="下一筆" style="font-size:20px;padding:6px 10px;'+nextStyle+'">▶</button>';
 }
 function closeDet(){ document.getElementById('dModal').style.display='none'; detListCache=[]; currentDetId=null; currentDetIdx=-1; }
 
