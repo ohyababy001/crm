@@ -366,9 +366,9 @@
 
             /* c-row (人員列) 兩欄換行 */
             .c-row { flex-wrap: wrap !important; gap: 6px !important; position: relative; padding-right: 22px; }
-            .c-row input[type="text"] { flex: 1 1 45% !important; min-width: 0 !important; box-sizing: border-box; }
-            .c-row select { flex: 1 1 45% !important; min-width: 0 !important; }
-            .c-row .c-del { position: absolute; right: 0; top: 0; }
+            .c-row > input[type="text"] { flex: 1 1 45% !important; min-width: 0 !important; box-sizing: border-box; }
+            .c-row > select { flex: 1 1 45% !important; min-width: 0 !important; }
+            .c-row > .c-del { position: absolute; right: 0; top: 0; }
 
             /* 庫存坪數/車位改直排 */
             #szParkingRow { flex-direction: column !important; }
@@ -378,15 +378,41 @@
             .fg.full > div[style*="flex-wrap"] { gap: 8px !important; }
             .fg.full > div[style*="flex-wrap"] > div { flex: 1 1 45% !important; min-width: 60px !important; }
 
-            /* 成交物件內部 */
+            /* 成交物件內部改全寬 */
+            .deal-box { overflow: hidden; }
             .deal-row { flex-wrap: wrap !important; }
             .deal-row > .fg { flex: 1 1 100% !important; min-width: 0 !important; }
+
+            /* 附屬設備 grid 改兩欄 */
+            .equip-grid { gap: 4px 8px !important; }
+            .equip-item { width: calc(50% - 6px) !important; }
+
+            /* 租案租金/坪數/車位那排 */
+            #s-租案管理 > div[style*="grid-template-columns"] {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 8px !important;
+            }
+
+            /* 起租日/到期日/續約那排 */
+            div[style*="grid-template-columns:3fr"] {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 8px !important;
+            }
+
+            /* 日曆彈窗限制寬度 */
+            .cal-popup { max-width: 95vw !important; left: 2.5vw !important; }
+            .cal-grid { grid-template-columns: repeat(7, 1fr) !important; }
 
             /* 防 iOS 自動縮放 */
             .modal-body input, .modal-body select, .modal-body textarea { font-size: 16px !important; }
 
-            /* input-grp 不換行 */
-            .input-grp { flex-wrap: nowrap !important; flex-direction: row !important; }
+            /* input-grp 保持橫排 */
+            .input-grp { flex-wrap: nowrap !important; flex-direction: row !important; min-width: 0 !important; }
+
+            /* 預算區波浪號 */
+            .budget-sep { display: block; text-align: center; }
 
             /* 預覽 Modal */
             #dModal { padding-top: 0 !important; }
