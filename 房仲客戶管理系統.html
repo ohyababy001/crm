@@ -1716,6 +1716,7 @@ function setFilter(type, btn) {
     const titles = { all:'總覽','經營買方':'經營買方','庫存屋主':'庫存屋主','租案管理':'租案管理','成交客戶':'成交客戶','商機募集':'商機募集' };
     document.getElementById('filterTitle').textContent = titles[type];
     document.getElementById('buyerFilter').classList.toggle('on', type === '經營買方');
+    document.getElementById('sortSel').style.display = (type === '成交客戶' || type === '租案管理') ? 'none' : '';
     render();
 }
 
@@ -1793,6 +1794,9 @@ function getData() {
     // 租案管理：強制按到期日排序
     if (curFilter === '租案管理') {
         list.sort(function(a,b) { return (a.rEndDate||'9999-12-31').localeCompare(b.rEndDate||'9999-12-31'); });
+    // 成交客戶：強制按成交次數排序（多→少）
+    } else if (curFilter === '成交客戶') {
+        list.sort(function(a,b) { return (b.deals||[]).length - (a.deals||[]).length; });
     } else {
         const s = document.getElementById('sortSel').value;
         list.sort((a,b) => {
