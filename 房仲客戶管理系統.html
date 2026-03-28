@@ -369,17 +369,27 @@
             .type-sec > div[style*="display:grid"],
             .type-sec .form-row { display: flex !important; flex-direction: column !important; gap: 8px; }
 
-            /* c-row (人員列) 保持橫排但換行 */
-            .c-row { flex-wrap: wrap !important; gap: 4px; }
-            .c-row input, .c-row select { flex: 1 1 40% !important; min-width: 100px !important; }
+            /* c-row (人員列) 改成兩欄換行 */
+            .c-row { flex-wrap: wrap !important; gap: 6px !important; }
+            .c-row input[type="text"] { flex: 1 1 45% !important; min-width: 0 !important; box-sizing: border-box; }
+            .c-row select { flex: 1 1 45% !important; min-width: 0 !important; }
+            .c-row .c-del { position: absolute; right: -2px; top: -2px; }
+            .c-row { position: relative; padding-right: 20px; }
 
-            /* 庫存坪數/車位那排改直排 */
-            div[style*="flex-wrap:wrap"] { flex-direction: column !important; }
-            div[style*="flex-wrap:wrap"] > .fg { flex: none !important; width: 100% !important; }
+            /* 庫存坪數/車位改直排 */
+            #szParkingRow { flex-direction: column !important; }
+            #szParkingRow > .fg { flex: none !important; width: 100% !important; min-width: 0 !important; }
 
-            /* 管理費區塊橫排保留但縮小 */
-            .fg.full > div { flex-wrap: wrap !important; gap: 6px; }
-            .fg.full > div > div { flex: 1 1 45% !important; min-width: 70px !important; }
+            /* 租案：租金/坪數/車位等那排改直排 */
+            .type-sec > div[style*="grid-template-columns"] { display: flex !important; flex-direction: column !important; gap: 8px !important; }
+
+            /* 管理費改成兩欄 */
+            .fg.full > div { flex-wrap: wrap !important; gap: 6px !important; }
+            .fg.full > div > div { flex: 1 1 45% !important; min-width: 60px !important; }
+
+            /* 成交物件內部欄位 */
+            .deal-row { flex-wrap: wrap !important; }
+            .deal-row > .fg { flex: 1 1 100% !important; }
 
             /* 輸入框放大 */
             .modal-body input, .modal-body select, .modal-body textarea {
@@ -743,7 +753,7 @@
                         <div class="input-grp" style="width:100%"><input id="f-sServiceFee" placeholder="" style="min-width:0;flex:1"><span class="input-sfx">%</span></div>
                     </div>
                 </div>
-                <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+                <div id="szParkingRow" style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap">
                     <div class="fg" style="flex:1;min-width:60px;margin-bottom:0"><label>土地坪數</label><div class="input-grp"><input id="f-sLandSz" placeholder="" style="min-width:0;flex:1"><span class="input-sfx">坪</span></div></div>
                     <div class="fg" style="flex:1;min-width:60px;margin-bottom:0"><label>建物坪數</label><div class="input-grp"><input id="f-sSz" placeholder="" style="min-width:0;flex:1"><span class="input-sfx">坪</span></div></div>
                     <div class="fg" style="flex:3;min-width:180px;margin-bottom:0">
