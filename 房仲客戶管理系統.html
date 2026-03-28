@@ -368,6 +368,7 @@
 
             /* 標題列隱藏，改用 placeholder */
             .c-row:has(> span:first-child) { display: none !important; }
+            .c-row-header { display: none !important; }
 
             /* c-row (人員列) 兩欄換行 */
             .c-row { flex-wrap: wrap !important; gap: 6px !important; }
@@ -936,7 +937,7 @@
                         <input type="checkbox" id="f-rGoodCitizen" style="display:none">
                         <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rGoodCitizen')" style="padding:4px 12px;font-size:13px">良民證</button>
                     </div>
-                    <div class="c-row" style="margin-bottom:2px">
+                    <div class="c-row c-row-header" style="margin-bottom:2px">
                         <span style="flex:1;font-size:13px;color:var(--text);font-weight:600;min-width:0;padding-left:11px">姓名</span>
                         <span style="flex:1;font-size:13px;color:var(--text);font-weight:600;min-width:0;padding-left:11px">電話</span>
                         <span style="flex:1;font-size:13px;color:var(--text);font-weight:600;min-width:0;padding-left:11px">身份證字號</span>
@@ -971,7 +972,7 @@
                         <input type="checkbox" id="f-rGoodCitizen2" style="display:none">
                         <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rGoodCitizen2')" style="padding:4px 12px;font-size:13px">良民證</button>
                     </div>
-                    <div class="c-row" style="margin-bottom:2px">
+                    <div class="c-row c-row-header" style="margin-bottom:2px">
                         <span style="flex:1;font-size:13px;color:var(--text);font-weight:600;min-width:0;padding-left:11px">姓名</span>
                         <span style="flex:1;font-size:13px;color:var(--text);font-weight:600;min-width:0;padding-left:11px">電話</span>
                         <span style="flex:1;font-size:13px;color:var(--text);font-weight:600;min-width:0;padding-left:11px">身份證字號</span>
@@ -1085,7 +1086,7 @@
                 <div id="cContactList"></div>
                 <button type="button" class="add-row-btn" onclick="addCContactRow()">＋ 新增聯絡人</button>
 
-                <div class="c-row" style="margin-top:6px;margin-bottom:2px">
+                <div class="c-row c-row-header" style="margin-top:6px;margin-bottom:2px">
                     <span style="width:70px;font-size:13px;color:var(--text);font-weight:600;padding-left:4px">類型</span>
                     <span style="width:76px;font-size:13px;color:var(--text);font-weight:600;padding-left:11px">郵遞區號</span>
                     <span style="flex:1;font-size:13px;color:var(--text);font-weight:600;padding-left:11px">地址</span>
@@ -3048,7 +3049,7 @@ function autoLayout(el) {
 var cRowId = 0;
 function initCContactHeader() {
     document.getElementById('cContactHeader').innerHTML =
-        '<div class="c-row" style="margin-bottom:2px">' +
+        '<div class="c-row c-row-header" style="margin-bottom:2px">' +
         '<span style="flex:1;min-width:0;padding:7px 10px;font-size:13px;font-weight:600;color:var(--text);border:1px solid transparent">姓名</span>' +
         '<span style="flex:1;min-width:0;padding:7px 10px;font-size:13px;font-weight:600;color:var(--text);border:1px solid transparent">電話</span>' +
         '<span style="flex:1;min-width:0;padding:7px 10px;font-size:13px;font-weight:600;color:var(--text);border:1px solid transparent">身份證字號</span>' +
