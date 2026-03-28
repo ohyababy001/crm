@@ -238,8 +238,8 @@
         /* Detail */
         .det-head { padding: 14px 22px; display: flex; gap: 14px; align-items: center; border-bottom: 1px solid var(--border); position:sticky; top:0; background:white; z-index:1; border-radius:18px 18px 0 0; min-height:70px; }
         .det-avatar { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; color: white; flex-shrink: 0; }
-        .det-name { font-size: 18px; font-weight: 700; }
-        .det-phone { color: var(--muted); font-size: 14px; margin-top: 3px; }
+        .det-name { font-size: 22px; font-weight: 700; }
+        .det-phone { color: var(--muted); font-size: 17px; margin-top: 3px; }
         .det-close { margin-left: auto; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--muted); padding: 4px 8px; }
         .det-body { padding: 16px 22px; }
         .det-sec { font-size: 13px; font-weight: 700; color: #475569; letter-spacing: 0.3px; margin: 14px 0 6px; }
@@ -2428,7 +2428,7 @@ function showDet(id, viewAs) {
                 <button class="det-close" onclick="closeDet()" style="padding:6px 10px;font-size:28px">✕</button>
                 </div>
             </div>
-            <div style="display:flex;align-items:center;gap:12px;width:100%;padding-left:18px">
+            <div style="display:flex;align-items:center;gap:12px;width:100%;padding:10px 0 0 30px">
                 <div>
                     <div class="det-name">${esc(detName)}${detViewAs==='landlord'?'<span style="font-size:14px;color:#3B5E3B;margin-left:4px">房東</span>':''}${detViewAs==='tenant'?'<span style="font-size:14px;color:#4A3D5E;margin-left:4px">租客</span>':''}</div>
                     <div class="det-phone">${esc(detPhone)}</div>
