@@ -158,7 +158,7 @@
         .input-grp input { border-radius: 8px 0 0 8px; flex: 1; }
         .input-sfx { padding: 8px 10px; border: 1px solid var(--border); border-left: none; border-radius: 0 8px 8px 0; font-size: 14px; color: var(--muted); background: var(--bg); white-space: nowrap; }
         .card-actions { display: flex; gap: 6px; flex-shrink: 0; }
-        .btn-ic { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 5px 9px; cursor: pointer; font-size: 13px; color: var(--muted); transition: all 0.12s; }
+        .btn-ic { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; cursor: pointer; font-size: 18px; color: var(--muted); transition: all 0.12s; }
         .btn-ic:hover { background: var(--bg); }
         .btn-ic.del:hover { background: #FEE2E2; color: #EF4444; border-color: #EF4444; }
 
@@ -510,7 +510,7 @@
             /* 預覽 Modal */
             #dModal { padding-top: 0 !important; }
             .det-head { padding: 12px; }
-            .det-head > div:first-child { flex-wrap: nowrap !important; gap: 6px !important; }
+            .det-head .det-close { font-size: 28px !important; }
             .det-body { padding: 10px 12px; }
             .det-name { font-size: 18px; }
 
@@ -2424,13 +2424,8 @@ function showDet(id, viewAs) {
         <div class="det-head" style="flex-direction:column;gap:6px">
             <div style="display:flex;align-items:center;width:100%">
                 ${c.created ? `<span style="font-size:12px;color:var(--muted)">建檔${esc(isoToROC((c.created||'').slice(0,10)))}</span>` : ''}
-                <div style="display:flex;align-items:center;gap:4px;flex:1;justify-content:center" id="detNavWrap"></div>
-                <div style="display:flex;gap:16px;align-items:center;flex-shrink:0">
-                    <button class="btn-ic" onclick="openDriveFolder('${c.id}')" title="${c.driveFolderUrl ? '開啟雲端資料夾（右鍵可重新指定）' : '指定雲端資料夾'}" oncontextmenu="event.preventDefault();setDriveFolder('${c.id}')" style="font-size:20px;padding:6px 10px">${c.driveFolderUrl ? '📂' : '<span style="opacity:0.3">📁</span>'}</button>
-                    <button class="btn-ic" onclick="closeDet();openEdit('${c.id}','${detViewAs}')" title="編輯" style="font-size:20px;padding:6px 10px">✏️</button>
-                    <button class="btn-ic del" onclick="closeDet();del('${c.id}')" title="刪除" style="font-size:20px;padding:6px 10px">🗑️</button>
-                    <div style="width:12px"></div>
-                    <button class="det-close" onclick="closeDet()" style="padding:6px 10px;font-size:24px">✕</button>
+                <div style="display:flex;align-items:center;gap:8px;flex:1;justify-content:center" id="detNavWrap"></div>
+                <button class="det-close" onclick="closeDet()" style="padding:6px 10px;font-size:28px">✕</button>
                 </div>
             </div>
             <div style="display:flex;align-items:center;gap:12px;width:100%">
@@ -2459,9 +2454,9 @@ function showDet(id, viewAs) {
     var navWrap = document.getElementById('detNavWrap');
     var prevStyle = detIdx <= 0 ? 'opacity:0.3;pointer-events:none' : '';
     var nextStyle = detIdx >= detListCache.length - 1 ? 'opacity:0.3;pointer-events:none' : '';
-    navWrap.innerHTML = '<button class="btn-ic" onclick="navDet(-1)" title="上一筆" style="font-size:20px;padding:6px 10px;'+prevStyle+'">◀</button>' +
-        '<span style="font-size:14px;color:var(--muted)">' + (detIdx+1) + ' / ' + detListCache.length + '</span>' +
-        '<button class="btn-ic" onclick="navDet(1)" title="下一筆" style="font-size:20px;padding:6px 10px;'+nextStyle+'">▶</button>';
+    navWrap.innerHTML = '<button class="btn-ic" onclick="navDet(-1)" title="上一筆" style="font-size:24px;padding:8px 12px;'+prevStyle+'">◀</button>' +
+        '<span style="font-size:16px;font-weight:600;color:var(--muted)">' + (detIdx+1) + ' / ' + detListCache.length + '</span>' +
+        '<button class="btn-ic" onclick="navDet(1)" title="下一筆" style="font-size:24px;padding:8px 12px;'+nextStyle+'">▶</button>';
 }
 function closeDet(){ document.getElementById('dModal').style.display='none'; detListCache=[]; currentDetId=null; currentDetIdx=-1; }
 
