@@ -359,19 +359,35 @@
             .modal-body { padding: 14px 12px; box-sizing: border-box; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
             .modal-head { border-radius: 0; }
 
-            /* 表單 */
-            .form-row { grid-template-columns: 1fr; }
+            /* 表單：所有欄位強制單欄全寬 */
+            .form-row { grid-template-columns: 1fr !important; }
             .fg.full { grid-column: 1; }
-            #namePhoneIdRow { flex-direction: column; gap: 6px; }
-            .type-sec .c-row { flex-wrap: wrap; }
-            .c-row { flex-wrap: wrap; }
-            .c-row input, .c-row select { min-width: 0 !important; }
+            #namePhoneIdRow { flex-direction: column !important; gap: 8px; }
 
-            /* 類型按鈕換行 */
-            .tp-row { flex-wrap: wrap; }
+            /* type-sec 內所有 flex 橫排改直排 */
+            .type-sec > div[style*="display:flex"],
+            .type-sec > div[style*="display:grid"],
+            .type-sec .form-row { display: flex !important; flex-direction: column !important; gap: 8px; }
 
-            /* 管理費換行 */
-            .fg.full > div { flex-wrap: wrap; }
+            /* c-row (人員列) 保持橫排但換行 */
+            .c-row { flex-wrap: wrap !important; gap: 4px; }
+            .c-row input, .c-row select { flex: 1 1 40% !important; min-width: 100px !important; }
+
+            /* 庫存坪數/車位那排改直排 */
+            div[style*="flex-wrap:wrap"] { flex-direction: column !important; }
+            div[style*="flex-wrap:wrap"] > .fg { flex: none !important; width: 100% !important; }
+
+            /* 管理費區塊橫排保留但縮小 */
+            .fg.full > div { flex-wrap: wrap !important; gap: 6px; }
+            .fg.full > div > div { flex: 1 1 45% !important; min-width: 70px !important; }
+
+            /* 輸入框放大 */
+            .modal-body input, .modal-body select, .modal-body textarea {
+                font-size: 16px !important; /* 防 iOS 自動放大 */
+                padding: 10px !important;
+            }
+            .input-grp input { padding: 10px 8px !important; }
+            .input-sfx { font-size: 14px !important; padding: 10px 8px !important; }
 
             /* 預覽 Modal */
             #dModal { padding-top: 0 !important; }
@@ -391,7 +407,7 @@
             .mobile-nav.hide-nav { display: none !important; }
             .main { padding-top: 4px; padding-bottom: 16px; }
 
-            /* 所有 flex 容器防溢出 */
+            /* 防溢出 */
             .type-sec, .modal-body, .det-body { max-width: 100%; overflow-x: hidden; }
             .type-sec input, .type-sec select { max-width: 100%; box-sizing: border-box; }
             .input-grp { min-width: 0; }
