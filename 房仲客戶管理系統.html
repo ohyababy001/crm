@@ -357,6 +357,8 @@
             .cmeta-row { font-size: 15px; margin-bottom: 5px; }
             .card-notes-col { display: none; }
             .card-right { display: none; }
+            .card-bottom-right { flex-shrink: 0; }
+            .card-bottom-right .btn-ic { font-size: 16px; }
 
             /* Modal 全螢幕（iPhone 相容）*/
             .overlay { padding: 0 !important; }
@@ -369,7 +371,8 @@
             #emailSourceRow { grid-template-columns: 1fr 1fr !important; }
             #buyerDetailRow { grid-template-columns: 1fr 1fr !important; }
             .fg.full { grid-column: 1; }
-            #namePhoneIdRow { display: flex !important; flex-wrap: wrap !important; flex-direction: row !important; gap: 6px !important; }
+            #namePhoneIdRow { flex-wrap: wrap !important; flex-direction: row !important; gap: 6px !important; }
+            #namePhoneIdRow.hidden, #emailSourceRow.hidden { display: none !important; }
             #namePhoneIdRow > .fg:first-child { flex: 1 1 100% !important; min-width: 0 !important; }
             #namePhoneIdRow > .fg:nth-child(2), #namePhoneIdRow > .fg:nth-child(3) { flex: 1 1 calc(50% - 4px) !important; min-width: 0 !important; }
 
@@ -394,7 +397,8 @@
             #cAddrList .c-row input:last-of-type { flex: 1 !important; }
 
             /* 租案社區縮小，地址放大 */
-            #rentalAddrRow { grid-template-columns: 1fr 2.5fr !important; }
+            #rentalAddrRow { grid-template-columns: 1fr !important; }
+            #rentalAddrRow > .fg:first-child { width: 50% !important; }
 
             /* 房型需求：每排 4 個 */
             .room-picker { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 6px !important; }
@@ -413,8 +417,9 @@
             #sellerBasicRow1 { grid-template-columns: 1fr 1fr !important; }
             /* 庫存身份證/生日並排 */
             #sellerBasicRow2 { grid-template-columns: 1fr 1fr !important; }
-            /* 庫存社區/地址 */
-            #sellerAddrRow { grid-template-columns: 1fr 2.5fr !important; }
+            /* 庫存社區獨立半寬，地址換行滿版 */
+            #sellerAddrRow { grid-template-columns: 1fr !important; }
+            #sellerAddrRow > .fg:first-child { width: 50% !important; }
             /* 庫存開價/底價/服務費改三欄 */
             #sellerPriceRow { flex-direction: row !important; flex-wrap: nowrap !important; }
             #sellerPriceRow > .fg { flex: 1 !important; }
@@ -915,7 +920,7 @@
                     <div id="sellerContractRow" style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;margin-bottom:10px">
                         <div class="fg" style="margin-bottom:0"><label>立約日</label><div class="roc-date-wrap"><input id="f-contractStart" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                         <div class="fg" style="margin-bottom:0"><label>到期日</label><div class="roc-date-wrap"><input id="f-contractEnd" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
-                        <button type="button" class="bf-chip" onclick="renewContract()" style="padding:7px 14px;font-size:13px;white-space:nowrap;margin-bottom:1px">續約</button>
+                        <button type="button" class="bf-chip" onclick="renewContract()" style="padding:8px 0;font-size:14px;text-align:center;white-space:nowrap">續約</button>
                     </div>
                     <div class="fg full" id="sRenewalHistory" style="display:none;margin-bottom:10px">
                         <label>到期日歷程</label>
@@ -2408,8 +2413,8 @@ function showDet(id, viewAs) {
         <div class="det-head" style="flex-direction:column;gap:6px">
             <div style="display:flex;align-items:center;width:100%">
                 ${c.created ? `<span style="font-size:12px;color:var(--muted)">建檔${esc(isoToROC((c.created||'').slice(0,10)))}</span>` : ''}
-                <div style="display:flex;align-items:center;gap:4px;margin:0 auto" id="detNavWrap"></div>
-                <div style="display:flex;gap:12px;align-items:center;margin-left:auto">
+                <div style="display:flex;align-items:center;gap:4px;flex:1;justify-content:center" id="detNavWrap"></div>
+                <div style="display:flex;gap:12px;align-items:center;flex-shrink:0">
                     <button class="btn-ic" onclick="openDriveFolder('${c.id}')" title="${c.driveFolderUrl ? '開啟雲端資料夾（右鍵可重新指定）' : '指定雲端資料夾'}" oncontextmenu="event.preventDefault();setDriveFolder('${c.id}')" style="font-size:20px;padding:6px 10px">${c.driveFolderUrl ? '📂' : '<span style="opacity:0.3">📁</span>'}</button>
                     <button class="btn-ic" onclick="closeDet();openEdit('${c.id}','${detViewAs}')" title="編輯" style="font-size:20px;padding:6px 10px">✏️</button>
                     <button class="btn-ic del" onclick="closeDet();del('${c.id}')" title="刪除" style="font-size:20px;padding:6px 10px">🗑️</button>
@@ -3198,9 +3203,8 @@ function applyTypePicker() {
     var hideBasic = isRental || isClosed || isSeller || isDev;
     document.getElementById('statusGroup').style.display = 'none';
     document.getElementById('flcGroup').style.display = 'none';
-    document.getElementById('namePhoneIdRow').style.display = hideBasic ? 'none' : 'flex';
-    document.getElementById('emailGroup').style.display = hideBasic ? 'none' : '';
-    document.getElementById('sourceGroup').style.display = hideBasic ? 'none' : '';
+    document.getElementById('namePhoneIdRow').classList.toggle('hidden', hideBasic);
+    document.getElementById('emailSourceRow').classList.toggle('hidden', hideBasic);
     // 成交客戶：自動加空白行
     if (isClosed) {
         if (!document.querySelectorAll('#cContactList .c-row').length) addCContactRow();
@@ -3422,7 +3426,8 @@ function resetForm() {
     var eb = document.getElementById('equipBody'); if(eb) eb.classList.remove('on');
     document.getElementById('f-rMgmtType').value = '';
     document.getElementById('rMgmtTotal').textContent = '0 元';
-    document.getElementById('namePhoneIdRow').style.display = 'flex';
+    document.getElementById('namePhoneIdRow').classList.remove('hidden');
+    document.getElementById('emailSourceRow').classList.remove('hidden');
     document.getElementById('emailGroup').style.display = '';
     document.getElementById('sourceGroup').style.display = '';
     clearDPersons();
