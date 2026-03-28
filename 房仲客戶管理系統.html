@@ -367,9 +367,11 @@
             /* 表單：兩欄改單欄 */
             .form-row { grid-template-columns: 1fr !important; }
             #emailSourceRow { grid-template-columns: 1fr 1fr !important; }
+            #buyerDetailRow { grid-template-columns: 1fr 1fr !important; }
             .fg.full { grid-column: 1; }
-            #namePhoneIdRow { display: flex !important; flex-wrap: nowrap !important; flex-direction: row !important; gap: 6px !important; }
-            #namePhoneIdRow > .fg { flex: 1 1 0% !important; min-width: 0 !important; width: auto !important; max-width: 33.3% !important; }
+            #namePhoneIdRow { display: flex !important; flex-wrap: wrap !important; flex-direction: row !important; gap: 6px !important; }
+            #namePhoneIdRow > .fg:first-child { flex: 1 1 100% !important; min-width: 0 !important; }
+            #namePhoneIdRow > .fg:nth-child(2), #namePhoneIdRow > .fg:nth-child(3) { flex: 1 1 calc(50% - 4px) !important; min-width: 0 !important; }
 
             /* 標題列隱藏，改用 placeholder */
             .c-row:has(> span:first-child) { display: none !important; }
@@ -795,7 +797,7 @@
                     </div>
                 </div>
 
-                <div class="form-row">
+                <div class="form-row" id="buyerDetailRow">
                     <div class="fg"><label>職業</label><input id="f-floor" placeholder=""></div>
                     <div class="fg"><label>做主權人</label><input id="f-decisionMaker" placeholder=""></div>
                     <div class="fg"><label>想要</label><input id="f-want" placeholder=""></div>
