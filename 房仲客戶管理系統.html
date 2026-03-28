@@ -417,8 +417,10 @@
             /* 庫存開價/底價/服務費改三欄 */
             #sellerPriceRow { flex-direction: row !important; flex-wrap: nowrap !important; }
             #sellerPriceRow > .fg { flex: 1 !important; }
-            /* 庫存合約日期 */
-            #sellerContractRow { grid-template-columns: 1fr 1fr !important; }
+            /* 庫存合約日期：強制並排 */
+            #sellerContractRow { display: grid !important; grid-template-columns: 1fr 1fr !important; flex-direction: row !important; }
+            #sellerContractRow > .fg { width: auto !important; }
+            #sellerContractRow > button { grid-column: 2; justify-self: end; }
 
             /* 經營買方預算改橫排 */
             #budgetRow { flex-wrap: nowrap !important; flex-direction: row !important; }
@@ -909,7 +911,7 @@
                             </div>
                         </div>
                     </div>
-                    <div id="sellerContractRow" class="fg full" style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;margin-bottom:10px">
+                    <div id="sellerContractRow" style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;margin-bottom:10px">
                         <div class="fg" style="margin-bottom:0"><label>立約日</label><div class="roc-date-wrap"><input id="f-contractStart" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                         <div class="fg" style="margin-bottom:0"><label>到期日</label><div class="roc-date-wrap"><input id="f-contractEnd" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                         <button type="button" class="bf-chip" onclick="renewContract()" style="padding:7px 14px;font-size:13px;white-space:nowrap;margin-bottom:1px">續約</button>
