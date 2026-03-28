@@ -383,6 +383,9 @@
             .main-bar h2 { font-size: 16px; }
             .sort-sel { font-size: 12px; }
 
+            /* 手機雲端按鈕 */
+            .mobile-cloud { display: flex !important; }
+
             /* 手機底部導航 */
             .mobile-nav { display: flex !important; }
             .mobile-nav.hide-nav { display: none !important; }
@@ -394,6 +397,12 @@
             .deal-box { overflow-x: hidden; }
             .deal-row { flex-wrap: wrap; }
         }
+
+        /* 手機雲端按鈕 */
+        .mobile-cloud { display: none; gap: 4px; align-items: center; }
+        .mobile-cloud button { background: rgba(255,255,255,0.15); border: none; color: #FAFAF9; padding: 6px 10px; border-radius: 8px; font-size: 12px; cursor: pointer; white-space: nowrap; }
+        .mobile-cloud button:hover { background: rgba(255,255,255,0.25); }
+        .mobile-cloud-status { font-size: 10px; color: rgba(250,250,249,0.6); }
 
         /* 手機底部導航列 */
         .mobile-nav {
@@ -420,6 +429,10 @@
     <div class="search-wrap">
         <span class="search-icon">🔍</span>
         <input type="text" id="searchInput" placeholder="搜尋姓名、電話、備註…" oninput="render()">
+    </div>
+    <div class="mobile-cloud">
+        <button onclick="cloudRestore()">📥 還原</button>
+        <button onclick="autoSync()">☁️ 同步</button>
     </div>
     <button class="btn-add" onclick="openAdd()">＋ 新增客戶</button>
 </header>
