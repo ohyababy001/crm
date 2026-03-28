@@ -368,8 +368,8 @@
             .form-row { grid-template-columns: 1fr !important; }
             #emailSourceRow { grid-template-columns: 1fr 1fr !important; }
             .fg.full { grid-column: 1; }
-            #namePhoneIdRow { flex-wrap: nowrap !important; flex-direction: row !important; gap: 6px !important; }
-            #namePhoneIdRow > div { flex: 1 !important; min-width: 0 !important; }
+            #namePhoneIdRow { display: flex !important; flex-wrap: nowrap !important; flex-direction: row !important; gap: 6px !important; }
+            #namePhoneIdRow > .fg { flex: 1 1 0% !important; min-width: 0 !important; width: auto !important; max-width: 33.3% !important; }
 
             /* 標題列隱藏，改用 placeholder */
             .c-row:has(> span:first-child) { display: none !important; }
