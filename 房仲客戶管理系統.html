@@ -337,7 +337,8 @@
 
             /* Header */
             .header { padding: 10px 12px; gap: 6px; flex-wrap: wrap; }
-            .header-title { font-size: 16px; flex: 1 1 100%; }
+            .header-title { font-size: 16px; flex: 1 1 calc(50% - 4px); max-width: calc(50% - 4px); }
+            .mobile-cloud { flex: 1 1 calc(50% - 4px) !important; max-width: calc(50% - 4px); justify-content: flex-end; }
             .search-wrap { order: 3; flex: 1 1 calc(50% - 4px); max-width: calc(50% - 4px); }
             .btn-add { order: 4; flex: 1 1 calc(50% - 4px); max-width: calc(50% - 4px); padding: 10px 0; font-size: 14px; text-align: center; }
 
