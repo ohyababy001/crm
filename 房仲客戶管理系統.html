@@ -366,18 +366,35 @@
             .fg.full { grid-column: 1; }
             #namePhoneIdRow { flex-direction: column !important; gap: 8px; }
 
-            /* c-row (人員列) 兩欄換行 */
+            /* c-row (人員列) 兩欄換行 — 覆蓋 inline style */
             .c-row { flex-wrap: wrap !important; gap: 6px !important; }
-            .c-row > input[type="text"] { flex: 1 1 calc(50% - 16px) !important; min-width: 0 !important; max-width: 100% !important; }
-            .c-row > select { flex: 1 1 calc(50% - 16px) !important; min-width: 0 !important; max-width: 100% !important; }
+            .c-row input { flex: 1 1 calc(50% - 10px) !important; min-width: 80px !important; max-width: 100% !important; }
+            .c-row select { flex: 1 1 calc(50% - 10px) !important; min-width: 60px !important; max-width: 100% !important; }
+            .c-row .roc-date-wrap { flex: 1 1 calc(50% - 10px) !important; }
+            .c-row .roc-date-wrap input { flex: 1 !important; min-width: 50px !important; }
 
             /* 庫存坪數/車位改直排 */
             #szParkingRow { flex-direction: column !important; }
             #szParkingRow > .fg { flex: none !important; width: 100% !important; min-width: 0 !important; }
 
+            /* 庫存社區/地址改直排 */
+            #sellerAddrRow { grid-template-columns: 1fr !important; }
+
+            /* 庫存開價/底價/服務費改直排 */
+            #sellerPriceRow { flex-direction: column !important; gap: 8px !important; }
+            #sellerPriceRow > .fg { flex: none !important; width: 100% !important; }
+
+            /* 庫存合約日期 */
+            #sellerContractRow { grid-template-columns: 1fr 1fr !important; }
+
+            /* 經營買方預算改直排 */
+            #budgetRow { flex-direction: column !important; gap: 8px !important; }
+            #budgetRow > .fg { flex: none !important; width: 100% !important; }
+            #budgetRow > span { display: none; }
+
             /* 管理費兩欄換行 */
-            .fg.full > div[style*="flex-wrap"] { gap: 8px !important; }
-            .fg.full > div[style*="flex-wrap"] > div { flex: 1 1 45% !important; min-width: 60px !important; }
+            .fg.full > div[style*="flex-wrap"], .fg.full > div[style*="flex:"] { flex-wrap: wrap !important; gap: 8px !important; }
+            .fg.full > div[style*="flex-wrap"] > div, .fg.full > div[style*="flex:"] > div { flex: 1 1 45% !important; min-width: 60px !important; }
 
             /* 成交物件內部改全寬 */
             .deal-box { overflow: hidden; }
@@ -388,18 +405,12 @@
             .equip-grid { gap: 4px 8px !important; }
             .equip-item { width: calc(50% - 6px) !important; }
 
-            /* 租案租金/坪數/車位那排 */
-            #s-租案管理 > div[style*="grid-template-columns"] {
-                display: grid !important;
-                grid-template-columns: 1fr 1fr !important;
-                gap: 8px !important;
-            }
+            /* 租案租金/坪數/車位改兩欄 */
+            #rentalInfoRow { grid-template-columns: 1fr 1fr !important; }
 
-            /* 起租日/到期日/續約那排 */
+            /* 租案起租日/到期日 */
             div[style*="grid-template-columns:3fr"] {
-                display: grid !important;
                 grid-template-columns: 1fr 1fr !important;
-                gap: 8px !important;
             }
 
             /* 日曆彈窗限制寬度 */
@@ -725,7 +736,7 @@
                     <input id="f-roomOther" placeholder="" style="margin-top:6px;display:none">
                 </div>
 
-                <div style="display:flex;gap:6px;align-items:flex-end;margin-bottom:6px;min-width:0">
+                <div id="budgetRow" style="display:flex;gap:6px;align-items:flex-end;margin-bottom:6px;min-width:0">
                     <div class="fg" style="flex:1;margin-bottom:0;min-width:0">
                         <label>預算最低</label>
                         <div class="input-grp"><input id="f-budgetMin" placeholder="" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div>
@@ -782,11 +793,11 @@
                 </div>
 
                 <div class="sec-title" style="margin-top:4px">庫存屋主物件</div>
-                <div style="display:grid;grid-template-columns:1fr 3fr;gap:10px;margin-bottom:10px">
+                <div id="sellerAddrRow" style="display:grid;grid-template-columns:1fr 3fr;gap:10px;margin-bottom:10px">
                     <div class="fg" style="margin-bottom:0"><label>社區／大樓</label><input id="f-community" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>物件地址</label><input id="f-sAddr" placeholder=""></div>
                 </div>
-                <div style="display:flex;gap:8px;margin-bottom:10px">
+                <div id="sellerPriceRow" style="display:flex;gap:8px;margin-bottom:10px">
                     <div class="fg" style="flex:2;margin-bottom:0"><label>開價</label>
                         <div class="input-grp"><input id="f-sPrice" placeholder="" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div>
                     </div>
@@ -854,7 +865,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="fg full" style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;margin-bottom:10px">
+                    <div id="sellerContractRow" class="fg full" style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;margin-bottom:10px">
                         <div class="fg" style="margin-bottom:0"><label>合約立約日</label><div class="roc-date-wrap"><input id="f-contractStart" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                         <div class="fg" style="margin-bottom:0"><label>合約到期日</label><div class="roc-date-wrap"><input id="f-contractEnd" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                         <button type="button" class="bf-chip" onclick="renewContract()" style="padding:7px 14px;font-size:13px;white-space:nowrap;margin-bottom:1px">續約</button>
@@ -966,7 +977,7 @@
                     <div id="equipCustomList" style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px"></div>
                     <button type="button" class="add-row-btn" onclick="addCustomEquip()" style="margin-top:4px">＋ 新增其他</button>
                 </div>
-                <div style="display:grid;grid-template-columns:1.7fr 1fr 1fr 1.8fr;gap:8px;margin-bottom:10px">
+                <div id="rentalInfoRow" style="display:grid;grid-template-columns:1.7fr 1fr 1fr 1.8fr;gap:8px;margin-bottom:10px">
                     <div class="fg" style="margin-bottom:0;min-width:0"><label>租金</label>
                         <div style="display:flex;gap:3px">
                             <div class="input-grp" style="flex:1;min-width:0"><input id="f-rent" placeholder="" style="min-width:0;flex:1"><span class="input-sfx">元</span></div>
