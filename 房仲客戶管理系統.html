@@ -2162,8 +2162,8 @@ function renderCard(c) {
                 if (c.rMgmtType || rMgmtSum) rentDisp += ` <span style="color:#64748B">${esc(c.rMgmtType||'')}${rMgmtSum?' '+rMgmtSum.toLocaleString()+'元':''}</span>`;
                 meta += `<div class="cmeta-row"><span class="cmeta-k">租金</span><span class="cmeta-v">${rentDisp}</span></div>`;
             }
-            if (c.rStartDate || c.rEndDate) {
-                meta += `<div class="cmeta-row"><span class="cmeta-k">租期</span><span class="cmeta-v">${c.rStartDate?esc(isoToROC(c.rStartDate)):''}~${c.rEndDate?esc(isoToROC(c.rEndDate)):''}</span></div>`;
+            if (c.rEndDate) {
+                meta += `<div class="cmeta-row"><span class="cmeta-k">到期日</span><span class="cmeta-v" style="color:#D97706;font-weight:700">${esc(isoToROC(c.rEndDate))}</span></div>`;
             }
             if (c.renewals && c.renewals.length) {
                 meta += `<div class="cmeta-row"><span class="cmeta-k">續約</span><span class="cmeta-v" style="color:#065F46">已續約 ${c.renewals.length} 次</span></div>`;
