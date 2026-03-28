@@ -328,11 +328,74 @@
         .dash-empty { color: var(--muted); text-align: center; padding: 16px 0; font-size: 13px; }
 
 
-        @media (max-width: 640px) {
+        @media (max-width: 768px) {
+            /* Header */
+            .header { padding: 10px 12px; gap: 8px; flex-wrap: wrap; }
+            .header-title { font-size: 16px; }
+            .search-wrap { order: 3; flex-basis: 100%; max-width: 100%; }
+            .btn-add { padding: 8px 14px; font-size: 13px; }
+
+            /* Layout: 隱藏側邊欄 */
             .sidebar { display: none; }
-            .form-row { grid-template-columns: 1fr; }
+            .layout { flex-direction: column; }
+            .main { padding: 10px 8px; }
+
+            /* 卡片 */
+            .card { padding: 8px 10px; gap: 8px; flex-wrap: wrap; }
+            .avatar { width: 36px; height: 36px; font-size: 14px; }
+            .card-main { width: auto; flex: 1; min-width: 80px; }
+            .card-name { font-size: 15px; }
+            .card-divider { display: none; }
+            .card-meta { width: auto; flex: 1 1 100%; }
+            .card-notes-col { display: none; }
             .card-right { display: none; }
+            .card-bottom-right { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); }
+            .card { position: relative; }
+
+            /* 表單 Modal */
+            .overlay { padding: 0; align-items: flex-end; }
+            .modal { max-width: 100%; max-height: 100vh; border-radius: 14px 14px 0 0; }
+            .modal-body { padding: 14px 12px; }
+            .form-row { grid-template-columns: 1fr; }
+            .fg.full { grid-column: 1; }
+            #namePhoneIdRow { flex-direction: column; gap: 6px; }
+
+            /* 預覽 Modal */
+            #dModal { padding-top: 0; align-items: flex-end; }
+            #dModal .modal { max-height: 95vh; border-radius: 14px 14px 0 0; }
+            .det-head { padding: 12px; }
+            .det-body { padding: 10px 12px; }
+            .det-name { font-size: 18px; }
+
+            /* 主列表標題 */
+            .main-bar h2 { font-size: 16px; }
+            .sort-sel { font-size: 12px; }
+
+            /* 庫存坪數車位那排 */
+            #namePhoneIdRow,
+            .type-sec .c-row { flex-wrap: wrap; }
+
+            /* 手機底部導航 */
+            .mobile-nav { display: flex !important; }
+            .main { padding-bottom: 70px; }
         }
+
+        /* 手機底部導航列 */
+        .mobile-nav {
+            display: none;
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: white; border-top: 1px solid var(--border);
+            z-index: 300; padding: 4px 0;
+            padding-bottom: env(safe-area-inset-bottom, 4px);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+        }
+        .mobile-nav button {
+            flex: 1; border: none; background: none; padding: 6px 2px;
+            font-size: 10px; color: var(--muted); cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; gap: 2px;
+        }
+        .mobile-nav button.active { color: var(--deep); font-weight: 700; }
+        .mobile-nav button .nav-icon { font-size: 18px; }
     </style>
 </head>
 <body>
@@ -3818,6 +3881,24 @@ function cloudRestore() {
         if (script.parentNode) script.parentNode.removeChild(script);
     };
     document.body.appendChild(script);
+}
+</script>
+<nav class="mobile-nav" id="mobileNav">
+    <button onclick="mobileFilter('all')" id="mnav-all" class="active"><span class="nav-icon">📋</span>總覽</button>
+    <button onclick="mobileFilter('經營買方')" id="mnav-經營買方"><span class="nav-icon">🏠</span>買方</button>
+    <button onclick="mobileFilter('庫存屋主')" id="mnav-庫存屋主"><span class="nav-icon">🏢</span>屋主</button>
+    <button onclick="mobileFilter('租案管理')" id="mnav-租案管理"><span class="nav-icon">🔑</span>租案</button>
+    <button onclick="mobileFilter('成交客戶')" id="mnav-成交客戶"><span class="nav-icon">🤝</span>成交</button>
+    <button onclick="mobileFilter('商機募集')" id="mnav-商機募集"><span class="nav-icon">📞</span>商機</button>
+</nav>
+<script>
+function mobileFilter(type) {
+    document.querySelectorAll('.mobile-nav button').forEach(function(b){ b.classList.remove('active'); });
+    var btn = document.getElementById('mnav-'+type);
+    if (btn) btn.classList.add('active');
+    // 呼叫原有的 setFilter
+    var sideBtn = document.querySelector('.filter-btn');
+    setFilter(type, sideBtn);
 }
 </script>
 <script>
