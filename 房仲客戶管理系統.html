@@ -514,6 +514,12 @@
             .det-body { padding: 10px 12px; }
             .det-name { font-size: 18px; }
 
+            /* 總覽方塊一排六個 */
+            .dash-cards { grid-template-columns: repeat(6, 1fr) !important; gap: 6px !important; }
+            .dash-card { padding: 10px 4px !important; border-radius: 10px !important; }
+            .dash-card .dash-num { font-size: 20px !important; }
+            .dash-card .dash-label { font-size: 11px !important; }
+
             /* 主列表 */
             .main-bar h2 { font-size: 16px; }
             .sort-sel { font-size: 12px; }
@@ -549,7 +555,7 @@
         }
         .mobile-nav button {
             flex: 1; border: none; background: none; padding: 6px 0;
-            font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer;
+            font-size: 18px; font-weight: 600; color: var(--muted); cursor: pointer;
             white-space: nowrap; border-radius: 6px; text-align: center;
         }
         .mobile-nav button.active { color: var(--deep); font-weight: 800; background: var(--bg); }
