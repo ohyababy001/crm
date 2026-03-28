@@ -597,17 +597,12 @@
 <script>
 var _pin = '';
 var _correctPin = '501450';
-// 記住裝置：驗證過就不用再輸入
-if (localStorage.getItem('pinOK') === _correctPin) {
-    document.getElementById('pinLock').style.display = 'none';
-}
 function pinInput(n) {
     if (_pin.length >= 6) return;
     _pin += n;
     updatePinDots();
     if (_pin.length === 6) {
         if (_pin === _correctPin) {
-            localStorage.setItem('pinOK', _correctPin);
             document.getElementById('pinLock').style.display = 'none';
         } else {
             document.getElementById('pinError').textContent = 'PIN 碼錯誤';
