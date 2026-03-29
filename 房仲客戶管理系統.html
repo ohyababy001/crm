@@ -1361,6 +1361,44 @@ function autoSync() {
     }, 10000);
 }
 
+// ── 自動檢查雲端更新（每5分鐘）──
+var _checkTimer = null;
+function startAutoCheck() {
+    if (_checkTimer) clearInterval(_checkTimer);
+    _checkTimer = setInterval(checkCloudUpdate, 5 * 60 * 1000); // 5分鐘
+}
+function checkCloudUpdate() {
+    var cbName = 'checkCb_' + Date.now();
+    var script = document.createElement('script');
+    window[cbName] = function(data) {
+        delete window[cbName];
+        if (script.parentNode) script.parentNode.removeChild(script);
+        try {
+            var cloudData = Array.isArray(data) ? data : null;
+            if (!cloudData && data && typeof data === 'object') {
+                var raw = data.payload ? String(data.payload) : '';
+                if (raw) {
+                    try { var obj = JSON.parse(raw); if (obj && obj.payload) raw = obj.payload; } catch(e) {}
+                    if (raw.indexOf('\\"') >= 0) raw = raw.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+                    cloudData = JSON.parse(raw);
+                }
+            }
+            if (!Array.isArray(cloudData)) return;
+            // 比對筆數，若雲端較多代表有其他裝置新增了資料
+            var localCount = DB.filter(function(c){ return !c._deleted; }).length;
+            var cloudCount = cloudData.filter(function(c){ return !c._deleted; }).length;
+            if (cloudCount > localCount) {
+                var status = document.getElementById('cloudStatus');
+                if (status) status.innerHTML = '⚡ <a href="#" onclick="cloudRestore();return false;" style="color:#D97706;font-weight:700">發現新資料，點擊同步（雲端 ' + cloudCount + ' 筆 / 本機 ' + localCount + ' 筆）</a>';
+            }
+        } catch(e) {}
+    };
+    script.src = CLOUD_URL + '?callback=' + cbName + '&t=' + Date.now();
+    script.onerror = function() { delete window[cbName]; if (script.parentNode) script.parentNode.removeChild(script); };
+    document.body.appendChild(script);
+}
+startAutoCheck();
+
 // ── 封存 ──
 var ARCHIVE_REASONS = {
     '經營買方': ['不買了','已在他處成交','其他'],
