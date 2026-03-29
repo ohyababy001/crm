@@ -5898,36 +5898,11 @@ function cloudRestore() {
         alert('還原成功，共 ' + DB.length + ' 筆資料');
     }
 
-    // 優先用 fetch（支援大資料），fallback 到 JSONP
-    if (window.fetch) {
-        fetch(CLOUD_URL + '?t=' + Date.now())
-            .then(function(res) { return res.text(); })
-            .then(function(text) {
-                try {
-                    // 去掉 JSONP 包裝（如 cb_123({...})）
-                    var json = text.trim();
-                    var m = json.match(/^[a-zA-Z_]\w*\(([\s\S]*)\);?$/);
-                    if (m) json = m[1];
-                    var data = JSON.parse(json);
-                    processRestore(data);
-                } catch(err) {
-                    if (statusEl) statusEl.textContent = '❌ 還原失敗：' + err.message;
-                    alert('還原失敗：' + err.message);
-                }
-                if (btnEl) btnEl.disabled = false;
-            })
-            .catch(function(err) {
-                // fetch 失敗（可能跨域），fallback 到 JSONP
-                cloudRestoreJSONP(statusEl, btnEl, processRestore);
-            });
-    } else {
-        cloudRestoreJSONP(statusEl, btnEl, processRestore);
-    }
-}
-function cloudRestoreJSONP(statusEl, btnEl, processRestore) {
     var cbName = 'cloudCb_' + Date.now();
     var script = document.createElement('script');
+    var done = false;
     window[cbName] = function(data) {
+        done = true;
         try { processRestore(data); }
         catch(err) {
             if (statusEl) statusEl.textContent = '❌ 還原失敗：' + err.message;
@@ -5939,13 +5914,25 @@ function cloudRestoreJSONP(statusEl, btnEl, processRestore) {
     };
     script.src = CLOUD_URL + '?callback=' + cbName + '&t=' + Date.now();
     script.onerror = function() {
+        if (done) return;
+        done = true;
         if (statusEl) statusEl.textContent = '❌ 連線失敗';
         if (btnEl) btnEl.disabled = false;
-        alert('連線失敗，請檢查網路');
+        alert('連線失敗，請檢查網路後重試');
         delete window[cbName];
         if (script.parentNode) script.parentNode.removeChild(script);
     };
     document.body.appendChild(script);
+    // 超時處理
+    setTimeout(function() {
+        if (done) return;
+        done = true;
+        if (statusEl) statusEl.textContent = '⚠️ 還原逾時，請重試';
+        if (btnEl) btnEl.disabled = false;
+        alert('還原逾時，請確認網路後重試');
+        delete window[cbName];
+        if (script.parentNode) script.parentNode.removeChild(script);
+    }, 30000);
 }
 </script>
 <script>
