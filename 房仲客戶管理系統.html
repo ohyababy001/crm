@@ -651,7 +651,7 @@
         <!-- 經營買方過濾列 -->
         <div class="buyer-filter" id="buyerFilter">
             <div style="display:flex;gap:6px;align-items:flex-start">
-                <button class="bf-chip on" onclick="clearBfRoom();clearBfGrade()" style="flex-shrink:0;align-self:center">全部</button>
+                <button class="bf-chip on" onclick="clearBfRoom();clearBfGrade();updateBfAllBtn();render()" style="flex-shrink:0;align-self:center">全部</button>
                 <div style="flex:1">
                     <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">
                         <span style="flex-shrink:0;font-size:14px;font-weight:600;color:white;background:#1D4ED8;padding:6px 16px;border-radius:20px;border:1.5px solid #1D4ED8">房型</span>
@@ -2091,7 +2091,6 @@ function toggleBfRoom(btn, room) {
 function clearBfRoom() {
     bfRooms = [];
     document.querySelectorAll('#buyerFilter .bf-chip[onclick*="toggleBfRoom"]').forEach(function(b){ b.classList.remove('on'); });
-    render();
 }
 function toggleBfCity(btn, city) {
     if (bfCity === city) { bfCity = ''; btn.classList.remove('on'); }
