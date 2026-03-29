@@ -639,7 +639,10 @@
                     <button class="bf-chip" onclick="toggleBfRoom(this,'三房')">三房</button>
                     <button class="bf-chip" onclick="toggleBfRoom(this,'四房')">四房</button>
                     <button class="bf-chip" onclick="toggleBfRoom(this,'公寓')">公寓</button>
-                    <button class="bf-chip" onclick="toggleBfRoom(this,'龍騰')">龍騰</button>
+                    <button class="bf-chip" onclick="toggleBfRoom(this,'豪宅')">豪宅</button>
+                    <button class="bf-chip" onclick="toggleBfRoom(this,'店面')">店面</button>
+                    <button class="bf-chip" onclick="toggleBfRoom(this,'辦公')">辦公</button>
+                    <button class="bf-chip" onclick="toggleBfRoom(this,'透天')">透天</button>
                 </div>
                 <span class="bf-clear" onclick="clearBfRoom()" style="flex-shrink:0">清除</span>
             </div>
@@ -763,7 +766,7 @@
                     <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-bSource" placeholder=""></div>
                 </div>
                 <div data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr auto;gap:6px;margin-bottom:6px;align-items:end">
-                    <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-bAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="娘家">娘家</option><option value="自訂">自訂</option></select></div>
+                    <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-bAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="自訂">自訂</option></select></div>
                     <div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input id="f-bZip" data-f="zip" placeholder="" style="min-width:0"></div>
                     <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-bAddr" placeholder="" onblur="autoZip(this)"></div>
                     <button type="button" class="btn-ic" onclick="addBuyerAddrRow('bBasicAddrList')" title="新增地址" style="margin-bottom:2px;font-size:16px;padding:6px 8px">＋</button>
@@ -794,15 +797,17 @@
                 </div>
 
                 <div class="fg full" style="margin-bottom:6px">
-                    <label style="margin-bottom:6px">房型需求（可複選）</label>
+                    <label style="margin-bottom:6px">房型需求</label>
                     <div class="room-picker">
-                        <button type="button" class="rm-btn" onclick="toggleRoom(this,'套房')">套房</button>
-                        <button type="button" class="rm-btn" onclick="toggleRoom(this,'二房')">二房</button>
-                        <button type="button" class="rm-btn" onclick="toggleRoom(this,'三房')">三房</button>
-                        <button type="button" class="rm-btn" onclick="toggleRoom(this,'四房')">四房</button>
-                        <button type="button" class="rm-btn" onclick="toggleRoom(this,'公寓')">公寓</button>
-                        <button type="button" class="rm-btn" onclick="toggleRoom(this,'龍騰')">龍騰</button>
-                        <button type="button" class="rm-btn" onclick="toggleRoom(this,'其他')">其他</button>
+                        <button type="button" class="rm-btn" onclick="pickRoom(this,'套房')">套房</button>
+                        <button type="button" class="rm-btn" onclick="pickRoom(this,'二房')">二房</button>
+                        <button type="button" class="rm-btn" onclick="pickRoom(this,'三房')">三房</button>
+                        <button type="button" class="rm-btn" onclick="pickRoom(this,'四房')">四房</button>
+                        <button type="button" class="rm-btn" onclick="pickRoom(this,'公寓')">公寓</button>
+                        <button type="button" class="rm-btn" onclick="pickRoom(this,'豪宅')">豪宅</button>
+                        <button type="button" class="rm-btn" onclick="pickRoom(this,'店面')">店面</button>
+                        <button type="button" class="rm-btn" onclick="pickRoom(this,'辦公')">辦公</button>
+                        <button type="button" class="rm-btn" onclick="pickRoom(this,'透天')">透天</button>
                     </div>
                     <input id="f-roomOther" placeholder="" style="margin-top:6px;display:none">
                 </div>
@@ -844,7 +849,7 @@
                     <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-sSource" placeholder=""></div>
                 </div>
                 <div id="sellerBasicRow3" data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr;gap:6px;margin-bottom:10px">
-                    <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-sAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="娘家">娘家</option><option value="自訂">自訂</option></select></div>
+                    <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-sAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="自訂">自訂</option></select></div>
                     <div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input id="f-sZip" data-f="zip" placeholder="" style="min-width:0"></div>
                     <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-sOwnerAddr" placeholder="" onblur="autoZip(this)"></div>
                 </div>
@@ -994,7 +999,7 @@
                         <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-llBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                     </div>
                     <div data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr;gap:6px;margin-bottom:6px">
-                        <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-llAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="娘家">娘家</option><option value="自訂">自訂</option></select></div>
+                        <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-llAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="自訂">自訂</option></select></div>
                         <div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input id="f-llZip" data-f="zip" placeholder="" style="min-width:0"></div>
                         <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-llAddr" placeholder="" onblur="autoZip(this)"></div>
                     </div>
@@ -1039,7 +1044,7 @@
                         <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-ttBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                     </div>
                     <div data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr;gap:6px;margin-bottom:6px">
-                        <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-ttAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="娘家">娘家</option><option value="自訂">自訂</option></select></div>
+                        <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-ttAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="自訂">自訂</option></select></div>
                         <div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input id="f-ttZip" data-f="zip" placeholder="" style="min-width:0"></div>
                         <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-ttAddr" placeholder="" onblur="autoZip(this)"></div>
                     </div>
@@ -1156,7 +1161,7 @@
                     <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-cSource" placeholder=""></div>
                 </div>
                 <div data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr;gap:6px;margin-bottom:10px">
-                    <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-cAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="娘家">娘家</option><option value="自訂">自訂</option></select></div>
+                    <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-cAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="自訂">自訂</option></select></div>
                     <div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input id="f-cZip" data-f="zip" placeholder="" style="min-width:0"></div>
                     <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-cAddr" placeholder="" onblur="autoZip(this)"></div>
                 </div>
@@ -1182,7 +1187,7 @@
                     <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-dSource" placeholder=""></div>
                 </div>
                 <div data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr;gap:6px;margin-bottom:10px">
-                    <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-dAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="娘家">娘家</option><option value="自訂">自訂</option></select></div>
+                    <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-dAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="自訂">自訂</option></select></div>
                     <div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input id="f-dZip" data-f="zip" placeholder="" style="min-width:0"></div>
                     <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-dAddr" placeholder="" onblur="autoZip(this)"></div>
                 </div>
@@ -1409,7 +1414,7 @@ function autoZip(addrInput) {
 function loadAddrType(id, val) {
     if (!val) return;
     var el = document.getElementById(id); if (!el) return;
-    var std = ['住家','公司','娘家','自訂'];
+    var std = ['住家','公司','自訂'];
     if (std.includes(val)) { el.value = val; }
     else {
         // 自訂值：替換 select 為 input
@@ -1438,7 +1443,7 @@ Object.entries(DISTRICTS).forEach(([city, dists]) => {
     if (!el) return;
     el.innerHTML = dists.map(d =>
         `<button type="button" class="dist-btn" onclick="toggleDist(this,'${d}區')" data-dist="${d}區">${d}區</button>`
-    ).join('') + `<button type="button" class="dist-btn" onclick="addCustomDist('${city}')" style="color:var(--muted);border-style:dashed">＋ 自訂</button>`;
+    ).join('') + (city === '台北市' ? '' : `<button type="button" class="dist-btn" onclick="addCustomDist('${city}')" style="color:var(--muted);border-style:dashed">＋ 自訂</button>`);
 });
 function addCustomDist(city) {
     var name = prompt('請輸入自訂區域名稱（例：八里區）');
@@ -2987,7 +2992,7 @@ function addBAddrRow(data) {
     bAddrId++;
     var d = data || {};
     var html = '<div class="c-row" id="ba-'+bAddrId+'">' +
-        '<select style="width:75px;flex-shrink:0"><option value="住家"'+(d.type==='住家'?' selected':'')+'>住家</option><option value="公司"'+(d.type==='公司'?' selected':'')+'>公司</option><option value="學區"'+(d.type==='學區'?' selected':'')+'>學區</option><option value="娘家"'+(d.type==='娘家'?' selected':'')+'>娘家</option><option value="其他"'+(d.type==='其他'?' selected':'')+'>其他</option></select>' +
+        '<select style="width:75px;flex-shrink:0"><option value="住家"'+(d.type==='住家'?' selected':'')+'>住家</option><option value="公司"'+(d.type==='公司'?' selected':'')+'>公司</option><option value="學區"'+(d.type==='學區'?' selected':'')+'>學區</option><option value="娘家"'</option><option value="其他"'+(d.type==='其他'?' selected':'')+'>其他</option></select>' +
         '<input type="text" style="flex:1;min-width:0" placeholder="地址" value="'+esc(d.addr||'')+'">' +
         '<button type="button" class="c-del" onclick="this.parentElement.remove()">✕</button></div>';
     document.getElementById('bAddrList').insertAdjacentHTML('beforeend', html);
@@ -3249,11 +3254,11 @@ function addPersonBlock(listId, data) {
     personBlockId++;
     var d = data || {};
     var bdVal = d.birthday ? (d.birthday.includes('-') ? isoToROC(d.birthday) : d.birthday) : '';
-    var stdTypes = ['住家','公司','娘家','自訂',''];
+    var stdTypes = ['住家','公司','自訂',''];
     var isCustom = d.addrType && !stdTypes.includes(d.addrType);
     var typeHtml = isCustom
         ? '<input data-f="addrType" type="text" value="'+esc(d.addrType)+'">'
-        : '<select data-f="addrType" onchange="onAddrTypeChange(this)"><option value="住家"'+(d.addrType==='住家'?' selected':'')+'>住家</option><option value="公司"'+(d.addrType==='公司'?' selected':'')+'>公司</option><option value="娘家"'+(d.addrType==='娘家'?' selected':'')+'>娘家</option><option value="自訂"'+(d.addrType==='自訂'?' selected':'')+'>自訂</option></select>';
+        : '<select data-f="addrType" onchange="onAddrTypeChange(this)"><option value="住家"'+(d.addrType==='住家'?' selected':'')+'>住家</option><option value="公司"'+(d.addrType==='公司'?' selected':'')+'>公司</option><option value="娘家"'</option><option value="自訂"'+(d.addrType==='自訂'?' selected':'')+'>自訂</option></select>';
     var html = '<div class="person-block" id="pb-'+personBlockId+'" style="border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px;position:relative">' +
         '<button type="button" class="c-del" onclick="this.parentElement.remove()" style="position:absolute;top:6px;right:8px">✕</button>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px">' +
@@ -3305,10 +3310,10 @@ var bBasicAddrId = 0;
 function addBuyerAddrRow(listId, data) {
     bBasicAddrId++;
     var d = data || {};
-    var isCustom = d.type && !['住家','公司','娘家','自訂',''].includes(d.type);
+    var isCustom = d.type && !['住家','公司','自訂',''].includes(d.type);
     var typeHtml = isCustom
         ? '<input data-f="type" type="text" value="'+esc(d.type)+'" style="width:100%;min-width:0;box-sizing:border-box">'
-        : '<select data-f="type" onchange="onAddrTypeChange(this)"><option value="住家"'+(d.type==='住家'?' selected':'')+'>住家</option><option value="公司"'+(d.type==='公司'?' selected':'')+'>公司</option><option value="娘家"'+(d.type==='娘家'?' selected':'')+'>娘家</option><option value="自訂"'+(d.type==='自訂'?' selected':'')+'>自訂</option></select>';
+        : '<select data-f="type" onchange="onAddrTypeChange(this)"><option value="住家"'+(d.type==='住家'?' selected':'')+'>住家</option><option value="公司"'+(d.type==='公司'?' selected':'')+'>公司</option><option value="娘家"'</option><option value="自訂"'+(d.type==='自訂'?' selected':'')+'>自訂</option></select>';
     var html = '<div class="c-row" data-addr-row id="bba-'+bBasicAddrId+'" style="display:grid;grid-template-columns:1fr 1fr 6fr auto;gap:6px;align-items:end;margin-bottom:4px">' +
         '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">類型</label>'+typeHtml+'</div>' +
         '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">郵遞區號</label><input data-f="zip" value="'+esc(d.zip||'')+'" placeholder="" style="min-width:0"></div>' +
@@ -3330,10 +3335,10 @@ function addPbAddrRow(btn, data) {
     var block = btn.closest('.person-block'); if (!block) return;
     var list = block.querySelector('.pb-addr-list'); if (!list) return;
     var d = data || {};
-    var isCustom = d.type && !['住家','公司','娘家','自訂',''].includes(d.type);
+    var isCustom = d.type && !['住家','公司','自訂',''].includes(d.type);
     var typeHtml = isCustom
         ? '<input data-f="type" type="text" value="'+esc(d.type)+'" style="width:100%;min-width:0;box-sizing:border-box">'
-        : '<select data-f="type" onchange="onAddrTypeChange(this)"><option value="住家"'+(d.type==='住家'?' selected':'')+'>住家</option><option value="公司"'+(d.type==='公司'?' selected':'')+'>公司</option><option value="娘家"'+(d.type==='娘家'?' selected':'')+'>娘家</option><option value="自訂"'+(d.type==='自訂'?' selected':'')+'>自訂</option></select>';
+        : '<select data-f="type" onchange="onAddrTypeChange(this)"><option value="住家"'+(d.type==='住家'?' selected':'')+'>住家</option><option value="公司"'+(d.type==='公司'?' selected':'')+'>公司</option><option value="娘家"'</option><option value="自訂"'+(d.type==='自訂'?' selected':'')+'>自訂</option></select>';
     var html = '<div class="c-row" data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr auto;gap:6px;align-items:end;margin-bottom:4px">' +
         '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">類型</label>'+typeHtml+'</div>' +
         '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">郵遞區號</label><input data-f="zip" value="'+esc(d.zip||'')+'" placeholder="" style="min-width:0"></div>' +
@@ -3786,6 +3791,16 @@ function toggleRoom(btn, room) {
     if (btn.classList.contains('on')) { if (!selectedRooms.includes(room)) selectedRooms.push(room); }
     else selectedRooms = selectedRooms.filter(r => r !== room);
     document.getElementById('f-roomOther').style.display = selectedRooms.includes('其他') ? '' : 'none';
+}
+function pickRoom(btn, room) {
+    // 單選：取消其他，只選一個
+    document.querySelectorAll('.rm-btn').forEach(b => b.classList.remove('on'));
+    if (selectedRooms.includes(room)) {
+        selectedRooms = [];
+    } else {
+        selectedRooms = [room];
+        btn.classList.add('on');
+    }
 }
 
 // ── Form: City / District ──
