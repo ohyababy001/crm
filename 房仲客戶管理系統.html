@@ -757,7 +757,7 @@
                     <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-bBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                 </div>
                 <div data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr;gap:6px;margin-bottom:6px">
-                    <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-bAddrType"><option value="住家">住家</option><option value="公司">公司</option><option value="娘家">娘家</option><option value="自訂">自訂</option></select></div>
+                    <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-bAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="娘家">娘家</option><option value="自訂">自訂</option></select></div>
                     <div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input id="f-bZip" data-f="zip" placeholder="" style="min-width:0"></div>
                     <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-bAddr" placeholder="" onblur="autoZip(this)"></div>
                 </div>
@@ -844,7 +844,7 @@
                     <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-sBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                 </div>
                 <div id="sellerBasicRow3" data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr;gap:6px;margin-bottom:6px">
-                    <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-sAddrType"><option value="住家">住家</option><option value="公司">公司</option><option value="娘家">娘家</option><option value="自訂">自訂</option></select></div>
+                    <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-sAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="娘家">娘家</option><option value="自訂">自訂</option></select></div>
                     <div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input id="f-sZip" data-f="zip" placeholder="" style="min-width:0"></div>
                     <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-sOwnerAddr" placeholder="" onblur="autoZip(this)"></div>
                 </div>
@@ -996,7 +996,7 @@
                         <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-llBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                     </div>
                     <div data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr;gap:6px;margin-bottom:6px">
-                        <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-llAddrType"><option value="住家">住家</option><option value="公司">公司</option><option value="娘家">娘家</option><option value="自訂">自訂</option></select></div>
+                        <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-llAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="娘家">娘家</option><option value="自訂">自訂</option></select></div>
                         <div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input id="f-llZip" data-f="zip" placeholder="" style="min-width:0"></div>
                         <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-llAddr" placeholder="" onblur="autoZip(this)"></div>
                     </div>
@@ -1041,7 +1041,7 @@
                         <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-ttBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                     </div>
                     <div data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr;gap:6px;margin-bottom:6px">
-                        <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-ttAddrType"><option value="住家">住家</option><option value="公司">公司</option><option value="娘家">娘家</option><option value="自訂">自訂</option></select></div>
+                        <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-ttAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="娘家">娘家</option><option value="自訂">自訂</option></select></div>
                         <div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input id="f-ttZip" data-f="zip" placeholder="" style="min-width:0"></div>
                         <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-ttAddr" placeholder="" onblur="autoZip(this)"></div>
                     </div>
@@ -1156,7 +1156,7 @@
                     <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-cBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                 </div>
                 <div data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr;gap:6px;margin-bottom:6px">
-                    <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-cAddrType"><option value="住家">住家</option><option value="公司">公司</option><option value="娘家">娘家</option><option value="自訂">自訂</option></select></div>
+                    <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-cAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="娘家">娘家</option><option value="自訂">自訂</option></select></div>
                     <div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input id="f-cZip" data-f="zip" placeholder="" style="min-width:0"></div>
                     <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-cAddr" placeholder="" onblur="autoZip(this)"></div>
                 </div>
@@ -1184,7 +1184,7 @@
                     <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-dBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                 </div>
                 <div data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr;gap:6px;margin-bottom:6px">
-                    <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-dAddrType"><option value="住家">住家</option><option value="公司">公司</option><option value="娘家">娘家</option><option value="自訂">自訂</option></select></div>
+                    <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-dAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="娘家">娘家</option><option value="自訂">自訂</option></select></div>
                     <div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input id="f-dZip" data-f="zip" placeholder="" style="min-width:0"></div>
                     <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-dAddr" placeholder="" onblur="autoZip(this)"></div>
                 </div>
@@ -1370,6 +1370,31 @@ function autoZip(addrInput) {
     if (!zipInput || zipInput.value.trim()) return;
     for (var dist in ZIP_MAP) {
         if (addr.includes(dist)) { zipInput.value = ZIP_MAP[dist]; return; }
+    }
+}
+function loadAddrType(id, val) {
+    if (!val) return;
+    var el = document.getElementById(id); if (!el) return;
+    var std = ['住家','公司','娘家','自訂'];
+    if (std.includes(val)) { el.value = val; }
+    else {
+        // 自訂值：替換 select 為 input
+        var inp = document.createElement('input');
+        inp.type = 'text'; inp.id = id; inp.value = val;
+        if (el.getAttribute('data-f')) inp.setAttribute('data-f', el.getAttribute('data-f'));
+        el.parentElement.replaceChild(inp, el);
+    }
+}
+function onAddrTypeChange(sel) {
+    if (sel.value === '自訂') {
+        var inp = document.createElement('input');
+        inp.type = 'text'; inp.placeholder = '自訂類型';
+        inp.style.cssText = sel.style.cssText;
+        if (sel.id) inp.id = sel.id;
+        if (sel.getAttribute('data-f')) inp.setAttribute('data-f', sel.getAttribute('data-f'));
+        inp.value = '';
+        sel.parentElement.replaceChild(inp, sel);
+        inp.focus();
     }
 }
 
@@ -3075,6 +3100,11 @@ function addPersonBlock(listId, data) {
     personBlockId++;
     var d = data || {};
     var bdVal = d.birthday ? (d.birthday.includes('-') ? isoToROC(d.birthday) : d.birthday) : '';
+    var stdTypes = ['住家','公司','娘家','自訂',''];
+    var isCustom = d.addrType && !stdTypes.includes(d.addrType);
+    var typeHtml = isCustom
+        ? '<input data-f="addrType" type="text" value="'+esc(d.addrType)+'">'
+        : '<select data-f="addrType" onchange="onAddrTypeChange(this)"><option value="住家"'+(d.addrType==='住家'?' selected':'')+'>住家</option><option value="公司"'+(d.addrType==='公司'?' selected':'')+'>公司</option><option value="娘家"'+(d.addrType==='娘家'?' selected':'')+'>娘家</option><option value="自訂"'+(d.addrType==='自訂'?' selected':'')+'>自訂</option></select>';
     var html = '<div class="person-block" id="pb-'+personBlockId+'" style="border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px;position:relative">' +
         '<button type="button" class="c-del" onclick="this.parentElement.remove()" style="position:absolute;top:6px;right:8px">✕</button>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px">' +
@@ -3086,7 +3116,7 @@ function addPersonBlock(listId, data) {
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">生日</label><div class="roc-date-wrap"><input data-f="birthday" type="text" value="'+esc(bdVal)+'" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
         '</div>' +
         '<div data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr;gap:6px;margin-bottom:4px">' +
-            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">類型</label><select data-f="addrType"><option value="住家"'+(d.addrType==='住家'?' selected':'')+'>住家</option><option value="公司"'+(d.addrType==='公司'?' selected':'')+'>公司</option><option value="娘家"'+(d.addrType==='娘家'?' selected':'')+'>娘家</option><option value="自訂"'+(d.addrType==='自訂'?' selected':'')+'>自訂</option></select></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">類型</label>'+typeHtml+'</div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">郵遞區號</label><input data-f="zip" value="'+esc(d.zip||'')+'" placeholder="" style="min-width:0"></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">地址</label><input data-f="addr" value="'+esc(d.addr||'')+'" placeholder="" onblur="autoZip(this)"></div>' +
         '</div>' +
@@ -3701,7 +3731,7 @@ function openEdit(id, viewAs) {
     setVal('f-bPhone', c.bPhone || (hasBuyer ? c.phone : ''));
     setVal('f-bIdNo', c.bIdNo || (hasBuyer ? c.idNo : ''));
     setVal('f-bBirthday', c.bBirthday ? isoToROC(c.bBirthday) : '');
-    if (c.bAddrType) document.getElementById('f-bAddrType').value = c.bAddrType;
+    loadAddrType('f-bAddrType', c.bAddrType);
     setVal('f-bZip', c.bZip || '');
     setVal('f-bAddr', c.bAddr || '');
     setVal('f-bEmail', c.bEmail || (hasBuyer ? c.email : ''));
@@ -3730,7 +3760,7 @@ function openEdit(id, viewAs) {
     setVal('f-sName', c.sName || (sellerOnly ? c.name : ''));
     setVal('f-sPhone', c.sPhone || (sellerOnly ? c.phone : ''));
     setVal('f-sIdNo',c.sIdNo); setVal('f-sBirthday',isoToROC(c.sBirthday));
-    if (c.sAddrType) document.getElementById('f-sAddrType').value = c.sAddrType;
+    loadAddrType('f-sAddrType', c.sAddrType);
     setVal('f-sZip', c.sZip || ''); setVal('f-sOwnerAddr',c.sOwnerAddr);
     setVal('f-sEmail', c.sEmail || (sellerOnly ? c.email : ''));
     setVal('f-sSource', c.sSource || (sellerOnly ? c.source : ''));
@@ -3765,7 +3795,7 @@ function openEdit(id, viewAs) {
     setVal('f-llPhone', c.llPhone || llFirst.phone || c.rLandlordPhone || '');
     setVal('f-llIdNo', c.llIdNo || llFirst.idNo || '');
     setVal('f-llBirthday', c.llBirthday ? isoToROC(c.llBirthday) : '');
-    if (c.llAddrType) document.getElementById('f-llAddrType').value = c.llAddrType;
+    loadAddrType('f-llAddrType', c.llAddrType);
     setVal('f-llZip', c.llZip || ''); setVal('f-llAddr', c.llAddr || '');
     // 房東額外人員（跳過第一筆）
     if (c.rLandlords && c.rLandlords.length > 1) c.rLandlords.slice(1).forEach(function(p){ addRPersonRow('rLandlordList','房東',p); });
@@ -3775,7 +3805,7 @@ function openEdit(id, viewAs) {
     setVal('f-ttPhone', c.ttPhone || ttFirst.phone || c.rTenantPhone || '');
     setVal('f-ttIdNo', c.ttIdNo || ttFirst.idNo || '');
     setVal('f-ttBirthday', c.ttBirthday ? isoToROC(c.ttBirthday) : '');
-    if (c.ttAddrType) document.getElementById('f-ttAddrType').value = c.ttAddrType;
+    loadAddrType('f-ttAddrType', c.ttAddrType);
     setVal('f-ttZip', c.ttZip || ''); setVal('f-ttAddr', c.ttAddr || '');
     // 租客額外人員（跳過第一筆）
     if (c.rTenants && c.rTenants.length > 1) c.rTenants.slice(1).forEach(function(p){ addRPersonRow('rTenantList','租客',p); });
@@ -3816,7 +3846,7 @@ function openEdit(id, viewAs) {
     setVal('f-cPhone', c.cPhone || cFirst.phone || (closedOnly ? c.phone : ''));
     setVal('f-cIdNo', c.cIdNo || cFirst.idNo || '');
     setVal('f-cBirthday', c.cBirthday ? isoToROC(c.cBirthday) : (cFirst.birthday ? isoToROC(cFirst.birthday) : ''));
-    if (c.cAddrType) document.getElementById('f-cAddrType').value = c.cAddrType;
+    loadAddrType('f-cAddrType', c.cAddrType);
     setVal('f-cZip', c.cZip || ''); setVal('f-cAddr', c.cAddr || '');
     setVal('f-cEmail', c.cEmail || '');
     setVal('f-cSource', c.cSource || (closedOnly ? c.source : ''));
@@ -3836,7 +3866,7 @@ function openEdit(id, viewAs) {
     setVal('f-dPhone', c.dPhone || dFirst.phone || (devOnly ? c.phone : ''));
     setVal('f-dIdNo', c.dIdNo || dFirst.idNo || '');
     setVal('f-dBirthday', c.dBirthday ? isoToROC(c.dBirthday) : '');
-    if (c.dAddrType) document.getElementById('f-dAddrType').value = c.dAddrType;
+    loadAddrType('f-dAddrType', c.dAddrType);
     setVal('f-dZip', c.dZip || ''); setVal('f-dAddr', c.dAddr || '');
     setVal('f-dEmail', c.dEmail || '');
     setVal('f-dSource', c.dSource || (devOnly ? c.source : ''));
