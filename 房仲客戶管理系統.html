@@ -3090,7 +3090,17 @@ function toggleParkingPrice() {
     document.getElementById('f-parkingNo').style.display = val ? '' : 'none';
 }
 // toggleRParkingNo 已移至租案物件區塊 inline handler
-// calcRMgmtTotal 已由 calcRpMgmt 取代
+// calcRMgmtTotal（租案）已由 calcRpMgmt 取代
+
+// ── 庫存主表單管理費合計 ──
+function calcMgmtTotal() {
+    var b = parseFloat(document.getElementById('f-sMgmtBuilding').value) || 0;
+    var c = parseFloat(document.getElementById('f-sMgmtCar').value) || 0;
+    var m = parseFloat(document.getElementById('f-sMgmtMoto').value) || 0;
+    var o = parseFloat(document.getElementById('f-sMgmtOther').value) || 0;
+    var total = b + c + m + o;
+    document.getElementById('sMgmtTotal').textContent = total.toLocaleString() + ' 元';
+}
 
 // ── 訊息彈窗 ──
 var _msgCancelFn = null;
