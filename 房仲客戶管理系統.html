@@ -977,6 +977,7 @@
                     <button type="button" class="btn-fill" onclick="showPriceHistory('sFloorPrice')" id="btnFloorHist" style="display:none">底價歷程</button>
                     <button type="button" class="btn-fill" onclick="showPriceHistory('sServiceFee')" id="btnFeeHist" style="display:none">服務費歷程</button>
                 </div>
+                <button type="button" onclick="openDetailSz()" style="background:white;color:#0D9488;border:1.5px dashed #0D9488;border-radius:8px;padding:7px 0;font-size:13px;font-weight:600;cursor:pointer;text-align:center;letter-spacing:0.1em;margin-bottom:6px;width:calc((2 / 11) * 100%)">坪數輸入</button>
                 <div id="szParkingRow" style="display:grid;grid-template-columns:2fr 2fr 3fr 2fr 2fr;gap:8px;margin-bottom:8px">
                     <div class="fg" style="margin-bottom:0"><div class="input-grp"><input id="f-sLandSz" placeholder="土地" style="min-width:0;flex:1"><span class="input-sfx">坪</span></div></div>
                     <div class="fg" style="margin-bottom:0"><div class="input-grp"><input id="f-sSz" placeholder="建物" style="min-width:0;flex:1"><span class="input-sfx">坪</span></div></div>
@@ -994,7 +995,6 @@
                     <div class="fg" style="margin-bottom:0"><div class="input-grp" id="parkingPriceGroup" style="visibility:hidden"><input id="f-parkingPrice" placeholder="車價" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>
                     <div class="fg" style="margin-bottom:0"><input id="f-parkingNo" placeholder="車位編號" style="display:none"></div>
                     <span id="parkingSzLabel" style="font-size:12px;color:var(--muted);grid-column:1/-1"></span>
-                    <button type="button" onclick="openDetailSz()" style="grid-column:1/2;background:white;color:#0D9488;border:1.5px dashed #0D9488;border-radius:8px;padding:7px 0;font-size:13px;font-weight:600;cursor:pointer;text-align:center;letter-spacing:0.1em">坪數輸入</button>
                 </div>
                 <div style="font-size:12px;font-weight:600;color:var(--wood);margin-bottom:4px">管理費</div>
                 <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">
@@ -3058,6 +3058,8 @@ function addSellerProperty(data) {
             '<div class="fg" style="margin-bottom:0;grid-column:3/5"><div class="input-grp"><input data-f="floorPrice" value="'+esc(d.floorPrice||'')+'" placeholder="底價" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>' +
             '<div class="fg" style="margin-bottom:0;grid-column:5/6"><div class="input-grp"><input data-f="serviceFee" value="'+esc(d.serviceFee||'')+'" placeholder="服務費" style="min-width:0;flex:1"><span class="input-sfx">%</span></div></div>' +
         '</div>' +
+        // 坪數輸入在土地上方
+        '<button type="button" onclick="openSpDetailSz(this)" style="background:white;color:#0D9488;border:1.5px dashed #0D9488;border-radius:8px;padding:7px 0;font-size:13px;font-weight:600;cursor:pointer;text-align:center;letter-spacing:0.1em;margin-bottom:6px;width:calc((2 / 11) * 100%)">坪數輸入</button>' +
         // 土地+建物+車位+車價+車位編號 (5欄grid)
         '<div style="display:grid;grid-template-columns:2fr 2fr 3fr 2fr 2fr;gap:8px;margin-bottom:6px">' +
             '<div class="fg" style="margin-bottom:0"><div class="input-grp"><input data-f="landSz" value="'+esc(d.landSz||'')+'" placeholder="土地" style="min-width:0;flex:1"><span class="input-sfx">坪</span></div></div>' +
@@ -3067,7 +3069,6 @@ function addSellerProperty(data) {
             '</select></div>' +
             '<div class="fg" style="margin-bottom:0"><div class="input-grp" style="'+(d.parking?'':'visibility:hidden')+'"><input data-f="parkingPrice" value="'+esc(d.parkingPrice||'')+'" placeholder="車價" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>' +
             '<div class="fg" style="margin-bottom:0"><input data-f="parkingNo" value="'+esc(d.parkingNo||'')+'" placeholder="車位編號" style="'+(d.parking?'':'display:none')+'"></div>' +
-            '<button type="button" onclick="openSpDetailSz(this)" style="grid-column:1/2;background:white;color:#0D9488;border:1.5px dashed #0D9488;border-radius:8px;padding:7px 0;font-size:13px;font-weight:600;cursor:pointer;text-align:center;letter-spacing:0.1em">坪數輸入</button>' +
         '</div>' +
         // 管理費
         '<div style="font-size:12px;font-weight:600;color:var(--wood);margin-bottom:4px">管理費</div>' +
