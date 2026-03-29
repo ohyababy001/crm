@@ -2567,9 +2567,8 @@ function renderCard(c) {
             // 坪數（從新欄位計算，向下相容舊欄位和sProperties）
             var mainB = parseFloat(c.sMainBldg||sp0.mainBldg)||0, ancB = parseFloat(c.sAncBldg||sp0.ancBldg)||0, comB = parseFloat(c.sCommon||sp0.common)||0, pkSz = parseFloat(c.sParkingSz||sp0.parkingSz)||0;
             var bldgSz = mainB+ancB+comB;
-            var regSz = bldgSz+pkSz;
             var oldSz = parseFloat(String(c.sSz||'').replace(/[坪,]/g,''))||0;
-            var displaySz = regSz || oldSz;
+            var displaySz = bldgSz || oldSz;
             if (displaySz) {
                 var _pk = c.parking || sp0.parking || '';
                 var _pkPrice = c.parkingPrice || sp0.parkingPrice || '';
