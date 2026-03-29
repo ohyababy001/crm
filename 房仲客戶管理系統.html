@@ -1401,19 +1401,19 @@ function autoZip(addrInput) {
     if (!zipInput) return;
     // 正規化：臺→台
     var norm = addr.replace(/臺/g,'台');
-    // 先找城市，再找區
+    // 必須同時包含正確的縣市+區域才填入
     for (var city in ZIP_BY_CITY) {
         if (norm.includes(city)) {
             var dists = ZIP_BY_CITY[city];
             for (var dist in dists) {
                 if (norm.includes(dist)) { zipInput.value = dists[dist]; return; }
             }
+            // 有縣市但區域不對，清空郵遞區號
+            zipInput.value = ''; return;
         }
     }
-    // 沒找到城市時，用全域 ZIP_MAP fallback
-    for (var dist in ZIP_MAP) {
-        if (norm.includes(dist)) { zipInput.value = ZIP_MAP[dist]; return; }
-    }
+    // 沒有縣市名稱，不自動填入
+    zipInput.value = '';
 }
 function loadAddrType(id, val) {
     if (!val) return;
