@@ -3046,6 +3046,14 @@ function addSellerProperty(data) {
     var localNum = document.querySelectorAll('#sPropertyList .person-block').length + 1;
     var html = '<div class="person-block" id="'+pid+'" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9;position:relative">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:700;color:#8B7355">庫存物件 '+localNum+'</span><button type="button" class="c-del" onclick="this.parentElement.parentElement.remove()">✕</button></div>' +
+        // 約種
+        '<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">' +
+            '<span style="font-size:13px;font-weight:600;color:var(--text);flex-shrink:0">約種</span>' +
+            '<button type="button" class="rm-btn'+(d.contractType==='專任約'?' on':'')+'" onclick="pickSpContract(this,\'專任約\')">專任約</button>' +
+            '<button type="button" class="rm-btn'+(d.contractType==='一般約'?' on':'')+'" onclick="pickSpContract(this,\'一般約\')">一般約</button>' +
+            '<button type="button" class="rm-btn'+(d.contractType==='口頭約'?' on':'')+'" onclick="pickSpContract(this,\'口頭約\')">口頭約</button>' +
+            '<input type="hidden" data-f="contractType" value="'+esc(d.contractType||'')+'">' +
+        '</div>' +
         // 社區+地址
         '<div style="display:grid;grid-template-columns:1fr 3fr;gap:8px;margin-bottom:6px">' +
             '<div class="fg" style="margin-bottom:0"><input data-f="community" value="'+esc(d.community||'')+'" placeholder="社區大樓"></div>' +
@@ -3090,6 +3098,14 @@ function addSellerProperty(data) {
     var block = document.getElementById(pid);
     if (block) calcSpMgmt(block.querySelector('[data-f="mgmtBuilding"]'));
 }
+function pickSpContract(btn, type) {
+    var block = btn.closest('.person-block'); if (!block) return;
+    var hidden = block.querySelector('[data-f="contractType"]');
+    var wasOn = btn.classList.contains('on');
+    block.querySelectorAll('.rm-btn').forEach(function(b){ b.classList.remove('on'); });
+    if (wasOn) { hidden.value = ''; }
+    else { btn.classList.add('on'); hidden.value = type; }
+}
 function calcSpMgmt(el) {
     var block = el.closest('.person-block'); if (!block) return;
     var get = function(f){ var e=block.querySelector('[data-f="'+f+'"]'); return parseFloat(e?e.value:'')||0; };
@@ -3129,7 +3145,7 @@ function getSellerProperties() {
     document.querySelectorAll('#sPropertyList .person-block').forEach(function(block) {
         var get = function(f) { var el = block.querySelector('[data-f="'+f+'"]'); return el ? el.value.trim() : ''; };
         if (get('community') || get('addr') || get('price')) {
-            r.push({ community:get('community'), addr:get('addr'), price:get('price'), floorPrice:get('floorPrice'), serviceFee:get('serviceFee'), landSz:get('landSz'), sz:get('sz'), parking:get('parking'), parkingPrice:get('parkingPrice'), parkingNo:get('parkingNo'), mgmtBuilding:get('mgmtBuilding'), mgmtCar:get('mgmtCar'), mgmtMoto:get('mgmtMoto'), mgmtOther:get('mgmtOther'), mgmtPeriod:get('mgmtPeriod'), contractStart:rocToISO(get('contractStart')), contractEnd:rocToISO(get('contractEnd')) });
+            r.push({ contractType:get('contractType'), community:get('community'), addr:get('addr'), price:get('price'), floorPrice:get('floorPrice'), serviceFee:get('serviceFee'), landSz:get('landSz'), sz:get('sz'), parking:get('parking'), parkingPrice:get('parkingPrice'), parkingNo:get('parkingNo'), mgmtBuilding:get('mgmtBuilding'), mgmtCar:get('mgmtCar'), mgmtMoto:get('mgmtMoto'), mgmtOther:get('mgmtOther'), mgmtPeriod:get('mgmtPeriod'), contractStart:rocToISO(get('contractStart')), contractEnd:rocToISO(get('contractEnd')) });
         }
     });
     return r;
