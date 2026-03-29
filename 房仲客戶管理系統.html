@@ -756,6 +756,9 @@
                     <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-bIdNo" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-bBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                 </div>
+                <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:6px">
+                    <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-bAddr" placeholder=""></div>
+                </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
                     <div class="fg" style="margin-bottom:0"><label>Email</label><input id="f-bEmail" type="email" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-bSource" placeholder=""></div>
@@ -986,6 +989,9 @@
                         <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-llIdNo" placeholder=""></div>
                         <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-llBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                     </div>
+                    <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:6px">
+                        <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-llAddr" placeholder=""></div>
+                    </div>
                     <div id="rLandlordList"></div>
                     <div style="display:flex;gap:8px;align-items:center"><button type="button" class="add-row-btn" onclick="addRPersonRow('rLandlordList','房東')">＋ 新增房東</button></div>
                 </div>
@@ -1025,6 +1031,9 @@
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px">
                         <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-ttIdNo" placeholder=""></div>
                         <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-ttBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:6px">
+                        <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-ttAddr" placeholder=""></div>
                     </div>
                     <div id="rTenantList"></div>
                     <div style="display:flex;gap:8px;align-items:center"><button type="button" class="add-row-btn" onclick="addRPersonRow('rTenantList','租客')">＋ 新增租客</button></div>
@@ -1136,6 +1145,9 @@
                     <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-cIdNo" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-cBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                 </div>
+                <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:6px">
+                    <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-cAddr" placeholder=""></div>
+                </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
                     <div class="fg" style="margin-bottom:0"><label>Email</label><input id="f-cEmail" type="email" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-cSource" placeholder=""></div>
@@ -1167,6 +1179,9 @@
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-dIdNo" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-dBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:6px">
+                    <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-dAddr" placeholder=""></div>
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
                     <div class="fg" style="margin-bottom:0"><label>Email</label><input id="f-dEmail" type="email" placeholder=""></div>
@@ -3566,14 +3581,14 @@ function getAreaDisplay() {
 
 // ── Form: Reset ──
 const SIMPLE_FIELDS = ['fn','fp','f-idNo','fe','fs','flc','fso','fnotes',
-    'f-bName','f-bPhone','f-bIdNo','f-bBirthday','f-bEmail','f-bSource',
+    'f-bName','f-bPhone','f-bIdNo','f-bBirthday','f-bAddr','f-bEmail','f-bSource',
     'f-budgetMin','f-budgetMax','f-downPayment','f-floor','f-decisionMaker','f-want','f-noWant','f-roomOther','f-areaOther',
     'f-sName','f-sPhone','f-sIdNo','f-sBirthday','f-sOwnerAddr','f-sEmail','f-sSource',
     'f-community','f-sAddr','f-sPrice','f-sFloorPrice','f-sServiceFee','f-sLandSz','f-sSz','f-layout','f-sMgmtBuilding','f-sMgmtCar','f-sMgmtMoto','f-sMgmtOther','f-parkingPrice','f-parkingNo','f-contractStart','f-contractEnd',
-    'f-cName','f-cPhone','f-cIdNo','f-cBirthday','f-cEmail','f-cSource',
-    'f-dName','f-dPhone','f-dIdNo','f-dBirthday','f-dEmail','f-dSource',
-    'f-llName','f-llPhone','f-llIdNo','f-llBirthday',
-    'f-ttName','f-ttPhone','f-ttIdNo','f-ttBirthday',
+    'f-cName','f-cPhone','f-cIdNo','f-cBirthday','f-cAddr','f-cEmail','f-cSource',
+    'f-dName','f-dPhone','f-dIdNo','f-dBirthday','f-dAddr','f-dEmail','f-dSource',
+    'f-llName','f-llPhone','f-llIdNo','f-llBirthday','f-llAddr',
+    'f-ttName','f-ttPhone','f-ttIdNo','f-ttBirthday','f-ttAddr',
     'f-rSource',
     'f-rCommunity','f-rAddr','f-rent','f-rSz','f-rMgmtBuilding','f-rMgmtCar','f-rMgmtMoto','f-rMgmtOther','f-rParkingNo','f-rStartDate','f-rEndDate',
     ];
@@ -3673,6 +3688,7 @@ function openEdit(id, viewAs) {
     setVal('f-bPhone', c.bPhone || (hasBuyer ? c.phone : ''));
     setVal('f-bIdNo', c.bIdNo || (hasBuyer ? c.idNo : ''));
     setVal('f-bBirthday', c.bBirthday ? isoToROC(c.bBirthday) : '');
+    setVal('f-bAddr', c.bAddr || '');
     setVal('f-bEmail', c.bEmail || (hasBuyer ? c.email : ''));
     setVal('f-bSource', c.bSource || (hasBuyer ? c.source : ''));
     // 買方額外人員
@@ -3731,6 +3747,7 @@ function openEdit(id, viewAs) {
     setVal('f-llPhone', c.llPhone || llFirst.phone || c.rLandlordPhone || '');
     setVal('f-llIdNo', c.llIdNo || llFirst.idNo || '');
     setVal('f-llBirthday', c.llBirthday ? isoToROC(c.llBirthday) : '');
+    setVal('f-llAddr', c.llAddr || '');
     // 房東額外人員（跳過第一筆）
     if (c.rLandlords && c.rLandlords.length > 1) c.rLandlords.slice(1).forEach(function(p){ addRPersonRow('rLandlordList','房東',p); });
     // 租客固定欄位
@@ -3739,6 +3756,7 @@ function openEdit(id, viewAs) {
     setVal('f-ttPhone', c.ttPhone || ttFirst.phone || c.rTenantPhone || '');
     setVal('f-ttIdNo', c.ttIdNo || ttFirst.idNo || '');
     setVal('f-ttBirthday', c.ttBirthday ? isoToROC(c.ttBirthday) : '');
+    setVal('f-ttAddr', c.ttAddr || '');
     // 租客額外人員（跳過第一筆）
     if (c.rTenants && c.rTenants.length > 1) c.rTenants.slice(1).forEach(function(p){ addRPersonRow('rTenantList','租客',p); });
     // activeRentalTab 已在 applyTypePicker 之前設定
@@ -3778,6 +3796,7 @@ function openEdit(id, viewAs) {
     setVal('f-cPhone', c.cPhone || cFirst.phone || (closedOnly ? c.phone : ''));
     setVal('f-cIdNo', c.cIdNo || cFirst.idNo || '');
     setVal('f-cBirthday', c.cBirthday ? isoToROC(c.cBirthday) : (cFirst.birthday ? isoToROC(cFirst.birthday) : ''));
+    setVal('f-cAddr', c.cAddr || '');
     setVal('f-cEmail', c.cEmail || '');
     setVal('f-cSource', c.cSource || (closedOnly ? c.source : ''));
     // 額外聯絡人（跳過第一筆，已載入固定欄位）
@@ -3796,6 +3815,7 @@ function openEdit(id, viewAs) {
     setVal('f-dPhone', c.dPhone || dFirst.phone || (devOnly ? c.phone : ''));
     setVal('f-dIdNo', c.dIdNo || dFirst.idNo || '');
     setVal('f-dBirthday', c.dBirthday ? isoToROC(c.dBirthday) : '');
+    setVal('f-dAddr', c.dAddr || '');
     setVal('f-dEmail', c.dEmail || '');
     setVal('f-dSource', c.dSource || (devOnly ? c.source : ''));
     // 額外屋主（跳過第一筆，已載入固定欄位）
@@ -3972,7 +3992,7 @@ function saveClient() {
         lastContact: new Date().toISOString(),
         source: get('f-bSource') || get('fso'), notes:get('fnotes'),
         // 經營買方
-        bName:get('f-bName'), bPhone:get('f-bPhone'), bIdNo:get('f-bIdNo'), bBirthday:rocToISO(get('f-bBirthday')), bEmail:get('f-bEmail'), bSource:get('f-bSource'),
+        bName:get('f-bName'), bPhone:get('f-bPhone'), bIdNo:get('f-bIdNo'), bBirthday:rocToISO(get('f-bBirthday')), bAddr:get('f-bAddr'), bEmail:get('f-bEmail'), bSource:get('f-bSource'),
         bPersons: getBPersons(),
         budgetMin:get('f-budgetMin'), budgetMax:get('f-budgetMax'), downPayment:get('f-downPayment'),
         budget: (get('f-budgetMin')&&get('f-budgetMax')) ? get('f-budgetMin')+'-'+get('f-budgetMax') : get('f-budgetMin')||get('f-budgetMax')||'',
@@ -3991,8 +4011,8 @@ function saveClient() {
         sRenewals: (function(){ var existing = editId ? (DB.find(function(x){return x.id===editId;})||{}).sRenewals || [] : []; return existing.concat(sRenewals); })(),
         contractStart:rocToISO(get('f-contractStart')), contractEnd:rocToISO(get('f-contractEnd')),
         // 租案管理
-        llName:get('f-llName'), llPhone:get('f-llPhone'), llIdNo:get('f-llIdNo'), llBirthday:rocToISO(get('f-llBirthday')),
-        ttName:get('f-ttName'), ttPhone:get('f-ttPhone'), ttIdNo:get('f-ttIdNo'), ttBirthday:rocToISO(get('f-ttBirthday')),
+        llName:get('f-llName'), llPhone:get('f-llPhone'), llIdNo:get('f-llIdNo'), llBirthday:rocToISO(get('f-llBirthday')), llAddr:get('f-llAddr'),
+        ttName:get('f-ttName'), ttPhone:get('f-ttPhone'), ttIdNo:get('f-ttIdNo'), ttBirthday:rocToISO(get('f-ttBirthday')), ttAddr:get('f-ttAddr'),
         rLandlords: (function(){ var arr=[]; if(get('f-llName')||get('f-llPhone')) arr.push({name:get('f-llName'),phone:get('f-llPhone'),idNo:get('f-llIdNo'),occupation:''}); return arr.concat(getRPersons('rLandlordList')); })(),
         rTenants: (function(){ var arr=[]; if(get('f-ttName')||get('f-ttPhone')) arr.push({name:get('f-ttName'),phone:get('f-ttPhone'),idNo:get('f-ttIdNo'),occupation:''}); return arr.concat(getRPersons('rTenantList')); })(),
         rLandlord:get('f-llName'), rLandlordPhone:get('f-llPhone'),
@@ -4022,13 +4042,13 @@ function saveClient() {
         rStartDate:rocToISO(get('f-rStartDate')), rEndDate:rocToISO(get('f-rEndDate')),
         renewals: (function(){ var existing = editId ? (DB.find(function(x){return x.id===editId;})||{}).renewals || [] : []; return existing.concat(pendingRenewals); })(),
         // 成交
-        cName:get('f-cName'), cPhone:get('f-cPhone'), cIdNo:get('f-cIdNo'), cBirthday:rocToISO(get('f-cBirthday')),
+        cName:get('f-cName'), cPhone:get('f-cPhone'), cIdNo:get('f-cIdNo'), cBirthday:rocToISO(get('f-cBirthday')), cAddr:get('f-cAddr'),
         cEmail:get('f-cEmail'), cSource:get('f-cSource'),
         cContacts: (function(){ var arr=[]; if(get('f-cName')||get('f-cPhone')) arr.push({name:get('f-cName'),phone:get('f-cPhone'),idNo:get('f-cIdNo'),birthday:rocToISO(get('f-cBirthday'))}); return arr.concat(isClosed?getCContacts():[]); })(),
         cAddrs: isClosed ? getCAddrs() : [],
         deals: getDeals(),
         // 商機募集
-        dName:get('f-dName'), dPhone:get('f-dPhone'), dIdNo:get('f-dIdNo'),
+        dName:get('f-dName'), dPhone:get('f-dPhone'), dIdNo:get('f-dIdNo'), dAddr:get('f-dAddr'),
         dBirthday:rocToISO(get('f-dBirthday')), dEmail:get('f-dEmail'), dSource:get('f-dSource'),
         dPersons: (function(){ var arr=[]; if(get('f-dName')||get('f-dPhone')) arr.push({name:get('f-dName'),phone:get('f-dPhone'),idNo:get('f-dIdNo')}); return arr.concat(getDPersons()); })(), dAddrs:getDAddrs(),
         devType: (function(){ var types=[]; getDAddrs().forEach(function(a){ if(a.devType&&types.indexOf(a.devType)<0) types.push(a.devType); }); return types.join('、'); })(),
