@@ -93,7 +93,7 @@
         .c-row input:focus,.c-row select:focus { border-color:var(--wood);box-shadow:0 0 0 3px rgba(87,83,78,0.1); }
         .c-row .c-del { background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted);padding:2px; }
         .c-row .c-del:hover { color:#EF4444; }
-        .deal-box { border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:6px;position:relative;overflow:hidden; }
+        .deal-box { border:1px solid var(--border);border-left:4px solid #92400E;border-radius:10px;padding:10px;margin-bottom:10px;position:relative;overflow:hidden;background:#FAFAF9; }
         .deal-row { display:flex;gap:6px;margin-bottom:4px; }
         .deal-row:last-child { margin-bottom:0; }
         .deal-box .fg { margin-bottom:0;display:flex;flex-direction:column;gap:4px; }
@@ -839,7 +839,8 @@
                     <button type="button" class="grade-btn grade-c" onclick="pickGrade(this,'C','f-bGrade')" data-grade="C">C級</button>
                     <input type="hidden" id="f-bGrade" value="">
                 </div>
-                <div id="bRow1" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px;margin-top:4px">
+                <div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:4px">基本聯絡人</div>
+                <div id="bRow1" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'buyer')">帶入</button></label><input id="f-bName" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-bPhone" placeholder="" onblur="autoPhone(this)"></div>
                     <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-bIdNo" placeholder=""></div>
@@ -930,6 +931,7 @@
                     <button type="button" class="grade-btn grade-c" onclick="pickGrade(this,'C','f-sGrade')" data-grade="C">C級</button>
                     <input type="hidden" id="f-sGrade" value="">
                 </div>
+                <div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:4px">基本聯絡人</div>
                 <div id="sellerBasicRow1" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'seller')">帶入</button></label><input id="f-sName" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-sPhone" placeholder="" onblur="autoPhone(this)"></div>
@@ -1079,6 +1081,7 @@
                             <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rGoodCitizen')" style="padding:4px 12px;font-size:13px">良民</button>
                         </div>
                     </div>
+                    <div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:4px">基本聯絡人</div>
                     <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                         <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'landlord')">帶入</button></label><input id="f-llName" placeholder=""></div>
                         <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-llPhone" placeholder="" onblur="autoPhone(this)"></div>
@@ -1123,6 +1126,7 @@
                             <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rGoodCitizen2')" style="padding:4px 12px;font-size:13px">良民</button>
                         </div>
                     </div>
+                    <div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:4px">基本聯絡人</div>
                     <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                         <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'tenant')">帶入</button></label><input id="f-ttName" placeholder=""></div>
                         <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-ttPhone" placeholder="" onblur="autoPhone(this)"></div>
@@ -1243,7 +1247,8 @@
 
             <!-- 成交 -->
             <div class="type-sec" id="s-成交客戶">
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px;margin-top:4px">
+                <div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:4px;margin-top:4px">基本聯絡人</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'closed')">帶入</button></label><input id="f-cName" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-cPhone" placeholder="" onblur="autoPhone(this)"></div>
                     <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-cIdNo" placeholder=""></div>
@@ -1272,7 +1277,8 @@
 
             <!-- 商機募集 -->
             <div class="type-sec" id="s-商機募集">
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px;margin-top:4px">
+                <div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:4px;margin-top:4px">基本聯絡人</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'dev')">帶入</button></label><input id="f-dName" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-dPhone" placeholder="" onblur="autoPhone(this)"></div>
                     <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-dIdNo" placeholder=""></div>
@@ -3654,6 +3660,8 @@ var personBlockId = 0;
 function addPersonBlock(listId, data) {
     personBlockId++;
     var d = data || {};
+    // 在該列表內計算序號
+    var localNum = document.querySelectorAll('#'+listId+' .person-block').length + 1;
     var bdVal = d.birthday ? (d.birthday.includes('-') ? isoToROC(d.birthday) : d.birthday) : '';
     var stdTypes = ['住家','公司','自訂',''];
     var isCustom = d.addrType && !stdTypes.includes(d.addrType);
@@ -3661,7 +3669,7 @@ function addPersonBlock(listId, data) {
         ? '<input data-f="addrType" type="text" value="'+esc(d.addrType)+'">'
         : '<select data-f="addrType" onchange="onAddrTypeChange(this)"><option value="住家"'+(d.addrType==='住家'?' selected':'')+'>住家</option><option value="公司"'+(d.addrType==='公司'?' selected':'')+'>公司</option><option value="自訂"'+(d.addrType==='自訂'?' selected':'')+'>自訂</option></select>';
     var html = '<div class="person-block" id="pb-'+personBlockId+'" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;position:relative;background:#FAFAF9">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:700;color:#8B7355">聯絡人 '+personBlockId+'</span><button type="button" class="c-del" onclick="this.parentElement.parentElement.remove()">✕</button></div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:700;color:#8B7355">聯絡人 '+localNum+'</span><button type="button" class="c-del" onclick="this.parentElement.parentElement.remove()">✕</button></div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:4px">' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">姓名 <button type="button" class="btn-fill" onclick="fillPersonBlock(this)" style="font-size:11px">帶入</button></label><input data-f="name" value="'+esc(d.name||'')+'" placeholder=""></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">電話</label><input data-f="phone" value="'+esc(d.phone||'')+'" placeholder="" onblur="autoPhone(this)"></div>' +
@@ -3932,8 +3940,9 @@ function addDealRow(data) {
     dealCounter++;
     var i = dealCounter;
     var d = data || {};
+    var localNum = document.querySelectorAll('#dealList .deal-box').length + 1;
     var html = '<div class="deal-box" id="deal-'+i+'">' +
-        '<button type="button" class="deal-del" onclick="removeDeal('+i+')">✕</button>' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:700;color:#92400E">成交物件 '+localNum+'</span><button type="button" class="c-del" onclick="removeDeal('+i+')">✕</button></div>' +
         '<div class="deal-row">' +
             '<div class="fg" style="flex:1"><label>買/賣方</label><select class="deal-role"><option value=""'+(d.role?'':' selected')+'>請選擇</option><option value="買方"'+(d.role==='買方'?' selected':'')+'>買方</option><option value="賣方"'+(d.role==='賣方'?' selected':'')+'>賣方</option></select></div>' +
             '<div class="fg" style="flex:1"><label>成交日期</label><div class="roc-date-wrap"><input class="deal-date" type="text" placeholder="" value="'+esc(d.date?isoToROC(d.date):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
