@@ -848,6 +848,8 @@
                     <div class="fg" style="margin-bottom:0"><label>Email</label><input id="f-sEmail" type="email" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-sSource" placeholder=""></div>
                 </div>
+                <div id="sPersonList"></div>
+                <button type="button" class="add-row-btn" onclick="addPersonBlock('sPersonList')" style="margin-bottom:10px">＋ 新增聯絡人</button>
                 <!-- 約種選擇 -->
                 <div class="fg full" style="margin-bottom:14px">
                     <label style="margin-bottom:6px">約種</label>
@@ -1152,7 +1154,6 @@
                     <div class="fg" style="margin-bottom:0"><label>Email</label><input id="f-cEmail" type="email" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-cSource" placeholder=""></div>
                 </div>
-                <div id="cContactHeader"></div>
                 <div id="cContactList"></div>
                 <button type="button" class="add-row-btn" onclick="addCContactRow()" style="margin-bottom:6px">＋ 新增聯絡人</button>
 
@@ -3207,7 +3208,8 @@ function autoLayout(el) {
 // ── 成交客戶：多筆聯絡人/生日/地址 ──
 var cRowId = 0;
 function initCContactHeader() {
-    document.getElementById('cContactHeader').innerHTML =
+    var el = document.getElementById('cContactHeader'); if (!el) return;
+    el.innerHTML =
         '<div class="c-row c-row-header" style="margin-bottom:2px">' +
         '<span style="flex:1;min-width:0;padding:7px 10px;font-size:13px;font-weight:600;color:var(--text);border:1px solid transparent">姓名</span>' +
         '<span style="flex:1;min-width:0;padding:7px 10px;font-size:13px;font-weight:600;color:var(--text);border:1px solid transparent">電話</span>' +
@@ -3596,6 +3598,7 @@ function resetForm() {
     document.getElementById('emailGroup').style.display = '';
     document.getElementById('sourceGroup').style.display = '';
     clearBPersons();
+    clearPersonBlocks('sPersonList');
     clearDPersons();
     clearDAddrs();
     clearSchedules();
@@ -3687,6 +3690,7 @@ function openEdit(id, viewAs) {
     setVal('f-sEmail', c.sEmail || (sellerOnly ? c.email : ''));
     setVal('f-sSource', c.sSource || (sellerOnly ? c.source : ''));
     setVal('f-sServiceFee',c.sServiceFee);
+    if (c.sPersons && c.sPersons.length) c.sPersons.forEach(function(p){ addPersonBlock('sPersonList', p); });
     setVal('f-community',c.community); setVal('f-sAddr',c.sAddr); setVal('f-sPrice',c.sPrice); setVal('f-sFloorPrice',c.sFloorPrice); setVal('f-sLandSz',c.sLandSz); setVal('f-sSz',c.sSz); setVal('f-layout',c.layout);
     setVal('f-sMgmtBuilding',c.sMgmtBuilding); setVal('f-sMgmtCar',c.sMgmtCar); setVal('f-sMgmtMoto',c.sMgmtMoto); setVal('f-sMgmtOther',c.sMgmtOther);
     if(c.sMgmtPeriod) document.getElementById('f-sMgmtPeriod').value=c.sMgmtPeriod;
@@ -3973,6 +3977,7 @@ function saveClient() {
         // 庫存屋主
         sName:get('f-sName'), sPhone:get('f-sPhone'), sEmail:get('f-sEmail'), sSource:get('f-sSource'),
         sIdNo:get('f-sIdNo'), sBirthday:rocToISO(get('f-sBirthday')), sOwnerAddr:get('f-sOwnerAddr'),
+        sPersons:getPersonBlocks('sPersonList'),
         contractType:get('f-contractType'),
         community:get('f-community'), sAddr:get('f-sAddr'), sPrice:get('f-sPrice'), sFloorPrice:get('f-sFloorPrice'), sServiceFee:get('f-sServiceFee'), sLandSz:get('f-sLandSz'), sSz:get('f-sSz'), layout:get('f-layout'),
         parking:get('f-parking'), parkingPrice:get('f-parkingPrice'), parkingNo:get('f-parkingNo'),
