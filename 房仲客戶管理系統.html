@@ -637,7 +637,7 @@
                 <span class="filter-left"><span class="dot c-rental"></span>租案</span>
                 <span><span class="cnt" id="ct-租案管理">0</span><span class="cnt-archived" id="ca-租案管理"></span></span>
             </button>
-            <div id="rentalSub" style="padding-left:20px;overflow:hidden;max-height:0;transition:max-height 0.2s ease">
+            <div id="rentalSub" style="padding-left:20px">
                 <button class="filter-btn filter-sub" onclick="setFilter('租案_房東',this)" style="padding:8px 12px;font-size:18px">
                     <span class="filter-left"><span class="dot" style="background:#4A7A4A"></span>房東</span>
                     <span class="cnt" id="ct-租案_房東">0</span>
@@ -2120,7 +2120,7 @@ function setFilter(type, btn) {
     document.getElementById('sellerFilter').classList.toggle('on', type === '庫存屋主');
     // 租案子項目展開/收合
     var rentalSub = document.getElementById('rentalSub');
-    rentalSub.style.maxHeight = (type === '租案管理' || type === '租案_房東' || type === '租案_租客') ? '120px' : '0';
+    // 子項目永遠顯示，不收合
     var isRentalType = type === '租案管理' || type === '租案_房東' || type === '租案_租客';
     document.getElementById('sortSel').style.display = (type === '成交客戶' || isRentalType || type === '庫存屋主') ? 'none' : '';
     // 預設排序
