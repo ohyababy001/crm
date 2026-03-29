@@ -672,6 +672,20 @@
             </div>
         </div>
 
+        <!-- 庫存屋主過濾列 -->
+        <div class="buyer-filter" id="sellerFilter">
+            <div style="display:flex;align-items:flex-start">
+                <span class="bf-label" style="flex-shrink:0;line-height:30px">等級</span>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;flex:1">
+                    <button class="bf-chip on" onclick="clearBfSGrade()">全部</button>
+                    <button class="bf-chip bf-grade-a" onclick="toggleBfSGrade(this,'A')">A級</button>
+                    <button class="bf-chip bf-grade-b" onclick="toggleBfSGrade(this,'B')">B級</button>
+                    <button class="bf-chip bf-grade-c" onclick="toggleBfSGrade(this,'C')">C級</button>
+                </div>
+                <span class="bf-clear" onclick="clearBfSGrade()" style="flex-shrink:0">清除</span>
+            </div>
+        </div>
+
         <!-- 總覽儀表板 -->
         <div id="dashboard" class="dashboard" style="display:none">
             <div class="dash-cards" id="dashCards"></div>
@@ -2049,6 +2063,7 @@ function setFilter(type, btn) {
     const titles = { all:'總覽','經營買方':'買方','庫存屋主':'庫存','租案管理':'租案','成交客戶':'成交','商機募集':'商機' };
     document.getElementById('filterTitle').textContent = titles[type];
     document.getElementById('buyerFilter').classList.toggle('on', type === '經營買方');
+    document.getElementById('sellerFilter').classList.toggle('on', type === '庫存屋主');
     document.getElementById('sortSel').style.display = (type === '成交客戶' || type === '租案管理' || type === '庫存屋主') ? 'none' : '';
     // 預設排序
     var sel = document.getElementById('sortSel');
@@ -2138,6 +2153,10 @@ function getData() {
         });
         if (bfGrade) list = list.filter(c => (c.bGrade||'') === bfGrade);
         if (bfCity) list = list.filter(c => { var cities = c.areaCities || (c.areaCity ? [c.areaCity] : []); return cities.includes(bfCity) || (bfCity==='其他' && cities.includes('其他縣市')); });
+    }
+    // 庫存屋主等級過濾
+    if (curFilter === '庫存屋主' && bfSGrade) {
+        list = list.filter(function(c){ return (c.sGrade||'') === bfSGrade; });
     }
     // 租案管理/庫存屋主：強制按到期日排序
     if (curFilter === '租案管理' || curFilter === '庫存屋主') {
@@ -2461,7 +2480,7 @@ function renderCard(c) {
         var showType = c._viewAs === 'tenant' ? '租案管理' :
             ((curFilter !== 'all' && cTypes.includes(curFilter)) ? curFilter : cTypes[0]);
         if (showType==='經營買方') {
-            if (c.areaDisplay) meta += `<div class="cmeta-row"><span class="cmeta-k">區域</span><span class="cmeta-v">${esc(stripCity(c.areaDisplay))}</span></div>`;
+            if (c.areaDisplay) meta += `<div class="cmeta-row"><span class="cmeta-k">區域</span><span class="cmeta-v" style="white-space:pre-line;overflow:visible">${esc(c.areaDisplay)}</span></div>`;
             if (c.roomTypes)   meta += `<div class="cmeta-row"><span class="cmeta-k">房型</span><span class="cmeta-v">${esc(c.roomTypes)}</span></div>`;
             if (c.budget)      meta += `<div class="cmeta-row"><span class="cmeta-k">預算</span><span class="cmeta-v">${esc(c.budget)}${c.budget.includes('萬')?'':'萬'}</span></div>`;
         } else if (showType==='庫存屋主') {
@@ -4104,6 +4123,27 @@ function toggleBfGrade(btn, grade) {
 function clearBfGrade() {
     bfGrade = '';
     document.querySelectorAll('.bf-chip[onclick*="toggleBfGrade"]').forEach(function(b){ b.classList.remove('on'); });
+}
+// ── 庫存等級過濾 ──
+var bfSGrade = '';
+function toggleBfSGrade(btn, grade) {
+    var wasOn = btn.classList.contains('on');
+    document.querySelectorAll('#sellerFilter .bf-chip[onclick*="toggleBfSGrade"]').forEach(function(b){ b.classList.remove('on'); });
+    document.querySelector('#sellerFilter .bf-chip[onclick*="clearBfSGrade"]').classList.remove('on');
+    if (wasOn) {
+        bfSGrade = '';
+        document.querySelector('#sellerFilter .bf-chip[onclick*="clearBfSGrade"]').classList.add('on');
+    } else {
+        bfSGrade = grade;
+        btn.classList.add('on');
+    }
+    render();
+}
+function clearBfSGrade() {
+    bfSGrade = '';
+    document.querySelectorAll('#sellerFilter .bf-chip[onclick*="toggleBfSGrade"]').forEach(function(b){ b.classList.remove('on'); });
+    document.querySelector('#sellerFilter .bf-chip[onclick*="clearBfSGrade"]').classList.add('on');
+    render();
 }
 function pickGrade(btn, grade, inputId) {
     var targetId = inputId || 'f-bGrade';
