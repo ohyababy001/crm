@@ -2996,7 +2996,7 @@ function addBAddrRow(data) {
     bAddrId++;
     var d = data || {};
     var html = '<div class="c-row" id="ba-'+bAddrId+'">' +
-        '<select style="width:75px;flex-shrink:0"><option value="住家"'+(d.type==='住家'?' selected':'')+'>住家</option><option value="公司"'+(d.type==='公司'?' selected':'')+'>公司</option><option value="學區"'+(d.type==='學區'?' selected':'')+'>學區</option><option value="娘家"'</option><option value="其他"'+(d.type==='其他'?' selected':'')+'>其他</option></select>' +
+        '<select style="width:75px;flex-shrink:0"><option value="住家"'+(d.type==='住家'?' selected':'')+'>住家</option><option value="公司"'+(d.type==='公司'?' selected':'')+'>公司</option><option value="學區"'+(d.type==='學區'?' selected':'')+'>學區</option><option value="其他"'+(d.type==='其他'?' selected':'')+'>其他</option></select>' +
         '<input type="text" style="flex:1;min-width:0" placeholder="地址" value="'+esc(d.addr||'')+'">' +
         '<button type="button" class="c-del" onclick="this.parentElement.remove()">✕</button></div>';
     document.getElementById('bAddrList').insertAdjacentHTML('beforeend', html);
@@ -3262,7 +3262,7 @@ function addPersonBlock(listId, data) {
     var isCustom = d.addrType && !stdTypes.includes(d.addrType);
     var typeHtml = isCustom
         ? '<input data-f="addrType" type="text" value="'+esc(d.addrType)+'">'
-        : '<select data-f="addrType" onchange="onAddrTypeChange(this)"><option value="住家"'+(d.addrType==='住家'?' selected':'')+'>住家</option><option value="公司"'+(d.addrType==='公司'?' selected':'')+'>公司</option><option value="娘家"'</option><option value="自訂"'+(d.addrType==='自訂'?' selected':'')+'>自訂</option></select>';
+        : '<select data-f="addrType" onchange="onAddrTypeChange(this)"><option value="住家"'+(d.addrType==='住家'?' selected':'')+'>住家</option><option value="公司"'+(d.addrType==='公司'?' selected':'')+'>公司</option><option value="自訂"'+(d.addrType==='自訂'?' selected':'')+'>自訂</option></select>';
     var html = '<div class="person-block" id="pb-'+personBlockId+'" style="border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px;position:relative">' +
         '<button type="button" class="c-del" onclick="this.parentElement.remove()" style="position:absolute;top:6px;right:8px">✕</button>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px">' +
@@ -3286,7 +3286,7 @@ function addPersonBlock(listId, data) {
     document.getElementById(listId).insertAdjacentHTML('beforeend', html);
     // 載入額外地址
     if (d.extraAddrs && d.extraAddrs.length) {
-        var block = document.getElementById(pid);
+        var block = document.getElementById('pb-'+personBlockId);
         var addBtn = block.querySelector('.btn-ic[onclick*="addPbAddrRow"]');
         if (addBtn) d.extraAddrs.forEach(function(a){ addPbAddrRow(addBtn, a); });
     }
@@ -3317,7 +3317,7 @@ function addBuyerAddrRow(listId, data) {
     var isCustom = d.type && !['住家','公司','自訂',''].includes(d.type);
     var typeHtml = isCustom
         ? '<input data-f="type" type="text" value="'+esc(d.type)+'" style="width:100%;min-width:0;box-sizing:border-box">'
-        : '<select data-f="type" onchange="onAddrTypeChange(this)"><option value="住家"'+(d.type==='住家'?' selected':'')+'>住家</option><option value="公司"'+(d.type==='公司'?' selected':'')+'>公司</option><option value="娘家"'</option><option value="自訂"'+(d.type==='自訂'?' selected':'')+'>自訂</option></select>';
+        : '<select data-f="type" onchange="onAddrTypeChange(this)"><option value="住家"'+(d.type==='住家'?' selected':'')+'>住家</option><option value="公司"'+(d.type==='公司'?' selected':'')+'>公司</option><option value="自訂"'+(d.type==='自訂'?' selected':'')+'>自訂</option></select>';
     var html = '<div class="c-row" data-addr-row id="bba-'+bBasicAddrId+'" style="display:grid;grid-template-columns:2fr 2fr 10fr auto;gap:6px;align-items:end;margin-bottom:4px">' +
         '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">類型</label>'+typeHtml+'</div>' +
         '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">郵遞區號</label><input data-f="zip" value="'+esc(d.zip||'')+'" placeholder="" style="min-width:0"></div>' +
@@ -3342,7 +3342,7 @@ function addPbAddrRow(btn, data) {
     var isCustom = d.type && !['住家','公司','自訂',''].includes(d.type);
     var typeHtml = isCustom
         ? '<input data-f="type" type="text" value="'+esc(d.type)+'" style="width:100%;min-width:0;box-sizing:border-box">'
-        : '<select data-f="type" onchange="onAddrTypeChange(this)"><option value="住家"'+(d.type==='住家'?' selected':'')+'>住家</option><option value="公司"'+(d.type==='公司'?' selected':'')+'>公司</option><option value="娘家"'</option><option value="自訂"'+(d.type==='自訂'?' selected':'')+'>自訂</option></select>';
+        : '<select data-f="type" onchange="onAddrTypeChange(this)"><option value="住家"'+(d.type==='住家'?' selected':'')+'>住家</option><option value="公司"'+(d.type==='公司'?' selected':'')+'>公司</option><option value="自訂"'+(d.type==='自訂'?' selected':'')+'>自訂</option></select>';
     var html = '<div class="c-row" data-addr-row style="display:grid;grid-template-columns:2fr 2fr 10fr auto;gap:6px;align-items:end;margin-bottom:4px">' +
         '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">類型</label>'+typeHtml+'</div>' +
         '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">郵遞區號</label><input data-f="zip" value="'+esc(d.zip||'')+'" placeholder="" style="min-width:0"></div>' +
