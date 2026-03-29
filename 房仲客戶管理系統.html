@@ -185,7 +185,7 @@
         [data-addr-row] select, [data-addr-row] input { width:100%;min-width:0;box-sizing:border-box; }
 
         /* 帶入按鈕 */
-        .btn-fill { background:none;border:1px solid var(--border);border-radius:6px;padding:2px 8px;cursor:pointer;font-size:12px;color:var(--muted);transition:all 0.12s;white-space:nowrap; }
+        .btn-fill { background:none;border:1px solid var(--border);border-radius:6px;padding:0px 6px;cursor:pointer;font-size:11px;color:var(--muted);transition:all 0.12s;white-space:nowrap;vertical-align:middle;line-height:16px; }
         .btn-fill:hover { background:#EFF6FF;color:#1D4ED8;border-color:#93C5FD; }
         .fill-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.3);z-index:9999;display:flex;align-items:center;justify-content:center; }
         .fill-menu { background:white;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.15);min-width:240px;max-width:90vw;padding:8px 0;overflow:hidden; }
@@ -383,10 +383,10 @@
             /* 第一行(3或4欄)→2欄 */
             .type-sec > div[style*="1fr 1fr 1fr"] { grid-template-columns: 1fr 1fr !important; }
             /* 第二行(生日+Email+來源)→生日4:Email7，來源獨立半寬 */
-            .type-sec > div[style*="2fr 5fr 2fr"],
-            .type-sec > div[style*="2fr 6fr 2fr"] { grid-template-columns: 4fr 7fr !important; }
-            .type-sec > div[style*="2fr 5fr 2fr"] > .fg:nth-child(3),
-            .type-sec > div[style*="2fr 6fr 2fr"] > .fg:nth-child(3) { grid-column: 1 / -1; width: calc(50% - 5px); }
+            .type-sec > div[style*="1fr 2fr 1fr"],
+            .type-sec > div[style*="1fr 2fr 1fr"] { grid-template-columns: 4fr 7fr !important; }
+            .type-sec > div[style*="1fr 2fr 1fr"] > .fg:nth-child(3),
+            .type-sec > div[style*="1fr 2fr 1fr"] > .fg:nth-child(3) { grid-column: 1 / -1; width: calc(50% - 5px); }
             /* 所有地址行統一：類型+郵遞區號合計=姓名寬度(半寬)，地址+按鈕同列 */
             [data-addr-row] { grid-template-columns: 1fr 1fr 1fr 1fr auto !important; gap: 6px !important; }
             [data-addr-row] > .fg:nth-child(1) { grid-column: 1 / 2; }
@@ -396,10 +396,10 @@
             [data-addr-row] > button.c-del { grid-column: 5; grid-row: 2; align-self: end; margin-bottom: 4px; }
             /* 新增聯絡人區塊內欄位也重排 */
             .person-block > div[style*="1fr 1fr 1fr"] { grid-template-columns: 1fr 1fr !important; }
-            .person-block > div[style*="2fr 5fr 2fr"],
-            .person-block > div[style*="2fr 6fr 2fr"] { grid-template-columns: 4fr 7fr !important; }
-            .person-block > div[style*="2fr 5fr 2fr"] > .fg:nth-child(3),
-            .person-block > div[style*="2fr 6fr 2fr"] > .fg:nth-child(3) { grid-column: 1 / -1; width: calc(50% - 5px); }
+            .person-block > div[style*="1fr 2fr 1fr"],
+            .person-block > div[style*="1fr 2fr 1fr"] { grid-template-columns: 4fr 7fr !important; }
+            .person-block > div[style*="1fr 2fr 1fr"] > .fg:nth-child(3),
+            .person-block > div[style*="1fr 2fr 1fr"] > .fg:nth-child(3) { grid-column: 1 / -1; width: calc(50% - 5px); }
             .person-block [data-addr-row] > .fg:nth-child(1) { grid-column: 1 / 2; }
             .person-block [data-addr-row] > .fg:nth-child(2) { grid-column: 2 / 3; }
             .person-block [data-addr-row] > .fg:nth-child(3) { grid-column: 1 / 5; }
@@ -846,7 +846,7 @@
                     <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-bIdNo" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>職業</label><input id="f-bOccupation" placeholder=""></div>
                 </div>
-                <div id="bRow2" style="display:grid;grid-template-columns:2fr 5fr 2fr;gap:10px;margin-bottom:6px">
+                <div id="bRow2" style="display:grid;grid-template-columns:1fr 2fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-bBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                     <div class="fg" style="margin-bottom:0"><label>Email</label><input id="f-bEmail" type="email" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-bSource" placeholder=""></div>
@@ -938,7 +938,7 @@
                     <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-sIdNo" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>職業</label><input id="f-sOccupation" placeholder=""></div>
                 </div>
-                <div id="sellerBasicRow2" style="display:grid;grid-template-columns:2fr 5fr 2fr;gap:10px;margin-bottom:6px">
+                <div id="sellerBasicRow2" style="display:grid;grid-template-columns:1fr 2fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-sBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                     <div class="fg" style="margin-bottom:0"><label>Email</label><input id="f-sEmail" type="email" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-sSource" placeholder=""></div>
@@ -1088,7 +1088,7 @@
                         <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-llIdNo" placeholder=""></div>
                         <div class="fg" style="margin-bottom:0"><label>職業</label><input id="f-llOccupation" placeholder=""></div>
                     </div>
-                    <div style="display:grid;grid-template-columns:2fr 5fr 2fr;gap:10px;margin-bottom:6px">
+                    <div style="display:grid;grid-template-columns:1fr 2fr 1fr;gap:10px;margin-bottom:6px">
                         <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-llBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                         <div class="fg" style="margin-bottom:0"><label>Email</label><input id="f-llEmail" type="email" placeholder=""></div>
                         <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-llSource" placeholder=""></div>
@@ -1133,7 +1133,7 @@
                         <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-ttIdNo" placeholder=""></div>
                         <div class="fg" style="margin-bottom:0"><label>職業</label><input id="f-ttOccupation" placeholder=""></div>
                     </div>
-                    <div style="display:grid;grid-template-columns:2fr 5fr 2fr;gap:10px;margin-bottom:6px">
+                    <div style="display:grid;grid-template-columns:1fr 2fr 1fr;gap:10px;margin-bottom:6px">
                         <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-ttBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                         <div class="fg" style="margin-bottom:0"><label>Email</label><input id="f-ttEmail" type="email" placeholder=""></div>
                         <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-ttSource" placeholder=""></div>
@@ -1254,7 +1254,7 @@
                     <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-cIdNo" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>職業</label><input id="f-cOccupation" placeholder=""></div>
                 </div>
-                <div style="display:grid;grid-template-columns:2fr 5fr 2fr;gap:10px;margin-bottom:6px">
+                <div style="display:grid;grid-template-columns:1fr 2fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-cBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                     <div class="fg" style="margin-bottom:0"><label>Email</label><input id="f-cEmail" type="email" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-cSource" placeholder=""></div>
@@ -1284,7 +1284,7 @@
                     <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-dIdNo" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>職業</label><input id="f-dOccupation" placeholder=""></div>
                 </div>
-                <div style="display:grid;grid-template-columns:2fr 5fr 2fr;gap:10px;margin-bottom:6px">
+                <div style="display:grid;grid-template-columns:1fr 2fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-dBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                     <div class="fg" style="margin-bottom:0"><label>Email</label><input id="f-dEmail" type="email" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-dSource" placeholder=""></div>
@@ -3676,7 +3676,7 @@ function addPersonBlock(listId, data) {
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">身份證字號</label><input data-f="idNo" value="'+esc(d.idNo||'')+'" placeholder=""></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">職業</label><input data-f="occupation" value="'+esc(d.occupation||'')+'" placeholder=""></div>' +
         '</div>' +
-        '<div style="display:grid;grid-template-columns:2fr 5fr 2fr;gap:8px;margin-bottom:4px">' +
+        '<div style="display:grid;grid-template-columns:1fr 2fr 1fr;gap:8px;margin-bottom:4px">' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">生日</label><div class="roc-date-wrap"><input data-f="birthday" type="text" value="'+esc(bdVal)+'" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">Email</label><input data-f="email" type="email" value="'+esc(d.email||'')+'" placeholder=""></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">客戶來源</label><input data-f="source" value="'+esc(d.source||'')+'" placeholder=""></div>' +
