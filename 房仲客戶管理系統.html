@@ -4219,7 +4219,7 @@ function collectPersonSources(excludeTarget) {
     // 庫存
     if (excludeTarget !== 'seller') {
         var sn = _gv('f-sName');
-        if (sn) sources.push({name:sn, phone:_gv('f-sPhone'), idNo:_gv('f-sIdNo'), occupation:'', birthday:_gv('f-sBirthday'), email:_gv('f-sEmail'), source:_gv('f-sSource'), addrType:_gv('f-sAddrType'), zip:_gv('f-sZip'), addr:_gv('f-sOwnerAddr'), src:'庫存'});
+        if (sn) sources.push({name:sn, phone:_gv('f-sPhone'), idNo:_gv('f-sIdNo'), occupation:_gv('f-sOccupation'), birthday:_gv('f-sBirthday'), email:_gv('f-sEmail'), source:_gv('f-sSource'), addrType:_gv('f-sAddrType'), zip:_gv('f-sZip'), addr:_gv('f-sOwnerAddr'), src:'庫存'});
     }
     // 房東
     if (excludeTarget !== 'landlord') {
@@ -4234,12 +4234,12 @@ function collectPersonSources(excludeTarget) {
     // 成交
     if (excludeTarget !== 'closed') {
         var cn = _gv('f-cName');
-        if (cn) sources.push({name:cn, phone:_gv('f-cPhone'), idNo:_gv('f-cIdNo'), occupation:'', birthday:_gv('f-cBirthday'), email:_gv('f-cEmail'), source:_gv('f-cSource'), addrType:_gv('f-cAddrType'), zip:_gv('f-cZip'), addr:_gv('f-cAddr'), src:'成交'});
+        if (cn) sources.push({name:cn, phone:_gv('f-cPhone'), idNo:_gv('f-cIdNo'), occupation:_gv('f-cOccupation'), birthday:_gv('f-cBirthday'), email:_gv('f-cEmail'), source:_gv('f-cSource'), addrType:_gv('f-cAddrType'), zip:_gv('f-cZip'), addr:_gv('f-cAddr'), src:'成交'});
     }
     // 商機
     if (excludeTarget !== 'dev') {
         var dn = _gv('f-dName');
-        if (dn) sources.push({name:dn, phone:_gv('f-dPhone'), idNo:_gv('f-dIdNo'), occupation:'', birthday:_gv('f-dBirthday'), email:_gv('f-dEmail'), source:_gv('f-dSource'), addrType:_gv('f-dAddrType'), zip:_gv('f-dZip'), addr:_gv('f-dAddr'), src:'商機'});
+        if (dn) sources.push({name:dn, phone:_gv('f-dPhone'), idNo:_gv('f-dIdNo'), occupation:_gv('f-dOccupation'), birthday:_gv('f-dBirthday'), email:_gv('f-dEmail'), source:_gv('f-dSource'), addrType:_gv('f-dAddrType'), zip:_gv('f-dZip'), addr:_gv('f-dAddr'), src:'商機'});
     }
     return sources;
 }
