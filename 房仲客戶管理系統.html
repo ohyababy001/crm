@@ -462,6 +462,17 @@
             /* 庫存物件：立約日+到期日+續約+歷程 換行 */
             .sp-contract-row { grid-template-columns: 1fr 1fr !important; }
             .sp-contract-row > .bf-chip { padding: 8px 10px !important; font-size: 13px !important; }
+            /* 設備清單新增其他：手機版全寬 */
+            .rp-equip-custom { width:100% !important; }
+            /* 商機物件：手機版重排 */
+            .da-row1 { grid-template-columns: 1fr 1fr !important; }
+            .da-addr { grid-column: 1 / -1; }
+            .da-row2 { grid-template-columns: 1fr 1fr !important; }
+            .da-row2 > .fg:nth-child(1) { grid-row:1; grid-column:1; }
+            .da-row2 > .fg:nth-child(2) { grid-row:2; grid-column:1; }
+            .da-row2 > .fg:nth-child(3) { grid-row:2; grid-column:2; }
+            .da-row2 > .fg:nth-child(4) { grid-row:3; grid-column:1; }
+            .da-row2 > .fg:nth-child(5) { grid-row:3; grid-column:2; }
             /* 庫存基本：姓名/電話一排 */
             #sellerBasicRow1 { grid-template-columns: 1fr 1fr !important; }
             /* 庫存身份證/生日並排 */
@@ -4504,13 +4515,13 @@ function addDAddrRow(data) {
     var html = '<div class="person-block" id="da-'+dAddrId+'" style="border:1px solid var(--border);border-left:4px solid #92400E;border-radius:10px;padding:10px;margin-bottom:8px;background:#FAFAF9">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:700;color:#92400E">物件 '+localNum+'</span><button type="button" class="c-del" onclick="this.parentElement.parentElement.remove()">✕</button></div>' +
         // 出售/出租 + 社區 + 地址
-        '<div style="display:grid;grid-template-columns:auto 1fr 2fr;gap:8px;margin-bottom:6px">' +
-            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">出售/出租</label><select data-f="devType" style="width:100%"><option value="出售"'+(d.devType==='出售'?' selected':'')+'>出售</option><option value="出租"'+(d.devType==='出租'?' selected':'')+'>出租</option></select></div>' +
-            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">社區大樓</label><input data-f="community" value="'+esc(d.community||'')+'"></div>' +
-            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">地址</label><input data-f="addr" value="'+esc(d.addr||'')+'"></div>' +
+        '<div class="da-row1" style="display:grid;grid-template-columns:auto 1fr 2fr;gap:8px;margin-bottom:6px">' +
+            '<div class="fg da-devtype" style="margin-bottom:0"><label style="font-size:12px">出售/出租</label><select data-f="devType" style="width:100%"><option value="出售"'+(d.devType==='出售'?' selected':'')+'>出售</option><option value="出租"'+(d.devType==='出租'?' selected':'')+'>出租</option></select></div>' +
+            '<div class="fg da-community" style="margin-bottom:0"><label style="font-size:12px">社區大樓</label><input data-f="community" value="'+esc(d.community||'')+'"></div>' +
+            '<div class="fg da-addr" style="margin-bottom:0"><label style="font-size:12px">地址</label><input data-f="addr" value="'+esc(d.addr||'')+'"></div>' +
         '</div>' +
         // 房屋型態 + 土地坪數 + 建物坪數 + 車位 + 車位型態
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:8px">' +
+        '<div class="da-row2" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:8px">' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">房屋型態</label><select data-f="houseType" style="width:100%"><option value="">選擇</option><option value="公寓"'+(d.houseType==='公寓'?' selected':'')+'>公寓</option><option value="電梯大樓"'+(d.houseType==='電梯大樓'?' selected':'')+'>電梯大樓</option><option value="透天"'+(d.houseType==='透天'?' selected':'')+'>透天</option><option value="套房"'+(d.houseType==='套房'?' selected':'')+'>套房</option><option value="店面"'+(d.houseType==='店面'?' selected':'')+'>店面</option><option value="辦公"'+(d.houseType==='辦公'?' selected':'')+'>辦公</option><option value="土地"'+(d.houseType==='土地'?' selected':'')+'>土地</option><option value="其他"'+(d.houseType==='其他'?' selected':'')+'>其他</option></select></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">土地坪數</label><div class="input-grp"><input data-f="landSz" value="'+esc(d.landSz||'')+'" style="min-width:0;flex:1"><span class="input-sfx">坪</span></div></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">建物坪數</label><div class="input-grp"><input data-f="bldgSz" value="'+esc(d.bldgSz||'')+'" style="min-width:0;flex:1"><span class="input-sfx">坪</span></div></div>' +
