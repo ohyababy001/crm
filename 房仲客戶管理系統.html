@@ -602,14 +602,11 @@
         <button onclick="clearCache()">🔄 更新</button>
         <button onclick="openTrash()" style="color:#EF4444">🗑️ 回收</button>
     </div>
-    <div class="header-tools" style="display:flex;gap:6px;align-items:center">
-        <button class="btn-ic" onclick="exportCSV()" title="匯出 CSV" style="font-size:14px;padding:4px 8px">📊</button>
-        <button class="btn-ic" onclick="document.getElementById('csvImportInput').click()" title="匯入 CSV" style="font-size:14px;padding:4px 8px">📥</button>
-        <input type="file" id="csvImportInput" accept=".csv" style="display:none" onchange="importCSV(this.files[0])">
-        <button class="btn-ic" onclick="openTrash()" title="資源回收桶" style="font-size:14px;padding:4px 8px">🗑️<span id="trashCount" style="font-size:10px;color:var(--muted)"></span></button>
-        <button class="btn-ic" onclick="cloudRestore()" title="雲端還原" style="font-size:14px;padding:4px 8px" id="btnRestore">☁️</button>
-    </div>
     <button class="btn-add" onclick="openAdd()">＋ 新增客戶</button>
+    <div class="header-tools" style="display:flex;gap:8px;align-items:center;margin-left:8px">
+        <button onclick="openTrash()" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap">🗑️ 資源回收桶<span id="trashCount" style="font-size:11px;color:var(--muted)"></span></button>
+        <button onclick="cloudRestore()" id="btnRestore" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap">☁️ 雲端還原</button>
+    </div>
 </header>
 <nav class="mobile-nav" id="mobileNav">
     <button onclick="mobileFilter('all')" id="mnav-all" class="active">總覽</button>
@@ -660,6 +657,11 @@
                 <span class="cnt" id="ct-商機募集">0</span>
             </button>
         </div>
+        <button class="btn-export" onclick="exportCSV()">📊 匯出 CSV</button>
+        <div id="exportTime" style="text-align:center;font-size:10px;color:var(--muted);padding:0 10px"></div>
+        <button class="btn-export" onclick="document.getElementById('csvImportInput2').click()">📥 匯入 CSV</button>
+        <input type="file" id="csvImportInput2" accept=".csv" style="display:none" onchange="importCSV(this.files[0])">
+        <div id="importTime" style="text-align:center;font-size:10px;color:var(--muted);padding:0 10px"></div>
         <div id="cloudStatus" style="text-align:center;font-size:11px;color:var(--muted);margin-top:4px;padding:0 10px">☁️ 自動同步中</div>
     </aside>
 
@@ -5100,8 +5102,8 @@ render();
 (function(){
     var et = localStorage.getItem('lastExportTime');
     var it = localStorage.getItem('lastImportTime');
-    if (et) document.getElementById('exportTime').textContent = '上次匯出：' + et;
-    if (it) document.getElementById('importTime').textContent = '上次匯入：' + it;
+    var etEl = document.getElementById('exportTime'); if (et && etEl) etEl.textContent = '上次匯出：' + et;
+    var itEl = document.getElementById('importTime'); if (it && itEl) itEl.textContent = '上次匯入：' + it;
 })();
 
 // ── 匯入通訊錄 ──
