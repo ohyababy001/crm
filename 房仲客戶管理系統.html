@@ -324,8 +324,8 @@
             .cmeta-row { font-size: 15px; margin-bottom: 5px; }
             .card-notes-col { display: none; }
             .card-right { display: none; }
-            .card-bottom-right { flex-shrink: 0; }
-            .card-bottom-right .btn-ic { font-size: 16px; }
+            .card-bottom-right { position: absolute; top: 6px; right: 8px; align-items: flex-end; gap: 0; }
+            .card-bottom-right .btn-ic { font-size: 16px; padding: 4px 6px; }
 
             /* Modal 全螢幕（iPhone 相容）*/
             .overlay { padding: 0 !important; }
@@ -3276,6 +3276,8 @@ function applyTypePicker() {
     if (isRental) switchRentalTab(activeRentalTab);
     // 自動帶入基本資料
     syncBasicInfo();
+    // 更新左右切換導覽（依當前標籤篩選）
+    if (editId) updateEditNav();
 }
 
 // 輸入名字後自動查找帶入
@@ -3711,6 +3713,10 @@ function updateEditNav() {
     if (!editId) { nav.style.display = 'none'; return; }
     // 去重：同 id 只保留一筆
     var raw = getData();
+    // 若編輯頁有選擇標籤，只顯示該標籤的客戶
+    if (activeView) {
+        raw = raw.filter(function(c){ return hasType(c, activeView); });
+    }
     var seen = {};
     editListCache = [];
     raw.forEach(function(c) { if (!seen[c.id]) { seen[c.id] = true; editListCache.push(c); } });
