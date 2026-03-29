@@ -954,18 +954,17 @@
                 </div>
                 <div id="sPersonList"></div>
                 <button type="button" class="add-row-btn" onclick="addPersonBlock('sPersonList')" style="margin-bottom:10px">＋ 新增聯絡人</button>
-                <!-- 約種選擇 -->
-                <div class="fg full" style="margin-bottom:14px">
-                    <label style="margin-bottom:6px">約種</label>
-                    <div class="room-picker" id="contractTypePicker">
+
+                <div class="sec-title" style="margin-top:4px">庫存物件</div>
+                <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px">
+                    <span style="font-size:13px;font-weight:600;color:var(--text);flex-shrink:0">約種</span>
+                    <div class="room-picker" id="contractTypePicker" style="margin-bottom:0">
                         <button type="button" class="rm-btn" onclick="pickContract(this,'專任約')">專任約</button>
                         <button type="button" class="rm-btn" onclick="pickContract(this,'一般約')">一般約</button>
                         <button type="button" class="rm-btn" onclick="pickContract(this,'口頭約')">口頭約</button>
                     </div>
                     <input type="hidden" id="f-contractType" value="">
                 </div>
-
-                <div class="sec-title" style="margin-top:4px">庫存物件</div>
                 <div id="sellerAddrRow" style="display:grid;grid-template-columns:1fr 3fr;gap:10px;margin-bottom:10px">
                     <div class="fg" style="margin-bottom:0"><input id="f-community" placeholder="社區大樓"></div>
                     <div class="fg" style="margin-bottom:0"><input id="f-sAddr" placeholder="物件地址"></div>
