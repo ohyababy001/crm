@@ -1533,11 +1533,9 @@ function autoSync() {
     if (status) status.textContent = '☁️ 同步中…';
     var payload = JSON.stringify(DB);
 
-    // 用 fetch POST（no-cors 模式確保跨域能送出）
+    // 用 fetch POST（application/x-www-form-urlencoded 確保 Google Apps Script 能解析）
     if (window.fetch) {
-        var formData = new FormData();
-        formData.append('payload', payload);
-        fetch(CLOUD_URL, { method:'POST', body:formData, mode:'no-cors' })
+        fetch(CLOUD_URL, { method:'POST', body:'payload='+encodeURIComponent(payload), headers:{'Content-Type':'application/x-www-form-urlencoded'}, mode:'no-cors' })
             .then(function() {
                 if (status) status.textContent = '☁️ 已同步 ' + new Date().toLocaleTimeString('zh-TW');
             })
