@@ -776,11 +776,11 @@
             <!-- 客戶類型 -->
             <div class="sec-title">客戶類型 <span class="req">*</span></div>
             <div class="type-picker">
-                <button type="button" class="tp-btn tp-buyer"    onclick="pickType('經營買方')"    id="tp-經營買方">買方</button>
-                <button type="button" class="tp-btn tp-seller"   onclick="pickType('庫存屋主')"    id="tp-庫存屋主">庫存</button>
-                <button type="button" class="tp-btn tp-rental"   onclick="pickType('租案管理')"    id="tp-租案管理">租案</button>
-                <button type="button" class="tp-btn tp-closed"   onclick="pickType('成交客戶')" id="tp-成交客戶">成交</button>
-                <button type="button" class="tp-btn tp-potential" onclick="pickType('商機募集')" id="tp-商機募集">商機</button>
+                <button type="button" class="tp-btn tp-buyer"    onpointerdown="pickTypeDown('經營買方',this)" onpointerup="pickTypeUp('經營買方')" onpointerleave="clearTimeout(_pickHoldTimer)"    id="tp-經營買方">買方</button>
+                <button type="button" class="tp-btn tp-seller"   onpointerdown="pickTypeDown('庫存屋主',this)" onpointerup="pickTypeUp('庫存屋主')" onpointerleave="clearTimeout(_pickHoldTimer)"    id="tp-庫存屋主">庫存</button>
+                <button type="button" class="tp-btn tp-rental"   onpointerdown="pickTypeDown('租案管理',this)" onpointerup="pickTypeUp('租案管理')" onpointerleave="clearTimeout(_pickHoldTimer)"    id="tp-租案管理">租案</button>
+                <button type="button" class="tp-btn tp-closed"   onpointerdown="pickTypeDown('成交客戶',this)" onpointerup="pickTypeUp('成交客戶')" onpointerleave="clearTimeout(_pickHoldTimer)" id="tp-成交客戶">成交</button>
+                <button type="button" class="tp-btn tp-potential" onpointerdown="pickTypeDown('商機募集',this)" onpointerup="pickTypeUp('商機募集')" onpointerleave="clearTimeout(_pickHoldTimer)" id="tp-商機募集">商機</button>
             </div>
 
             <!-- 基本資料 -->
@@ -3932,28 +3932,34 @@ function clearDeals() {
 var selectedTypes = [];
 var activeView = '';
 
-var _lastPickType = '';
-var _lastPickTime = 0;
-function pickType(t) {
-    var now = Date.now();
-    var isDouble = (t === _lastPickType && now - _lastPickTime < 400);
-    _lastPickType = t;
-    _lastPickTime = now;
-
-    if (isDouble) {
-        // 雙擊 = 選擇/取消類型
+var _pickHoldTimer = null;
+var _pickDidHold = false;
+function pickTypeDown(t, btn) {
+    _pickDidHold = false;
+    _pickHoldTimer = setTimeout(function() {
+        _pickDidHold = true;
+        // 長按 = 選擇/取消類型
         if (selectedTypes.includes(t)) {
             selectedTypes = selectedTypes.filter(function(x){ return x !== t; });
             if (activeView === t) activeView = selectedTypes[0] || '';
         } else {
             selectedTypes.push(t);
+            activeView = t;
         }
-    } else {
+        applyTypePicker();
+        // 震動回饋（手機）
+        if (navigator.vibrate) navigator.vibrate(50);
+    }, 500);
+}
+function pickTypeUp(t) {
+    clearTimeout(_pickHoldTimer);
+    if (!_pickDidHold) {
         // 單擊 = 只切換檢視
         activeView = t;
+        applyTypePicker();
     }
-    applyTypePicker();
 }
+function pickType(t) { /* 保留向下相容 */ activeView = t; applyTypePicker(); }
 
 function applyTypePicker() {
     // 所有已選的類型高亮，當前頁面額外加粗邊框
