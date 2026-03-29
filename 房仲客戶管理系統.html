@@ -922,7 +922,7 @@
                 </div>
                 <div id="szParkingRow" style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap">
                     <div class="fg" style="flex:1;min-width:60px;margin-bottom:0"><label>土地坪數</label><div class="input-grp"><input id="f-sLandSz" placeholder="" style="min-width:0;flex:1"><span class="input-sfx">坪</span></div></div>
-                    <div class="fg" style="flex:1;min-width:60px;margin-bottom:0"><label>建物坪數</label><div class="input-grp"><input id="f-sSz" placeholder="" style="min-width:0;flex:1"><span class="input-sfx">坪</span></div><button type="button" class="btn-fill" onclick="openDetailSz()" style="margin-top:4px;width:100%;font-size:14px;padding:4px 0;letter-spacing:0.2em;text-indent:0.2em;font-weight:700;color:#DC2626;border-color:#FCA5A5">詳 細 坪 數</button></div>
+                    <div class="fg" style="flex:1;min-width:60px;margin-bottom:0"><label>建物坪數</label><div class="input-grp"><input id="f-sSz" placeholder="" style="min-width:0;flex:1"><span class="input-sfx">坪</span></div><button type="button" class="btn-fill" onclick="openDetailSz()" style="margin-top:4px;width:100%;font-size:14px;padding:4px 0;letter-spacing:0.2em;text-indent:0.2em;font-weight:700;color:#DC2626;border-color:#FCA5A5">坪 數 輸 入</button></div>
                     <div class="fg" style="flex:3;min-width:180px;margin-bottom:0">
                         <label>車位 <span id="parkingSzLabel" style="font-weight:400;color:var(--muted);font-size:12px"></span></label>
                         <div style="display:flex;gap:4px;min-width:0">
@@ -2465,6 +2465,9 @@ function renderCard(c) {
             if (c.roomTypes)   meta += `<div class="cmeta-row"><span class="cmeta-k">房型</span><span class="cmeta-v">${esc(c.roomTypes)}</span></div>`;
             if (c.budget)      meta += `<div class="cmeta-row"><span class="cmeta-k">預算</span><span class="cmeta-v">${esc(c.budget)}${c.budget.includes('萬')?'':'萬'}</span></div>`;
         } else if (showType==='庫存屋主') {
+            if (c.sDetailSz && (c.sDetailSz.main || c.sDetailSz.ancillary || c.sDetailSz.common)) {
+                meta += `<div style="text-align:right;margin-bottom:4px"><button class="btn-fill" onclick="event.stopPropagation();showDetailSzView('${c.id}')" style="font-size:11px;padding:2px 8px;color:#6366F1;border-color:#A5B4FC">權狀坪數</button></div>`;
+            }
             if (c.contractType) meta += `<div class="cmeta-row"><span class="cmeta-k">約種</span><span class="cmeta-v">${esc(c.contractType)}</span></div>`;
             if (c.community) meta += `<div class="cmeta-row"><span class="cmeta-k">社區</span><span class="cmeta-v">${esc(c.community)}</span></div>`;
             if (c.sAddr) meta += `<div class="cmeta-row"><span class="cmeta-k">地址</span><span class="cmeta-v full">${esc(c.sAddr)}</span></div>`;
@@ -3109,7 +3112,7 @@ function openDetailSz() {
     var box = document.createElement('div');
     box.className = 'fill-menu';
     box.style.padding = '16px'; box.style.minWidth = '300px';
-    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">詳細坪數</div>' +
+    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">坪數輸入</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">主建物</label><div class="input-grp"><input id="dSz-main" value="'+esc(_detailSz.main)+'" placeholder="" style="min-width:0;flex:1" oninput="calcDetailSz()"><span class="input-sfx">坪</span></div></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">附屬建物</label><div class="input-grp"><input id="dSz-ancillary" value="'+esc(_detailSz.ancillary)+'" placeholder="" style="min-width:0;flex:1" oninput="calcDetailSz()"><span class="input-sfx">坪</span></div></div>' +
@@ -3157,6 +3160,38 @@ function saveDetailSz() {
     var label = document.getElementById('parkingSzLabel');
     if (label) label.textContent = parking > 0 ? '(' + parking + '坪)' : '';
     document.querySelector('.fill-overlay').remove();
+}
+
+// ── 權狀坪數（卡片查看） ──
+function showDetailSzView(id) {
+    var c = DB.find(function(x){ return x.id === id; });
+    if (!c || !c.sDetailSz) return;
+    var d = c.sDetailSz;
+    var main = parseFloat(d.main)||0, anc = parseFloat(d.ancillary)||0, com = parseFloat(d.common)||0, pk = parseFloat(d.parking)||0;
+    var total = main+anc+com;
+    var ratio = total > 0 ? (com/total*100).toFixed(1) : '0';
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.padding = '20px'; box.style.minWidth = '280px';
+    box.innerHTML = '<div style="font-weight:700;font-size:16px;margin-bottom:16px;text-align:center;letter-spacing:0.15em">權 狀 坪 數</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">' +
+            '<div style="text-align:center;padding:10px;background:var(--bg);border-radius:8px"><div style="font-size:11px;color:var(--muted);margin-bottom:4px">主建物</div><div style="font-size:18px;font-weight:700">'+(main?main+' 坪':'—')+'</div></div>' +
+            '<div style="text-align:center;padding:10px;background:var(--bg);border-radius:8px"><div style="font-size:11px;color:var(--muted);margin-bottom:4px">附屬建物</div><div style="font-size:18px;font-weight:700">'+(anc?anc+' 坪':'—')+'</div></div>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">' +
+            '<div style="text-align:center;padding:10px;background:var(--bg);border-radius:8px"><div style="font-size:11px;color:var(--muted);margin-bottom:4px">公設</div><div style="font-size:18px;font-weight:700">'+(com?com+' 坪':'—')+'</div></div>' +
+            '<div style="text-align:center;padding:10px;background:var(--bg);border-radius:8px"><div style="font-size:11px;color:var(--muted);margin-bottom:4px">車位</div><div style="font-size:18px;font-weight:700">'+(pk?pk+' 坪':'—')+'</div></div>' +
+        '</div>' +
+        '<div style="display:flex;justify-content:space-between;padding:10px 4px;border-top:1px solid var(--border);font-size:15px;font-weight:700">' +
+            '<span>公設比 <span style="color:#6366F1">'+ratio+'%</span></span>' +
+            '<span>合計 <span style="color:#059669">'+(total+pk).toFixed(2)+' 坪</span></span>' +
+        '</div>' +
+        '<div style="text-align:center;margin-top:12px"><button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 24px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">關閉</button></div>';
+    overlay.appendChild(box);
+    overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+    document.body.appendChild(overlay);
 }
 
 // ── 庫存續約 ──
