@@ -1532,6 +1532,17 @@ function autoSync() {
     var status = document.getElementById('cloudStatus');
     if (status) status.textContent = '☁️ 同步中…';
     var payload = JSON.stringify(DB);
+    // 嘗試多種方式確保 POST 送達
+    // 方式1: sendBeacon（最可靠的跨域 POST）
+    if (navigator.sendBeacon) {
+        var sent = navigator.sendBeacon(CLOUD_URL, new URLSearchParams({payload: payload}));
+        if (sent) {
+            // 3秒後驗證
+            setTimeout(function() { verifySyncResult(status); }, 4000);
+            return;
+        }
+    }
+    // 方式2: iframe fallback
     syncViaIframe(payload, status);
     // Fallback timeout：超時視為失敗，不假裝成功
     setTimeout(function() {
@@ -1541,6 +1552,22 @@ function autoSync() {
     }, 15000);
 }
 
+function verifySyncResult(status) {
+    var vCb = 'verifyCb_' + Date.now();
+    var vScript = document.createElement('script');
+    window[vCb] = function(data) {
+        delete window[vCb];
+        if (vScript.parentNode) vScript.parentNode.removeChild(vScript);
+        if (Array.isArray(data) && data.length > 0) {
+            if (status) status.textContent = '☁️ 已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + data.length + '筆）';
+        } else {
+            if (status) status.textContent = '⚠️ 同步可能失敗，請重試';
+        }
+    };
+    vScript.src = CLOUD_URL + '?callback=' + vCb + '&t=' + Date.now();
+    vScript.onerror = function() { delete window[vCb]; if (vScript.parentNode) vScript.parentNode.removeChild(vScript); };
+    document.body.appendChild(vScript);
+}
 function syncViaIframe(payload, status) {
     var iframe = document.createElement('iframe');
     iframe.name = 'sync_' + Date.now();
@@ -1564,23 +1591,7 @@ function syncViaIframe(payload, status) {
         }, 2000);
     }
     iframe.onload = function() {
-        // 驗證：用 JSONP 確認資料有存到
-        setTimeout(function() {
-            var vCb = 'verifyCb_' + Date.now();
-            var vScript = document.createElement('script');
-            window[vCb] = function(data) {
-                delete window[vCb];
-                if (vScript.parentNode) vScript.parentNode.removeChild(vScript);
-                if (Array.isArray(data) && data.length > 0) {
-                    if (status) status.textContent = '☁️ 已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + data.length + '筆）';
-                } else {
-                    if (status) status.textContent = '⚠️ 同步可能失敗，請重試';
-                }
-            };
-            vScript.src = CLOUD_URL + '?callback=' + vCb + '&t=' + Date.now();
-            vScript.onerror = function() { delete window[vCb]; if (vScript.parentNode) vScript.parentNode.removeChild(vScript); };
-            document.body.appendChild(vScript);
-        }, 3000);
+        setTimeout(function() { verifySyncResult(status); }, 3000);
         cleanup();
     };
     iframe.onerror = function() {
