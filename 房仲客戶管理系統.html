@@ -2052,12 +2052,13 @@ function setFilter(type, btn) {
 
 // ── Buyer filter chips ──
 function toggleBfRoom(btn, room) {
-    // 單選篩選
+    // 單選篩選 — 只清除房型按鈕，不影響ABC
     var wasOn = btn.classList.contains('on');
-    document.querySelectorAll('#buyerFilter .bf-chip').forEach(function(b){ b.classList.remove('on'); });
+    document.querySelectorAll('#buyerFilter .bf-chip[onclick*="toggleBfRoom"]').forEach(function(b){ b.classList.remove('on'); });
+    document.querySelector('#buyerFilter .bf-chip[onclick*="clearBfRoom"]').classList.remove('on');
     if (wasOn) {
         bfRooms = [];
-        document.querySelector('#buyerFilter .bf-chip[onclick*="clearBfRoom"]').classList.add('on');
+        if (!bfGrade) document.querySelector('#buyerFilter .bf-chip[onclick*="clearBfRoom"]').classList.add('on');
     } else {
         bfRooms = [room];
         btn.classList.add('on');
@@ -3919,9 +3920,9 @@ function toggleBfGrade(btn, grade) {
     var wasOn = btn.classList.contains('on');
     document.querySelectorAll('.bf-chip[onclick*="toggleBfGrade"]').forEach(function(b){ b.classList.remove('on'); });
     if (wasOn) { bfGrade = ''; } else { bfGrade = grade; btn.classList.add('on'); }
-    // 點等級時也取消全部的高亮
-    if (bfGrade) document.querySelector('#buyerFilter .bf-chip[onclick*="clearBfRoom"]').classList.remove('on');
-    else if (!bfRooms.length) document.querySelector('#buyerFilter .bf-chip[onclick*="clearBfRoom"]').classList.add('on');
+    // 更新全部按鈕狀態
+    if (bfGrade || bfRooms.length) document.querySelector('#buyerFilter .bf-chip[onclick*="clearBfRoom"]').classList.remove('on');
+    else document.querySelector('#buyerFilter .bf-chip[onclick*="clearBfRoom"]').classList.add('on');
     render();
 }
 function clearBfGrade() {
