@@ -922,7 +922,7 @@
                 </div>
                 <div id="szParkingRow" style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap">
                     <div class="fg" style="flex:1;min-width:60px;margin-bottom:0"><label>土地坪數</label><div class="input-grp"><input id="f-sLandSz" placeholder="" style="min-width:0;flex:1"><span class="input-sfx">坪</span></div></div>
-                    <div class="fg" style="flex:1;min-width:60px;margin-bottom:0"><label>建物坪數</label><div class="input-grp"><input id="f-sSz" placeholder="" style="min-width:0;flex:1"><span class="input-sfx">坪</span></div><button type="button" class="btn-fill" onclick="openDetailSz()" style="margin-top:4px">詳細坪數</button></div>
+                    <div class="fg" style="flex:1;min-width:60px;margin-bottom:0"><label>建物坪數</label><div class="input-grp"><input id="f-sSz" placeholder="" style="min-width:0;flex:1"><span class="input-sfx">坪</span></div><button type="button" class="btn-fill" onclick="openDetailSz()" style="margin-top:4px;width:100%;font-size:14px;padding:4px 0;letter-spacing:0.5em;text-indent:0.5em">詳 細 坪 數</button></div>
                     <div class="fg" style="flex:3;min-width:180px;margin-bottom:0">
                         <label>車位 <span id="parkingSzLabel" style="font-weight:400;color:var(--muted);font-size:12px"></span></label>
                         <div style="display:flex;gap:4px;min-width:0">
@@ -4312,7 +4312,11 @@ function openEdit(id, viewAs) {
     _detailSz = c.sDetailSz || { main:'', ancillary:'', common:'', parking:'' };
     var pszLabel = document.getElementById('parkingSzLabel');
     if (pszLabel) pszLabel.textContent = parseFloat(_detailSz.parking) > 0 ? '('+_detailSz.parking+'坪)' : '';
-    setVal('f-community',c.community); setVal('f-sAddr',c.sAddr); setVal('f-sPrice',c.sPrice); setVal('f-sFloorPrice',c.sFloorPrice); setVal('f-sLandSz',c.sLandSz); setVal('f-sSz',c.sSz); setVal('f-layout',c.layout);
+    setVal('f-community',c.community); setVal('f-sAddr',c.sAddr); setVal('f-sPrice',c.sPrice); setVal('f-sFloorPrice',c.sFloorPrice); setVal('f-sLandSz',c.sLandSz); setVal('f-layout',c.layout);
+    // 建物坪數：有詳細坪數時自動重算到小數第2位
+    var dMain = parseFloat(_detailSz.main)||0, dAnc = parseFloat(_detailSz.ancillary)||0, dCom = parseFloat(_detailSz.common)||0;
+    if (dMain||dAnc||dCom) { setVal('f-sSz', (dMain+dAnc+dCom).toFixed(2)); }
+    else { setVal('f-sSz', c.sSz); }
     setVal('f-sMgmtBuilding',c.sMgmtBuilding); setVal('f-sMgmtCar',c.sMgmtCar); setVal('f-sMgmtMoto',c.sMgmtMoto); setVal('f-sMgmtOther',c.sMgmtOther);
     if(c.sMgmtPeriod) document.getElementById('f-sMgmtPeriod').value=c.sMgmtPeriod;
     calcMgmtTotal();
