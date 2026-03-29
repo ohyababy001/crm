@@ -5904,7 +5904,11 @@ function cloudRestore() {
             .then(function(res) { return res.text(); })
             .then(function(text) {
                 try {
-                    var data = JSON.parse(text);
+                    // 去掉 JSONP 包裝（如 cb_123({...})）
+                    var json = text.trim();
+                    var m = json.match(/^[a-zA-Z_]\w*\(([\s\S]*)\);?$/);
+                    if (m) json = m[1];
+                    var data = JSON.parse(json);
                     processRestore(data);
                 } catch(err) {
                     if (statusEl) statusEl.textContent = '❌ 還原失敗：' + err.message;
