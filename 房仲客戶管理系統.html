@@ -563,23 +563,23 @@
                 <span class="cnt" id="ct-all">0</span>
             </button>
             <button class="filter-btn" onclick="setFilter('經營買方',this)">
-                <span class="filter-left"><span class="dot c-buyer"></span>經營買方</span>
+                <span class="filter-left"><span class="dot c-buyer"></span>買方</span>
                 <span><span class="cnt" id="ct-經營買方">0</span><span class="cnt-archived" id="ca-經營買方"></span></span>
             </button>
             <button class="filter-btn" onclick="setFilter('庫存屋主',this)">
-                <span class="filter-left"><span class="dot c-seller"></span>庫存屋主</span>
+                <span class="filter-left"><span class="dot c-seller"></span>屋主</span>
                 <span><span class="cnt" id="ct-庫存屋主">0</span><span class="cnt-archived" id="ca-庫存屋主"></span></span>
             </button>
             <button class="filter-btn" onclick="setFilter('租案管理',this)">
-                <span class="filter-left"><span class="dot c-rental"></span>租案管理</span>
+                <span class="filter-left"><span class="dot c-rental"></span>租案</span>
                 <span><span class="cnt" id="ct-租案管理">0</span><span class="cnt-archived" id="ca-租案管理"></span></span>
             </button>
             <button class="filter-btn" onclick="setFilter('成交客戶',this)">
-                <span class="filter-left"><span class="dot c-closed"></span>成交客戶</span>
+                <span class="filter-left"><span class="dot c-closed"></span>成交</span>
                 <span class="cnt" id="ct-成交客戶">0</span>
             </button>
             <button class="filter-btn" onclick="setFilter('商機募集',this)">
-                <span class="filter-left"><span class="dot c-potential"></span>商機募集</span>
+                <span class="filter-left"><span class="dot c-potential"></span>商機</span>
                 <span class="cnt" id="ct-商機募集">0</span>
             </button>
         </div>
@@ -631,7 +631,7 @@
 
             <div class="dash-sections">
                 <div class="dash-section">
-                    <div class="dash-sec-title">⚠ 庫存合約即將到期（30天內）</div>
+                    <div class="dash-sec-title">⚠ 屋主合約即將到期（30天內）</div>
                     <div class="dash-list" id="dashExpiringSeller"></div>
                 </div>
                 <div class="dash-section">
@@ -681,11 +681,11 @@
             <!-- 客戶類型 -->
             <div class="sec-title">客戶類型 <span class="req">*</span></div>
             <div class="type-picker">
-                <button type="button" class="tp-btn tp-buyer"    onclick="pickType('經營買方')"    id="tp-經營買方">經營買方</button>
-                <button type="button" class="tp-btn tp-seller"   onclick="pickType('庫存屋主')"    id="tp-庫存屋主">庫存屋主</button>
-                <button type="button" class="tp-btn tp-rental"   onclick="pickType('租案管理')"    id="tp-租案管理">租案管理</button>
-                <button type="button" class="tp-btn tp-closed"   onclick="pickType('成交客戶')" id="tp-成交客戶">成交客戶</button>
-                <button type="button" class="tp-btn tp-potential" onclick="pickType('商機募集')" id="tp-商機募集">商機募集</button>
+                <button type="button" class="tp-btn tp-buyer"    onclick="pickType('經營買方')"    id="tp-經營買方">買方</button>
+                <button type="button" class="tp-btn tp-seller"   onclick="pickType('庫存屋主')"    id="tp-庫存屋主">屋主</button>
+                <button type="button" class="tp-btn tp-rental"   onclick="pickType('租案管理')"    id="tp-租案管理">租案</button>
+                <button type="button" class="tp-btn tp-closed"   onclick="pickType('成交客戶')" id="tp-成交客戶">成交</button>
+                <button type="button" class="tp-btn tp-potential" onclick="pickType('商機募集')" id="tp-商機募集">商機</button>
             </div>
 
             <!-- 基本資料 -->
@@ -731,7 +731,7 @@
 
             <!-- 經營買方 -->
             <div class="type-sec" id="s-經營買方">
-                <div class="sec-title" style="margin-top:4px">經營買方需求</div>
+                <div class="sec-title" style="margin-top:4px">買方需求</div>
 
                 <div class="fg full" style="margin-bottom:6px">
                     <label style="margin-bottom:6px">需求區域</label>
@@ -825,7 +825,7 @@
                     <input type="hidden" id="f-contractType" value="">
                 </div>
 
-                <div class="sec-title" style="margin-top:4px">庫存屋主物件</div>
+                <div class="sec-title" style="margin-top:4px">屋主物件</div>
                 <div id="sellerAddrRow" style="display:grid;grid-template-columns:1fr 3fr;gap:10px;margin-bottom:10px">
                     <div class="fg" style="margin-bottom:0"><label>社區大樓</label><input id="f-community" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>物件地址</label><input id="f-sAddr" placeholder=""></div>
@@ -923,10 +923,10 @@
                 <div id="rPage-房東" style="display:none">
                     <div style="display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap">
                         <span style="font-size:15px;color:var(--text);line-height:30px;font-weight:700">加掛身份：</span>
-                        <button type="button" class="bf-chip rll-type" onclick="toggleRoleType('landlord','經營買方',this)" style="padding:4px 12px;font-size:13px">經營買方</button>
-                        <button type="button" class="bf-chip rll-type" onclick="toggleRoleType('landlord','庫存屋主',this)" style="padding:4px 12px;font-size:13px">庫存屋主</button>
-                        <button type="button" class="bf-chip rll-type" onclick="toggleRoleType('landlord','成交客戶',this)" style="padding:4px 12px;font-size:13px">成交客戶</button>
-                        <button type="button" class="bf-chip rll-type" onclick="toggleRoleType('landlord','商機募集',this)" style="padding:4px 12px;font-size:13px">商機募集</button>
+                        <button type="button" class="bf-chip rll-type" onclick="toggleRoleType('landlord','經營買方',this)" style="padding:4px 12px;font-size:13px" data-type="經營買方">買方</button>
+                        <button type="button" class="bf-chip rll-type" onclick="toggleRoleType('landlord','庫存屋主',this)" style="padding:4px 12px;font-size:13px" data-type="庫存屋主">屋主</button>
+                        <button type="button" class="bf-chip rll-type" onclick="toggleRoleType('landlord','成交客戶',this)" style="padding:4px 12px;font-size:13px" data-type="成交客戶">成交</button>
+                        <button type="button" class="bf-chip rll-type" onclick="toggleRoleType('landlord','商機募集',this)" style="padding:4px 12px;font-size:13px" data-type="商機募集">商機</button>
                     </div>
                     <div style="display:flex;margin-bottom:14px;align-items:flex-start">
                         <span style="font-size:15px;color:var(--text);line-height:30px;font-weight:700;flex-shrink:0">租屋條件：</span>
@@ -962,10 +962,10 @@
                 <div id="rPage-租客" style="display:none">
                     <div style="display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap">
                         <span style="font-size:15px;color:var(--text);line-height:30px;font-weight:700">加掛身份：</span>
-                        <button type="button" class="bf-chip rtt-type" onclick="toggleRoleType('tenant','經營買方',this)" style="padding:4px 12px;font-size:13px">經營買方</button>
-                        <button type="button" class="bf-chip rtt-type" onclick="toggleRoleType('tenant','庫存屋主',this)" style="padding:4px 12px;font-size:13px">庫存屋主</button>
-                        <button type="button" class="bf-chip rtt-type" onclick="toggleRoleType('tenant','成交客戶',this)" style="padding:4px 12px;font-size:13px">成交客戶</button>
-                        <button type="button" class="bf-chip rtt-type" onclick="toggleRoleType('tenant','商機募集',this)" style="padding:4px 12px;font-size:13px">商機募集</button>
+                        <button type="button" class="bf-chip rtt-type" onclick="toggleRoleType('tenant','經營買方',this)" style="padding:4px 12px;font-size:13px" data-type="經營買方">買方</button>
+                        <button type="button" class="bf-chip rtt-type" onclick="toggleRoleType('tenant','庫存屋主',this)" style="padding:4px 12px;font-size:13px" data-type="庫存屋主">屋主</button>
+                        <button type="button" class="bf-chip rtt-type" onclick="toggleRoleType('tenant','成交客戶',this)" style="padding:4px 12px;font-size:13px" data-type="成交客戶">成交</button>
+                        <button type="button" class="bf-chip rtt-type" onclick="toggleRoleType('tenant','商機募集',this)" style="padding:4px 12px;font-size:13px" data-type="商機募集">商機</button>
                     </div>
                     <div style="display:flex;margin-bottom:14px;align-items:flex-start">
                         <span style="font-size:15px;color:var(--text);line-height:30px;font-weight:700;flex-shrink:0">租屋條件：</span>
@@ -1194,11 +1194,11 @@
             <div style="margin-bottom:10px">
                 <label style="font-size:13px;font-weight:600">匯入為：</label>
                 <select id="vcfType" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;margin-left:6px">
-                    <option value="經營買方">經營買方</option>
-                    <option value="庫存屋主">庫存屋主</option>
-                    <option value="租案管理">租案管理</option>
-                    <option value="成交客戶">成交客戶</option>
-                    <option value="商機募集" selected>商機募集</option>
+                    <option value="經營買方">買方</option>
+                    <option value="庫存屋主">屋主</option>
+                    <option value="租案管理">租案</option>
+                    <option value="成交客戶">成交</option>
+                    <option value="商機募集" selected>商機</option>
                 </select>
             </div>
             <div style="margin-bottom:8px;font-size:12px;color:var(--muted)">
@@ -1306,6 +1306,7 @@ let showArchived = false;
 const ARCHIVABLE = ['經營買方','庫存屋主','租案管理','商機募集'];
 
 const TC = { '經營買方':'buyer','庫存屋主':'seller','租案管理':'rental','成交客戶':'closed','商機募集':'potential' };
+var TYPE_DISPLAY = {'經營買方':'買方','庫存屋主':'屋主','租案管理':'租案','成交客戶':'成交','商機募集':'商機'};
 const TYPES = ['經營買方','庫存屋主','租案管理','成交客戶','商機募集'];
 var _ctEls = {}, _caEls = {};
 
@@ -1697,7 +1698,7 @@ function setFilter(type, btn) {
     showThisMonthMode = false;
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    const titles = { all:'總覽','經營買方':'經營買方','庫存屋主':'庫存屋主','租案管理':'租案管理','成交客戶':'成交客戶','商機募集':'商機募集' };
+    const titles = { all:'總覽','經營買方':'買方','庫存屋主':'屋主','租案管理':'租案','成交客戶':'成交','商機募集':'商機' };
     document.getElementById('filterTitle').textContent = titles[type];
     document.getElementById('buyerFilter').classList.toggle('on', type === '經營買方');
     document.getElementById('sortSel').style.display = (type === '成交客戶' || type === '租案管理' || type === '庫存屋主') ? 'none' : '';
@@ -1864,11 +1865,11 @@ function renderDashboard() {
 
     // 數據卡片
     var counts = [
-        { label:'經營買方', num: DB.filter(c=>hasType(c,'經營買方')).length, color:'#1D4ED8', filter:'經營買方' },
-        { label:'庫存屋主', num: DB.filter(c=>hasType(c,'庫存屋主')).length, color:'#065F46', filter:'庫存屋主' },
-        { label:'租案管理', num: DB.filter(c=>hasType(c,'租案管理')).length, color:'#5B21B6', filter:'租案管理' },
-        { label:'成交客戶', num: DB.filter(c=>hasType(c,'成交客戶')).length, color:'#92400E', filter:'成交客戶' },
-        { label:'商機募集', num: DB.filter(c=>hasType(c,'商機募集')).length, color:'#991B1B', filter:'商機募集' },
+        { label:'買方', num: DB.filter(c=>hasType(c,'經營買方')).length, color:'#1D4ED8', filter:'經營買方' },
+        { label:'屋主', num: DB.filter(c=>hasType(c,'庫存屋主')).length, color:'#065F46', filter:'庫存屋主' },
+        { label:'租案', num: DB.filter(c=>hasType(c,'租案管理')).length, color:'#5B21B6', filter:'租案管理' },
+        { label:'成交', num: DB.filter(c=>hasType(c,'成交客戶')).length, color:'#92400E', filter:'成交客戶' },
+        { label:'商機', num: DB.filter(c=>hasType(c,'商機募集')).length, color:'#991B1B', filter:'商機募集' },
         { label:'本月新增', num: DB.filter(c=>(c.created||'').slice(0,7)===thisMonth).length, color:'#0891B2', filter:'', action:'thisMonth' }
     ];
     document.getElementById('dashCards').innerHTML = counts.map(function(item) {
@@ -1893,7 +1894,7 @@ function renderDashboard() {
         return '<div class="dash-item" onclick="showDet(\''+c.id+'\')">' +
             '<span class="dash-item-name">'+esc(c.name)+'<span style="font-weight:400;color:#64748B"> · '+esc(c.community||c.sAddr||'')+'</span></span>' +
             '<span class="dash-item-info" style="color:'+(d<=0?'#EF4444':'#D97706')+'">'+label+'</span></div>';
-    }).join('') : '<div class="dash-empty">目前沒有即將到期的庫存合約</div>';
+    }).join('') : '<div class="dash-empty">目前沒有即將到期的屋主合約</div>';
 
     // 租案合約即將到期（到期月前一個月1號起）
     var expRental = DB.filter(function(c) {
@@ -1963,7 +1964,7 @@ function renderDashboard() {
     document.getElementById('dashNoContact').innerHTML = noContact.length ? noContact.map(function(c) {
         var info = c.lastContact ? relTime(c.lastContact) : '從未聯絡';
         return '<div class="dash-item" onclick="showDet(\''+c.id+'\')">' +
-            '<span class="dash-item-name">'+esc(c.name)+'<span style="font-weight:400;color:#64748B"> · '+esc(c.type)+'</span></span>' +
+            '<span class="dash-item-name">'+esc(c.name)+'<span style="font-weight:400;color:#64748B"> · '+esc(TYPE_DISPLAY[c.type]||c.type)+'</span></span>' +
             '<span class="dash-item-info">'+esc(info)+'</span></div>';
     }).join('') : '<div class="dash-empty">所有客戶皆已近期聯絡</div>';
 
@@ -1971,7 +1972,7 @@ function renderDashboard() {
     var recent = DB.filter(function(c){ return !c.archived; }).sort(function(a,b) { return (b.created||'').localeCompare(a.created||''); }).slice(0, 8);
     document.getElementById('dashRecent').innerHTML = recent.length ? recent.map(function(c) {
         return '<div class="dash-item" onclick="showDet(\''+c.id+'\')">' +
-            '<span class="dash-item-name">'+esc(c.name)+'<span style="font-weight:400;color:#64748B"> · '+esc(c.type)+'</span></span>' +
+            '<span class="dash-item-name">'+esc(c.name)+'<span style="font-weight:400;color:#64748B"> · '+esc(TYPE_DISPLAY[c.type]||c.type)+'</span></span>' +
             '<span class="dash-item-info">'+esc(isoToROC((c.created||'').slice(0,10)))+'</span></div>';
     }).join('') : '<div class="dash-empty">尚無客戶資料</div>';
 
@@ -2070,7 +2071,7 @@ function renderCard(c) {
         if (curFilter !== 'all' && displayTypes.includes(curFilter)) {
             displayTypes = [curFilter].concat(displayTypes.filter(function(t){ return t !== curFilter; }));
         }
-        const typeTags = displayTypes.map(t => `<span class="tag t-${TC[t]||'buyer'}">${t}</span>`).join('');
+        const typeTags = displayTypes.map(t => `<span class="tag t-${TC[t]||'buyer'}">${TYPE_DISPLAY[t]||t}</span>`).join('');
         const statusTag = !cTypes.includes('經營買方') && c.status ? `<span class="tag s-${c.status}">${c.status}</span>` : '';
         const notesText = c.notes ? c.notes.replace(/[\r\n]+/g,' ').replace(/\s+/g,' ').trim() : '';
         const dateLabel = c.lastContact ? '📞 '+relTime(c.lastContact) : '';
@@ -2411,7 +2412,7 @@ function showDet(id, viewAs) {
     var primaryType = detDisplayTypes[0] || cTypes[0];
     const tc = TC[primaryType]||'buyer';
     const statusTag = !cTypes.includes('經營買方') && c.status ? `<span class="tag s-${c.status}">${c.status}</span>` : '';
-    const detTypeTags = detDisplayTypes.map(t => `<span class="tag t-${TC[t]||'buyer'}">${t}</span>`).join('');
+    const detTypeTags = detDisplayTypes.map(t => `<span class="tag t-${TC[t]||'buyer'}">${TYPE_DISPLAY[t]||t}</span>`).join('');
     // 為每個類型產生詳細資料（當前篩選的類型排前面）
     var orderedTypes = (detViewAs === 'tenant' || detViewAs === 'landlord') ? detDisplayTypes.slice() : cTypes.slice();
     if (curFilter !== 'all' && orderedTypes.includes(curFilter)) {
@@ -2427,11 +2428,11 @@ function showDet(id, viewAs) {
         var typeColor = {'經營買方':'#5C4A32','庫存屋主':'#3B5E3B','租案管理':'#4A3D5E','成交客戶':'#7A5C30','商機募集':'#5E4A3E'}[t] || '#475569';
         var typeBg = {'經營買方':'#EDE8E0','庫存屋主':'#E0EBE0','租案管理':'#E8E3ED','成交客戶':'#F0E6D6','商機募集':'#EAE3DE'}[t] || '#F5F5F4';
         if (isPrimary) {
-            allTd += `<div class="det-sec" style="background:${typeBg};color:${typeColor};padding:8px 10px;border-radius:6px;margin:-2px -4px 10px;border:none">${t}資料</div>${td}`;
+            allTd += `<div class="det-sec" style="background:${typeBg};color:${typeColor};padding:8px 10px;border-radius:6px;margin:-2px -4px 10px;border:none">${TYPE_DISPLAY[t]||t}資料</div>${td}`;
         } else {
             var collapseId = 'collapse_' + idx;
             allTd += `<div class="det-sec" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:${typeBg};color:${typeColor};padding:8px 10px;border-radius:6px;margin:-2px -4px 6px;border:none;opacity:0.8" onclick="var el=document.getElementById('${collapseId}');var ar=this.querySelector('.collapse-arrow');if(el.style.display==='none'){el.style.display='';ar.textContent='▼';this.style.opacity='1'}else{el.style.display='none';ar.textContent='▶';this.style.opacity='0.8'}">
-                <span>${t}資料（點擊展開）</span><span class="collapse-arrow" style="font-size:11px">▶</span>
+                <span>${TYPE_DISPLAY[t]||t}資料（點擊展開）</span><span class="collapse-arrow" style="font-size:11px">▶</span>
             </div><div id="${collapseId}" style="display:none">${td}</div>`;
         }
     });
@@ -2828,10 +2829,10 @@ function loadRoleTypes(c) {
     }
     // 更新按鈕狀態
     document.querySelectorAll('.rll-type').forEach(function(btn){
-        btn.classList.toggle('on', rLandlordTypes.includes(btn.textContent));
+        btn.classList.toggle('on', rLandlordTypes.includes(btn.getAttribute('data-type')||btn.textContent));
     });
     document.querySelectorAll('.rtt-type').forEach(function(btn){
-        btn.classList.toggle('on', rTenantTypes.includes(btn.textContent));
+        btn.classList.toggle('on', rTenantTypes.includes(btn.getAttribute('data-type')||btn.textContent));
     });
 }
 function clearRoleTypes() {
@@ -3861,7 +3862,7 @@ function renderTrash() {
         return;
     }
     el.innerHTML = list.map(function(c) {
-        var types = getTypes(c).join('、');
+        var types = getTypes(c).map(function(t){return TYPE_DISPLAY[t]||t;}).join('、');
         var delDate = c._deletedAt ? isoToROC(c._deletedAt.slice(0,10)) : '';
         return '<div style="display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid var(--border)">' +
             '<div style="flex:1"><div style="font-weight:700;font-size:14px">'+esc(c.name)+'</div>' +
