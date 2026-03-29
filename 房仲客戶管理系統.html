@@ -4509,6 +4509,9 @@ function resetForm() {
     clearBAddrs();
     clearRPersons();
     clearRoleTypes();
+    document.querySelectorAll('.grade-btn').forEach(function(b){ b.classList.remove('on'); });
+    var bg = document.getElementById('f-bGrade'); if(bg) bg.value = '';
+    var sg = document.getElementById('f-sGrade'); if(sg) sg.value = '';
     clearCRows();
     clearDeals();
 }
