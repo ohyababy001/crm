@@ -956,6 +956,7 @@
                 <button type="button" class="add-row-btn" onclick="addPersonBlock('sPersonList')" style="margin-bottom:10px">＋ 新增聯絡人</button>
 
                 <div class="sec-title" style="margin-top:4px">庫存物件</div>
+                <div id="sellerFixedProperty" style="display:none">
                 <div style="display:flex;gap:6px;align-items:center;margin-bottom:10px">
                     <span style="font-size:13px;font-weight:600;color:var(--text);flex-shrink:0">約種</span>
                     <div class="room-picker" id="contractTypePicker" style="margin-bottom:0">
@@ -1027,6 +1028,7 @@
                         <label>到期日歷程</label>
                         <div id="sRenewalList" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div>
                     </div>
+                </div>
                 </div>
                 <div id="sPropertyList"></div>
                 <button type="button" class="add-row-btn" onclick="addSellerProperty()" style="margin-bottom:10px">＋ 新增庫存物件</button>
@@ -4382,6 +4384,7 @@ function resetForm() {
     ['sBasicAddrList','llBasicAddrList','ttBasicAddrList','cBasicAddrList','dBasicAddrList'].forEach(function(id){ var el=document.getElementById(id); if(el) el.innerHTML=''; });
     clearPersonBlocks('sPersonList');
     clearSellerProperties();
+    document.getElementById('sellerFixedProperty').style.display = 'none';
     _priceHistories = { sPrice:[], sFloorPrice:[], sServiceFee:[] };
     document.getElementById('btnPriceHist').style.display = 'none';
     document.getElementById('btnFloorHist').style.display = 'none';
@@ -4502,6 +4505,10 @@ function openEdit(id, viewAs) {
     _detailSz = c.sDetailSz || { main:'', ancillary:'', common:'', parking:'' };
     var pszLabel = document.getElementById('parkingSzLabel');
     if (pszLabel) pszLabel.textContent = parseFloat(_detailSz.parking) > 0 ? '('+_detailSz.parking+'坪)' : '';
+    // 有物件資料時顯示固定欄位
+    if (c.community || c.sAddr || c.sPrice || c.sFloorPrice || c.contractType) {
+        document.getElementById('sellerFixedProperty').style.display = '';
+    }
     setVal('f-community',c.community); setVal('f-sAddr',c.sAddr); setVal('f-sPrice',c.sPrice); setVal('f-sFloorPrice',c.sFloorPrice); setVal('f-sLandSz',c.sLandSz); setVal('f-layout',c.layout);
     // 建物坪數：有詳細坪數時自動重算到小數第2位
     var dMain = parseFloat(_detailSz.main)||0, dAnc = parseFloat(_detailSz.ancillary)||0, dCom = parseFloat(_detailSz.common)||0;
