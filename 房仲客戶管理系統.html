@@ -4616,30 +4616,9 @@ function openEdit(id, viewAs) {
     var pszLabel = document.getElementById('parkingSzLabel');
     if (pszLabel) pszLabel.textContent = parseFloat(_detailSz.parking) > 0 ? '('+_detailSz.parking+'坪)' : '';
     // 有物件資料時顯示固定欄位
-    var _sp0 = (c.sProperties && c.sProperties[0]) || {};
-    if (c.community || c.sAddr || c.sPrice || c.sFloorPrice || c.contractType || c.sBaseLand || c.sMainBldg || _sp0.community || _sp0.addr || _sp0.price) {
+    // 固定欄位只在自己有資料時才顯示（不從 sProperties 回填）
+    if (c.community || c.sAddr || c.sPrice || c.sFloorPrice || c.contractType || c.sBaseLand || c.sMainBldg) {
         document.getElementById('sellerFixedProperty').style.display = '';
-        // 從 sProperties[0] 回填固定欄位（如果固定欄位為空）
-        if (!c.community && _sp0.community) setVal('f-community', _sp0.community);
-        if (!c.sAddr && _sp0.addr) setVal('f-sAddr', _sp0.addr);
-        if (!c.sPrice && _sp0.price) setVal('f-sPrice', _sp0.price);
-        if (!c.sFloorPrice && _sp0.floorPrice) setVal('f-sFloorPrice', _sp0.floorPrice);
-        if (!c.sServiceFee && _sp0.serviceFee) setVal('f-sServiceFee', _sp0.serviceFee);
-        if (!c.contractType && _sp0.contractType) {
-            document.getElementById('f-contractType').value = _sp0.contractType;
-            document.querySelectorAll('#contractTypePicker .rm-btn').forEach(function(b){ if(b.textContent.trim()===_sp0.contractType) b.classList.add('on'); });
-        }
-        if (!c.sBaseLand && _sp0.baseLand) setVal('f-sBaseLand', _sp0.baseLand);
-        if (!c.sLandShare && _sp0.landShare) setVal('f-sLandShare', _sp0.landShare);
-        if (!c.sMainBldg && _sp0.mainBldg) setVal('f-sMainBldg', _sp0.mainBldg);
-        if (!c.sAncBldg && _sp0.ancBldg) setVal('f-sAncBldg', _sp0.ancBldg);
-        if (!c.sCommon && _sp0.common) setVal('f-sCommon', _sp0.common);
-        if (!c.sParkingSz && _sp0.parkingSz) setVal('f-sParkingSz', _sp0.parkingSz);
-        if (!c.parking && _sp0.parking) { document.getElementById('f-parking').value = _sp0.parking; toggleParkingPrice(); }
-        if (!c.parkingPrice && _sp0.parkingPrice) setVal('f-parkingPrice', _sp0.parkingPrice);
-        if (!c.parkingNo && _sp0.parkingNo) setVal('f-parkingNo', _sp0.parkingNo);
-        if (!c.contractStart && _sp0.contractStart) setVal('f-contractStart', isoToROC(_sp0.contractStart));
-        if (!c.contractEnd && _sp0.contractEnd) setVal('f-contractEnd', isoToROC(_sp0.contractEnd));
     }
     setVal('f-community',c.community); setVal('f-sAddr',c.sAddr); setVal('f-sPrice',c.sPrice); setVal('f-sFloorPrice',c.sFloorPrice); setVal('f-layout',c.layout);
     // 坪數欄位（新欄位優先，向下相容舊 sDetailSz）
