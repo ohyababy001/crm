@@ -2550,32 +2550,38 @@ function renderCard(c) {
             if (c.roomTypes)   meta += `<div class="cmeta-row"><span class="cmeta-k">房型</span><span class="cmeta-v">${esc(c.roomTypes)}</span></div>`;
             if (c.budget)      meta += `<div class="cmeta-row"><span class="cmeta-k">預算</span><span class="cmeta-v">${esc(c.budget)}${c.budget.includes('萬')?'':'萬'}</span></div>`;
         } else if (showType==='庫存屋主') {
-            if (c.sDetailSz && (c.sDetailSz.main || c.sDetailSz.ancillary || c.sDetailSz.common)) {
-                meta += `<div style="text-align:right;margin-bottom:4px"><button class="btn-fill" onclick="event.stopPropagation();showDetailSzView('${c.id}')" style="font-size:11px;padding:2px 8px;color:#6366F1;border-color:#A5B4FC">權狀坪數</button></div>`;
-            }
-            if (c.contractType) meta += `<div class="cmeta-row"><span class="cmeta-k">約種</span><span class="cmeta-v">${esc(c.contractType)}</span></div>`;
-            if (c.community) meta += `<div class="cmeta-row"><span class="cmeta-k">社區</span><span class="cmeta-v">${esc(c.community)}</span></div>`;
-            if (c.sAddr) meta += `<div class="cmeta-row"><span class="cmeta-k">地址</span><span class="cmeta-v full">${esc(c.sAddr)}</span></div>`;
-            if (c.sPrice) {
-                let priceDisp = esc(c.sPrice) + (c.sPrice&&!c.sPrice.includes('萬')?'萬':'');
+            // 優先用固定欄位，fallback 到 sProperties[0]
+            var sp0 = (c.sProperties && c.sProperties[0]) || {};
+            var _ct = c.contractType || sp0.contractType || '';
+            var _comm = c.community || sp0.community || '';
+            var _sAddr = c.sAddr || sp0.addr || '';
+            var _sPrice = c.sPrice || sp0.price || '';
+            var _sFloorPrice = c.sFloorPrice || sp0.floorPrice || '';
+            if (_ct) meta += `<div class="cmeta-row"><span class="cmeta-k">約種</span><span class="cmeta-v">${esc(_ct)}</span></div>`;
+            if (_comm) meta += `<div class="cmeta-row"><span class="cmeta-k">社區</span><span class="cmeta-v">${esc(_comm)}</span></div>`;
+            if (_sAddr) meta += `<div class="cmeta-row"><span class="cmeta-k">地址</span><span class="cmeta-v full">${esc(_sAddr)}</span></div>`;
+            if (_sPrice) {
+                let priceDisp = esc(_sPrice) + (_sPrice&&!_sPrice.includes('萬')?'萬':'');
                 meta += `<div class="cmeta-row"><span class="cmeta-k">開價</span><span class="cmeta-v">${priceDisp}</span></div>`;
             }
-            // 坪數（從新欄位計算，向下相容舊欄位）
-            var mainB = parseFloat(c.sMainBldg)||0, ancB = parseFloat(c.sAncBldg)||0, comB = parseFloat(c.sCommon)||0, pkSz = parseFloat(c.sParkingSz)||0;
+            // 坪數（從新欄位計算，向下相容舊欄位和sProperties）
+            var mainB = parseFloat(c.sMainBldg||sp0.mainBldg)||0, ancB = parseFloat(c.sAncBldg||sp0.ancBldg)||0, comB = parseFloat(c.sCommon||sp0.common)||0, pkSz = parseFloat(c.sParkingSz||sp0.parkingSz)||0;
             var bldgSz = mainB+ancB+comB;
             var regSz = bldgSz+pkSz;
             var oldSz = parseFloat(String(c.sSz||'').replace(/[坪,]/g,''))||0;
             var displaySz = regSz || oldSz;
             if (displaySz) {
-                const priceNum = parseFloat(String(c.sPrice||'').replace(/[萬,]/g,'')) || 0;
-                const pkPriceNum = parseFloat(String(c.parkingPrice||'').replace(/[萬,]/g,'')) || 0;
+                var _pk = c.parking || sp0.parking || '';
+                var _pkPrice = c.parkingPrice || sp0.parkingPrice || '';
+                const priceNum = parseFloat(String(_sPrice||'').replace(/[萬,]/g,'')) || 0;
+                const pkPriceNum = parseFloat(String(_pkPrice||'').replace(/[萬,]/g,'')) || 0;
                 let szDisp = displaySz.toFixed(2) + '坪';
                 if (priceNum && bldgSz) {
                     const unitPrice = ((priceNum - pkPriceNum) / bldgSz).toFixed(2);
                     szDisp += ` <span style="color:#6366F1;font-weight:600">@${unitPrice}萬</span>`;
                 }
-                if (c.parking && c.parking !== '無車位') {
-                    szDisp += ` <span style="color:#64748B">+${esc(c.parking)}${c.parkingPrice ? ' ' + esc(c.parkingPrice) + (c.parkingPrice.includes('萬')?'':'萬') : ''}</span>`;
+                if (_pk && _pk !== '無車位') {
+                    szDisp += ` <span style="color:#64748B">+${esc(_pk)}${_pkPrice ? ' ' + esc(_pkPrice) + (_pkPrice.includes('萬')?'':'萬') : ''}</span>`;
                 }
                 meta += `<div class="cmeta-row"><span class="cmeta-k">登記</span><span class="cmeta-v">${szDisp}</span></div>`;
             }
