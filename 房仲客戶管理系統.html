@@ -764,10 +764,10 @@
 <!-- 新增/編輯 Modal -->
 <div id="fModal" class="overlay" style="display:none" onmousedown="if(event.target===this)closeForm()">
     <div class="modal" onclick="event.stopPropagation()">
-        <div class="modal-head">
+        <div class="modal-head" style="position:relative">
             <div class="modal-title" id="formTitle">新增客戶</div>
-            <span id="editClientName" style="flex:1;text-align:center;font-size:30px;font-weight:800;color:#8B6914;letter-spacing:1px"></span>
-            <div style="display:flex;gap:6px;align-items:center;margin-left:auto" id="editNavGroup" style="display:none">
+            <span id="editClientName" style="position:absolute;left:50%;transform:translateX(-50%);font-size:30px;font-weight:800;color:#8B6914;letter-spacing:1px;white-space:nowrap"></span>
+            <div style="display:flex;gap:6px;align-items:center;margin-left:auto" id="editNavGroup">
                 <button class="btn-ic" onclick="navEdit(-1)" title="上一筆" id="btnPrevEdit" style="font-size:16px;padding:4px 10px">◀</button>
                 <span id="editNavInfo" style="font-size:12px;color:var(--muted);white-space:nowrap"></span>
                 <button class="btn-ic" onclick="navEdit(1)" title="下一筆" id="btnNextEdit" style="font-size:16px;padding:4px 10px">▶</button>
