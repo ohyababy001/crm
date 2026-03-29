@@ -3633,6 +3633,7 @@ function resetForm() {
 }
 
 function openAdd() {
+  try {
     editId=null; resetForm();
     document.getElementById('formTitle').textContent='新增客戶';
     document.getElementById('flc').value=isoToROC(localDateISO());
@@ -3646,10 +3647,12 @@ function openAdd() {
     document.getElementById('editClientName').textContent = '';
     document.getElementById('fModal').style.display='flex';
     document.querySelector('#fModal .modal').scrollTop = 0;
+  } catch(e) { alert('新增錯誤: ' + e.message); }
 }
 
 var _editViewAs = '';
 function openEdit(id, viewAs) {
+  try {
     _editViewAs = viewAs || '';
     const c=DB.find(x=>x.id===id); if(!c) return;
     editId=id; resetForm();
@@ -3859,6 +3862,7 @@ function openEdit(id, viewAs) {
     document.getElementById('fModal').style.display='flex';
     document.querySelector('#fModal .modal').scrollTop = 0;
     updateEditNav();
+  } catch(e) { alert('編輯錯誤: ' + e.message + '\n' + e.stack); }
 }
 
 function closeForm(){ document.getElementById('fModal').style.display='none'; }
