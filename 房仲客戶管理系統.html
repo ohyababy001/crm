@@ -1832,12 +1832,25 @@ function openCal(btn) {
     popup.style.left = left + 'px';
     popup.style.top = top + 'px';
     popup.style.display = 'block';
+    // 點外面關閉日曆
+    setTimeout(function() {
+        document.addEventListener('pointerdown', _calOutsideClose);
+    }, 0);
+}
+function _calOutsideClose(e) {
+    var popup = document.getElementById('calPopup');
+    if (popup.style.display !== 'block') return;
+    if (!popup.contains(e.target) && !e.target.classList.contains('cal-btn')) {
+        closeCal();
+        document.removeEventListener('pointerdown', _calOutsideClose);
+    }
 }
 
 function closeCal() {
     document.getElementById('calPopup').style.display = 'none';
     calTarget = null;
     yearPickerOpen = false;
+    document.removeEventListener('pointerdown', _calOutsideClose);
     document.getElementById('calYearPicker').style.display = 'none';
     document.getElementById('calGrid').style.display = 'grid';
 }
