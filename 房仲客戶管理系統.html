@@ -3354,74 +3354,7 @@ function lookupName(el) {
 }
 
 function syncBasicInfo() {
-    // 從所有來源收集基本資料
-    var name = '', phone = '', idNo = '';
-    var sources = [];
-
-    // 共用欄位
-    var fn = document.getElementById('fn').value.trim();
-    var fp = document.getElementById('fp').value.trim();
-    if (fn) sources.push({name:fn, phone:fp, idNo:'', birthday:''});
-
-    // 庫存屋主
-    var sn = document.getElementById('f-sName').value.trim();
-    var sp = document.getElementById('f-sPhone').value.trim();
-    var si = document.getElementById('f-sIdNo').value.trim();
-    var sb = document.getElementById('f-sBirthday').value.trim();
-    if (sn) sources.push({name:sn, phone:sp, idNo:si, birthday:sb});
-
-    // 租案房東
-    var llRow = document.querySelector('#rLandlordList .c-row');
-    if (llRow) { var li=llRow.querySelectorAll('input'); if(li[0]&&li[0].value.trim()) sources.push({name:li[0].value.trim(),phone:li[1]?li[1].value.trim():'',idNo:li[2]?li[2].value.trim():'',birthday:''}); }
-
-    // 租案租客
-    var ttRow = document.querySelector('#rTenantList .c-row');
-    if (ttRow) { var ti=ttRow.querySelectorAll('input'); if(ti[0]&&ti[0].value.trim()) sources.push({name:ti[0].value.trim(),phone:ti[1]?ti[1].value.trim():'',idNo:ti[2]?ti[2].value.trim():'',birthday:''}); }
-
-    // 成交客戶
-    var ccRow = document.querySelector('#cContactList .c-row');
-    if (ccRow) {
-        var ci=ccRow.querySelectorAll('input');
-        var ccBday = ccRow.querySelector('.roc-date-wrap input');
-        if(ci[0]&&ci[0].value.trim()) sources.push({name:ci[0].value.trim(),phone:ci[1]?ci[1].value.trim():'',idNo:ci[2]?ci[2].value.trim():'',birthday:ccBday?ccBday.value.trim():''});
-    }
-
-    // 取第一個有名字的當主要來源
-    if (sources.length) { name = sources[0].name; phone = sources[0].phone; }
-    // 身份證和生日從所有來源中找第一個有值的
-    var birthday = '';
-    for (var i=0;i<sources.length;i++) { if(sources[i].idNo && !idNo) idNo=sources[i].idNo; if(sources[i].birthday && !birthday) birthday=sources[i].birthday; }
-
-    if (!name) return;
-
-    // 帶入共用欄位（如果是空的）
-    var fnEl = document.getElementById('fn'), fpEl = document.getElementById('fp');
-    if (fnEl && !fnEl.value.trim()) fnEl.value = name;
-    if (fpEl && !fpEl.value.trim()) fpEl.value = phone;
-
-    // 帶入庫存屋主（如果是空的）
-    var snEl = document.getElementById('f-sName'), spEl = document.getElementById('f-sPhone'), siEl = document.getElementById('f-sIdNo'), sbdEl = document.getElementById('f-sBirthday');
-    if (snEl && !snEl.value.trim()) snEl.value = name;
-    if (spEl && !spEl.value.trim()) spEl.value = phone;
-    if (siEl && !siEl.value.trim() && idNo) siEl.value = idNo;
-    if (sbdEl && !sbdEl.value.trim() && birthday) sbdEl.value = birthday;
-
-    // 租案房東/租客不自動帶入，因為房東和租客是不同人，各自獨立填寫
-
-    // 帶入成交客戶（每個欄位獨立判斷）
-    if (selectedTypes.includes('成交客戶')) {
-        var ccFirst = document.querySelector('#cContactList .c-row');
-        if (!ccFirst) {
-            addCContactRow({name:name,phone:phone,idNo:idNo,birthday:birthday?rocToISO(birthday):''});
-        } else {
-            var ccI = ccFirst.querySelectorAll('input');
-            if (ccI[0] && !ccI[0].value.trim() && name) ccI[0].value = name;
-            if (ccI[1] && !ccI[1].value.trim() && phone) ccI[1].value = phone;
-            if (ccI[2] && !ccI[2].value.trim() && idNo) ccI[2].value = idNo;
-            var ccBd = ccFirst.querySelector('.roc-date-wrap input');
-            if (ccBd && !ccBd.value.trim() && birthday) ccBd.value = birthday;
-        }
-    }
+    // 已改用手動「帶入」按鈕，不再自動帶入
 }
 
 // ── 帶入功能 ──
