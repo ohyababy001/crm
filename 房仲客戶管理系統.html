@@ -898,25 +898,22 @@
                     <input id="f-roomOther" placeholder="" style="margin-top:6px;display:none">
                 </div>
 
-                <div id="budgetRow" style="display:flex;gap:6px;align-items:flex-end;margin-bottom:6px;min-width:0">
+                <div id="budgetRow" style="display:flex;gap:6px;align-items:end;margin-bottom:6px;min-width:0">
                     <div class="fg" style="flex:1;margin-bottom:0;min-width:0">
-                        <label>預算最低</label>
-                        <div class="input-grp"><input id="f-budgetMin" placeholder="" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div>
+                        <div class="input-grp"><input id="f-budgetMin" placeholder="預算最低" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div>
                     </div>
                     <span style="font-size:13px;color:var(--muted);flex-shrink:0;padding-bottom:10px">～</span>
                     <div class="fg" style="flex:1;margin-bottom:0;min-width:0">
-                        <label>預算最高</label>
-                        <div class="input-grp"><input id="f-budgetMax" placeholder="" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div>
+                        <div class="input-grp"><input id="f-budgetMax" placeholder="預算最高" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div>
                     </div>
                     <div class="fg" style="flex:1;margin-bottom:0;min-width:0">
-                        <label>自備款</label>
-                        <div class="input-grp"><input id="f-downPayment" placeholder="" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div>
+                        <div class="input-grp"><input id="f-downPayment" placeholder="自備款" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div>
                     </div>
                 </div>
 
-                <div class="form-row" id="buyerDetailRow">
-                    <div class="fg"><label>想要</label><input id="f-want" placeholder=""></div>
-                    <div class="fg"><label>不想要</label><input id="f-noWant" placeholder=""></div>
+                <div class="form-row" id="buyerDetailRow" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                    <div class="fg" style="margin-bottom:0"><input id="f-want" placeholder="想要"></div>
+                    <div class="fg" style="margin-bottom:0"><input id="f-noWant" placeholder="不想要"></div>
                 </div>
                 <div id="bAddrList" style="display:none"></div>
             </div>
