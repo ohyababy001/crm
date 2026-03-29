@@ -2587,7 +2587,8 @@ function renderCard(c) {
             }
             var mgmtTotal = (parseFloat(c.sMgmtBuilding)||0)+(parseFloat(c.sMgmtCar)||0)+(parseFloat(c.sMgmtMoto)||0)+(parseFloat(c.sMgmtOther)||0);
             if (mgmtTotal) meta += `<div class="cmeta-row"><span class="cmeta-k">管理費</span><span class="cmeta-v">${mgmtTotal.toLocaleString()}元${c.sMgmtPeriod?'／'+esc(c.sMgmtPeriod):''}</span></div>`;
-            if (c.contractEnd) meta += `<div class="cmeta-row"><span class="cmeta-k">到期日</span><span class="cmeta-v" style="color:#D97706;font-weight:700">${esc(isoToROC(c.contractEnd))}</span></div>`;
+            var _cEnd = c.contractEnd || sp0.contractEnd || '';
+            if (_cEnd) meta += `<div class="cmeta-row"><span class="cmeta-k">到期日</span><span class="cmeta-v" style="color:#D97706;font-weight:700">${esc(isoToROC(_cEnd))}</span></div>`;
         } else if (showType==='租案管理') {
             if (c.rCommunity) meta += `<div class="cmeta-row"><span class="cmeta-k">社區</span><span class="cmeta-v">${esc(c.rCommunity)}</span></div>`;
             if (c.rAddr) meta += `<div class="cmeta-row"><span class="cmeta-k">地址</span><span class="cmeta-v full">${esc(c.rAddr)}</span></div>`;
