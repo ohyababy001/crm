@@ -464,6 +464,9 @@
             .sp-contract-row > .bf-chip { padding: 8px 10px !important; font-size: 13px !important; }
             /* 設備清單新增其他：手機版全寬 */
             .rp-equip-custom { width:100% !important; }
+            .rp-equip-custom > div:first-child:not(.c-row) { display:none !important; }
+            .rp-equip-custom .c-row { display:grid !important; grid-template-columns:auto 1fr 1fr 1fr auto; gap:4px !important; align-items:end !important; }
+            .rp-equip-custom .c-row .rp-eq-label { display:block !important; font-size:11px; color:var(--muted); margin-bottom:2px; }
             /* 商機物件：手機版重排 */
             .da-row1 { grid-template-columns: 1fr 1fr !important; }
             .da-addr { grid-column: 1 / -1; }
@@ -4191,10 +4194,10 @@ function addRpCustomEquip(btn) {
     }
     var html = '<div class="c-row">' +
         '<input type="checkbox" style="width:13px;height:13px;accent-color:var(--wood);flex-shrink:0">' +
-        '<input type="text" style="flex:1;min-width:0;padding:3px 6px;font-size:12px" placeholder="">' +
-        '<input type="number" min="0" value="" style="width:36px;min-width:36px;flex-shrink:0;padding:3px 2px;border:1px solid var(--border);border-radius:4px;font-size:11px;text-align:center">' +
-        '<input type="text" style="width:28px;min-width:0;padding:3px 4px;font-size:11px" placeholder="">' +
-        '<button type="button" class="c-del" onclick="this.parentElement.remove()" style="font-size:11px">✕</button></div>';
+        '<div><span class="rp-eq-label" style="display:none">項目</span><input type="text" style="width:100%;min-width:0;padding:3px 6px;font-size:12px;box-sizing:border-box" placeholder=""></div>' +
+        '<div><span class="rp-eq-label" style="display:none">數量</span><input type="number" min="0" value="" style="width:100%;min-width:0;padding:3px 2px;border:1px solid var(--border);border-radius:4px;font-size:11px;text-align:center;box-sizing:border-box"></div>' +
+        '<div><span class="rp-eq-label" style="display:none">量詞</span><input type="text" style="width:100%;min-width:0;padding:3px 4px;font-size:11px;box-sizing:border-box" placeholder=""></div>' +
+        '<button type="button" class="c-del" onclick="this.closest(\'.c-row\').remove()" style="font-size:11px">✕</button></div>';
     list.insertAdjacentHTML('beforeend', html);
 }
 function loadRpCustomEquips(block, equipData) {
@@ -4208,10 +4211,10 @@ function loadRpCustomEquips(block, equipData) {
         customItems.forEach(function(name) {
             var html = '<div class="c-row">' +
                 '<input type="checkbox" style="width:13px;height:13px;accent-color:var(--wood);flex-shrink:0" checked>' +
-                '<input type="text" style="flex:1;min-width:0;padding:3px 6px;font-size:12px" value="'+esc(name)+'">' +
-                '<input type="number" min="0" value="'+equipData[name]+'" style="width:36px;min-width:36px;flex-shrink:0;padding:3px 2px;border:1px solid var(--border);border-radius:4px;font-size:11px;text-align:center">' +
-                '<input type="text" style="width:28px;min-width:0;padding:3px 4px;font-size:11px" value="">' +
-                '<button type="button" class="c-del" onclick="this.parentElement.remove()" style="font-size:11px">✕</button></div>';
+                '<div><span class="rp-eq-label" style="display:none">項目</span><input type="text" style="width:100%;min-width:0;padding:3px 6px;font-size:12px;box-sizing:border-box" value="'+esc(name)+'"></div>' +
+                '<div><span class="rp-eq-label" style="display:none">數量</span><input type="number" min="0" value="'+equipData[name]+'" style="width:100%;min-width:0;padding:3px 2px;border:1px solid var(--border);border-radius:4px;font-size:11px;text-align:center;box-sizing:border-box"></div>' +
+                '<div><span class="rp-eq-label" style="display:none">量詞</span><input type="text" style="width:100%;min-width:0;padding:3px 4px;font-size:11px;box-sizing:border-box" value=""></div>' +
+                '<button type="button" class="c-del" onclick="this.closest(\'.c-row\').remove()" style="font-size:11px">✕</button></div>';
             list.insertAdjacentHTML('beforeend', html);
         });
     }
