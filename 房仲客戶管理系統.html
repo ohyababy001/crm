@@ -1538,7 +1538,6 @@ function autoSync() {
         if (status && status.textContent === '☁️ 同步中…') {
             status.textContent = '⚠️ 同步逾時，請手動備份確認';
         }
-        cleanup();
     }, 15000);
 }
 
