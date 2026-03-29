@@ -2495,7 +2495,7 @@ function renderCard(c) {
                 let priceDisp = esc(c.sPrice) + (c.sPrice&&!c.sPrice.includes('萬')?'萬':'');
                 meta += `<div class="cmeta-row"><span class="cmeta-k">開價</span><span class="cmeta-v">${priceDisp}</span></div>`;
             }
-            if (c.sLandSz) {
+            if (c.sLandSz && !c.sSz) {
                 const priceNum = parseFloat(String(c.sPrice||'').replace(/[萬,]/g,'')) || 0;
                 const landSzNum = parseFloat(String(c.sLandSz||'').replace(/[坪,]/g,'')) || 0;
                 const pkPriceNum = parseFloat(String(c.parkingPrice||'').replace(/[萬,]/g,'')) || 0;
