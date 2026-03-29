@@ -970,35 +970,36 @@
                     <div class="fg" style="margin-bottom:0"><input id="f-community" placeholder="社區大樓"></div>
                     <div class="fg" style="margin-bottom:0"><input id="f-sAddr" placeholder="物件地址"></div>
                 </div>
-                <div id="sellerPriceRow" style="display:flex;gap:8px;margin-bottom:10px">
-                    <div class="fg" style="flex:2;margin-bottom:0"><div class="input-grp"><input id="f-sPrice" placeholder="開價" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>
-                    <div class="fg" style="flex:2;margin-bottom:0"><div class="input-grp"><input id="f-sFloorPrice" placeholder="底價" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>
-                    <div class="fg" style="flex:1;margin-bottom:0;min-width:0"><div class="input-grp" style="width:100%"><input id="f-sServiceFee" placeholder="服務費" style="min-width:0;flex:1"><span class="input-sfx">%</span></div></div>
+                <div style="display:grid;grid-template-columns:2fr 2fr 3fr 2fr 2fr;gap:8px;margin-bottom:8px">
+                    <div class="fg" style="margin-bottom:0;grid-column:1/3"><div class="input-grp"><input id="f-sPrice" placeholder="開價" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>
+                    <div class="fg" style="margin-bottom:0;grid-column:3/5"><div class="input-grp"><input id="f-sFloorPrice" placeholder="底價" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>
+                    <div class="fg" style="margin-bottom:0;grid-column:5/6"><div class="input-grp"><input id="f-sServiceFee" placeholder="服務費" style="min-width:0;flex:1"><span class="input-sfx">%</span></div></div>
                 </div>
                 <div style="display:flex;gap:6px;margin-bottom:6px">
                     <button type="button" class="btn-fill" onclick="showPriceHistory('sPrice')" id="btnPriceHist" style="display:none">開價歷程</button>
                     <button type="button" class="btn-fill" onclick="showPriceHistory('sFloorPrice')" id="btnFloorHist" style="display:none">底價歷程</button>
                     <button type="button" class="btn-fill" onclick="showPriceHistory('sServiceFee')" id="btnFeeHist" style="display:none">服務費歷程</button>
                 </div>
-                <div id="szParkingRow" style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap">
-                    <div class="fg" style="flex:1;min-width:60px;margin-bottom:0"><div class="input-grp"><input id="f-sLandSz" placeholder="土地坪數" style="min-width:0;flex:1"><span class="input-sfx">坪</span></div></div>
-                    <div class="fg" style="flex:1;min-width:60px;margin-bottom:0"><div class="input-grp"><input id="f-sSz" placeholder="建物坪數" style="min-width:0;flex:1"><span class="input-sfx">坪</span></div><button type="button" class="btn-fill" onclick="openDetailSz()" style="margin-top:4px;width:100%;font-size:14px;padding:4px 0;letter-spacing:0.2em;text-indent:0.2em;font-weight:700;color:#991B1B;border-color:#D6A8A8">坪 數 輸 入</button></div>
-                    <div class="fg" style="flex:3;min-width:180px;margin-bottom:0">
-                        <div style="display:flex;gap:4px;min-width:0">
-                            <select id="f-parking" onchange="toggleParkingPrice()" style="flex:0 0 auto;min-width:0">
-                                <option value="">車位</option>
-                                <option>坡道平面</option>
-                                <option>坡道機械</option>
-                                <option>升降平面</option>
-                                <option>升降機械</option>
-                                <option>塔式車位</option>
-                                <option>其他車位</option>
-                            </select>
-                            <div class="input-grp" id="parkingPriceGroup" style="flex:1;min-width:0;visibility:hidden"><input id="f-parkingPrice" placeholder="車價" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div>
-                            <input id="f-parkingNo" placeholder="車位編號" style="flex:1;min-width:0;padding:8px 11px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;display:none">
-                        </div>
-                        <span id="parkingSzLabel" style="font-size:12px;color:var(--muted);padding-left:4px"></span>
+                <div id="szParkingRow" style="display:grid;grid-template-columns:2fr 2fr 3fr 2fr 2fr;gap:8px;margin-bottom:8px">
+                    <div class="fg" style="margin-bottom:0"><div class="input-grp"><input id="f-sLandSz" placeholder="土地" style="min-width:0;flex:1"><span class="input-sfx">坪</span></div></div>
+                    <div class="fg" style="margin-bottom:0"><div class="input-grp"><input id="f-sSz" placeholder="建物" style="min-width:0;flex:1"><span class="input-sfx">坪</span></div></div>
+                    <div class="fg" style="margin-bottom:0">
+                        <select id="f-parking" onchange="toggleParkingPrice()" style="width:100%">
+                            <option value="">車位</option>
+                            <option>坡道平面</option>
+                            <option>坡道機械</option>
+                            <option>升降平面</option>
+                            <option>升降機械</option>
+                            <option>塔式車位</option>
+                            <option>其他車位</option>
+                        </select>
                     </div>
+                    <div class="fg" style="margin-bottom:0"><div class="input-grp" id="parkingPriceGroup" style="visibility:hidden"><input id="f-parkingPrice" placeholder="車價" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>
+                    <div class="fg" style="margin-bottom:0"><input id="f-parkingNo" placeholder="車位編號" style="display:none"></div>
+                    <span id="parkingSzLabel" style="font-size:12px;color:var(--muted);grid-column:1/-1"></span>
+                </div>
+                <div style="text-align:center;margin-bottom:10px">
+                    <button type="button" onclick="openDetailSz()" style="background:linear-gradient(135deg,#991B1B,#B91C1C);color:white;border:none;border-radius:8px;padding:8px 24px;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:0.15em;box-shadow:0 2px 6px rgba(153,27,27,0.3)">📐 坪 數 輸 入</button>
                 </div>
                 <div class="form-row">
                     <div class="fg full">
