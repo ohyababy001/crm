@@ -4521,9 +4521,9 @@ function openAdd() {
     editId=null; resetForm();
     document.getElementById('formTitle').textContent='新增客戶';
     document.getElementById('flc').value=isoToROC(localDateISO());
-    // 根據當前左側分類預設選中類型
-    var defaultType = (curFilter !== 'all' && TYPES.includes(curFilter)) ? curFilter : '經營買方';
-    selectedTypes = [defaultType];
+    // 根據當前左側分類預設選中類型（總覽時不預選）
+    var defaultType = (curFilter !== 'all' && TYPES.includes(curFilter)) ? curFilter : '';
+    selectedTypes = defaultType ? [defaultType] : [];
     activeView = defaultType;
     applyTypePicker();
     document.getElementById('editNavGroup').style.display = 'none';
