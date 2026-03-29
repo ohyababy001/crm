@@ -3932,14 +3932,24 @@ function clearDeals() {
 var selectedTypes = [];
 var activeView = '';
 
+var _lastPickType = '';
+var _lastPickTime = 0;
 function pickType(t) {
-    if (activeView === t && selectedTypes.includes(t)) {
-        // 再點一次已選的 = 取消該類型
-        selectedTypes = selectedTypes.filter(function(x){ return x !== t; });
-        activeView = selectedTypes[0] || '';
+    var now = Date.now();
+    var isDouble = (t === _lastPickType && now - _lastPickTime < 400);
+    _lastPickType = t;
+    _lastPickTime = now;
+
+    if (isDouble) {
+        // 雙擊 = 選擇/取消類型
+        if (selectedTypes.includes(t)) {
+            selectedTypes = selectedTypes.filter(function(x){ return x !== t; });
+            if (activeView === t) activeView = selectedTypes[0] || '';
+        } else {
+            selectedTypes.push(t);
+        }
     } else {
-        // 切換頁面 + 加入類型
-        if (!selectedTypes.includes(t)) selectedTypes.push(t);
+        // 單擊 = 只切換檢視
         activeView = t;
     }
     applyTypePicker();
