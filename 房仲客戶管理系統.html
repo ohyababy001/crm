@@ -3065,33 +3065,33 @@ function addSellerProperty(data) {
         '</div>' +
         // 社區+地址
         '<div style="display:grid;grid-template-columns:1fr 3fr;gap:8px;margin-bottom:6px">' +
-            '<div class="fg" style="margin-bottom:0"><input data-f="community" value="'+esc(d.community||'')+'" placeholder="社區大樓"></div>' +
-            '<div class="fg" style="margin-bottom:0"><input data-f="addr" value="'+esc(d.addr||'')+'" placeholder="物件地址"></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">社區大樓</label><input data-f="community" value="'+esc(d.community||'')+'"></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">物件地址</label><input data-f="addr" value="'+esc(d.addr||'')+'"></div>' +
         '</div>' +
-        // 開價+底價+服務費 (5欄grid對齊)
-        '<div style="display:grid;grid-template-columns:2fr 2fr 3fr 2fr 2fr;gap:8px;margin-bottom:6px">' +
-            '<div class="fg" style="margin-bottom:0;grid-column:1/3"><div class="input-grp"><input data-f="price" value="'+esc(d.price||'')+'" placeholder="開價" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>' +
-            '<div class="fg" style="margin-bottom:0;grid-column:3/5"><div class="input-grp"><input data-f="floorPrice" value="'+esc(d.floorPrice||'')+'" placeholder="底價" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>' +
-            '<div class="fg" style="margin-bottom:0;grid-column:5/6"><div class="input-grp"><input data-f="serviceFee" value="'+esc(d.serviceFee||'')+'" placeholder="服務費" style="min-width:0;flex:1"><span class="input-sfx">%</span></div></div>' +
+        // 開價+底價+服務費
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:6px">' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">開價</label><div class="input-grp"><input data-f="price" value="'+esc(d.price||'')+'" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">底價</label><div class="input-grp"><input data-f="floorPrice" value="'+esc(d.floorPrice||'')+'" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">服務費</label><div class="input-grp"><input data-f="serviceFee" value="'+esc(d.serviceFee||'')+'" style="min-width:0;flex:1"><span class="input-sfx">%</span></div></div>' +
         '</div>' +
         // 坪數
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:6px">' +
-            '<div class="fg" style="margin-bottom:0"><div class="input-grp"><input data-f="baseLand" value="'+esc(d.baseLand||'')+'" placeholder="基地面積" style="min-width:0;flex:1" oninput="calcSpSellerSz(this)"><span class="input-sfx">坪</span></div></div>' +
-            '<div class="fg" style="margin-bottom:0"><div class="input-grp"><input data-f="landShare" value="'+esc(d.landShare||'')+'" placeholder="土地持分" style="min-width:0;flex:1" oninput="calcSpSellerSz(this)"><span class="input-sfx">坪</span></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">基地面積</label><div class="input-grp"><input data-f="baseLand" value="'+esc(d.baseLand||'')+'" style="min-width:0;flex:1" oninput="calcSpSellerSz(this)"><span class="input-sfx">坪</span></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">土地持分</label><div class="input-grp"><input data-f="landShare" value="'+esc(d.landShare||'')+'" style="min-width:0;flex:1" oninput="calcSpSellerSz(this)"><span class="input-sfx">坪</span></div></div>' +
             '<div></div>' +
         '</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:6px">' +
-            '<div class="fg" style="margin-bottom:0"><div class="input-grp"><input data-f="mainBldg" value="'+esc(d.mainBldg||'')+'" placeholder="主建物" style="min-width:0;flex:1" oninput="calcSpSellerSz(this)"><span class="input-sfx">坪</span></div></div>' +
-            '<div class="fg" style="margin-bottom:0"><div class="input-grp"><input data-f="ancBldg" value="'+esc(d.ancBldg||'')+'" placeholder="附屬建物" style="min-width:0;flex:1" oninput="calcSpSellerSz(this)"><span class="input-sfx">坪</span></div></div>' +
-            '<div class="fg" style="margin-bottom:0"><div class="input-grp"><input data-f="common" value="'+esc(d.common||'')+'" placeholder="共有部分" style="min-width:0;flex:1" oninput="calcSpSellerSz(this)"><span class="input-sfx">坪</span></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">主建物</label><div class="input-grp"><input data-f="mainBldg" value="'+esc(d.mainBldg||'')+'" style="min-width:0;flex:1" oninput="calcSpSellerSz(this)"><span class="input-sfx">坪</span></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">附屬建物</label><div class="input-grp"><input data-f="ancBldg" value="'+esc(d.ancBldg||'')+'" style="min-width:0;flex:1" oninput="calcSpSellerSz(this)"><span class="input-sfx">坪</span></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">共有部分</label><div class="input-grp"><input data-f="common" value="'+esc(d.common||'')+'" style="min-width:0;flex:1" oninput="calcSpSellerSz(this)"><span class="input-sfx">坪</span></div></div>' +
         '</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:6px">' +
-            '<div class="fg" style="margin-bottom:0"><div class="input-grp"><input data-f="parkingSz" value="'+esc(d.parkingSz||'')+'" placeholder="車位坪數" style="min-width:0;flex:1" oninput="calcSpSellerSz(this)"><span class="input-sfx">坪</span></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">車位坪數</label><div class="input-grp"><input data-f="parkingSz" value="'+esc(d.parkingSz||'')+'" style="min-width:0;flex:1" oninput="calcSpSellerSz(this)"><span class="input-sfx">坪</span></div></div>' +
             '<div class="fg" style="margin-bottom:0"><select data-f="parking" style="width:100%" onchange="var b=this.closest(\'.person-block\');var pg=b.querySelector(\'[data-f=parkingPrice]\').parentElement;var pn=b.querySelector(\'[data-f=parkingNo]\');if(this.value){pg.style.visibility=\'\';pn.style.display=\'\';}else{pg.style.visibility=\'hidden\';pn.style.display=\'none\';}">' +
                 '<option value="">車位形態</option><option value="坡道平面"'+(d.parking==='坡道平面'?' selected':'')+'>坡道平面</option><option value="坡道機械"'+(d.parking==='坡道機械'?' selected':'')+'>坡道機械</option><option value="升降平面"'+(d.parking==='升降平面'?' selected':'')+'>升降平面</option><option value="升降機械"'+(d.parking==='升降機械'?' selected':'')+'>升降機械</option><option value="塔式車位"'+(d.parking==='塔式車位'?' selected':'')+'>塔式車位</option><option value="其他車位"'+(d.parking==='其他車位'?' selected':'')+'>其他車位</option>' +
             '</select></div>' +
-            '<div class="fg" style="margin-bottom:0"><div class="input-grp" style="'+(d.parking?'':'visibility:hidden')+'"><input data-f="parkingPrice" value="'+esc(d.parkingPrice||'')+'" placeholder="車位價格" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>' +
-            '<div class="fg" style="margin-bottom:0"><input data-f="parkingNo" value="'+esc(d.parkingNo||'')+'" placeholder="車位編號" style="'+(d.parking?'':'display:none')+'"></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">車位價格</label><div class="input-grp" style="'+(d.parking?'':'visibility:hidden')+'"><input data-f="parkingPrice" value="'+esc(d.parkingPrice||'')+'" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">車位編號</label><input data-f="parkingNo" value="'+esc(d.parkingNo||'')+'" style="'+(d.parking?'':'display:none')+'"></div>' +
         '</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">' +
             '<div style="padding:8px 12px;border-radius:8px;font-size:13px;font-weight:700;background:#EFF6FF;color:#1D4ED8;text-align:center">登記面積 <span data-f="regSz">0</span> 坪</div>' +
@@ -3100,24 +3100,27 @@ function addSellerProperty(data) {
         // 管理費
         '<div style="font-size:12px;font-weight:600;color:var(--wood);margin-bottom:4px">管理費</div>' +
         '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">' +
-            '<div style="flex:1;min-width:70px"><div class="input-grp"><input data-f="mgmtBuilding" value="'+esc(d.mgmtBuilding||'')+'" placeholder="建物" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
-            '<div style="flex:1;min-width:70px"><div class="input-grp"><input data-f="mgmtCar" value="'+esc(d.mgmtCar||'')+'" placeholder="汽車" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
-            '<div style="flex:1;min-width:70px"><div class="input-grp"><input data-f="mgmtMoto" value="'+esc(d.mgmtMoto||'')+'" placeholder="機車" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
-            '<div style="flex:1;min-width:70px"><div class="input-grp"><input data-f="mgmtOther" value="'+esc(d.mgmtOther||'')+'" placeholder="其他" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
-            '<div style="flex:1;min-width:70px"><div data-f="mgmtTotal" style="padding:8px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE8E0;color:#5C4A32;text-align:center">0 元</div></div>' +
-            '<select data-f="mgmtPeriod" style="flex:0 0 70px;padding:8px 4px;border:1px solid var(--border);border-radius:8px;font-size:14px"><option value="">繳費</option>'+mgmtPSel('月繳','月繳')+mgmtPSel('季繳','季繳')+mgmtPSel('半年繳','半年繳')+mgmtPSel('年繳','年繳')+'</select>' +
+            '<div style="flex:1;min-width:70px"><div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">建物</div><div class="input-grp"><input data-f="mgmtBuilding" value="'+esc(d.mgmtBuilding||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
+            '<div style="flex:1;min-width:70px"><div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">汽車</div><div class="input-grp"><input data-f="mgmtCar" value="'+esc(d.mgmtCar||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
+            '<div style="flex:1;min-width:70px"><div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">機車</div><div class="input-grp"><input data-f="mgmtMoto" value="'+esc(d.mgmtMoto||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
+            '<div style="flex:1;min-width:70px"><div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">其他</div><div class="input-grp"><input data-f="mgmtOther" value="'+esc(d.mgmtOther||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
+            '<div style="flex:1;min-width:70px"><div style="font-size:11px;font-weight:700;color:var(--deep);margin-bottom:2px;padding-left:4px">合計</div><div data-f="mgmtTotal" style="padding:8px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE8E0;color:#5C4A32;text-align:center">0 元</div></div>' +
+            '<div style="flex:0 0 70px"><div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">繳費</div><select data-f="mgmtPeriod" style="width:100%;padding:8px 4px;border:1px solid var(--border);border-radius:8px;font-size:14px"><option value="">選擇</option>'+mgmtPSel('月繳','月繳')+mgmtPSel('季繳','季繳')+mgmtPSel('半年繳','半年繳')+mgmtPSel('年繳','年繳')+'</select></div>' +
         '</div>' +
         // 立約日+到期日+續約
         '<div style="display:grid;grid-template-columns:3fr 3fr 1fr;gap:8px;align-items:end">' +
-            '<div class="fg" style="margin-bottom:0"><div class="roc-date-wrap"><input data-f="contractStart" type="text" value="'+esc(d.contractStart?isoToROC(d.contractStart):'')+'" placeholder="立約日"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
-            '<div class="fg" style="margin-bottom:0"><div class="roc-date-wrap"><input data-f="contractEnd" type="text" value="'+esc(d.contractEnd?isoToROC(d.contractEnd):'')+'" placeholder="到期日"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">立約日</label><div class="roc-date-wrap"><input data-f="contractStart" type="text" value="'+esc(d.contractStart?isoToROC(d.contractStart):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">到期日</label><div class="roc-date-wrap"><input data-f="contractEnd" type="text" value="'+esc(d.contractEnd?isoToROC(d.contractEnd):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
             '<button type="button" class="bf-chip" onclick="renewSpContract(this)" style="padding:10px 14px;font-size:14px;text-align:center;white-space:nowrap">續約</button>' +
         '</div>' +
     '</div>';
     document.getElementById('sPropertyList').insertAdjacentHTML('beforeend', html);
     // 計算管理費合計
     var block = document.getElementById(pid);
-    if (block) calcSpMgmt(block.querySelector('[data-f="mgmtBuilding"]'));
+    if (block) {
+        calcSpMgmt(block.querySelector('[data-f="mgmtBuilding"]'));
+        calcSpSellerSz(block.querySelector('[data-f="mainBldg"]'));
+    }
 }
 function openSpDetailSz(btn) {
     var block = btn.closest('.person-block'); if (!block) return;
