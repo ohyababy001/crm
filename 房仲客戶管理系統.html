@@ -762,13 +762,13 @@
                     <div class="fg" style="margin-bottom:0"><label>Email</label><input id="f-bEmail" type="email" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-bSource" placeholder=""></div>
                 </div>
-                <div data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr;gap:6px;margin-bottom:6px">
+                <div data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr auto;gap:6px;margin-bottom:6px;align-items:end">
                     <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-bAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="娘家">娘家</option><option value="自訂">自訂</option></select></div>
                     <div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input id="f-bZip" data-f="zip" placeholder="" style="min-width:0"></div>
                     <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-bAddr" placeholder="" onblur="autoZip(this)"></div>
+                    <button type="button" class="btn-ic" onclick="addBuyerAddrRow('bBasicAddrList')" title="新增地址" style="margin-bottom:2px;font-size:16px;padding:6px 8px">＋</button>
                 </div>
                 <div id="bBasicAddrList"></div>
-                <button type="button" class="add-row-btn" onclick="addBuyerAddrRow('bBasicAddrList')" style="margin-bottom:10px">＋ 新增地址</button>
                 <div id="bPersonList"></div>
                 <button type="button" class="add-row-btn" onclick="addBPersonRow()" style="margin-bottom:10px">＋ 新增聯絡人</button>
                 <div class="sec-title" style="margin-top:4px">買方需求</div>
@@ -824,15 +824,10 @@
                 </div>
 
                 <div class="form-row" id="buyerDetailRow">
-                    <div class="fg"><label>做主權人</label><input id="f-decisionMaker" placeholder=""></div>
                     <div class="fg"><label>想要</label><input id="f-want" placeholder=""></div>
                     <div class="fg"><label>不想要</label><input id="f-noWant" placeholder=""></div>
                 </div>
-                <div style="margin-top:4px">
-                    <div style="font-size:13px;font-weight:600;margin-bottom:4px">三地址</div>
-                    <div id="bAddrList"></div>
-                    <button type="button" class="add-row-btn" onclick="addBAddrRow()">＋ 新增地址</button>
-                </div>
+                <div id="bAddrList" style="display:none"></div>
             </div>
 
             <!-- 庫存屋主 -->
@@ -1333,7 +1328,7 @@
 <script>
 // ── 區域資料 ──
 const DISTRICTS = {
-    '新北市': ['板橋','三重','中和','永和','新莊','新店','樹林','鶯歌','三峽','淡水','汐止','土城','蘆洲','五股','泰山','林口','八里','深坑','石碇','坪林','三芝','石門','瑞芳','平溪','雙溪','貢寮','金山','萬里','烏來'],
+    '新北市': ['板橋','三重','中和','永和','新莊','新店','蘆洲','土城','五股','泰山','樹林','三峽','林口','鶯歌','淡水','汐止'],
     '台北市': ['中正','大同','中山','松山','大安','萬華','信義','士林','北投','內湖','南港','文山']
 };
 // ── 郵遞區號自動查詢 ──
@@ -1443,8 +1438,25 @@ Object.entries(DISTRICTS).forEach(([city, dists]) => {
     if (!el) return;
     el.innerHTML = dists.map(d =>
         `<button type="button" class="dist-btn" onclick="toggleDist(this,'${d}區')" data-dist="${d}區">${d}區</button>`
-    ).join('');
+    ).join('') + `<button type="button" class="dist-btn" onclick="addCustomDist('${city}')" style="color:var(--muted);border-style:dashed">＋ 自訂</button>`;
 });
+function addCustomDist(city) {
+    var name = prompt('請輸入自訂區域名稱（例：八里區）');
+    if (!name) return;
+    if (!name.endsWith('區') && !name.endsWith('鄉') && !name.endsWith('鎮') && !name.endsWith('市')) name += '區';
+    var grid = document.getElementById('dg-'+city);
+    if (!grid) return;
+    // 在 ＋自訂 按鈕前插入
+    var addBtn = grid.querySelector('[onclick*="addCustomDist"]');
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'dist-btn';
+    btn.setAttribute('data-dist', name);
+    btn.textContent = name;
+    btn.onclick = function(){ toggleDist(btn, name); };
+    grid.insertBefore(btn, addBtn);
+    // 自動選取
+    toggleDist(btn, name);
+}
 
 // ── State ──
 let DB = JSON.parse(localStorage.getItem('reCRM') || '[]');
@@ -3254,20 +3266,34 @@ function addPersonBlock(listId, data) {
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">Email</label><input data-f="email" type="email" value="'+esc(d.email||'')+'" placeholder=""></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">客戶來源</label><input data-f="source" value="'+esc(d.source||'')+'" placeholder=""></div>' +
         '</div>' +
-        '<div data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr;gap:6px;margin-bottom:4px">' +
+        '<div data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr auto;gap:6px;margin-bottom:4px;align-items:end">' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">類型</label>'+typeHtml+'</div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">郵遞區號</label><input data-f="zip" value="'+esc(d.zip||'')+'" placeholder="" style="min-width:0"></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">地址</label><input data-f="addr" value="'+esc(d.addr||'')+'" placeholder="" onblur="autoZip(this)"></div>' +
+            '<button type="button" class="btn-ic" onclick="addPbAddrRow(this)" title="新增地址" style="margin-bottom:2px;font-size:16px;padding:6px 8px">＋</button>' +
         '</div>' +
+        '<div class="pb-addr-list"></div>' +
     '</div>';
     document.getElementById(listId).insertAdjacentHTML('beforeend', html);
+    // 載入額外地址
+    if (d.extraAddrs && d.extraAddrs.length) {
+        var block = document.getElementById(pid);
+        var addBtn = block.querySelector('.btn-ic[onclick*="addPbAddrRow"]');
+        if (addBtn) d.extraAddrs.forEach(function(a){ addPbAddrRow(addBtn, a); });
+    }
 }
 function getPersonBlocks(listId) {
     var r = [];
     document.querySelectorAll('#'+listId+' .person-block').forEach(function(block) {
         var get = function(f) { var el = block.querySelector('[data-f="'+f+'"]'); return el ? el.value.trim() : ''; };
         var name = get('name'), phone = get('phone');
-        if (name || phone) r.push({ name:name, phone:phone, idNo:get('idNo'), birthday:rocToISO(get('birthday')), addrType:get('addrType'), zip:get('zip'), addr:get('addr'), email:get('email'), source:get('source') });
+        var extraAddrs = [];
+        var addrList = block.querySelector('.pb-addr-list');
+        if (addrList) addrList.querySelectorAll('.c-row').forEach(function(row) {
+            var rget = function(f){ var el=row.querySelector('[data-f="'+f+'"]'); return el?el.value.trim():''; };
+            if (rget('addr')) extraAddrs.push({ type:rget('type'), zip:rget('zip'), addr:rget('addr') });
+        });
+        if (name || phone) r.push({ name:name, phone:phone, idNo:get('idNo'), birthday:rocToISO(get('birthday')), addrType:get('addrType'), zip:get('zip'), addr:get('addr'), extraAddrs:extraAddrs, email:get('email'), source:get('source') });
     });
     return r;
 }
@@ -3299,6 +3325,22 @@ function getBuyerBasicAddrs() {
     return r;
 }
 function clearBuyerBasicAddrs() { document.getElementById('bBasicAddrList').innerHTML = ''; bBasicAddrId = 0; }
+// ── 新增聯絡人區塊內的額外地址 ──
+function addPbAddrRow(btn, data) {
+    var block = btn.closest('.person-block'); if (!block) return;
+    var list = block.querySelector('.pb-addr-list'); if (!list) return;
+    var d = data || {};
+    var isCustom = d.type && !['住家','公司','娘家','自訂',''].includes(d.type);
+    var typeHtml = isCustom
+        ? '<input data-f="type" type="text" value="'+esc(d.type)+'" style="width:100%;min-width:0;box-sizing:border-box">'
+        : '<select data-f="type" onchange="onAddrTypeChange(this)"><option value="住家"'+(d.type==='住家'?' selected':'')+'>住家</option><option value="公司"'+(d.type==='公司'?' selected':'')+'>公司</option><option value="娘家"'+(d.type==='娘家'?' selected':'')+'>娘家</option><option value="自訂"'+(d.type==='自訂'?' selected':'')+'>自訂</option></select>';
+    var html = '<div class="c-row" data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr auto;gap:6px;align-items:end;margin-bottom:4px">' +
+        '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">類型</label>'+typeHtml+'</div>' +
+        '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">郵遞區號</label><input data-f="zip" value="'+esc(d.zip||'')+'" placeholder="" style="min-width:0"></div>' +
+        '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">地址</label><input data-f="addr" value="'+esc(d.addr||'')+'" placeholder="" onblur="autoZip(this)"></div>' +
+        '<button type="button" class="c-del" onclick="this.parentElement.remove()" style="margin-bottom:4px">✕</button></div>';
+    list.insertAdjacentHTML('beforeend', html);
+}
 function getBPersons() { return getPersonBlocks('bPersonList'); }
 function clearBPersons() { clearPersonBlocks('bPersonList'); }
 
@@ -3784,7 +3826,7 @@ function getAreaDisplay() {
 // ── Form: Reset ──
 const SIMPLE_FIELDS = ['fn','fp','f-idNo','fe','fs','flc','fso','fnotes',
     'f-bName','f-bPhone','f-bIdNo','f-bOccupation','f-bBirthday','f-bZip','f-bAddr','f-bEmail','f-bSource',
-    'f-budgetMin','f-budgetMax','f-downPayment','f-decisionMaker','f-want','f-noWant','f-roomOther','f-areaOther',
+    'f-budgetMin','f-budgetMax','f-downPayment','f-want','f-noWant','f-roomOther','f-areaOther',
     'f-sName','f-sPhone','f-sIdNo','f-sBirthday','f-sOwnerAddr','f-sEmail','f-sSource',
     'f-community','f-sAddr','f-sPrice','f-sFloorPrice','f-sServiceFee','f-sLandSz','f-sSz','f-layout','f-sMgmtBuilding','f-sMgmtCar','f-sMgmtMoto','f-sMgmtOther','f-parkingPrice','f-parkingNo','f-contractStart','f-contractEnd',
     'f-cName','f-cPhone','f-cIdNo','f-cBirthday','f-cZip','f-cAddr','f-cEmail','f-cSource',
@@ -3915,7 +3957,7 @@ function openEdit(id, viewAs) {
         setVal('f-budgetMin',c.budget);
     }
     setVal('f-downPayment',c.downPayment);
-    setVal('f-decisionMaker',c.decisionMaker);
+    // f-decisionMaker 已移除
     if (c.bAddrs && c.bAddrs.length) c.bAddrs.forEach(function(a){ addBAddrRow(a); });
     else if (c.bOther) addBAddrRow({type:'其他',addr:c.bOther});
     setVal('f-want',c.want); setVal('f-noWant',c.noWant);
@@ -4215,7 +4257,7 @@ function saveClient() {
         budget: (get('f-budgetMin')&&get('f-budgetMax')) ? get('f-budgetMin')+'-'+get('f-budgetMax') : get('f-budgetMin')||get('f-budgetMax')||'',
         roomTypes:roomTypesStr, roomOther,
         areaCity, areaDists, areaOther, areaDisplay,
-        floor:get('f-bOccupation'), decisionMaker:get('f-decisionMaker'), bAddrs:getBAddrs(),
+        floor:get('f-bOccupation'), decisionMaker:'', bAddrs:getBAddrs(),
         bOther: getBAddrs().map(function(a){ return (a.type?a.type+'：':'')+a.addr; }).join('、'),
         want:get('f-want'), noWant:get('f-noWant'),
         // 庫存屋主
