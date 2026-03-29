@@ -373,7 +373,10 @@
             /* 表單：兩欄改單欄 */
             .form-row { grid-template-columns: 1fr !important; }
             #emailSourceRow { grid-template-columns: 1fr 1fr !important; }
-            #buyerDetailRow { grid-template-columns: 1fr 1fr !important; }
+            #buyerDetailRow { grid-template-columns: 1fr !important; }
+            /* 需求區域按鈕和房型一樣大 */
+            .city-picker { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 6px !important; }
+            .city-picker .city-btn { width: 100% !important; text-align: center; padding: 8px 4px !important; }
             .fg.full { grid-column: 1; }
             #namePhoneIdRow { flex-wrap: wrap !important; flex-direction: row !important; gap: 6px !important; }
             #namePhoneIdRow.hidden, #emailSourceRow.hidden { display: none !important; }
