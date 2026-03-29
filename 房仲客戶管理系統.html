@@ -999,24 +999,20 @@
                     <span id="parkingSzLabel" style="font-size:12px;color:var(--muted);grid-column:1/-1"></span>
                     <button type="button" onclick="openDetailSz()" style="grid-column:1/2;background:white;color:#0D9488;border:1.5px dashed #0D9488;border-radius:8px;padding:7px 0;font-size:13px;font-weight:600;cursor:pointer;text-align:center;letter-spacing:0.1em">坪數輸入</button>
                 </div>
-                <div class="form-row">
-                    <div class="fg full">
-                        <div class="sec-title" style="margin-top:0;font-size:14px">管理費</div>
-                        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">
-                            <div style="flex:1;min-width:70px"><div class="input-grp"><input id="f-sMgmtBuilding" placeholder="建物" style="min-width:0;flex:1" oninput="calcMgmtTotal()"><span class="input-sfx">元</span></div></div>
-                            <div style="flex:1;min-width:70px"><div class="input-grp"><input id="f-sMgmtCar" placeholder="汽車" style="min-width:0;flex:1" oninput="calcMgmtTotal()"><span class="input-sfx">元</span></div></div>
-                            <div style="flex:1;min-width:70px"><div class="input-grp"><input id="f-sMgmtMoto" placeholder="機車" style="min-width:0;flex:1" oninput="calcMgmtTotal()"><span class="input-sfx">元</span></div></div>
-                            <div style="flex:1;min-width:70px"><div class="input-grp"><input id="f-sMgmtOther" placeholder="其他" style="min-width:0;flex:1" oninput="calcMgmtTotal()"><span class="input-sfx">元</span></div></div>
-                            <div style="flex:1;min-width:70px"><div style="padding:8px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE8E0;color:#5C4A32;text-align:center" id="sMgmtTotal">0 元</div></div>
-                            <select id="f-sMgmtPeriod" style="flex:0 0 80px;padding:8px 4px;border:1px solid var(--border);border-radius:8px;font-size:14px">
-                                <option value="">繳費</option>
-                                <option value="月繳">月繳</option>
-                                <option value="季繳">季繳</option>
-                                <option value="半年繳">半年繳</option>
-                                <option value="年繳">年繳</option>
-                            </select>
-                        </div>
-                    </div>
+                <div style="font-size:12px;font-weight:600;color:var(--wood);margin-bottom:4px">管理費</div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">
+                    <div style="flex:1;min-width:70px"><div class="input-grp"><input id="f-sMgmtBuilding" placeholder="建物" style="min-width:0;flex:1" oninput="calcMgmtTotal()"><span class="input-sfx">元</span></div></div>
+                    <div style="flex:1;min-width:70px"><div class="input-grp"><input id="f-sMgmtCar" placeholder="汽車" style="min-width:0;flex:1" oninput="calcMgmtTotal()"><span class="input-sfx">元</span></div></div>
+                    <div style="flex:1;min-width:70px"><div class="input-grp"><input id="f-sMgmtMoto" placeholder="機車" style="min-width:0;flex:1" oninput="calcMgmtTotal()"><span class="input-sfx">元</span></div></div>
+                    <div style="flex:1;min-width:70px"><div class="input-grp"><input id="f-sMgmtOther" placeholder="其他" style="min-width:0;flex:1" oninput="calcMgmtTotal()"><span class="input-sfx">元</span></div></div>
+                    <div style="flex:1;min-width:70px"><div style="padding:8px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE8E0;color:#5C4A32;text-align:center" id="sMgmtTotal">0 元</div></div>
+                    <select id="f-sMgmtPeriod" style="flex:0 0 70px;padding:8px 4px;border:1px solid var(--border);border-radius:8px;font-size:14px">
+                        <option value="">繳費</option>
+                        <option value="月繳">月繳</option>
+                        <option value="季繳">季繳</option>
+                        <option value="半年繳">半年繳</option>
+                        <option value="年繳">年繳</option>
+                    </select>
                 </div>
                 <div id="sellerContractRow" style="display:grid;grid-template-columns:3fr 3fr 1fr;gap:8px;align-items:end;margin-bottom:10px">
                     <div class="fg" style="margin-bottom:0"><div class="roc-date-wrap"><input id="f-contractStart" type="text" placeholder="立約日"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
