@@ -860,74 +860,15 @@
                 </div>
                 <div id="bPersonList"></div>
                 <button type="button" class="add-row-btn" onclick="addBPersonRow()" style="margin-bottom:10px">＋ 新增聯絡人</button>
-                <div class="sec-title" style="margin-top:4px">買方需求</div>
-
-                <div class="fg full" style="margin-bottom:6px">
-                    <label style="margin-bottom:6px">需求區域</label>
-                    <div class="city-picker">
-                        <button type="button" class="city-btn" onclick="pickCity(this,'新北市')" id="city-新北市">新北市</button>
-                        <button type="button" class="city-btn" onclick="pickCity(this,'台北市')" id="city-台北市">台北市</button>
-                        <button type="button" class="city-btn" onclick="pickCity(this,'其他縣市')" id="city-其他縣市">其他縣市</button>
-                    </div>
-                    <div class="dist-area" id="dist-新北市">
-                        <div style="font-size:12px;color:var(--muted);margin-bottom:6px">選擇區（可複選）</div>
-                        <div class="dist-grid" id="dg-新北市"></div>
-                    </div>
-                    <div class="dist-area" id="dist-台北市">
-                        <div style="font-size:12px;color:var(--muted);margin-bottom:6px">選擇區（可複選）</div>
-                        <div class="dist-grid" id="dg-台北市"></div>
-                    </div>
-                    <div class="dist-area" id="dist-其他縣市">
-                        <input id="f-areaOther" placeholder="">
-                    </div>
-                </div>
-
-                <div class="fg full" style="margin-bottom:6px">
-                    <label style="margin-bottom:6px">房型需求（可複選）</label>
-                    <div class="room-picker">
-                        <button type="button" class="rm-btn" onclick="toggleRoom(this,'套房')">套房</button>
-                        <button type="button" class="rm-btn" onclick="toggleRoom(this,'二房')">二房</button>
-                        <button type="button" class="rm-btn" onclick="toggleRoom(this,'三房')">三房</button>
-                        <button type="button" class="rm-btn" onclick="toggleRoom(this,'四房')">四房</button>
-                        <button type="button" class="rm-btn" onclick="toggleRoom(this,'公寓')">公寓</button>
-                        <button type="button" class="rm-btn" onclick="toggleRoom(this,'豪宅')">豪宅</button>
-                        <button type="button" class="rm-btn" onclick="toggleRoom(this,'店面')">店面</button>
-                        <button type="button" class="rm-btn" onclick="toggleRoom(this,'辦公')">辦公</button>
-                        <button type="button" class="rm-btn" onclick="toggleRoom(this,'透天')">透天</button>
-                    </div>
-                    <input id="f-roomOther" placeholder="" style="margin-top:6px;display:none">
-                </div>
-
-                <div id="budgetRow" style="display:flex;gap:6px;align-items:end;margin-bottom:6px;min-width:0">
-                    <div class="fg" style="flex:1;margin-bottom:0;min-width:0">
-                        <div class="input-grp"><input id="f-budgetMin" placeholder="預算最低" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div>
-                    </div>
-                    <span style="font-size:13px;color:var(--muted);flex-shrink:0;padding-bottom:10px">～</span>
-                    <div class="fg" style="flex:1;margin-bottom:0;min-width:0">
-                        <div class="input-grp"><input id="f-budgetMax" placeholder="預算最高" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div>
-                    </div>
-                    <div class="fg" style="flex:1;margin-bottom:0;min-width:0">
-                        <div class="input-grp"><input id="f-downPayment" placeholder="自備款" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div>
-                    </div>
-                </div>
-
-                <div class="form-row" id="buyerDetailRow" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-                    <div class="fg" style="margin-bottom:0"><input id="f-want" placeholder="想要"></div>
-                    <div class="fg" style="margin-bottom:0"><input id="f-noWant" placeholder="不想要"></div>
-                </div>
+                <div id="bDemandList"></div>
+                <button type="button" class="add-row-btn" onclick="addBuyerDemand()" style="margin-bottom:6px">＋ 新增買方需求</button>
                 <div id="bAddrList" style="display:none"></div>
             </div>
 
             <!-- 庫存屋主 -->
             <div class="type-sec" id="s-庫存屋主">
                 <!-- 屋主基本資料 -->
-                <div style="display:flex;align-items:center;gap:8px;margin:4px 0 10px">
-                    <span style="font-size:14px;font-weight:700;color:var(--text)">客戶等級</span>
-                    <button type="button" class="grade-btn grade-a" onclick="pickGrade(this,'A','f-sGrade')" data-grade="A">A級</button>
-                    <button type="button" class="grade-btn grade-b" onclick="pickGrade(this,'B','f-sGrade')" data-grade="B">B級</button>
-                    <button type="button" class="grade-btn grade-c" onclick="pickGrade(this,'C','f-sGrade')" data-grade="C">C級</button>
-                    <input type="hidden" id="f-sGrade" value="">
-                </div>
+                <input type="hidden" id="f-sGrade" value="">
                 <div style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9">
                 <div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px">基本聯絡人</div>
                 <div id="sellerBasicRow1" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
@@ -1021,14 +962,8 @@
                 </div>
                 <div id="sellerContractRow" style="display:grid;grid-template-columns:3fr 3fr 1fr;gap:8px;align-items:end;margin-bottom:10px">
                     <div class="fg" style="margin-bottom:0"><label>立約日</label><div class="roc-date-wrap"><input id="f-contractStart" type="text"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
-                    <div class="fg" style="margin-bottom:0"><label>到期日</label><div class="roc-date-wrap"><input id="f-contractEnd" type="text"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
+                    <div class="fg" style="margin-bottom:0"><label>到期日 <button type="button" class="btn-fill" onclick="showRenewalHistory()" id="btnRenewalHist" style="display:none">續約歷程</button></label><div class="roc-date-wrap"><input id="f-contractEnd" type="text"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                     <button type="button" class="bf-chip" onclick="renewContract()" style="padding:10px 18px;font-size:15px;text-align:center;white-space:nowrap">續約</button>
-                </div>
-                <div class="form-row">
-                    <div class="fg full" id="sRenewalHistory" style="display:none;margin-bottom:10px">
-                        <label>到期日歷程</label>
-                        <div id="sRenewalList" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div>
-                    </div>
                 </div>
                 </div>
                 <div id="sPropertyList"></div>
@@ -1323,7 +1258,7 @@
         <div class="modal-head">
             <div class="modal-title" id="historyTitle">修改歷程</div>
             <div style="flex:1"></div>
-            <button class="btn-ic del" onclick="clearHistory()" style="font-size:13px;padding:4px 10px;margin-right:6px;display:flex;align-items:center;gap:4px">🗑️ 刪除歷程</button>
+            <button class="btn-ic del" id="btnHistDel" onclick="deleteCheckedHistory()" style="font-size:13px;padding:4px 10px;margin-right:6px;display:none;align-items:center;gap:4px;background:#DC2626;color:white;border:none;border-radius:6px;cursor:pointer">刪除勾選</button>
             <button class="btn-x" onclick="closeHistory()">✕</button>
         </div>
         <div class="modal-body">
@@ -1998,8 +1933,11 @@ function showHistory(id) {
     var c = DB.find(function(x) { return x.id === id; });
     if (!c || !c.history || !c.history.length) return;
     document.getElementById('historyTitle').textContent = c.name + ' — 修改歷程';
+    document.getElementById('btnHistDel').style.display = 'none';
     var list = c.history.slice().reverse();
-    document.getElementById('historyList').innerHTML = list.map(function(h) {
+    var listEl = document.getElementById('historyList');
+    listEl.innerHTML = list.map(function(h, dispIdx) {
+        var realIdx = c.history.length - 1 - dispIdx;
         var time = toROCDateTime(h.time);
         var details = '';
         if (h.type === 'create') {
@@ -2017,34 +1955,34 @@ function showHistory(id) {
                     '<span style="color:#94A3B8">' + esc(ch.from || '(空)') + '</span> → <span class="history-val">' + esc(ch.to || '(空)') + '</span></div>';
             }).join('');
         }
-        return '<div class="history-item"><div class="history-time">' + esc(time) + '</div>' + details + '</div>';
+        return '<div class="history-item" style="display:flex;gap:8px;align-items:flex-start">' +
+            '<input type="checkbox" data-hist-idx="'+realIdx+'" style="width:16px;height:16px;flex-shrink:0;margin-top:2px">' +
+            '<div style="flex:1"><div class="history-time">' + esc(time) + '</div>' + details + '</div></div>';
     }).join('');
+    listEl.addEventListener('change', function _hc() {
+        var checked = listEl.querySelectorAll('input[data-hist-idx]:checked').length;
+        document.getElementById('btnHistDel').style.display = checked ? 'flex' : 'none';
+    });
     document.getElementById('hModal').style.display = 'flex';
 }
 function closeHistory() { document.getElementById('hModal').style.display = 'none'; }
-function clearHistory() {
+function deleteCheckedHistory() {
     if (!_historyClientId) return;
-    var overlay = document.createElement('div');
-    overlay.className = 'fill-overlay';
-    var box = document.createElement('div');
-    box.className = 'fill-menu';
-    box.style.padding = '16px'; box.style.minWidth = '260px';
-    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">確定刪除所有修改歷程？</div>' +
-        '<div style="font-size:13px;color:var(--muted);margin-bottom:12px">此操作無法復原</div>' +
-        '<div style="display:flex;gap:8px;justify-content:flex-end">' +
-            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
-            '<button type="button" id="confirmClearHistory" style="padding:8px 16px;border:none;border-radius:8px;background:#DC2626;color:white;cursor:pointer;font-size:14px">刪除</button>' +
-        '</div>';
-    overlay.appendChild(box);
-    overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
-    document.body.appendChild(overlay);
-    document.getElementById('confirmClearHistory').onclick = function() {
-        var c = DB.find(function(x){ return x.id === _historyClientId; });
-        if (c) { c.history = []; persist(); }
-        overlay.remove();
+    var c = DB.find(function(x){ return x.id === _historyClientId; });
+    if (!c || !c.history) return;
+    var checks = document.querySelectorAll('#historyList input[data-hist-idx]:checked');
+    if (!checks.length) return;
+    var idxs = [];
+    checks.forEach(function(cb){ idxs.push(parseInt(cb.getAttribute('data-hist-idx'))); });
+    idxs.sort(function(a,b){ return b-a; });
+    idxs.forEach(function(idx){ c.history.splice(idx, 1); });
+    persist();
+    if (c.history.length) {
+        showHistory(_historyClientId);
+    } else {
         closeHistory();
-        render();
-    };
+    }
+    render();
 }
 
 
@@ -2200,16 +2138,23 @@ function getData() {
     );
     // Buyer filters
     if (curFilter === '經營買方') {
-        if (bfRooms.length) list = list.filter(c => {
-            const rooms = (c.roomTypes||'').split(',');
-            return bfRooms.some(r => rooms.includes(r));
+        if (bfRooms.length) list = list.filter(function(c) {
+            var demands = c.bDemands || [];
+            if (demands.length) return demands.some(function(bd){ var rooms=(bd.roomTypes||'').split(','); return bfRooms.some(function(r){return rooms.includes(r);}); });
+            var rooms = (c.roomTypes||'').split(',');
+            return bfRooms.some(function(r){ return rooms.includes(r); });
         });
         if (bfGrade) list = list.filter(c => (c.bGrade||'') === bfGrade);
-        if (bfCity) list = list.filter(c => { var cities = c.areaCities || (c.areaCity ? [c.areaCity] : []); return cities.includes(bfCity) || (bfCity==='其他' && cities.includes('其他縣市')); });
+        if (bfCity) list = list.filter(function(c) {
+            var demands = c.bDemands || [];
+            if (demands.length) return demands.some(function(bd){ var cities=bd.areaCities||[]; return cities.includes(bfCity) || (bfCity==='其他' && cities.includes('其他縣市')); });
+            var cities = c.areaCities || (c.areaCity ? [c.areaCity] : []);
+            return cities.includes(bfCity) || (bfCity==='其他' && cities.includes('其他縣市'));
+        });
     }
     // 庫存屋主等級過濾
     if (curFilter === '庫存屋主' && bfSGrade) {
-        list = list.filter(function(c){ return (c.sGrade||'') === bfSGrade; });
+        list = list.filter(function(c){ if(c.sProperties&&c.sProperties.length){ return c.sProperties.some(function(sp){ return sp.grade===bfSGrade; }); } return (c.sGrade||'')===bfSGrade; });
     }
     // 租案管理/庫存屋主：強制按到期日排序
     if (curFilter === '租案管理' || curFilter === '租案_房東' || curFilter === '租案_租客' || curFilter === '庫存屋主') {
@@ -2236,15 +2181,21 @@ function getData() {
         });
     }
     // 租案管理：拆分房東/租客卡片
-    if (curFilter === '租案管理' || (q && curFilter === 'all')) {
+    if (curFilter === '租案管理' || curFilter === '租案_房東' || curFilter === '租案_租客' || (q && curFilter === 'all')) {
         var expanded = [];
         list.forEach(function(c) {
             if (!hasType(c, '租案管理')) { expanded.push(c); return; }
             var hasLL = (c.rLandlords && c.rLandlords.length) || c.rLandlord;
             var hasTT = (c.rTenants && c.rTenants.length) || c.rTenant;
-            if (hasLL) expanded.push(Object.assign({}, c, {_viewAs:'landlord'}));
-            if (hasTT) expanded.push(Object.assign({}, c, {_viewAs:'tenant'}));
-            if (!hasLL && !hasTT) expanded.push(c);
+            if (curFilter === '租案_租客') {
+                if (hasTT) expanded.push(Object.assign({}, c, {_viewAs:'tenant'}));
+            } else if (curFilter === '租案_房東') {
+                if (hasLL) expanded.push(Object.assign({}, c, {_viewAs:'landlord'}));
+            } else {
+                if (hasLL) expanded.push(Object.assign({}, c, {_viewAs:'landlord'}));
+                if (hasTT) expanded.push(Object.assign({}, c, {_viewAs:'tenant'}));
+                if (!hasLL && !hasTT) expanded.push(c);
+            }
         });
         list = expanded;
     }
@@ -2497,23 +2448,23 @@ function renderCard(c) {
         var primaryType = (curFilter !== 'all' && cTypes.includes(curFilter)) ? curFilter : cTypes[0];
         const tc = TC[primaryType]||'buyer';
         // 根據角色顯示對應標籤
-        var displayTypes;
-        var otherTypes = cTypes.filter(function(t){ return t !== '租案管理'; });
-        if (c._viewAs === 'tenant') {
-            var tt = (c.rTenantTypes && c.rTenantTypes.length) ? c.rTenantTypes : otherTypes;
-            displayTypes = ['租案管理'].concat(tt);
-        } else if (c._viewAs === 'landlord') {
-            var lt = (c.rLandlordTypes && c.rLandlordTypes.length) ? c.rLandlordTypes : otherTypes;
-            displayTypes = ['租案管理'].concat(lt);
-        } else {
-            displayTypes = cTypes.slice();
-        }
-        if (curFilter !== 'all' && displayTypes.includes(curFilter)) {
+        var displayTypes = cTypes.slice();
+        if (c._viewAs && displayTypes.includes('租案管理')) {
+            displayTypes = ['租案管理'].concat(displayTypes.filter(function(t){ return t !== '租案管理'; }));
+        } else if (curFilter !== 'all' && displayTypes.includes(curFilter)) {
             displayTypes = [curFilter].concat(displayTypes.filter(function(t){ return t !== curFilter; }));
         }
         const typeTags = displayTypes.map(t => {
             if (t === '經營買方' && c.bGrade) return `<span class="tag grade-tag-${c.bGrade.toLowerCase()}">${c.bGrade}級買方</span>`;
-            if (t === '庫存屋主' && c.sGrade) return `<span class="tag grade-tag-${c.sGrade.toLowerCase()}">${c.sGrade}級庫存</span>`;
+            if (t === '庫存屋主') {
+                var _spG = '';
+                if (c.sProperties && c.sProperties.length) {
+                    if (bfSGrade) { var _found = c.sProperties.find(function(sp){ return sp.grade === bfSGrade; }); _spG = _found ? _found.grade : ''; }
+                    else { var _go = {A:0,B:1,C:2}; var _sorted = c.sProperties.slice().sort(function(a,b){ return ((_go[a.grade]!==undefined?_go[a.grade]:3))-((_go[b.grade]!==undefined?_go[b.grade]:3)); }); _spG = _sorted[0].grade || ''; }
+                }
+                if (!_spG) _spG = c.sGrade || '';
+                if (_spG) return `<span class="tag grade-tag-${_spG.toLowerCase()}">${_spG}級庫存</span>`;
+            }
             return `<span class="tag t-${TC[t]||'buyer'}">${TYPE_DISPLAY[t]||t}</span>`;
         }).join('');
         const statusTag = !cTypes.includes('經營買方') && c.status ? `<span class="tag s-${c.status}">${c.status}</span>` : '';
@@ -2542,12 +2493,42 @@ function renderCard(c) {
         var showType = c._viewAs === 'tenant' ? '租案管理' :
             ((curFilter !== 'all' && cTypes.includes(curFilter)) ? curFilter : cTypes[0]);
         if (showType==='經營買方') {
-            if (c.areaDisplay) meta += `<div class="cmeta-row"><span class="cmeta-k">區域</span><span class="cmeta-v" style="white-space:pre-line;overflow:visible">${esc(c.areaDisplay)}</span></div>`;
-            if (c.roomTypes)   meta += `<div class="cmeta-row"><span class="cmeta-k">房型</span><span class="cmeta-v">${esc(c.roomTypes)}</span></div>`;
-            if (c.budget)      meta += `<div class="cmeta-row"><span class="cmeta-k">預算</span><span class="cmeta-v">${esc(c.budget)}${c.budget.includes('萬')?'':'萬'}</span></div>`;
+            // 選擇要顯示的需求：有篩選時顯示符合的需求，否則顯示第一組
+            var _bd = null;
+            if (c.bDemands && c.bDemands.length) {
+                if (bfRooms.length) {
+                    _bd = c.bDemands.find(function(bd){ var rs=(bd.roomTypes||'').split(','); return bfRooms.some(function(r){return rs.includes(r);}); });
+                } else if (bfCity) {
+                    _bd = c.bDemands.find(function(bd){ var cities=bd.areaCities||[]; return cities.includes(bfCity) || (bfCity==='其他' && cities.includes('其他縣市')); });
+                }
+                if (!_bd) _bd = c.bDemands[0];
+            }
+            var _area = _bd ? _bd.areaDisplay : c.areaDisplay;
+            var _rooms = _bd ? _bd.roomTypes : c.roomTypes;
+            var _budget = _bd ? _bd.budget : c.budget;
+            if (_area) meta += `<div class="cmeta-row"><span class="cmeta-k">區域</span><span class="cmeta-v" style="white-space:pre-line;overflow:visible">${esc(_area)}</span></div>`;
+            if (_rooms)   meta += `<div class="cmeta-row"><span class="cmeta-k">房型</span><span class="cmeta-v">${esc(_rooms)}</span></div>`;
+            if (_budget)      meta += `<div class="cmeta-row"><span class="cmeta-k">預算</span><span class="cmeta-v">${esc(_budget)}${_budget.includes('萬')?'':'萬'}</span></div>`;
         } else if (showType==='庫存屋主') {
-            // 優先用固定欄位，fallback 到 sProperties[0]
-            var sp0 = (c.sProperties && c.sProperties[0]) || {};
+            // 根據等級篩選或優先度選擇顯示的物件
+            var sp0 = {};
+            var _spCount = (c.sProperties && c.sProperties.length) || 0;
+            if (c.sProperties && c.sProperties.length) {
+                if (bfSGrade) {
+                    // 篩選特定等級時，顯示該等級的物件
+                    sp0 = c.sProperties.find(function(sp){ return sp.grade === bfSGrade; }) || c.sProperties[0];
+                } else {
+                    // 未篩選時，優先顯示最高等級（A > B > C > 無）
+                    var gradeOrder = {A:0, B:1, C:2};
+                    var sorted = c.sProperties.slice().sort(function(a,b){
+                        var ga = (a.grade && gradeOrder[a.grade] !== undefined) ? gradeOrder[a.grade] : 3;
+                        var gb = (b.grade && gradeOrder[b.grade] !== undefined) ? gradeOrder[b.grade] : 3;
+                        return ga - gb;
+                    });
+                    sp0 = sorted[0];
+                }
+            }
+            if (_spCount > 1) meta += `<div class="cmeta-row"><span class="cmeta-k">物件數</span><span class="cmeta-v" style="color:#8B7355;font-weight:700">${_spCount} 間物件</span></div>`;
             var _ct = c.contractType || sp0.contractType || '';
             var _comm = c.community || sp0.community || '';
             var _sAddr = c.sAddr || sp0.addr || '';
@@ -2580,8 +2561,9 @@ function renderCard(c) {
                 }
                 meta += `<div class="cmeta-row"><span class="cmeta-k">登記</span><span class="cmeta-v">${szDisp}</span></div>`;
             }
-            var mgmtTotal = (parseFloat(c.sMgmtBuilding)||0)+(parseFloat(c.sMgmtCar)||0)+(parseFloat(c.sMgmtMoto)||0)+(parseFloat(c.sMgmtOther)||0);
-            if (mgmtTotal) meta += `<div class="cmeta-row"><span class="cmeta-k">管理費</span><span class="cmeta-v">${mgmtTotal.toLocaleString()}元${c.sMgmtPeriod?'／'+esc(c.sMgmtPeriod):''}</span></div>`;
+            var mgmtTotal = (parseFloat(c.sMgmtBuilding||sp0.mgmtBuilding)||0)+(parseFloat(c.sMgmtCar||sp0.mgmtCar)||0)+(parseFloat(c.sMgmtMoto||sp0.mgmtMoto)||0)+(parseFloat(c.sMgmtOther||sp0.mgmtOther)||0);
+            var _mgmtPeriod = c.sMgmtPeriod || sp0.mgmtPeriod || '';
+            if (mgmtTotal) meta += `<div class="cmeta-row"><span class="cmeta-k">管理費</span><span class="cmeta-v">${mgmtTotal.toLocaleString()}元${_mgmtPeriod?'／'+esc(_mgmtPeriod):''}</span></div>`;
             var _cEnd = c.contractEnd || sp0.contractEnd || '';
             if (_cEnd) meta += `<div class="cmeta-row"><span class="cmeta-k">到期日</span><span class="cmeta-v" style="color:#D97706;font-weight:700">${esc(isoToROC(_cEnd))}</span></div>`;
         } else if (showType==='租案管理') {
@@ -2720,50 +2702,148 @@ function editNoteInline(id, el) {
 function dRow(k,v){ return v?`<div class="det-row"><span class="det-key">${k}</span><span class="det-val">${esc(v)}</span></div>`:''; }
 
 function typeDetail(c) {
-    if (c.type==='經營買方') return [
-        (c.bGrade ? `<div class="det-row"><span class="det-key">客戶等級</span><span class="det-val"><span class="tag grade-tag-${c.bGrade.toLowerCase()}" style="font-size:14px;padding:3px 12px">${c.bGrade}級</span></span></div>` : ''),
-        (c.areaDisplay ? `<div class="det-row"><span class="det-key">需求區域</span><span class="det-val" style="white-space:pre-line">${esc(c.areaDisplay)}</span></div>` : ''),
-        dRow('房型需求',c.roomTypes),
-        dRow('預算', c.budget ? c.budget + (c.budget.includes('萬') ? '' : '萬') : ''),
-        dRow('自備款', c.downPayment ? c.downPayment + (c.downPayment.includes('萬') ? '' : '萬') : ''),
-        dRow('職業',c.floor), dRow('做主權人',c.decisionMaker),
-        (c.bAddrs&&c.bAddrs.length ? c.bAddrs.map(function(a){ return dRow(a.type||'地址',a.addr); }).join('') : dRow('三地址',c.bOther)),
-        dRow('想要',c.want),
-        dRow('不想要',c.noWant)
-    ].join('');
-    if (c.type==='庫存屋主') {
+    if (c.type==='經營買方') {
         var rows = [
-            (c.sGrade ? `<div class="det-row"><span class="det-key">客戶等級</span><span class="det-val"><span class="tag grade-tag-${c.sGrade.toLowerCase()}" style="font-size:14px;padding:3px 12px">${c.sGrade}級</span></span></div>` : ''),
-            dRow('身份證字號',c.sIdNo), dRow('生日',isoToROC(c.sBirthday)), dRow('地址',c.sOwnerAddr),
-            dRow('約種',c.contractType||((c.sProperties&&c.sProperties[0])?c.sProperties[0].contractType:'')),
-            dRow('社區大樓',c.community||((c.sProperties&&c.sProperties[0])?c.sProperties[0].community:'')),
-            dRow('物件地址',c.sAddr||((c.sProperties&&c.sProperties[0])?c.sProperties[0].addr:'')),
-            dRow('開價', (function(){ var p=c.sPrice||((c.sProperties&&c.sProperties[0])?c.sProperties[0].price:''); return p?p+(p.includes('萬')?'':'萬'):''; })()),
-            dRow('底價', (function(){ var p=c.sFloorPrice||((c.sProperties&&c.sProperties[0])?c.sProperties[0].floorPrice:''); return p?p+(p.includes('萬')?'':'萬'):''; })()),
-            dRow('服務費', (function(){ var p=c.sServiceFee||((c.sProperties&&c.sProperties[0])?c.sProperties[0].serviceFee:''); return p?p+'%':''; })()),
-            dRow('基地面積', c.sBaseLand ? c.sBaseLand+'坪' : ''),
-            dRow('土地持分', c.sLandShare ? c.sLandShare+'坪' : ''),
-            dRow('主建物', c.sMainBldg ? c.sMainBldg+'坪' : ''),
-            dRow('附屬建物', c.sAncBldg ? c.sAncBldg+'坪' : ''),
-            dRow('共有部分', c.sCommon ? c.sCommon+'坪' : ''),
-            dRow('車位坪數', c.sParkingSz ? c.sParkingSz+'坪' : ''),
-            dRow('車位型態',c.parking), dRow('車位價格', c.parkingPrice ? c.parkingPrice+(c.parkingPrice.includes('萬')?'':'萬') : ''), dRow('車位編號',c.parkingNo),
-            (function(){ var m=parseFloat(c.sMainBldg)||0,a=parseFloat(c.sAncBldg)||0,co=parseFloat(c.sCommon)||0,pk=parseFloat(c.sParkingSz)||0; var b=m+a+co; var reg=b+pk; var ratio=b>0?(co/b*100).toFixed(1):0; return (reg?dRow('登記面積',reg.toFixed(2)+'坪'):'')+(b?dRow('公設比',ratio+'%'):''); })(),
-            dRow('立約日',isoToROC(c.contractStart||((c.sProperties&&c.sProperties[0])?c.sProperties[0].contractStart:''))),
-            dRow('到期日',isoToROC(c.contractEnd||((c.sProperties&&c.sProperties[0])?c.sProperties[0].contractEnd:'')))
+            (c.bGrade ? `<div class="det-row"><span class="det-key">客戶等級</span><span class="det-val"><span class="tag grade-tag-${c.bGrade.toLowerCase()}" style="font-size:14px;padding:3px 12px">${c.bGrade}級</span></span></div>` : '')
         ];
-        // 管理費明細
-        var mgmtParts = [];
-        if (c.sMgmtBuilding) mgmtParts.push('建物 '+c.sMgmtBuilding+'元');
-        if (c.sMgmtCar) mgmtParts.push('汽車位 '+c.sMgmtCar+'元');
-        if (c.sMgmtMoto) mgmtParts.push('機車位 '+c.sMgmtMoto+'元');
-        if (c.sMgmtOther) mgmtParts.push('其他 '+c.sMgmtOther+'元');
-        if (mgmtParts.length) rows.push(dRow('管理費', mgmtParts.join('、') + (c.sMgmtPeriod ? '／'+c.sMgmtPeriod : '')));
-        // 續約歷程
-        if (c.sRenewals && c.sRenewals.length) {
-            var endDates = c.sRenewals.map(function(r){ return isoToROC(r.oldEnd); });
-            endDates.push(isoToROC(c.contractEnd) + ' (現)');
-            rows.push(dRow('到期歷程', endDates.join(' → ')));
+        var demands = c.bDemands && c.bDemands.length ? c.bDemands : null;
+        function _renderBd(bd) {
+            var h = '';
+            if (bd.areaDisplay) h += '<div class="det-row"><span class="det-key">需求區域</span><span class="det-val" style="white-space:pre-line">'+esc(bd.areaDisplay)+'</span></div>';
+            if (bd.roomTypes) h += dRow('房型需求',bd.roomTypes);
+            var bdBudget = bd.budget || '';
+            if (bdBudget) h += dRow('預算', bdBudget + (bdBudget.includes('萬')?'':'萬'));
+            if (bd.downPayment) h += dRow('自備款', bd.downPayment + (bd.downPayment.includes('萬')?'':'萬'));
+            if (bd.want) h += dRow('想要',bd.want);
+            if (bd.noWant) h += dRow('不想要',bd.noWant);
+            return h;
+        }
+        if (demands && demands.length > 1) {
+            // 多組需求：用切換按鈕
+            var tabId = 'bdTabs_'+c.id.replace(/[^a-zA-Z0-9]/g,'');
+            var tabBtns = demands.map(function(_,i){ return '<button type="button" onclick="switchBdTab(this,'+i+')" style="padding:4px 14px;border:1px solid var(--border);border-radius:6px;background:'+(i===0?'var(--deep)':'white')+';color:'+(i===0?'white':'var(--text)')+';cursor:pointer;font-size:13px;font-weight:600">需求 '+(i+1)+'</button>'; }).join('');
+            rows.push('<div style="display:flex;gap:6px;margin-top:8px;margin-bottom:4px" data-bd-tabs>'+tabBtns+'</div>');
+            demands.forEach(function(bd, idx) {
+                rows.push('<div class="bd-tab-panel" style="'+(idx===0?'':'display:none')+'">'+_renderBd(bd)+'</div>');
+            });
+        } else if (demands && demands.length === 1) {
+            rows.push(_renderBd(demands[0]));
+        } else {
+            // 舊資料 fallback
+            if (c.areaDisplay) rows.push('<div class="det-row"><span class="det-key">需求區域</span><span class="det-val" style="white-space:pre-line">'+esc(c.areaDisplay)+'</span></div>');
+            rows.push(dRow('房型需求',c.roomTypes));
+            rows.push(dRow('預算', c.budget ? c.budget+(c.budget.includes('萬')?'':'萬') : ''));
+            rows.push(dRow('自備款', c.downPayment ? c.downPayment+(c.downPayment.includes('萬')?'':'萬') : ''));
+            rows.push(dRow('想要',c.want));
+            rows.push(dRow('不想要',c.noWant));
+        }
+        if (c.bAddrs&&c.bAddrs.length) c.bAddrs.forEach(function(a){ rows.push(dRow(a.type||'地址',a.addr)); });
+        else if (c.bOther) rows.push(dRow('三地址',c.bOther));
+        return rows.join('');
+    }
+    if (c.type==='庫存屋主') {
+        // 通用並列欄位渲染
+        function _cell(k,v){ return '<div style="display:flex;padding:6px 0;font-size:14px"><span class="det-key">'+k+'</span><span class="det-val">'+esc(v)+'</span></div>'; }
+        function _grid(cols,cells){ return '<div style="display:grid;grid-template-columns:repeat('+cols+',1fr);border-bottom:1px solid var(--bg)">'+cells.join('')+'</div>'; }
+        // 渲染單間物件區塊
+        function renderSpBlock(sp) {
+            var r = [];
+            if (sp.grade) r.push('<div class="det-row"><span class="det-key">物件等級</span><span class="det-val"><span class="tag grade-tag-'+sp.grade.toLowerCase()+'" style="font-size:14px;padding:3px 12px">'+sp.grade+'級</span></span></div>');
+            r.push(dRow('約種',sp.contractType||''));
+            r.push(dRow('社區大樓',sp.community||''));
+            r.push(dRow('物件地址',sp.addr||''));
+            r.push(dRow('開價',(function(){ var p=sp.price||''; return p?p+(p.includes('萬')?'':'萬'):''; })()));
+            r.push(dRow('底價',(function(){ var p=sp.floorPrice||''; return p?p+(p.includes('萬')?'':'萬'):''; })()));
+            r.push(dRow('服務費',(function(){ var p=sp.serviceFee||''; return p?p+'%':''; })()));
+            // 並列欄位
+            var html='';
+            var bl=sp.baseLand||'', ls=sp.landShare||'';
+            if(bl||ls) html+=_grid(3,[_cell('基地面積',bl?bl+'坪':''),_cell('土地持分',ls?ls+'坪':''),'<div></div>']);
+            var mb=sp.mainBldg||'', ab=sp.ancBldg||'', co=sp.common||'';
+            if(mb||ab||co) html+=_grid(3,[_cell('主建物',mb?mb+'坪':''),_cell('附屬建物',ab?ab+'坪':''),_cell('共有部分',co?co+'坪':'')]);
+            var sz=sp.parkingSz||'', tp=sp.parking||'', pr=sp.parkingPrice||'', no=sp.parkingNo||'';
+            if(pr) pr=pr+(pr.includes('萬')?'':'萬');
+            if(sz||tp) html+=_grid(3,[_cell('車位坪數',sz?sz+'坪':''),_cell('車位型態',tp||''),'<div></div>']);
+            if(pr||no) html+=_grid(3,[_cell('車位價格',pr||''),_cell('車位編號',no||''),'<div></div>']);
+            var m=parseFloat(sp.mainBldg)||0,a=parseFloat(sp.ancBldg)||0,cov=parseFloat(sp.common)||0,pk=parseFloat(sp.parkingSz)||0;
+            var bldg=m+a+cov; var reg=bldg+pk; var ratio=bldg>0?(cov/bldg*100).toFixed(1):0;
+            if(reg) html+=_grid(3,[_cell('登記面積',reg.toFixed(2)+'坪'),_cell('公設比',bldg?ratio+'%':''),'<div></div>']);
+            var cs=isoToROC(sp.contractStart||''), ce=isoToROC(sp.contractEnd||'');
+            if(cs||ce) html+=_grid(3,[_cell('立約日',cs||''),_cell('到期日',ce||''),'<div></div>']);
+            r.push(html);
+            // 管理費
+            var mgP=[];
+            if(sp.mgmtBuilding) mgP.push('建物 '+sp.mgmtBuilding+'元');
+            if(sp.mgmtCar) mgP.push('汽車位 '+sp.mgmtCar+'元');
+            if(sp.mgmtMoto) mgP.push('機車位 '+sp.mgmtMoto+'元');
+            if(sp.mgmtOther) mgP.push('其他 '+sp.mgmtOther+'元');
+            if(mgP.length) r.push(dRow('管理費', mgP.join('、') + (sp.mgmtPeriod?'／'+sp.mgmtPeriod:'')));
+            // 續約歷程
+            if(sp.spRenewals && sp.spRenewals.length) {
+                var dates=sp.spRenewals.map(function(x){ return isoToROC(x.oldEnd); });
+                dates.push(isoToROC(sp.contractEnd)+' (現)');
+                r.push(dRow('到期歷程', dates.join(' → ')));
+            }
+            return r.join('');
+        }
+        var rows = [
+            dRow('身份證字號',c.sIdNo), dRow('生日',isoToROC(c.sBirthday)), dRow('地址',c.sOwnerAddr)
+        ];
+        var sps = c.sProperties && c.sProperties.length ? c.sProperties : null;
+        if (sps && sps.length > 0) {
+            // 篩選等級時，將該等級排在最前
+            if (bfSGrade && sps.length > 1) {
+                var matched = [], rest = [];
+                sps.forEach(function(sp){ (sp.grade === bfSGrade ? matched : rest).push(sp); });
+                sps = matched.concat(rest);
+            }
+            if (sps.length > 1) {
+                // 多間物件：用切換按鈕
+                var spTabBtns = sps.map(function(sp,i){
+                    var gLabel = sp.grade ? ' '+sp.grade+'級' : '';
+                    return '<button type="button" onclick="switchBdTab(this,'+i+')" style="padding:4px 14px;border:1px solid var(--border);border-radius:6px;background:'+(i===0?'#8B7355':'white')+';color:'+(i===0?'white':'var(--text)')+';cursor:pointer;font-size:13px;font-weight:600">物件 '+(i+1)+gLabel+'</button>';
+                }).join('');
+                rows.push('<div style="display:flex;gap:6px;margin-top:8px;margin-bottom:4px" data-bd-tabs data-active-color="#8B7355">'+spTabBtns+'</div>');
+                sps.forEach(function(sp, idx) {
+                    rows.push('<div class="bd-tab-panel" style="'+(idx===0?'':'display:none')+'">'+renderSpBlock(sp)+'</div>');
+                });
+            } else {
+                rows.push(renderSpBlock(sps[0]));
+            }
+        } else {
+            // 舊資料 fallback：用主表單固定欄位
+            rows.push(dRow('約種',c.contractType||''));
+            rows.push(dRow('社區大樓',c.community||''));
+            rows.push(dRow('物件地址',c.sAddr||''));
+            rows.push(dRow('開價',(function(){ var p=c.sPrice||''; return p?p+(p.includes('萬')?'':'萬'):''; })()));
+            rows.push(dRow('底價',(function(){ var p=c.sFloorPrice||''; return p?p+(p.includes('萬')?'':'萬'):''; })()));
+            rows.push(dRow('服務費',(function(){ var p=c.sServiceFee||''; return p?p+'%':''; })()));
+            var html='';
+            var bl=c.sBaseLand||'', ls=c.sLandShare||'';
+            if(bl||ls) html+=_grid(3,[_cell('基地面積',bl?bl+'坪':''),_cell('土地持分',ls?ls+'坪':''),'<div></div>']);
+            var mb=c.sMainBldg||'', ab=c.sAncBldg||'', co=c.sCommon||'';
+            if(mb||ab||co) html+=_grid(3,[_cell('主建物',mb?mb+'坪':''),_cell('附屬建物',ab?ab+'坪':''),_cell('共有部分',co?co+'坪':'')]);
+            var sz=c.sParkingSz||'', tp=c.parking||'', pr=c.parkingPrice||'', no=c.parkingNo||'';
+            if(pr) pr=pr+(pr.includes('萬')?'':'萬');
+            if(sz||tp) html+=_grid(3,[_cell('車位坪數',sz?sz+'坪':''),_cell('車位型態',tp||''),'<div></div>']);
+            if(pr||no) html+=_grid(3,[_cell('車位價格',pr||''),_cell('車位編號',no||''),'<div></div>']);
+            var m=parseFloat(c.sMainBldg)||0,a=parseFloat(c.sAncBldg)||0,cov=parseFloat(c.sCommon)||0,pk=parseFloat(c.sParkingSz)||0;
+            var bldg=m+a+cov; var reg=bldg+pk; var ratio=bldg>0?(cov/bldg*100).toFixed(1):0;
+            if(reg) html+=_grid(3,[_cell('登記面積',reg.toFixed(2)+'坪'),_cell('公設比',bldg?ratio+'%':''),'<div></div>']);
+            var cs=isoToROC(c.contractStart||''), ce=isoToROC(c.contractEnd||'');
+            if(cs||ce) html+=_grid(3,[_cell('立約日',cs||''),_cell('到期日',ce||''),'<div></div>']);
+            rows.push(html);
+            var mgP=[];
+            if(c.sMgmtBuilding) mgP.push('建物 '+c.sMgmtBuilding+'元');
+            if(c.sMgmtCar) mgP.push('汽車位 '+c.sMgmtCar+'元');
+            if(c.sMgmtMoto) mgP.push('機車位 '+c.sMgmtMoto+'元');
+            if(c.sMgmtOther) mgP.push('其他 '+c.sMgmtOther+'元');
+            if(mgP.length) rows.push(dRow('管理費', mgP.join('、') + (c.sMgmtPeriod?'／'+c.sMgmtPeriod:'')));
+            if (c.sRenewals && c.sRenewals.length) {
+                var endDates = c.sRenewals.map(function(r){ return isoToROC(r.oldEnd); });
+                endDates.push(isoToROC(c.contractEnd) + ' (現)');
+                rows.push(dRow('到期歷程', endDates.join(' → ')));
+            }
         }
         return rows.join('');
     }
@@ -2817,6 +2897,34 @@ function typeDetail(c) {
                     var label = '房東：'+(rll.name||'未填')+'　租客：'+(rtt.name||'未填');
                     rows.push('<div style="padding:8px 12px;margin-bottom:4px;background:#F5F3FF;border-radius:8px;cursor:pointer;font-size:13px" onclick="closeDet();setTimeout(function(){showDetByView(\''+r.id+'\',\'\')},100)">' +
                         '<div style="font-weight:600;color:#6366F1">'+esc(label)+'</div>' +
+                        (r.rent ? '<div style="color:var(--muted);font-size:12px;margin-top:2px">租金 '+esc(r.rent)+(r.rent.includes('元')?'':'元')+(r.rEndDate?' ・到期 '+isoToROC(r.rEndDate):'')+'</div>' : '') +
+                    '</div>');
+                });
+            }
+        }
+        // 關聯租案：自動比對房東
+        var curLL = (c.rLandlords && c.rLandlords[0]) || {};
+        var curLLName = curLL.name || c.rLandlord || '';
+        var curLLPhone = curLL.phone || c.rLandlordPhone || '';
+        if (curLLName || curLLPhone) {
+            var relatedLL = DB.filter(function(r) {
+                if (r.id === c.id || r._deleted) return false;
+                if (!hasType(r,'租案管理')) return false;
+                if (r.rAddr && c.rAddr && r.rAddr === c.rAddr) return false; // 已在同地址顯示
+                var rll = (r.rLandlords && r.rLandlords[0]) || {};
+                var rllName = rll.name || r.rLandlord || '';
+                var rllPhone = rll.phone || r.rLandlordPhone || '';
+                if (curLLPhone && rllPhone) return rllPhone === curLLPhone;
+                if (curLLName && rllName) return rllName === curLLName;
+                return false;
+            });
+            if (relatedLL.length) {
+                rows.push('<div style="font-weight:700;font-size:13px;color:#D97706;margin-top:12px;margin-bottom:6px;border-top:1px solid var(--border);padding-top:8px">📎 關聯租案（同房東：'+esc(curLLName)+'）</div>');
+                relatedLL.forEach(function(r) {
+                    var rtt = (r.rTenants && r.rTenants[0]) || {name:r.rTenant||''};
+                    var label = '租客：'+(rtt.name||'未填')+(r.rAddr?' ・'+r.rAddr:'');
+                    rows.push('<div style="padding:8px 12px;margin-bottom:4px;background:#FFFBEB;border-radius:8px;cursor:pointer;font-size:13px" onclick="closeDet();setTimeout(function(){showDetByView(\''+r.id+'\',\'\')},100)">' +
+                        '<div style="font-weight:600;color:#D97706">'+esc(label)+'</div>' +
                         (r.rent ? '<div style="color:var(--muted);font-size:12px;margin-top:2px">租金 '+esc(r.rent)+(r.rent.includes('元')?'':'元')+(r.rEndDate?' ・到期 '+isoToROC(r.rEndDate):'')+'</div>' : '') +
                     '</div>');
                 });
@@ -2952,6 +3060,18 @@ function showDet(id, viewAs) {
         '<button class="btn-ic" onclick="navDet(1)" title="下一筆" style="font-size:14px;padding:4px 8px;'+nextStyle+'">▶</button>';
 }
 function closeDet(){ document.getElementById('dModal').style.display='none'; detListCache=[]; currentDetId=null; currentDetIdx=-1; }
+function switchBdTab(btn, idx) {
+    var tabs = btn.closest('[data-bd-tabs]');
+    var container = tabs.parentElement;
+    var color = tabs.getAttribute('data-active-color') || 'var(--deep)';
+    tabs.querySelectorAll('button').forEach(function(b, i){
+        b.style.background = i===idx ? color : 'white';
+        b.style.color = i===idx ? 'white' : 'var(--text)';
+    });
+    container.querySelectorAll(':scope > .bd-tab-panel').forEach(function(p, i){
+        p.style.display = i===idx ? '' : 'none';
+    });
+}
 
 // 鍵盤左右鍵切換
 document.addEventListener('keydown', function(e) {
@@ -3055,7 +3175,12 @@ function addSellerProperty(data) {
     var mgmtPSel = function(v,label){ return '<option value="'+label+'"'+(d.mgmtPeriod===label?' selected':'')+'>'+label+'</option>'; };
     var localNum = document.querySelectorAll('#sPropertyList .person-block').length + 1;
     var html = '<div class="person-block" id="'+pid+'" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9;position:relative">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:700;color:#8B7355">庫存物件 '+localNum+'</span><button type="button" class="c-del" onclick="this.parentElement.parentElement.remove()">✕</button></div>' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:12px;font-weight:700;color:#8B7355">庫存物件 '+localNum+'</span>' +
+            '<button type="button" class="grade-btn grade-a'+(d.grade==='A'?' on':'')+'" style="font-size:11px;padding:1px 8px" onclick="pickSpGrade(this,\'A\')">A級</button>' +
+            '<button type="button" class="grade-btn grade-b'+(d.grade==='B'?' on':'')+'" style="font-size:11px;padding:1px 8px" onclick="pickSpGrade(this,\'B\')">B級</button>' +
+            '<button type="button" class="grade-btn grade-c'+(d.grade==='C'?' on':'')+'" style="font-size:11px;padding:1px 8px" onclick="pickSpGrade(this,\'C\')">C級</button>' +
+            '<input type="hidden" data-f="grade" value="'+esc(d.grade||'')+'">' +
+            '<div style="flex:1"></div><button type="button" class="c-del" onclick="this.parentElement.parentElement.remove()">✕</button></div>' +
         // 約種
         '<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">' +
             '<span style="font-size:13px;font-weight:600;color:var(--text);flex-shrink:0">約種</span>' +
@@ -3071,8 +3196,8 @@ function addSellerProperty(data) {
         '</div>' +
         // 開價+底價+服務費
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:6px">' +
-            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">開價</label><div class="input-grp"><input data-f="price" value="'+esc(d.price||'')+'" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>' +
-            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">底價</label><div class="input-grp"><input data-f="floorPrice" value="'+esc(d.floorPrice||'')+'" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px;display:flex;align-items:center;gap:4px">開價<button type="button" onclick="showSpFieldHistory(this,\'price\')" style="font-size:10px;padding:1px 5px;border:1px solid #D6CFC7;border-radius:4px;background:#F5F0EB;color:#8B7355;cursor:pointer;line-height:1.2">歷程</button></label><div class="input-grp"><input data-f="price" value="'+esc(d.price||'')+'" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px;display:flex;align-items:center;gap:4px">底價<button type="button" onclick="showSpFieldHistory(this,\'floorPrice\')" style="font-size:10px;padding:1px 5px;border:1px solid #D6CFC7;border-radius:4px;background:#F5F0EB;color:#8B7355;cursor:pointer;line-height:1.2">歷程</button></label><div class="input-grp"><input data-f="floorPrice" value="'+esc(d.floorPrice||'')+'" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">服務費</label><div class="input-grp"><input data-f="serviceFee" value="'+esc(d.serviceFee||'')+'" style="min-width:0;flex:1"><span class="input-sfx">%</span></div></div>' +
         '</div>' +
         // 坪數
@@ -3099,14 +3224,14 @@ function addSellerProperty(data) {
             '<div style="padding:8px 12px;border-radius:8px;font-size:13px;font-weight:700;background:#F0FDF4;color:#059669;text-align:center">公設比 <span data-f="commonRatio">0</span>%</div>' +
         '</div>' +
         // 管理費
-        '<div style="font-size:12px;font-weight:600;color:var(--wood);margin-bottom:4px">管理費</div>' +
+        '<div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:4px">管理費</div>' +
         '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">' +
-            '<div style="flex:1;min-width:70px"><div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">建物</div><div class="input-grp"><input data-f="mgmtBuilding" value="'+esc(d.mgmtBuilding||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
-            '<div style="flex:1;min-width:70px"><div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">汽車</div><div class="input-grp"><input data-f="mgmtCar" value="'+esc(d.mgmtCar||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
-            '<div style="flex:1;min-width:70px"><div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">機車</div><div class="input-grp"><input data-f="mgmtMoto" value="'+esc(d.mgmtMoto||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
-            '<div style="flex:1;min-width:70px"><div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">其他</div><div class="input-grp"><input data-f="mgmtOther" value="'+esc(d.mgmtOther||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
-            '<div style="flex:1;min-width:70px"><div style="font-size:11px;font-weight:700;color:var(--deep);margin-bottom:2px;padding-left:4px">合計</div><div data-f="mgmtTotal" style="padding:8px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE8E0;color:#5C4A32;text-align:center">0 元</div></div>' +
-            '<div style="flex:0 0 70px"><div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">繳費</div><select data-f="mgmtPeriod" style="width:100%;padding:8px 4px;border:1px solid var(--border);border-radius:8px;font-size:14px"><option value="">選擇</option>'+mgmtPSel('月繳','月繳')+mgmtPSel('季繳','季繳')+mgmtPSel('半年繳','半年繳')+mgmtPSel('年繳','年繳')+'</select></div>' +
+            '<div style="flex:1;min-width:70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">建物</label><div class="input-grp"><input data-f="mgmtBuilding" value="'+esc(d.mgmtBuilding||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
+            '<div style="flex:1;min-width:70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">汽車</label><div class="input-grp"><input data-f="mgmtCar" value="'+esc(d.mgmtCar||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
+            '<div style="flex:1;min-width:70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">機車</label><div class="input-grp"><input data-f="mgmtMoto" value="'+esc(d.mgmtMoto||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
+            '<div style="flex:1;min-width:70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">其他</label><div class="input-grp"><input data-f="mgmtOther" value="'+esc(d.mgmtOther||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
+            '<div style="flex:1;min-width:70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">合計</label><div data-f="mgmtTotal" style="padding:8px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE8E0;color:#5C4A32;text-align:center">0 元</div></div>' +
+            '<div style="flex:0 0 70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">繳費</label><select data-f="mgmtPeriod" style="width:100%;padding:8px 4px;border:1px solid var(--border);border-radius:8px;font-size:14px"><option value="">選擇</option>'+mgmtPSel('月繳','月繳')+mgmtPSel('季繳','季繳')+mgmtPSel('半年繳','半年繳')+mgmtPSel('年繳','年繳')+'</select></div>' +
         '</div>' +
         // 立約日+到期日+續約
         '<div style="display:grid;grid-template-columns:3fr 3fr 1fr;gap:8px;align-items:end">' +
@@ -3114,6 +3239,8 @@ function addSellerProperty(data) {
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">到期日</label><div class="roc-date-wrap"><input data-f="contractEnd" type="text" value="'+esc(d.contractEnd?isoToROC(d.contractEnd):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
             '<button type="button" class="bf-chip" onclick="renewSpContract(this)" style="padding:10px 14px;font-size:14px;text-align:center;white-space:nowrap">續約</button>' +
         '</div>' +
+        // 續約歷程按鈕（常態顯示）
+        '<div style="margin-top:6px"><button type="button" class="bf-chip sp-renewal-hist-btn" onclick="showSpRenewalHistory(this)" style="padding:6px 14px;font-size:13px;background:#F5F0EB;color:#8B7355;border:1px solid #D6CFC7">📋 續約歷程</button></div>' +
     '</div>';
     document.getElementById('sPropertyList').insertAdjacentHTML('beforeend', html);
     // 計算管理費合計
@@ -3121,6 +3248,11 @@ function addSellerProperty(data) {
     if (block) {
         calcSpMgmt(block.querySelector('[data-f="mgmtBuilding"]'));
         calcSpSellerSz(block.querySelector('[data-f="mainBldg"]'));
+        // 初始化續約歷程
+        block._spRenewals = d.spRenewals || [];
+        // 初始化開價/底價歷程
+        block._spPriceHistory = d.spPriceHistory || [];
+        block._spFloorPriceHistory = d.spFloorPriceHistory || [];
     }
 }
 function openSpDetailSz(btn) {
@@ -3179,6 +3311,14 @@ function calcSpSellerSz(el) {
     var regEl=block.querySelector('[data-f="regSz"]'); if(regEl) regEl.textContent=regSz?regSz.toFixed(2):'0';
     var ratEl=block.querySelector('[data-f="commonRatio"]'); if(ratEl) ratEl.textContent=ratio;
 }
+function pickSpGrade(btn, grade) {
+    var block = btn.closest('.person-block'); if (!block) return;
+    var hidden = block.querySelector('[data-f="grade"]');
+    var wasOn = btn.classList.contains('on');
+    block.querySelectorAll('.grade-btn').forEach(function(b){ b.classList.remove('on'); });
+    if (wasOn) { hidden.value = ''; }
+    else { btn.classList.add('on'); hidden.value = grade; }
+}
 function pickSpContract(btn, type) {
     var block = btn.closest('.person-block'); if (!block) return;
     var hidden = block.querySelector('[data-f="contractType"]');
@@ -3225,21 +3365,130 @@ function renewSpContract(btn) {
         window.calPick = origCalPick;
         document.body.removeChild(fakeWrap);
         var newEndISO = iso;
+        var oldStartISO = rocToISO(startInput.value.trim());
         var newStart = new Date(oldEndISO+'T00:00:00');
         newStart.setDate(newStart.getDate()+1);
         var newStartISO = localDateISO(newStart);
+        // 記錄續約歷程
+        if (!block._spRenewals) block._spRenewals = [];
+        block._spRenewals.push({
+            oldStart: oldStartISO, oldEnd: oldEndISO,
+            newStart: newStartISO, newEnd: newEndISO,
+            time: new Date().toISOString()
+        });
         startInput.value = isoToROC(newStartISO);
         endInput.value = isoToROC(newEndISO);
         closeCal();
         showMsg('已續約', '新合約：' + isoToROC(newStartISO) + ' ~ ' + isoToROC(newEndISO) + '\n（請儲存完成續約）');
     };
 }
+function showSpFieldHistory(btn, field) {
+    var block = btn.closest('.person-block'); if (!block) return;
+    var labels = { price:'開價', floorPrice:'底價' };
+    var suffix = { price:'萬', floorPrice:'萬' };
+    var histKey = field === 'price' ? '_spPriceHistory' : '_spFloorPriceHistory';
+    var all = block[histKey] || [];
+    if (!all.length) { showMsg(labels[field]+' 歷程', '尚無變動紀錄'); return; }
+    var curVal = (block.querySelector('[data-f="'+field+'"]') || {}).value || '';
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.padding = '16px'; box.style.minWidth = '300px';
+    var html = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">'+labels[field]+' 歷程</div>';
+    html += all.map(function(h, i) {
+        return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">' +
+            '<input type="checkbox" data-sp-fh-idx="'+i+'" style="width:16px;height:16px;flex-shrink:0">' +
+            '<span style="flex:1">'+esc(h.value)+suffix[field]+'</span>' +
+            '<span style="color:var(--muted);white-space:nowrap">'+esc(toROCDateTime(h.time))+'</span></div>';
+    }).join('');
+    html += '<div style="padding:6px 0;font-size:13px;font-weight:700;color:var(--deep)">現行'+labels[field]+'：'+esc(curVal)+(curVal?suffix[field]:'')+'</div>';
+    html += '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">' +
+        '<button type="button" class="sp-fh-del-btn" style="padding:8px 16px;border:none;border-radius:8px;background:#DC2626;color:white;cursor:pointer;font-size:14px;display:none">刪除勾選</button>' +
+        '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">關閉</button></div>';
+    box.innerHTML = html;
+    box.addEventListener('change', function() {
+        var checked = box.querySelectorAll('input[data-sp-fh-idx]:checked').length;
+        box.querySelector('.sp-fh-del-btn').style.display = checked ? '' : 'none';
+    });
+    box.querySelector('.sp-fh-del-btn').onclick = function() {
+        var checks = box.querySelectorAll('input[data-sp-fh-idx]:checked');
+        var idxs = []; checks.forEach(function(cb){ idxs.push(parseInt(cb.getAttribute('data-sp-fh-idx'))); });
+        idxs.sort(function(a,b){ return b-a; });
+        idxs.forEach(function(idx){ block[histKey].splice(idx, 1); });
+        if (editId) {
+            var c = DB.find(function(x){ return x.id === editId; });
+            if (c && c.sProperties) {
+                var blockIdx = Array.prototype.indexOf.call(document.querySelectorAll('#sPropertyList .person-block'), block);
+                if (blockIdx >= 0 && c.sProperties[blockIdx]) {
+                    var dbKey = field === 'price' ? 'spPriceHistory' : 'spFloorPriceHistory';
+                    c.sProperties[blockIdx][dbKey] = block[histKey].slice();
+                    persist();
+                }
+            }
+        }
+        overlay.remove();
+        if (block[histKey].length) showSpFieldHistory(btn, field);
+    };
+    overlay.appendChild(box);
+    overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+    document.body.appendChild(overlay);
+}
+function showSpRenewalHistory(btn) {
+    var block = btn.closest('.person-block'); if (!block) return;
+    var all = block._spRenewals || [];
+    if (!all.length) { showMsg('續約歷程', '尚無續約紀錄'); return; }
+    var curEnd = (block.querySelector('[data-f="contractEnd"]') || {}).value || '';
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.padding = '16px'; box.style.minWidth = '320px';
+    var html = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">續約歷程</div>';
+    html += all.map(function(r, i) {
+        return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">' +
+            '<input type="checkbox" data-sp-rn-idx="'+i+'" style="width:16px;height:16px;flex-shrink:0">' +
+            '<span style="flex:1">到期 '+esc(isoToROC(r.oldEnd))+'</span>' +
+            '<span style="color:var(--muted);white-space:nowrap">'+esc(toROCDateTime(r.time))+'</span></div>';
+    }).join('');
+    html += '<div style="padding:6px 0;font-size:13px;font-weight:700;color:var(--deep)">現行到期日：'+esc(curEnd)+'</div>';
+    html += '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">' +
+        '<button type="button" class="sp-rn-del-btn" style="padding:8px 16px;border:none;border-radius:8px;background:#DC2626;color:white;cursor:pointer;font-size:14px;display:none">刪除勾選</button>' +
+        '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">關閉</button></div>';
+    box.innerHTML = html;
+    box.addEventListener('change', function() {
+        var checked = box.querySelectorAll('input[data-sp-rn-idx]:checked').length;
+        box.querySelector('.sp-rn-del-btn').style.display = checked ? '' : 'none';
+    });
+    box.querySelector('.sp-rn-del-btn').onclick = function() {
+        var checks = box.querySelectorAll('input[data-sp-rn-idx]:checked');
+        var idxs = []; checks.forEach(function(cb){ idxs.push(parseInt(cb.getAttribute('data-sp-rn-idx'))); });
+        idxs.sort(function(a,b){ return b-a; });
+        idxs.forEach(function(idx){ block._spRenewals.splice(idx, 1); });
+        // 如果正在編輯，同步更新 DB
+        if (editId) {
+            var c = DB.find(function(x){ return x.id === editId; });
+            if (c && c.sProperties) {
+                var blockIdx = Array.prototype.indexOf.call(document.querySelectorAll('#sPropertyList .person-block'), block);
+                if (blockIdx >= 0 && c.sProperties[blockIdx]) {
+                    c.sProperties[blockIdx].spRenewals = block._spRenewals.slice();
+                    persist();
+                }
+            }
+        }
+        overlay.remove();
+        if (block._spRenewals.length) showSpRenewalHistory(btn);
+    };
+    overlay.appendChild(box);
+    overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+    document.body.appendChild(overlay);
+}
 function getSellerProperties() {
     var r = [];
     document.querySelectorAll('#sPropertyList .person-block').forEach(function(block) {
         var get = function(f) { var el = block.querySelector('[data-f="'+f+'"]'); return el ? el.value.trim() : ''; };
         if (get('community') || get('addr') || get('price')) {
-            r.push({ contractType:get('contractType'), community:get('community'), addr:get('addr'), price:get('price'), floorPrice:get('floorPrice'), serviceFee:get('serviceFee'), baseLand:get('baseLand'), landShare:get('landShare'), mainBldg:get('mainBldg'), ancBldg:get('ancBldg'), common:get('common'), parkingSz:get('parkingSz'), parking:get('parking'), parkingPrice:get('parkingPrice'), parkingNo:get('parkingNo'), mgmtBuilding:get('mgmtBuilding'), mgmtCar:get('mgmtCar'), mgmtMoto:get('mgmtMoto'), mgmtOther:get('mgmtOther'), mgmtPeriod:get('mgmtPeriod'), contractStart:rocToISO(get('contractStart')), contractEnd:rocToISO(get('contractEnd')) });
+            r.push({ grade:get('grade'), contractType:get('contractType'), community:get('community'), addr:get('addr'), price:get('price'), floorPrice:get('floorPrice'), serviceFee:get('serviceFee'), baseLand:get('baseLand'), landShare:get('landShare'), mainBldg:get('mainBldg'), ancBldg:get('ancBldg'), common:get('common'), parkingSz:get('parkingSz'), parking:get('parking'), parkingPrice:get('parkingPrice'), parkingNo:get('parkingNo'), mgmtBuilding:get('mgmtBuilding'), mgmtCar:get('mgmtCar'), mgmtMoto:get('mgmtMoto'), mgmtOther:get('mgmtOther'), mgmtPeriod:get('mgmtPeriod'), contractStart:rocToISO(get('contractStart')), contractEnd:rocToISO(get('contractEnd')), spRenewals: block._spRenewals || [], spPriceHistory: block._spPriceHistory || [], spFloorPriceHistory: block._spFloorPriceHistory || [] });
         }
     });
     return r;
@@ -3257,46 +3506,43 @@ function showPriceHistory(field) {
     overlay.className = 'fill-overlay';
     var box = document.createElement('div');
     box.className = 'fill-menu';
-    box.style.padding = '16px'; box.style.minWidth = '280px';
-    var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-weight:700;font-size:15px">'+labels[field]+' 歷程</span><button type="button" class="btn-ic del" onclick="clearPriceHistory(\''+field+'\')" style="font-size:13px;padding:4px 10px;display:flex;align-items:center;gap:4px">🗑️ 刪除歷程</button></div>';
-    html += hist.map(function(h) {
-        return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px"><span>'+esc(h.value)+suffix[field]+'</span><span style="color:var(--muted)">'+esc(toROCDateTime(h.time))+'</span></div>';
+    box.style.padding = '16px'; box.style.minWidth = '300px';
+    var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-weight:700;font-size:15px">'+labels[field]+' 歷程</span></div>';
+    html += hist.map(function(h, i) {
+        return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">' +
+            '<input type="checkbox" data-ph-idx="'+i+'" style="width:16px;height:16px;flex-shrink:0">' +
+            '<span style="flex:1">'+esc(h.value)+suffix[field]+'</span>' +
+            '<span style="color:var(--muted);white-space:nowrap">'+esc(toROCDateTime(h.time))+'</span></div>';
     }).join('');
-    html += '<div style="text-align:right;margin-top:12px"><button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">關閉</button></div>';
+    html += '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">' +
+        '<button type="button" class="ph-del-btn" style="padding:8px 16px;border:none;border-radius:8px;background:#DC2626;color:white;cursor:pointer;font-size:14px;display:none">刪除勾選</button>' +
+        '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">關閉</button></div>';
     box.innerHTML = html;
-    overlay.appendChild(box);
-    overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
-    document.body.appendChild(overlay);
-}
-function clearPriceHistory(field) {
-    var labels = { sPrice:'開價', sFloorPrice:'底價', sServiceFee:'服務費' };
-    // 關閉歷程彈窗
-    document.querySelectorAll('.fill-overlay').forEach(function(o){ o.remove(); });
-    var overlay = document.createElement('div');
-    overlay.className = 'fill-overlay';
-    var box = document.createElement('div');
-    box.className = 'fill-menu';
-    box.style.padding = '16px'; box.style.minWidth = '260px';
-    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">確定刪除'+labels[field]+'歷程？</div>' +
-        '<div style="font-size:13px;color:var(--muted);margin-bottom:12px">此操作無法復原</div>' +
-        '<div style="display:flex;gap:8px;justify-content:flex-end">' +
-            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
-            '<button type="button" id="confirmClearPH" style="padding:8px 16px;border:none;border-radius:8px;background:#DC2626;color:white;cursor:pointer;font-size:14px">刪除</button>' +
-        '</div>';
-    overlay.appendChild(box);
-    overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
-    document.body.appendChild(overlay);
-    document.getElementById('confirmClearPH').onclick = function() {
-        _priceHistories[field] = [];
-        // 同步到 DB
+    // 勾選時顯示/隱藏刪除按鈕
+    box.addEventListener('change', function() {
+        var checked = box.querySelectorAll('input[data-ph-idx]:checked').length;
+        box.querySelector('.ph-del-btn').style.display = checked ? '' : 'none';
+    });
+    // 刪除勾選項目
+    box.querySelector('.ph-del-btn').onclick = function() {
+        var checks = box.querySelectorAll('input[data-ph-idx]:checked');
+        var idxs = []; checks.forEach(function(cb){ idxs.push(parseInt(cb.getAttribute('data-ph-idx'))); });
+        idxs.sort(function(a,b){ return b-a; });
+        idxs.forEach(function(idx){ _priceHistories[field].splice(idx, 1); });
         if (editId) {
             var c = DB.find(function(x){ return x.id === editId; });
-            if (c) { c[field+'History'] = []; persist(); }
+            if (c) { c[field+'History'] = _priceHistories[field].slice(); persist(); }
         }
         var btnMap = { sPrice:'btnPriceHist', sFloorPrice:'btnFloorHist', sServiceFee:'btnFeeHist' };
-        document.getElementById(btnMap[field]).style.display = 'none';
+        if (!_priceHistories[field].length) {
+            document.getElementById(btnMap[field]).style.display = 'none';
+        }
         overlay.remove();
+        if (_priceHistories[field].length) showPriceHistory(field);
     };
+    overlay.appendChild(box);
+    overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+    document.body.appendChild(overlay);
 }
 function loadPriceHistories(c) {
     _priceHistories = { sPrice: c.sPriceHistory||[], sFloorPrice: c.sFloorPriceHistory||[], sServiceFee: c.sServiceFeeHistory||[] };
@@ -3508,19 +3754,175 @@ function renewContract() {
 function renderSRenewals() {
     var editData = editId ? (DB.find(function(x){return x.id===editId;})||{}).sRenewals || [] : [];
     var all = editData.concat(sRenewals);
-    var el = document.getElementById('sRenewalHistory');
-    var list = document.getElementById('sRenewalList');
-    if (all.length) {
-        var curEnd = document.getElementById('f-contractEnd').value;
-        el.style.display = '';
-        list.innerHTML = all.map(function(r) {
-            return '<span style="padding:5px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--bg)">' + isoToROC(r.oldEnd) + '</span>';
-        }).join('') + '<span style="padding:5px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--bg);font-weight:700;color:var(--deep)">' + esc(curEnd) + ' (現)</span>';
-    } else {
-        el.style.display = 'none';
-    }
+    document.getElementById('btnRenewalHist').style.display = all.length ? '' : 'none';
 }
 function renderSRenewalsFromData(arr) { renderSRenewals(); }
+
+function showRenewalHistory() {
+    var editData = editId ? (DB.find(function(x){return x.id===editId;})||{}).sRenewals || [] : [];
+    var all = editData.concat(sRenewals);
+    if (!all.length) return;
+    var curEnd = document.getElementById('f-contractEnd').value;
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.padding = '16px'; box.style.minWidth = '320px';
+    var html = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">續約歷程</div>';
+    html += all.map(function(r, i) {
+        return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">' +
+            '<input type="checkbox" data-rn-idx="'+i+'" style="width:16px;height:16px;flex-shrink:0">' +
+            '<span style="flex:1">到期 '+esc(isoToROC(r.oldEnd))+'</span>' +
+            '<span style="color:var(--muted);white-space:nowrap">'+esc(toROCDateTime(r.time))+'</span></div>';
+    }).join('');
+    html += '<div style="padding:6px 0;font-size:13px;font-weight:700;color:var(--deep)">現行到期日：'+esc(curEnd)+'</div>';
+    html += '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">' +
+        '<button type="button" class="rn-del-btn" style="padding:8px 16px;border:none;border-radius:8px;background:#DC2626;color:white;cursor:pointer;font-size:14px;display:none">刪除勾選</button>' +
+        '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">關閉</button></div>';
+    box.innerHTML = html;
+    box.addEventListener('change', function() {
+        var checked = box.querySelectorAll('input[data-rn-idx]:checked').length;
+        box.querySelector('.rn-del-btn').style.display = checked ? '' : 'none';
+    });
+    box.querySelector('.rn-del-btn').onclick = function() {
+        var checks = box.querySelectorAll('input[data-rn-idx]:checked');
+        var idxs = []; checks.forEach(function(cb){ idxs.push(parseInt(cb.getAttribute('data-rn-idx'))); });
+        idxs.sort(function(a,b){ return b-a; });
+        // 分離 DB 已存的和本次新增的
+        var dbLen = editData.length;
+        var dbIdxs = [], newIdxs = [];
+        idxs.forEach(function(idx) {
+            if (idx < dbLen) dbIdxs.push(idx); else newIdxs.push(idx - dbLen);
+        });
+        // 刪除本次新增的
+        newIdxs.sort(function(a,b){ return b-a; });
+        newIdxs.forEach(function(idx){ sRenewals.splice(idx, 1); });
+        // 刪除 DB 已存的
+        if (dbIdxs.length && editId) {
+            var c = DB.find(function(x){ return x.id === editId; });
+            if (c && c.sRenewals) {
+                dbIdxs.sort(function(a,b){ return b-a; });
+                dbIdxs.forEach(function(idx){ c.sRenewals.splice(idx, 1); });
+                persist();
+            }
+        }
+        renderSRenewals();
+        overlay.remove();
+        // 如果還有歷程，重新開啟
+        var remaining = (editId ? (DB.find(function(x){return x.id===editId;})||{}).sRenewals || [] : []).concat(sRenewals);
+        if (remaining.length) showRenewalHistory();
+    };
+    overlay.appendChild(box);
+    overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+    document.body.appendChild(overlay);
+}
+
+// ── 買方需求區塊 ──
+var bDemandId = 0;
+function addBuyerDemand(data) {
+    bDemandId++;
+    var d = data || {};
+    var pid = 'bd-'+bDemandId;
+    var localNum = document.querySelectorAll('#bDemandList .person-block').length + 1;
+    var selCities = d.areaCities || [];
+    var selDists = d.areaDists || [];
+    var selRooms = (d.roomTypes||'').split(',').filter(Boolean);
+    var cities = ['新北市','台北市','其他縣市'];
+    var rooms = ['套房','二房','三房','四房','公寓','豪宅','店面','辦公','透天'];
+    // 區域 HTML
+    var distHtml = '';
+    Object.keys(DISTRICTS).forEach(function(city){
+        var dists = DISTRICTS[city];
+        var isOn = selCities.includes(city);
+        distHtml += '<div class="dist-area bd-dist'+(isOn?' on':'')+'" data-city="'+city+'">' +
+            '<label style="font-size:12px;margin-bottom:6px;display:block">選擇區（可複選）</label>' +
+            '<div class="dist-grid">';
+        dists.forEach(function(dist){
+            var dn = dist+'區';
+            distHtml += '<button type="button" class="dist-btn'+(selDists.includes(dn)?' on':'')+'" data-dist="'+dn+'" onclick="toggleBdDist(this)">'+dn+'</button>';
+        });
+        distHtml += '</div></div>';
+    });
+    var otherOn = selCities.includes('其他縣市');
+    distHtml += '<div class="dist-area bd-dist'+(otherOn?' on':'')+'" data-city="其他縣市"><input data-f="areaOther" placeholder="" value="'+esc(d.areaOther||'')+'"></div>';
+
+    var html = '<div class="person-block" id="'+pid+'" style="border:1px solid var(--border);border-left:4px solid var(--deep);border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9;position:relative">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:700;color:var(--deep)">買方需求 '+localNum+'</span><button type="button" class="c-del" onclick="this.parentElement.parentElement.remove()">✕</button></div>' +
+        // 需求區域
+        '<div class="fg full" style="margin-bottom:6px">' +
+            '<label style="font-size:12px;margin-bottom:6px">需求區域</label>' +
+            '<div class="city-picker">'+cities.map(function(c){ return '<button type="button" class="city-btn'+(selCities.includes(c)?' on':'')+'" onclick="pickBdCity(this,\''+c+'\')">'+c+'</button>'; }).join('')+'</div>' +
+            distHtml +
+        '</div>' +
+        // 房型需求
+        '<div class="fg full" style="margin-bottom:6px">' +
+            '<label style="font-size:12px;margin-bottom:6px">房型需求（可複選）</label>' +
+            '<div class="room-picker">'+rooms.map(function(r){ return '<button type="button" class="rm-btn'+(selRooms.includes(r)?' on':'')+'" onclick="toggleBdRoom(this)">'+r+'</button>'; }).join('')+'</div>' +
+        '</div>' +
+        // 預算
+        '<div style="display:flex;gap:6px;align-items:end;margin-bottom:6px;min-width:0">' +
+            '<div class="fg" style="flex:1;margin-bottom:0;min-width:0"><label style="font-size:12px">預算最低</label><div class="input-grp"><input data-f="budgetMin" value="'+esc(d.budgetMin||'')+'" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>' +
+            '<span style="font-size:13px;color:var(--muted);flex-shrink:0;padding-bottom:10px">～</span>' +
+            '<div class="fg" style="flex:1;margin-bottom:0;min-width:0"><label style="font-size:12px">預算最高</label><div class="input-grp"><input data-f="budgetMax" value="'+esc(d.budgetMax||'')+'" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>' +
+            '<div class="fg" style="flex:1;margin-bottom:0;min-width:0"><label style="font-size:12px">自備款</label><div class="input-grp"><input data-f="downPayment" value="'+esc(d.downPayment||'')+'" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>' +
+        '</div>' +
+        // 想要/不想要
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">想要</label><input data-f="want" value="'+esc(d.want||'')+'"></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">不想要</label><input data-f="noWant" value="'+esc(d.noWant||'')+'"></div>' +
+        '</div>' +
+    '</div>';
+    document.getElementById('bDemandList').insertAdjacentHTML('beforeend', html);
+}
+function pickBdCity(btn, city) {
+    var block = btn.closest('.person-block'); if (!block) return;
+    btn.classList.toggle('on');
+    // 取消時清除該城市的區
+    if (!btn.classList.contains('on')) {
+        var area = block.querySelector('.bd-dist[data-city="'+city+'"]');
+        if (area) { area.classList.remove('on'); area.querySelectorAll('.dist-btn').forEach(function(b){ b.classList.remove('on'); }); }
+    }
+    // 顯示/隱藏區域
+    block.querySelectorAll('.bd-dist').forEach(function(el){ el.classList.remove('on'); });
+    block.querySelectorAll('.city-btn.on').forEach(function(b){
+        var c = b.textContent.trim();
+        var area = block.querySelector('.bd-dist[data-city="'+c+'"]');
+        if (area) area.classList.add('on');
+    });
+}
+function toggleBdRoom(btn) { btn.classList.toggle('on'); }
+function toggleBdDist(btn) { btn.classList.toggle('on'); }
+function getBuyerDemands() {
+    var r = [];
+    document.querySelectorAll('#bDemandList .person-block').forEach(function(block) {
+        var get = function(f){ var el=block.querySelector('[data-f="'+f+'"]'); return el?el.value.trim():''; };
+        // 城市
+        var cities = [];
+        block.querySelectorAll('.city-btn.on').forEach(function(b){ cities.push(b.textContent.trim()); });
+        // 區
+        var dists = [];
+        block.querySelectorAll('.dist-btn.on').forEach(function(b){ var d=b.getAttribute('data-dist'); if(d) dists.push(d); });
+        // 房型
+        var rooms = [];
+        block.querySelectorAll('.rm-btn.on').forEach(function(b){ rooms.push(b.textContent.trim()); });
+        // 區域顯示文字
+        var areaOther = get('areaOther');
+        var areaDisplay = '';
+        var parts = cities.filter(function(c){return c!=='其他縣市';});
+        if (areaOther) parts.push(areaOther);
+        if (dists.length) areaDisplay = parts.join('、') + (parts.length?'':'') + dists.join('、');
+        else areaDisplay = parts.join('、');
+        var budgetMin=get('budgetMin'), budgetMax=get('budgetMax');
+        var budget = (budgetMin&&budgetMax) ? budgetMin+'-'+budgetMax : budgetMin||budgetMax||'';
+        r.push({
+            areaCities:cities, areaDists:dists, areaOther:areaOther, areaDisplay:areaDisplay,
+            roomTypes:rooms.join(','), budgetMin:budgetMin, budgetMax:budgetMax, budget:budget,
+            downPayment:get('downPayment'), want:get('want'), noWant:get('noWant')
+        });
+    });
+    return r;
+}
+function clearBuyerDemands() { document.getElementById('bDemandList').innerHTML = ''; bDemandId = 0; }
 
 // ── 買方三地址 ──
 var bAddrId = 0;
@@ -3975,7 +4377,7 @@ function setDriveFolder(clientId) {
     if (url === '') {
         // 清除連結
         delete c.driveFolderUrl;
-        persist(); showDet(c.id);
+        persist(); render();
         return;
     }
     // 驗證是否為 Google Drive 連結
@@ -3984,7 +4386,7 @@ function setDriveFolder(clientId) {
         return;
     }
     c.driveFolderUrl = url;
-    persist(); showDet(c.id);
+    persist(); render();
     window.open(url, '_blank');
 }
 
@@ -4407,7 +4809,7 @@ function toggleRoom(btn, room) {
     btn.classList.toggle('on');
     if (btn.classList.contains('on')) { if (!selectedRooms.includes(room)) selectedRooms.push(room); }
     else selectedRooms = selectedRooms.filter(r => r !== room);
-    document.getElementById('f-roomOther').style.display = selectedRooms.includes('其他') ? '' : 'none';
+    var _roomOther = document.getElementById('f-roomOther'); if(_roomOther) _roomOther.style.display = selectedRooms.includes('其他') ? '' : 'none';
 }
 function pickRoom(btn, room) {
     // 單選：取消其他，只選一個
@@ -4485,7 +4887,7 @@ function resetForm() {
     document.querySelectorAll('.city-btn').forEach(b=>b.classList.remove('on'));
     document.querySelectorAll('.dist-btn').forEach(b=>b.classList.remove('on'));
     document.querySelectorAll('.dist-area').forEach(el=>el.classList.remove('on'));
-    document.getElementById('f-roomOther').style.display = 'none';
+    var _roomOther2 = document.getElementById('f-roomOther'); if(_roomOther2) _roomOther2.style.display = 'none';
     document.getElementById('f-contractType').value = '';
     document.getElementById('f-parking').value = '';
     document.getElementById('f-sMgmtPeriod').value = '';
@@ -4526,13 +4928,13 @@ function resetForm() {
     selectedCity = '';
     selectedCities = [];
     selectedDists = [];
+    clearBuyerDemands();
     document.querySelectorAll('.custom-dist').forEach(function(b){ b.remove(); });
     selectedTypes = [];
     activeView = '';
     pendingRenewals = [];
     sRenewals = [];
-    document.getElementById('sRenewalHistory').style.display = 'none';
-    document.getElementById('sRenewalList').innerHTML = '';
+    document.getElementById('btnRenewalHist').style.display = 'none';
     clearBAddrs();
     clearRPersons();
     clearRoleTypes();
@@ -4600,20 +5002,22 @@ function openEdit(id, viewAs) {
     // 舊共用欄位（向下相容，仍載入隱藏欄位供清空）
     setVal('fn', ''); setVal('fp', ''); setVal('f-idNo', ''); setVal('fe', '');
     setVal('fs',c.status||'待聯絡'); setVal('flc',isoToROC(c.lastContact)); setVal('fso', ''); setVal('fnotes',c.notes);
-    // 預算：支援新格式 budgetMin/Max 和舊格式 budget "1000-1500"
-    if (c.budgetMin || c.budgetMax) {
-        setVal('f-budgetMin',c.budgetMin); setVal('f-budgetMax',c.budgetMax);
-    } else if (c.budget && c.budget.includes('-')) {
-        var bp = c.budget.split('-');
-        setVal('f-budgetMin',bp[0].trim()); setVal('f-budgetMax',bp[1].trim());
-    } else if (c.budget) {
-        setVal('f-budgetMin',c.budget);
+    // 買方需求區塊
+    if (c.bDemands && c.bDemands.length) {
+        c.bDemands.forEach(function(bd){ addBuyerDemand(bd); });
+    } else if (c.roomTypes || c.budgetMin || c.budgetMax || c.budget || c.areaDisplay || c.want || c.noWant) {
+        // 舊資料相容：從頂層欄位建立一組需求
+        var oldBd = { areaCities:c.areaCities||[], areaDists:c.areaDists||[], areaOther:c.areaOther||'', roomTypes:c.roomTypes||'', want:c.want||'', noWant:c.noWant||'', downPayment:c.downPayment||'' };
+        if (c.budgetMin || c.budgetMax) { oldBd.budgetMin=c.budgetMin||''; oldBd.budgetMax=c.budgetMax||''; }
+        else if (c.budget && c.budget.includes('-')) { var bp=c.budget.split('-'); oldBd.budgetMin=bp[0].trim(); oldBd.budgetMax=bp[1].trim(); }
+        else if (c.budget) { oldBd.budgetMin=c.budget; }
+        // areaDists 可能是逗號分隔字串（舊格式）
+        if (typeof oldBd.areaDists === 'string') oldBd.areaDists = oldBd.areaDists.split(',').filter(Boolean);
+        addBuyerDemand(oldBd);
     }
-    setVal('f-downPayment',c.downPayment);
     // f-decisionMaker 已移除
     if (c.bAddrs && c.bAddrs.length) c.bAddrs.forEach(function(a){ addBAddrRow(a); });
     else if (c.bOther) addBAddrRow({type:'其他',addr:c.bOther});
-    setVal('f-want',c.want); setVal('f-noWant',c.noWant);
     // 庫存屋主：優先用獨立欄位，向下相容舊資料（只有庫存時 name 就是屋主名字）
     // 庫存等級
     document.getElementById('f-sGrade').value = c.sGrade || '';
@@ -4655,13 +5059,7 @@ function openEdit(id, viewAs) {
     sRenewals = [];
     setVal('f-contractStart',isoToROC(c.contractStart)); setVal('f-contractEnd',isoToROC(c.contractEnd));
     if (c.sRenewals && c.sRenewals.length) {
-        var el = document.getElementById('sRenewalHistory');
-        var list = document.getElementById('sRenewalList');
-        var curEnd = document.getElementById('f-contractEnd').value;
-        el.style.display = '';
-        list.innerHTML = c.sRenewals.map(function(r) {
-            return '<span style="padding:5px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--bg)">' + isoToROC(r.oldEnd) + '</span>';
-        }).join('') + '<span style="padding:5px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--bg);font-weight:700;color:var(--deep)">' + esc(curEnd) + ' (現)</span>';
+        document.getElementById('btnRenewalHist').style.display = '';
     }
     if (c.parking) { document.getElementById('f-parking').value = c.parking; toggleParkingPrice(); setVal('f-parkingPrice',c.parkingPrice); setVal('f-parkingNo',c.parkingNo); }
     if (c.contractType) {
@@ -4786,53 +5184,7 @@ function openEdit(id, viewAs) {
     }
     applyTypePicker();
 
-    // 房型 (經營買方)
-    if (c.roomTypes) {
-        selectedRooms = c.roomTypes.split(',').filter(Boolean);
-        document.querySelectorAll('.rm-btn').forEach(btn => {
-            const room = btn.textContent.trim();
-            if (selectedRooms.includes(room)) btn.classList.add('on');
-        });
-        if (selectedRooms.includes('其他')) {
-            document.getElementById('f-roomOther').style.display = '';
-            setVal('f-roomOther', c.roomOther);
-        }
-    }
-
-    // 區域 (經營買方) — 支援多城市
-    var cities = c.areaCities || (c.areaCity ? [c.areaCity] : []);
-    if (cities.length) {
-        selectedCities = cities.slice();
-        selectedCity = cities[0];
-        cities.forEach(function(city) {
-            var cityBtn = document.getElementById('city-'+city);
-            if (cityBtn) cityBtn.classList.add('on');
-            var distArea = document.getElementById('dist-'+city);
-            if (distArea) distArea.classList.add('on');
-        });
-        if (cities.includes('其他縣市')) {
-            setVal('f-areaOther', c.areaOther);
-        }
-        if (c.areaDists) {
-            selectedDists = c.areaDists.split(',').filter(Boolean);
-            // 判斷每個區域屬於哪個城市
-            cities.forEach(function(city) {
-                if (city === '其他縣市') return;
-                var cityDistNames = (DISTRICTS[city] || []).map(function(d){ return d+'區'; });
-                var existingDists = [];
-                document.querySelectorAll('#dg-'+city+' .dist-btn').forEach(function(b){ existingDists.push(b.getAttribute('data-dist')); });
-                // 只處理屬於該城市的區域（或已儲存為該城市自訂區的）
-                var cityAreaDists = c.areaCityDists && c.areaCityDists[city] ? c.areaCityDists[city] : selectedDists.filter(function(d){ return cityDistNames.includes(d); });
-                cityAreaDists.forEach(function(d) {
-                    if (!existingDists.includes(d)) addCustomDist(city, d);
-                });
-                // 只高亮該城市的按鈕
-                document.querySelectorAll('#dg-'+city+' .dist-btn').forEach(function(btn) {
-                    if (selectedDists.includes(btn.getAttribute('data-dist'))) btn.classList.add('on');
-                });
-            });
-        }
-    }
+    // 房型和區域現在由 bDemands 區塊處理（在上方 addBuyerDemand 載入）
 
     // 載入附件
 
@@ -4934,37 +5286,17 @@ function saveClient() {
 
     const get=id=>{const el=document.getElementById(id);return el?el.value.trim():'';}
 
-    // 處理房型
-    let roomTypesStr = selectedRooms.join(',');
-    const roomOther = get('f-roomOther');
-
-    // 處理區域
-    const areaCity = selectedCities.length ? selectedCities[0] : selectedCity;
-    // 只保留有選區域的城市（其他縣市除外）
-    const areaCities = selectedCities.filter(function(city) {
-        if (city === '其他縣市') return true;
-        var hasSelected = false;
-        document.querySelectorAll('#dg-'+city+' .dist-btn.on').forEach(function(b){ if(b.getAttribute('data-dist')) hasSelected = true; });
-        return hasSelected;
-    });
-    const areaDists = selectedDists.join(',');
-    const areaOther = get('f-areaOther');
-    let areaDisplay = '';
-    if (areaCities.length) {
-        var parts = [];
-        areaCities.forEach(function(city) {
-            if (city === '其他縣市') { if (areaOther) parts.push(areaOther); return; }
-            // 從該城市的 grid 中取得已選的區域
-            var matched = [];
-            document.querySelectorAll('#dg-'+city+' .dist-btn.on').forEach(function(b){
-                var d = b.getAttribute('data-dist');
-                if (d && !b.textContent.includes('自訂')) matched.push(d);
-            });
-            if (matched.length) parts.push(city + matched.join('、'));
-        });
-        areaDisplay = parts.join('\n');
-    } else if (areaCity === '其他縣市') { areaDisplay = areaOther; }
-    else if (areaCity) areaDisplay = selectedDists.length ? areaCity + selectedDists.join('、') : areaCity;
+    // 處理買方需求（從 bDemands 區塊收集）
+    var bDemands = getBuyerDemands();
+    var bd0 = bDemands[0] || {};
+    // 向下相容：取第一組需求的值作為頂層欄位
+    let roomTypesStr = bd0.roomTypes || '';
+    const roomOther = '';
+    const areaCity = (bd0.areaCities && bd0.areaCities[0]) || '';
+    const areaCities = bd0.areaCities || [];
+    const areaDists = (bd0.areaDists || []).join(',');
+    const areaOther = bd0.areaOther || '';
+    let areaDisplay = bd0.areaDisplay || '';
 
     const data = {
         name, phone, idNo: get('f-bIdNo') || get('f-idNo'), type, types,
@@ -4975,14 +5307,15 @@ function saveClient() {
         bGrade:get('f-bGrade'),
         bName:get('f-bName'), bPhone:get('f-bPhone'), bIdNo:get('f-bIdNo'), bOccupation:get('f-bOccupation'), bBirthday:rocToISO(get('f-bBirthday')), bAddrType:get('f-bAddrType'), bZip:get('f-bZip'), bAddr:get('f-bAddr'), bBasicAddrs:getBuyerBasicAddrs(), bEmail:get('f-bEmail'), bSource:get('f-bSource'),
         bPersons: getBPersons(),
-        budgetMin:get('f-budgetMin'), budgetMax:get('f-budgetMax'), downPayment:get('f-downPayment'),
-        budget: (get('f-budgetMin')&&get('f-budgetMax')) ? get('f-budgetMin')+'-'+get('f-budgetMax') : get('f-budgetMin')||get('f-budgetMax')||'',
+        bDemands: bDemands,
+        budgetMin:bd0.budgetMin||'', budgetMax:bd0.budgetMax||'', downPayment:bd0.downPayment||'',
+        budget: bd0.budget||'',
         roomTypes:roomTypesStr, roomOther,
-        areaCity, areaCities, areaDists, areaOther, areaDisplay,
-        areaCityDists: (function(){ var m={}; areaCities.forEach(function(city){ if(city==='其他縣市')return; var cd=(DISTRICTS[city]||[]).map(function(d){return d+'區';}); var all=[]; document.querySelectorAll('#dg-'+city+' .dist-btn.on').forEach(function(b){var d=b.getAttribute('data-dist');if(d)all.push(d);}); m[city]=all; }); return m; })(),
+        areaCity, areaCities, areaDists:bd0.areaDists||[], areaOther, areaDisplay,
+        areaCityDists: (function(){ var m={}; areaCities.forEach(function(city){ if(city==='其他縣市')return; var matched=bd0.areaDists?bd0.areaDists.filter(function(d){ return (DISTRICTS[city]||[]).some(function(dd){ return dd+'區'===d; }); }):[]; m[city]=matched; }); return m; })(),
         floor:get('f-bOccupation'), decisionMaker:'', bAddrs:getBAddrs(),
         bOther: getBAddrs().map(function(a){ return (a.type?a.type+'：':'')+a.addr; }).join('、'),
-        want:get('f-want'), noWant:get('f-noWant'),
+        want:bd0.want||'', noWant:bd0.noWant||'',
         // 庫存屋主
         sGrade:get('f-sGrade'),
         sName:get('f-sName'), sPhone:get('f-sPhone'), sOccupation:get('f-sOccupation'), sEmail:get('f-sEmail'), sSource:get('f-sSource'),
@@ -5064,6 +5397,22 @@ function saveClient() {
             data.sPriceHistory = ph.sPriceHistory;
             data.sFloorPriceHistory = ph.sFloorPriceHistory;
             data.sServiceFeeHistory = ph.sServiceFeeHistory;
+            // 庫存物件開價/底價歷程
+            if (data.sProperties && old.sProperties) {
+                var now = new Date().toISOString();
+                data.sProperties.forEach(function(sp, idx) {
+                    var oldSp = old.sProperties[idx];
+                    if (!oldSp) return;
+                    if (oldSp.price && sp.price && oldSp.price !== sp.price) {
+                        sp.spPriceHistory = (sp.spPriceHistory || []).slice();
+                        sp.spPriceHistory.push({ value: oldSp.price, time: now });
+                    }
+                    if (oldSp.floorPrice && sp.floorPrice && oldSp.floorPrice !== sp.floorPrice) {
+                        sp.spFloorPriceHistory = (sp.spFloorPriceHistory || []).slice();
+                        sp.spFloorPriceHistory.push({ value: oldSp.floorPrice, time: now });
+                    }
+                });
+            }
             DB[i]={...old,...data, history: old.history};
         }
     } else {
