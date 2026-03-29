@@ -383,10 +383,14 @@
             #namePhoneIdRow > .fg:first-child { flex: 1 1 100% !important; min-width: 0 !important; }
             #namePhoneIdRow > .fg:nth-child(2), #namePhoneIdRow > .fg:nth-child(3) { flex: 1 1 calc(50% - 4px) !important; min-width: 0 !important; }
             /* 買方手機版：基本資料重排 */
-            /* 買方手機版 */
-            #bRow1 { grid-template-columns: 1fr 1fr !important; }
-            #bRow2 { grid-template-columns: 4fr 7fr !important; }
-            #bRow2 > .fg:nth-child(3) { grid-column: 1 / -1; width: calc(50% - 5px); }
+            /* 所有功能手機版基本資料統一重排 */
+            /* 第一行(3或4欄)→2欄 */
+            .type-sec > div[style*="1fr 1fr 1fr"] { grid-template-columns: 1fr 1fr !important; }
+            /* 第二行(生日+Email+來源)→生日4:Email7，來源獨立半寬 */
+            .type-sec > div[style*="2fr 5fr 2fr"],
+            .type-sec > div[style*="2fr 6fr 2fr"] { grid-template-columns: 4fr 7fr !important; }
+            .type-sec > div[style*="2fr 5fr 2fr"] > .fg:nth-child(3),
+            .type-sec > div[style*="2fr 6fr 2fr"] > .fg:nth-child(3) { grid-column: 1 / -1; width: calc(50% - 5px); }
             /* 所有地址行統一：類型+郵遞區號合計=姓名寬度(半寬)，地址+按鈕同列 */
             [data-addr-row] { grid-template-columns: 1fr 1fr 1fr 1fr auto !important; gap: 6px !important; }
             [data-addr-row] > .fg:nth-child(1) { grid-column: 1 / 2; }
@@ -400,6 +404,9 @@
             .person-block > div[style*="2fr 6fr 2fr"] { grid-template-columns: 4fr 7fr !important; }
             .person-block > div[style*="2fr 5fr 2fr"] > .fg:nth-child(3),
             .person-block > div[style*="2fr 6fr 2fr"] > .fg:nth-child(3) { grid-column: 1 / -1; width: calc(50% - 5px); }
+            .person-block [data-addr-row] > .fg:nth-child(1) { grid-column: 1 / 2; }
+            .person-block [data-addr-row] > .fg:nth-child(2) { grid-column: 2 / 3; }
+            .person-block [data-addr-row] > .fg:nth-child(3) { grid-column: 1 / 5; }
 
             /* 標題列隱藏，改用 placeholder */
             .c-row:has(> span:first-child) { display: none !important; }
@@ -428,6 +435,8 @@
             /* 房型需求：每排 4 個 */
             .room-picker { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 6px !important; }
             .room-picker .rm-btn { width: 100% !important; text-align: center; padding: 8px 4px !important; }
+            .dist-grid { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 6px !important; }
+            .dist-grid .dist-btn { width: 100% !important; text-align: center; padding: 8px 4px !important; font-size: 13px !important; }
 
             /* 附屬設備改三欄 */
             .equip-item { width: calc(50% - 6px) !important; }
