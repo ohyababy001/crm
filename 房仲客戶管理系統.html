@@ -3334,7 +3334,7 @@ function applyTypePicker() {
     document.getElementById('namePhoneIdRow').classList.add('hidden');
     document.getElementById('emailSourceRow').classList.add('hidden');
     // 租案管理：顯示子頁籤
-    if (isRental) switchRentalTab(activeRentalTab);
+    if (activeView === '租案管理') switchRentalTab(activeRentalTab);
     // 自動帶入基本資料
     syncBasicInfo();
     // 更新左右切換導覽（依當前標籤篩選）
