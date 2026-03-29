@@ -2784,8 +2784,7 @@ function typeDetail(c) {
         rows.push(dRow('來源',c.rSource));
         rows.push(dRow('房東條件', [c.rSubsidy?'租補':'',c.rSocialHouse?'社宅':'',c.rRegister?'設籍':'',c.rTax?'報稅':'',c.rPet?'寵物':'',c.rAltar?'神桌':'',c.rGoodCitizen?'良民':''].filter(Boolean).join('、')));
         rows.push(dRow('租客條件', [c.rSubsidy2?'租補':'',c.rSocialHouse2?'社宅':'',c.rRegister2?'設籍':'',c.rTax2?'報稅':'',c.rPet2?'寵物':'',c.rAltar2?'神桌':'',c.rGoodCitizen2?'良民':''].filter(Boolean).join('、')));
-        if (c.rEquipment && Object.keys(c.rEquipment).length) rows.push(dRow('附屬設備', Object.keys(c.rEquipment).map(function(k){ return k+' '+c.rEquipment[k]; }).join('、')));
-        // 物件資料區塊
+        // 物件資料區塊（附屬設備在各物件內顯示）
         function _renderRpBlock(rp) {
             var h = '';
             h += dRow('社區大樓',rp.rCommunity||'');
@@ -2798,6 +2797,7 @@ function typeDetail(c) {
             else if (mgT.trim()) h+=dRow('管理費',mgT);
             h += dRow('車位',rp.rParking||'');
             h += dRow('車位編號',rp.rParkingNo||'');
+            if (rp.rEquipment && Object.keys(rp.rEquipment).length) h += dRow('附屬設備', Object.keys(rp.rEquipment).map(function(k){ return k+' '+rp.rEquipment[k]; }).join('、'));
             h += dRow('起租日',isoToROC(rp.rStartDate||''));
             h += dRow('到期日',isoToROC(rp.rEndDate||''));
             if (rp.rpRenewals && rp.rpRenewals.length) {
@@ -4099,7 +4099,7 @@ function addRentalProperty(data) {
             '<div style="flex:1;min-width:70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">汽車</label><div class="input-grp"><input data-f="mgmtCar" value="'+esc(d.rMgmtCar||'')+'" style="min-width:0;flex:1" oninput="calcRpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
             '<div style="flex:1;min-width:70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">機車</label><div class="input-grp"><input data-f="mgmtMoto" value="'+esc(d.rMgmtMoto||'')+'" style="min-width:0;flex:1" oninput="calcRpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
             '<div style="flex:1;min-width:70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">其他</label><div class="input-grp"><input data-f="mgmtOther" value="'+esc(d.rMgmtOther||'')+'" style="min-width:0;flex:1" oninput="calcRpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
-            '<div style="flex:1;min-width:70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">合計</label><div data-f="mgmtTotal" style="padding:7px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE8E0;color:#5C4A32;text-align:center">0 元</div></div>' +
+            '<div style="flex:1;min-width:70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">合計</label><div data-f="mgmtTotal" style="padding:8px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE8E0;color:#5C4A32;text-align:center">0 元</div></div>' +
         '</div>' +
         // 起租日+到期日+續約+歷程
         '<div class="sp-contract-row" style="display:grid;grid-template-columns:3fr 3fr auto auto;gap:8px;align-items:end">' +
@@ -4108,14 +4108,115 @@ function addRentalProperty(data) {
             '<button type="button" class="bf-chip" onclick="renewRpContract(this)" style="padding:10px 14px;font-size:14px;text-align:center;white-space:nowrap">續約</button>' +
             '<button type="button" class="bf-chip" onclick="showRpRenewalHistory(this)" style="padding:10px 14px;font-size:13px;background:#F5F0EB;color:#4A7A4A;border:1px solid #D6CFC7;white-space:nowrap">📋 歷程</button>' +
         '</div>' +
+        // 附屬設備
+        '<div class="rp-equip-toggle equip-toggle" style="margin-top:8px" onclick="var b=this.nextElementSibling;b.classList.toggle(\'on\');this.querySelector(\'span:last-child\').textContent=b.classList.contains(\'on\')?\'▼\':\'▶\'">' +
+            '<span>📋 附屬設備清單</span><span>▶</span>' +
+        '</div>' +
+        '<div class="equip-body rp-equip-body">' +
+            buildRpEquipHtml(d.rEquipment) +
+            '<div class="rp-equip-custom" style="margin-top:4px;width:calc(33.3% - 3px);display:flex;flex-direction:column;gap:4px"></div>' +
+            '<button type="button" class="add-row-btn" onclick="addRpCustomEquip(this)" style="margin-top:4px">＋ 新增其他</button>' +
+        '</div>' +
     '</div>';
     document.getElementById('rPropertyList').insertAdjacentHTML('beforeend', html);
     var block = document.getElementById(pid);
     if (block) {
         block._rpRenewals = d.rpRenewals || [];
         calcRpMgmt(block.querySelector('[data-f="mgmtBuilding"]'));
+        // 載入自訂設備
+        if (d.rEquipment) loadRpCustomEquips(block, d.rEquipment);
     }
 }
+// 附屬設備（per block）
+var EQUIP_CATS = {
+    '家具': [['電視','臺'],['電視櫃','個'],['沙發','組'],['茶几','個'],['餐桌','張'],['餐桌椅','張'],['鞋櫃','個'],['窗簾','組'],['床組','個'],['床墊','張'],['衣櫃','個'],['書桌','張'],['書桌椅','張'],['書櫃','個']],
+    '家電': [['冷氣','臺'],['冰箱','臺'],['洗衣機','臺'],['浴室暖風機','臺']],
+    '廚房': [['流理台','座'],['瓦斯爐','臺'],['IH爐','臺'],['排油煙機','臺'],['烘碗機','臺'],['微波爐','臺'],['洗碗機','臺'],['熱水器','臺']],
+    '鑰匙 / 遙控器': [['鑰匙','把'],['磁扣(卡)','個'],['信箱鑰匙','把'],['電視遙控器','支'],['冷氣遙控器','支'],['車道遙控器','副']]
+};
+function buildRpEquipHtml(equipData) {
+    var ed = equipData || {};
+    var html = '';
+    Object.keys(EQUIP_CATS).forEach(function(cat) {
+        html += '<div class="equip-cat">'+cat+'</div><div class="equip-grid">';
+        // 先排已勾選的，再排未勾選的
+        var checked = [], unchecked = [];
+        EQUIP_CATS[cat].forEach(function(item) {
+            if (ed[item[0]] !== undefined) checked.push(item);
+            else unchecked.push(item);
+        });
+        checked.concat(unchecked).forEach(function(item) {
+            var name = item[0], unit = item[1];
+            var isChecked = ed[name] !== undefined;
+            html += '<div class="equip-item"><input type="checkbox" data-eq-name="'+esc(name)+'"'+(isChecked?' checked':'')+' onchange="sortRpEquipCat(this)"><span>'+esc(name)+'</span><input type="number" min="0" value="'+(isChecked?ed[name]:'')+'" placeholder="" style="width:28px"><span style="color:var(--muted);font-size:11px">'+esc(unit)+'</span></div>';
+        });
+        html += '</div>';
+    });
+    return html;
+}
+function sortRpEquipCat(chk) {
+    var grid = chk.closest('.equip-grid'); if (!grid) return;
+    var items = Array.from(grid.querySelectorAll('.equip-item'));
+    items.sort(function(a, b) {
+        var ac = a.querySelector('input[type="checkbox"]').checked ? 0 : 1;
+        var bc = b.querySelector('input[type="checkbox"]').checked ? 0 : 1;
+        return ac - bc;
+    });
+    items.forEach(function(item) { grid.appendChild(item); });
+}
+function addRpCustomEquip(btn) {
+    var block = btn.closest('.person-block'); if (!block) return;
+    var list = block.querySelector('.rp-equip-custom'); if (!list) return;
+    // 第一筆時加標題列
+    if (!list.querySelector('.c-row')) {
+        list.insertAdjacentHTML('beforeend', '<div style="display:flex;gap:4px;align-items:center;font-size:11px;color:var(--muted);padding:2px 0"><span style="width:13px;flex-shrink:0"></span><span style="flex:1;padding-left:6px">項目</span><span style="width:36px;text-align:center;flex-shrink:0">數量</span><span style="width:28px;text-align:center">量詞</span><span style="width:16px"></span></div>');
+    }
+    var html = '<div class="c-row">' +
+        '<input type="checkbox" style="width:13px;height:13px;accent-color:var(--wood);flex-shrink:0">' +
+        '<input type="text" style="flex:1;min-width:0;padding:3px 6px;font-size:12px" placeholder="">' +
+        '<input type="number" min="0" value="" style="width:36px;min-width:36px;flex-shrink:0;padding:3px 2px;border:1px solid var(--border);border-radius:4px;font-size:11px;text-align:center">' +
+        '<input type="text" style="width:28px;min-width:0;padding:3px 4px;font-size:11px" placeholder="">' +
+        '<button type="button" class="c-del" onclick="this.parentElement.remove()" style="font-size:11px">✕</button></div>';
+    list.insertAdjacentHTML('beforeend', html);
+}
+function loadRpCustomEquips(block, equipData) {
+    if (!equipData) return;
+    var presetNames = [];
+    Object.keys(EQUIP_CATS).forEach(function(cat){ EQUIP_CATS[cat].forEach(function(item){ presetNames.push(item[0]); }); });
+    var list = block.querySelector('.rp-equip-custom'); if (!list) return;
+    var customItems = Object.keys(equipData).filter(function(name){ return !presetNames.includes(name); });
+    if (customItems.length) {
+        list.insertAdjacentHTML('beforeend', '<div style="display:flex;gap:4px;align-items:center;font-size:11px;color:var(--muted);padding:2px 0"><span style="width:13px;flex-shrink:0"></span><span style="flex:1;padding-left:6px">項目</span><span style="width:36px;text-align:center;flex-shrink:0">數量</span><span style="width:28px;text-align:center">量詞</span><span style="width:16px"></span></div>');
+        customItems.forEach(function(name) {
+            var html = '<div class="c-row">' +
+                '<input type="checkbox" style="width:13px;height:13px;accent-color:var(--wood);flex-shrink:0" checked>' +
+                '<input type="text" style="flex:1;min-width:0;padding:3px 6px;font-size:12px" value="'+esc(name)+'">' +
+                '<input type="number" min="0" value="'+equipData[name]+'" style="width:36px;min-width:36px;flex-shrink:0;padding:3px 2px;border:1px solid var(--border);border-radius:4px;font-size:11px;text-align:center">' +
+                '<input type="text" style="width:28px;min-width:0;padding:3px 4px;font-size:11px" value="">' +
+                '<button type="button" class="c-del" onclick="this.parentElement.remove()" style="font-size:11px">✕</button></div>';
+            list.insertAdjacentHTML('beforeend', html);
+        });
+    }
+}
+function getRpEquipData(block) {
+    var result = {};
+    block.querySelectorAll('.equip-item').forEach(function(item) {
+        var chk = item.querySelector('input[type="checkbox"]');
+        var name = chk ? chk.getAttribute('data-eq-name') : '';
+        var num = item.querySelector('input[type="number"]');
+        if (chk && chk.checked && name) result[name] = parseInt(num.value) || 1;
+    });
+    // 自訂設備
+    block.querySelectorAll('.rp-equip-custom .c-row').forEach(function(row) {
+        var chk = row.querySelector('input[type="checkbox"]');
+        var inputs = row.querySelectorAll('input[type="text"]');
+        var numInput = row.querySelector('input[type="number"]');
+        var name = inputs[0] ? inputs[0].value.trim() : '';
+        if (chk && chk.checked && name) result[name] = parseInt(numInput.value) || 1;
+    });
+    return result;
+}
+
 function calcRpMgmt(el) {
     var block = el.closest('.person-block'); if (!block) return;
     var get = function(f){ var e=block.querySelector('[data-f="'+f+'"]'); return parseFloat(e?e.value:'')||0; };
@@ -4196,7 +4297,7 @@ function getRentalProperties() {
     document.querySelectorAll('#rPropertyList .person-block').forEach(function(block) {
         var get = function(f){ var el=block.querySelector('[data-f="'+f+'"]'); return el?el.value.trim():''; };
         if (get('community') || get('addr') || get('rent')) {
-            r.push({ rCommunity:get('community'), rAddr:get('addr'), rent:get('rent'), rRentPeriod:get('rentPeriod'), rSz:get('sz'), rParking:get('parking'), rParkingNo:get('parkingNo'), rMgmtType:get('mgmtType'), rMgmtBuilding:get('mgmtBuilding'), rMgmtCar:get('mgmtCar'), rMgmtMoto:get('mgmtMoto'), rMgmtOther:get('mgmtOther'), rStartDate:rocToISO(get('startDate')), rEndDate:rocToISO(get('endDate')), rpRenewals: block._rpRenewals || [] });
+            r.push({ rCommunity:get('community'), rAddr:get('addr'), rent:get('rent'), rRentPeriod:get('rentPeriod'), rSz:get('sz'), rParking:get('parking'), rParkingNo:get('parkingNo'), rMgmtType:get('mgmtType'), rMgmtBuilding:get('mgmtBuilding'), rMgmtCar:get('mgmtCar'), rMgmtMoto:get('mgmtMoto'), rMgmtOther:get('mgmtOther'), rStartDate:rocToISO(get('startDate')), rEndDate:rocToISO(get('endDate')), rpRenewals: block._rpRenewals || [], rEquipment: getRpEquipData(block) });
         }
     });
     return r;
@@ -5186,14 +5287,14 @@ function openEdit(id, viewAs) {
     // activeRentalTab 已在 applyTypePicker 之前設定
     var rentalOnly = hasType(c,'租案管理') && !hasType(c,'經營買方');
     setVal('f-rSource',c.rSource || (rentalOnly ? c.source : ''));
-    loadEquipData(c.rEquipment);
+    // rEquipment 現在由 rProperties 區塊處理
     if (hasType(c,'租案管理')) loadRoleTypes(c);
     // 租案物件資料區塊
     if (c.rProperties && c.rProperties.length) {
         c.rProperties.forEach(function(rp){ addRentalProperty(rp); });
     } else if (c.rCommunity || c.rAddr || c.rent) {
         // 舊資料相容：從頂層欄位建立一組物件
-        var oldRp = { rCommunity:c.rCommunity||'', rAddr:c.rAddr||'', rent:c.rent||'', rRentPeriod:c.rRentPeriod||'月繳', rSz:c.rSz||'', rParking:c.rParking||'', rParkingNo:c.rParkingNo||'', rMgmtType:c.rMgmtType||'', rMgmtBuilding:c.rMgmtBuilding||(c.rMgmtFee&&!c.rMgmtBuilding?c.rMgmtFee:''), rMgmtCar:c.rMgmtCar||'', rMgmtMoto:c.rMgmtMoto||'', rMgmtOther:c.rMgmtOther||'', rStartDate:c.rStartDate||'', rEndDate:c.rEndDate||'', rpRenewals:c.renewals||[] };
+        var oldRp = { rCommunity:c.rCommunity||'', rAddr:c.rAddr||'', rent:c.rent||'', rRentPeriod:c.rRentPeriod||'月繳', rSz:c.rSz||'', rParking:c.rParking||'', rParkingNo:c.rParkingNo||'', rMgmtType:c.rMgmtType||'', rMgmtBuilding:c.rMgmtBuilding||(c.rMgmtFee&&!c.rMgmtBuilding?c.rMgmtFee:''), rMgmtCar:c.rMgmtCar||'', rMgmtMoto:c.rMgmtMoto||'', rMgmtOther:c.rMgmtOther||'', rStartDate:c.rStartDate||'', rEndDate:c.rEndDate||'', rpRenewals:c.renewals||[], rEquipment:c.rEquipment||{} };
         addRentalProperty(oldRp);
     }
     document.getElementById('f-rSubsidy').checked = !!c.rSubsidy;
@@ -5428,7 +5529,7 @@ function saveClient() {
         rTenant:get('f-ttName'), rTenantPhone:get('f-ttPhone'),
         rSource:get('f-rSource'),
         rLandlordTypes:rLandlordTypes.slice(), rTenantTypes:rTenantTypes.slice(),
-        rEquipment:getEquipData(),
+        rEquipment:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rEquipment:{}; })(),
         rProperties: getRentalProperties(),
         rSubsidy:document.getElementById('f-rSubsidy').checked,
         rSocialHouse:document.getElementById('f-rSocialHouse').checked,
