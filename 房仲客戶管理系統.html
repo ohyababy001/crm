@@ -1112,11 +1112,15 @@
 
             <!-- 成交 -->
             <div class="type-sec" id="s-成交客戶">
-                <div class="sec-title" style="margin-top:4px">聯絡人</div>
-                <div id="cContactHeader"></div>
-                <div id="cContactList"></div>
-                <div style="display:flex;gap:8px;align-items:center"><button type="button" class="add-row-btn" onclick="addCContactRow()">＋ 新增聯絡人</button><button type="button" class="btn-fill" onclick="showFillMenu(this,'closed')">帶入</button></div>
-                <div class="fg" style="margin-top:8px"><label>客戶來源</label><input id="f-cSource" placeholder=""></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px;margin-top:4px">
+                    <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'closed')">帶入</button></label><input id="f-cName" placeholder=""></div>
+                    <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-cPhone" placeholder="" onblur="autoPhone(this)"></div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px">
+                    <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-cIdNo" placeholder=""></div>
+                    <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-cBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
+                </div>
+                <div class="fg" style="margin-bottom:10px"><label>客戶來源</label><input id="f-cSource" placeholder=""></div>
 
                 <div class="c-row c-row-header" style="margin-top:6px;margin-bottom:2px">
                     <span style="width:70px;font-size:13px;color:var(--text);font-weight:600;padding-left:4px">類型</span>
@@ -1134,15 +1138,14 @@
 
             <!-- 商機募集 -->
             <div class="type-sec" id="s-商機募集">
-                <div class="c-row" style="margin-bottom:2px;margin-top:4px">
-                    <span style="flex:1;font-size:13px;color:var(--text);font-weight:600;min-width:0;padding-left:11px">姓名</span>
-                    <span style="flex:1;font-size:13px;color:var(--text);font-weight:600;min-width:0;padding-left:11px">電話</span>
-                    <span style="flex:1;font-size:13px;color:var(--text);font-weight:600;min-width:0;padding-left:11px">身份證字號</span>
-                    <span style="width:22px"></span>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px;margin-top:4px">
+                    <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'dev')">帶入</button></label><input id="f-dName" placeholder=""></div>
+                    <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-dPhone" placeholder="" onblur="autoPhone(this)"></div>
                 </div>
-                <div id="dPersonList"></div>
-                <div style="display:flex;gap:8px;align-items:center"><button type="button" class="add-row-btn" onclick="addDPersonRow()">＋ 新增屋主</button><button type="button" class="btn-fill" onclick="showFillMenu(this,'dev')">帶入</button></div>
-                <div class="fg" style="margin-top:8px"><label>客戶來源</label><input id="f-dSource" placeholder=""></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px">
+                    <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-dIdNo" placeholder=""></div>
+                    <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-dSource" placeholder=""></div>
+                </div>
                 <div class="c-row" style="margin-bottom:2px;margin-top:10px">
                     <span style="flex:0 0 70px;font-size:13px;color:var(--text);font-weight:600;padding-left:4px">類別</span>
                     <span style="flex:0 0 110px;font-size:13px;color:var(--text);font-weight:600;padding-left:11px">社區大樓</span>
@@ -3387,20 +3390,16 @@ function collectPersonSources(excludeTarget) {
     }
     // 成交
     if (excludeTarget !== 'closed') {
-        document.querySelectorAll('#cContactList .c-row').forEach(function(row) {
-            var inputs = row.querySelectorAll('input');
-            var n = inputs[0].value.trim();
-            var bd = row.querySelector('.roc-date-wrap input');
-            if (n) sources.push({name:n, phone:inputs[1]?inputs[1].value.trim():'', idNo:inputs[2]?inputs[2].value.trim():'', birthday:bd?bd.value.trim():'', src:'成交'});
-        });
+        var cn = document.getElementById('f-cName').value.trim();
+        var cp = document.getElementById('f-cPhone').value.trim();
+        var cbd = document.getElementById('f-cBirthday').value.trim();
+        if (cn) sources.push({name:cn, phone:cp, idNo:document.getElementById('f-cIdNo').value.trim(), birthday:cbd, src:'成交'});
     }
     // 商機
     if (excludeTarget !== 'dev') {
-        document.querySelectorAll('#dPersonList .c-row').forEach(function(row) {
-            var inputs = row.querySelectorAll('input');
-            var n = inputs[0].value.trim();
-            if (n) sources.push({name:n, phone:inputs[1]?inputs[1].value.trim():'', idNo:inputs[2]?inputs[2].value.trim():'', birthday:'', src:'商機'});
-        });
+        var dn = document.getElementById('f-dName').value.trim();
+        var dp = document.getElementById('f-dPhone').value.trim();
+        if (dn) sources.push({name:dn, phone:dp, idNo:document.getElementById('f-dIdNo').value.trim(), birthday:'', src:'商機'});
     }
     return sources;
 }
@@ -3451,13 +3450,16 @@ function applyFill(target, s) {
         if (!row) { addRPersonRow('rTenantList','租客',{name:s.name,phone:s.phone,idNo:s.idNo}); }
         else { var inputs = row.querySelectorAll('input'); inputs[0].value=s.name; inputs[1].value=s.phone; if(inputs[2]&&s.idNo) inputs[2].value=s.idNo; }
     } else if (target === 'closed') {
-        var row = document.querySelector('#cContactList .c-row');
-        if (!row) { addCContactRow({name:s.name,phone:s.phone,idNo:s.idNo,birthday:s.birthday?rocToISO(s.birthday):''}); }
-        else { var inputs = row.querySelectorAll('input'); inputs[0].value=s.name; inputs[1].value=s.phone; if(inputs[2]&&s.idNo) inputs[2].value=s.idNo; var bd=row.querySelector('.roc-date-wrap input'); if(bd&&s.birthday) bd.value=s.birthday; }
+        var cn = document.getElementById('f-cName'), cp = document.getElementById('f-cPhone'), ci = document.getElementById('f-cIdNo'), cb = document.getElementById('f-cBirthday');
+        if (cn) cn.value = s.name;
+        if (cp) cp.value = s.phone;
+        if (ci && s.idNo) ci.value = s.idNo;
+        if (cb && s.birthday) cb.value = s.birthday;
     } else if (target === 'dev') {
-        var row = document.querySelector('#dPersonList .c-row');
-        if (!row) { addDPersonRow({name:s.name,phone:s.phone,idNo:s.idNo}); }
-        else { var inputs = row.querySelectorAll('input'); inputs[0].value=s.name; inputs[1].value=s.phone; if(inputs[2]&&s.idNo) inputs[2].value=s.idNo; }
+        var dn = document.getElementById('f-dName'), dp = document.getElementById('f-dPhone'), di = document.getElementById('f-dIdNo');
+        if (dn) dn.value = s.name;
+        if (dp) dp.value = s.phone;
+        if (di && s.idNo) di.value = s.idNo;
     }
 }
 
@@ -3509,7 +3511,9 @@ const SIMPLE_FIELDS = ['fn','fp','f-idNo','fe','fs','flc','fso','fnotes',
     'f-budgetMin','f-budgetMax','f-downPayment','f-floor','f-decisionMaker','f-want','f-noWant','f-roomOther','f-areaOther',
     'f-sName','f-sPhone','f-sIdNo','f-sBirthday','f-sOwnerAddr','f-sEmail','f-sSource',
     'f-community','f-sAddr','f-sPrice','f-sFloorPrice','f-sServiceFee','f-sLandSz','f-sSz','f-layout','f-sMgmtBuilding','f-sMgmtCar','f-sMgmtMoto','f-sMgmtOther','f-parkingPrice','f-parkingNo','f-contractStart','f-contractEnd',
-    'f-rSource','f-cSource','f-dSource',
+    'f-cName','f-cPhone','f-cIdNo','f-cBirthday','f-cSource',
+    'f-dName','f-dPhone','f-dIdNo','f-dSource',
+    'f-rSource',
     'f-rCommunity','f-rAddr','f-rent','f-rSz','f-rMgmtBuilding','f-rMgmtCar','f-rMgmtMoto','f-rMgmtOther','f-rParkingNo','f-rStartDate','f-rEndDate',
     ];
 
@@ -3684,8 +3688,15 @@ function openEdit(id, viewAs) {
     if (c.rParking) { document.getElementById('f-rParking').value = c.rParking; toggleRParkingNo(); setVal('f-rParkingNo',c.rParkingNo); }
     // 成交客戶
     var closedOnly = hasType(c,'成交客戶') && !hasType(c,'經營買方');
+    // 優先用新欄位，向下相容舊 cContacts[0] 或 c.name
+    var cFirst = (c.cContacts && c.cContacts[0]) || {};
+    setVal('f-cName', c.cName || cFirst.name || (closedOnly ? c.name : ''));
+    setVal('f-cPhone', c.cPhone || cFirst.phone || (closedOnly ? c.phone : ''));
+    setVal('f-cIdNo', c.cIdNo || cFirst.idNo || '');
+    setVal('f-cBirthday', c.cBirthday ? isoToROC(c.cBirthday) : (cFirst.birthday ? isoToROC(cFirst.birthday) : ''));
     setVal('f-cSource', c.cSource || (closedOnly ? c.source : ''));
-    if (c.cContacts && c.cContacts.length) c.cContacts.forEach(function(ct){ addCContactRow(ct); });
+    // 額外聯絡人（跳過第一筆，已載入固定欄位）
+    if (c.cContacts && c.cContacts.length > 1) c.cContacts.slice(1).forEach(function(ct){ addCContactRow(ct); });
     if (c.cAddrs && c.cAddrs.length) c.cAddrs.forEach(function(a){ addCAddrRow(a); });
     if (c.deals && c.deals.length) {
         c.deals.forEach(function(d) { addDealRow(d); });
@@ -3694,8 +3705,14 @@ function openEdit(id, viewAs) {
     }
     // 商機募集
     var devOnly = hasType(c,'商機募集') && !hasType(c,'經營買方');
+    // 優先用新欄位，向下相容舊 dPersons[0] 或 c.name
+    var dFirst = (c.dPersons && c.dPersons[0]) || {};
+    setVal('f-dName', c.dName || dFirst.name || (devOnly ? c.name : ''));
+    setVal('f-dPhone', c.dPhone || dFirst.phone || (devOnly ? c.phone : ''));
+    setVal('f-dIdNo', c.dIdNo || dFirst.idNo || '');
     setVal('f-dSource', c.dSource || (devOnly ? c.source : ''));
-    if (c.dPersons && c.dPersons.length) c.dPersons.forEach(function(p){ addDPersonRow(p); });
+    // 額外屋主（跳過第一筆，已載入固定欄位）
+    if (c.dPersons && c.dPersons.length > 1) c.dPersons.slice(1).forEach(function(p){ addDPersonRow(p); });
     if (c.dAddrs && c.dAddrs.length) c.dAddrs.forEach(function(a){ addDAddrRow(a); });
     else if (c.dCommunity || c.dAddr) addDAddrRow({devType:c.devType||'出售', community:c.dCommunity, addr:c.dAddr});
     if (c.schedules && c.schedules.length) c.schedules.forEach(function(s){ addScheduleRow(s); });
@@ -3822,8 +3839,8 @@ function saveClient() {
     const onlySpecial = types.every(function(t){ return t==='租案管理'||t==='成交客戶'||t==='庫存屋主'||t==='商機募集'; });
     var name, phone;
     if (onlySpecial && isClosed) {
-        var cContacts = getCContacts();
-        name = (cContacts[0]||{}).name || ''; phone = (cContacts[0]||{}).phone || '';
+        name = document.getElementById('f-cName').value.trim();
+        phone = document.getElementById('f-cPhone').value.trim();
     } else if (onlySpecial && isSeller) {
         name = document.getElementById('f-sName').value.trim();
         phone = document.getElementById('f-sPhone').value.trim();
@@ -3832,8 +3849,8 @@ function saveClient() {
         name = (ll[0]||{}).name || (tt[0]||{}).name || '';
         phone = (ll[0]||{}).phone || (tt[0]||{}).phone || '';
     } else if (onlySpecial && isDev) {
-        var dp = getDPersons();
-        name = (dp[0]||{}).name || ''; phone = (dp[0]||{}).phone || '';
+        name = document.getElementById('f-dName').value.trim();
+        phone = document.getElementById('f-dPhone').value.trim();
     } else {
         name = document.getElementById('fn').value.trim();
         phone = document.getElementById('fp').value.trim();
@@ -3911,13 +3928,15 @@ function saveClient() {
         rStartDate:rocToISO(get('f-rStartDate')), rEndDate:rocToISO(get('f-rEndDate')),
         renewals: (function(){ var existing = editId ? (DB.find(function(x){return x.id===editId;})||{}).renewals || [] : []; return existing.concat(pendingRenewals); })(),
         // 成交
+        cName:get('f-cName'), cPhone:get('f-cPhone'), cIdNo:get('f-cIdNo'), cBirthday:rocToISO(get('f-cBirthday')),
         cSource:get('f-cSource'),
-        cContacts: isClosed ? getCContacts() : [],
+        cContacts: (function(){ var arr=[]; if(get('f-cName')||get('f-cPhone')) arr.push({name:get('f-cName'),phone:get('f-cPhone'),idNo:get('f-cIdNo'),birthday:rocToISO(get('f-cBirthday'))}); return arr.concat(isClosed?getCContacts():[]); })(),
         cAddrs: isClosed ? getCAddrs() : [],
         deals: getDeals(),
         // 商機募集
+        dName:get('f-dName'), dPhone:get('f-dPhone'), dIdNo:get('f-dIdNo'),
         dSource:get('f-dSource'),
-        dPersons:getDPersons(), dAddrs:getDAddrs(),
+        dPersons: (function(){ var arr=[]; if(get('f-dName')||get('f-dPhone')) arr.push({name:get('f-dName'),phone:get('f-dPhone'),idNo:get('f-dIdNo')}); return arr.concat(getDPersons()); })(), dAddrs:getDAddrs(),
         devType: (function(){ var types=[]; getDAddrs().forEach(function(a){ if(a.devType&&types.indexOf(a.devType)<0) types.push(a.devType); }); return types.join('、'); })(),
         dCommunity:(getDAddrs()[0]||{}).community||'', dAddr:(getDAddrs()[0]||{}).addr||'',
         schedules:getSchedules(),
