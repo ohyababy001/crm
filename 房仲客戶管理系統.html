@@ -2674,6 +2674,7 @@ function dRow(k,v){ return v?`<div class="det-row"><span class="det-key">${k}</s
 
 function typeDetail(c) {
     if (c.type==='經營買方') return [
+        (c.bGrade ? `<div class="det-row"><span class="det-key">客戶等級</span><span class="det-val"><span class="tag grade-tag-${c.bGrade.toLowerCase()}" style="font-size:14px;padding:3px 12px">${c.bGrade}級</span></span></div>` : ''),
         (c.areaDisplay ? `<div class="det-row"><span class="det-key">需求區域</span><span class="det-val" style="white-space:pre-line">${esc(c.areaDisplay)}</span></div>` : ''),
         dRow('房型需求',c.roomTypes),
         dRow('預算', c.budget ? c.budget + (c.budget.includes('萬') ? '' : '萬') : ''),
@@ -2685,6 +2686,7 @@ function typeDetail(c) {
     ].join('');
     if (c.type==='庫存屋主') {
         var rows = [
+            (c.sGrade ? `<div class="det-row"><span class="det-key">客戶等級</span><span class="det-val"><span class="tag grade-tag-${c.sGrade.toLowerCase()}" style="font-size:14px;padding:3px 12px">${c.sGrade}級</span></span></div>` : ''),
             dRow('身份證字號',c.sIdNo), dRow('生日',isoToROC(c.sBirthday)), dRow('地址',c.sOwnerAddr),
             dRow('約種',c.contractType), dRow('社區大樓',c.community), dRow('物件地址',c.sAddr),
             dRow('開價', c.sPrice ? c.sPrice+(c.sPrice.includes('萬')?'':'萬') : ''),
