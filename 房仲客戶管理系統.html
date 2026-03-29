@@ -4027,52 +4027,36 @@ function syncBasicInfo() {
 // ── 帶入功能 ──
 function collectPersonSources(excludeTarget) {
     var sources = [];
+    function _gv(id){ var el=document.getElementById(id); return el?el.value.trim():''; }
     // 買方
     if (excludeTarget !== 'buyer') {
-        var bn = document.getElementById('f-bName').value.trim();
-        var bp = document.getElementById('f-bPhone').value.trim();
-        if (bn) sources.push({name:bn, phone:bp, idNo:document.getElementById('f-bIdNo').value.trim(), birthday:document.getElementById('f-bBirthday').value.trim(), src:'買方'});
+        var bn = _gv('f-bName');
+        if (bn) sources.push({name:bn, phone:_gv('f-bPhone'), idNo:_gv('f-bIdNo'), occupation:_gv('f-bOccupation'), birthday:_gv('f-bBirthday'), email:_gv('f-bEmail'), source:_gv('f-bSource'), addrType:_gv('f-bAddrType'), zip:_gv('f-bZip'), addr:_gv('f-bAddr'), src:'買方'});
     }
     // 庫存
     if (excludeTarget !== 'seller') {
-        var sn = document.getElementById('f-sName').value.trim();
-        var sp = document.getElementById('f-sPhone').value.trim();
-        if (sn) sources.push({name:sn, phone:sp, idNo:document.getElementById('f-sIdNo').value.trim(), birthday:document.getElementById('f-sBirthday').value.trim(), src:'庫存'});
+        var sn = _gv('f-sName');
+        if (sn) sources.push({name:sn, phone:_gv('f-sPhone'), idNo:_gv('f-sIdNo'), occupation:'', birthday:_gv('f-sBirthday'), email:_gv('f-sEmail'), source:_gv('f-sSource'), addrType:_gv('f-sAddrType'), zip:_gv('f-sZip'), addr:_gv('f-sOwnerAddr'), src:'庫存'});
     }
     // 房東
     if (excludeTarget !== 'landlord') {
-        var lln = document.getElementById('f-llName').value.trim();
-        var llp = document.getElementById('f-llPhone').value.trim();
-        if (lln) sources.push({name:lln, phone:llp, idNo:document.getElementById('f-llIdNo').value.trim(), birthday:document.getElementById('f-llBirthday').value.trim(), src:'房東'});
-        document.querySelectorAll('#rLandlordList .c-row').forEach(function(row) {
-            var inputs = row.querySelectorAll('input');
-            var n = inputs[0].value.trim();
-            if (n) sources.push({name:n, phone:inputs[1]?inputs[1].value.trim():'', idNo:inputs[2]?inputs[2].value.trim():'', birthday:'', src:'房東'});
-        });
+        var lln = _gv('f-llName');
+        if (lln) sources.push({name:lln, phone:_gv('f-llPhone'), idNo:_gv('f-llIdNo'), occupation:_gv('f-llOccupation'), birthday:_gv('f-llBirthday'), email:_gv('f-llEmail'), source:_gv('f-llSource'), addrType:_gv('f-llAddrType'), zip:_gv('f-llZip'), addr:_gv('f-llAddr'), src:'房東'});
     }
     // 租客
     if (excludeTarget !== 'tenant') {
-        var ttn = document.getElementById('f-ttName').value.trim();
-        var ttp = document.getElementById('f-ttPhone').value.trim();
-        if (ttn) sources.push({name:ttn, phone:ttp, idNo:document.getElementById('f-ttIdNo').value.trim(), birthday:document.getElementById('f-ttBirthday').value.trim(), src:'租客'});
-        document.querySelectorAll('#rTenantList .c-row').forEach(function(row) {
-            var inputs = row.querySelectorAll('input');
-            var n = inputs[0].value.trim();
-            if (n) sources.push({name:n, phone:inputs[1]?inputs[1].value.trim():'', idNo:inputs[2]?inputs[2].value.trim():'', birthday:'', src:'租客'});
-        });
+        var ttn = _gv('f-ttName');
+        if (ttn) sources.push({name:ttn, phone:_gv('f-ttPhone'), idNo:_gv('f-ttIdNo'), occupation:_gv('f-ttOccupation'), birthday:_gv('f-ttBirthday'), email:_gv('f-ttEmail'), source:_gv('f-ttSource'), addrType:_gv('f-ttAddrType'), zip:_gv('f-ttZip'), addr:_gv('f-ttAddr'), src:'租客'});
     }
     // 成交
     if (excludeTarget !== 'closed') {
-        var cn = document.getElementById('f-cName').value.trim();
-        var cp = document.getElementById('f-cPhone').value.trim();
-        var cbd = document.getElementById('f-cBirthday').value.trim();
-        if (cn) sources.push({name:cn, phone:cp, idNo:document.getElementById('f-cIdNo').value.trim(), birthday:cbd, src:'成交'});
+        var cn = _gv('f-cName');
+        if (cn) sources.push({name:cn, phone:_gv('f-cPhone'), idNo:_gv('f-cIdNo'), occupation:'', birthday:_gv('f-cBirthday'), email:_gv('f-cEmail'), source:_gv('f-cSource'), addrType:_gv('f-cAddrType'), zip:_gv('f-cZip'), addr:_gv('f-cAddr'), src:'成交'});
     }
     // 商機
     if (excludeTarget !== 'dev') {
-        var dn = document.getElementById('f-dName').value.trim();
-        var dp = document.getElementById('f-dPhone').value.trim();
-        if (dn) sources.push({name:dn, phone:dp, idNo:document.getElementById('f-dIdNo').value.trim(), birthday:document.getElementById('f-dBirthday').value.trim(), src:'商機'});
+        var dn = _gv('f-dName');
+        if (dn) sources.push({name:dn, phone:_gv('f-dPhone'), idNo:_gv('f-dIdNo'), occupation:'', birthday:_gv('f-dBirthday'), email:_gv('f-dEmail'), source:_gv('f-dSource'), addrType:_gv('f-dAddrType'), zip:_gv('f-dZip'), addr:_gv('f-dAddr'), src:'商機'});
     }
     return sources;
 }
@@ -4103,42 +4087,27 @@ function showFillMenu(btn, target) {
 }
 
 function applyFill(target, s) {
-    if (target === 'buyer') {
-        var bn = document.getElementById('f-bName'), bp = document.getElementById('f-bPhone'), bi = document.getElementById('f-bIdNo'), bb = document.getElementById('f-bBirthday');
-        if (bn) bn.value = s.name;
-        if (bp) bp.value = s.phone;
-        if (bi && s.idNo) bi.value = s.idNo;
-        if (bb && s.birthday) bb.value = s.birthday;
-    } else if (target === 'seller') {
-        var sn = document.getElementById('f-sName'), sp = document.getElementById('f-sPhone'), si = document.getElementById('f-sIdNo'), sb = document.getElementById('f-sBirthday');
-        if (sn) sn.value = s.name;
-        if (sp) sp.value = s.phone;
-        if (si && s.idNo) si.value = s.idNo;
-        if (sb && s.birthday) sb.value = s.birthday;
-    } else if (target === 'landlord') {
-        var lln = document.getElementById('f-llName'), llp = document.getElementById('f-llPhone'), lli = document.getElementById('f-llIdNo'), llb = document.getElementById('f-llBirthday');
-        if (lln) lln.value = s.name;
-        if (llp) llp.value = s.phone;
-        if (lli && s.idNo) lli.value = s.idNo;
-        if (llb && s.birthday) llb.value = s.birthday;
-    } else if (target === 'tenant') {
-        var ttn = document.getElementById('f-ttName'), ttp = document.getElementById('f-ttPhone'), tti = document.getElementById('f-ttIdNo'), ttb = document.getElementById('f-ttBirthday');
-        if (ttn) ttn.value = s.name;
-        if (ttp) ttp.value = s.phone;
-        if (tti && s.idNo) tti.value = s.idNo;
-        if (ttb && s.birthday) ttb.value = s.birthday;
-    } else if (target === 'closed') {
-        var cn = document.getElementById('f-cName'), cp = document.getElementById('f-cPhone'), ci = document.getElementById('f-cIdNo'), cb = document.getElementById('f-cBirthday');
-        if (cn) cn.value = s.name;
-        if (cp) cp.value = s.phone;
-        if (ci && s.idNo) ci.value = s.idNo;
-        if (cb && s.birthday) cb.value = s.birthday;
-    } else if (target === 'dev') {
-        var dn = document.getElementById('f-dName'), dp = document.getElementById('f-dPhone'), di = document.getElementById('f-dIdNo'), db = document.getElementById('f-dBirthday');
-        if (dn) dn.value = s.name;
-        if (dp) dp.value = s.phone;
-        if (di && s.idNo) di.value = s.idNo;
-        if (db && s.birthday) db.value = s.birthday;
+    var prefixMap = { buyer:'b', seller:'s', landlord:'ll', tenant:'tt', closed:'c', dev:'d' };
+    var p = prefixMap[target];
+    if (!p) return;
+    function _sv(id, v) { var el=document.getElementById(id); if(el && v) el.value = v; }
+    _sv('f-'+p+'Name', s.name);
+    _sv('f-'+p+'Phone', s.phone);
+    _sv('f-'+p+'IdNo', s.idNo);
+    _sv('f-'+p+'Occupation', s.occupation);
+    _sv('f-'+p+'Birthday', s.birthday);
+    _sv('f-'+p+'Email', s.email);
+    _sv('f-'+p+'Source', s.source);
+    // 地址（庫存用 sOwnerAddr）
+    var addrId = (p === 's') ? 'f-sOwnerAddr' : 'f-'+p+'Addr';
+    _sv(addrId, s.addr);
+    _sv('f-'+p+'Zip', s.zip);
+    if (s.addrType) {
+        var atEl = document.getElementById('f-'+p+'AddrType');
+        if (atEl) {
+            if (atEl.tagName === 'SELECT') atEl.value = s.addrType;
+            else atEl.value = s.addrType;
+        }
     }
 }
 
