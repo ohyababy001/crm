@@ -3768,14 +3768,16 @@ var dAddrId = 0;
 function addDAddrRow(data) {
     dAddrId++;
     var d = data || {};
-    var html = '<div class="c-row" id="da-'+dAddrId+'">' +
+    var localNum = document.querySelectorAll('#dAddrList .c-row').length + 1;
+    var html = '<div class="c-row" id="da-'+dAddrId+'" style="border:1px solid var(--border);border-left:4px solid #991B1B;border-radius:10px;padding:8px 10px;margin-bottom:8px;background:#FAFAF9;flex-wrap:wrap;gap:6px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:2px"><span style="font-size:12px;font-weight:700;color:#991B1B">物件 '+localNum+'</span><button type="button" class="c-del" onclick="this.parentElement.parentElement.remove()">✕</button></div>' +
         '<select style="flex:0 0 70px">' +
             '<option value="出售"'+(d.devType==='出售'?' selected':'')+'>出售</option>' +
             '<option value="出租"'+(d.devType==='出租'?' selected':'')+'>出租</option>' +
         '</select>' +
-        '<input type="text" style="flex:0 0 110px;min-width:0" placeholder="" value="'+esc(d.community||'')+'">' +
-        '<input type="text" style="flex:1;min-width:0" placeholder="" value="'+esc(d.addr||'')+'">' +
-        '<button type="button" class="c-del" onclick="this.parentElement.remove()">✕</button></div>';
+        '<input type="text" style="flex:0 0 110px;min-width:0" placeholder="社區大樓" value="'+esc(d.community||'')+'">' +
+        '<input type="text" style="flex:1;min-width:0" placeholder="地址" value="'+esc(d.addr||'')+'">' +
+    '</div>';
     document.getElementById('dAddrList').insertAdjacentHTML('beforeend', html);
 }
 function getDAddrs() {
