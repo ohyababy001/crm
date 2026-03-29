@@ -453,8 +453,9 @@
             /* 庫存物件：社區半寬+地址全寬 */
             .sp-addr-row { grid-template-columns: 1fr !important; }
             .sp-addr-row > .fg:first-child { width: 50% !important; }
-            /* 庫存物件：管理費 3x2 */
-            .sp-mgmt-row { grid-template-columns: repeat(3,1fr) !important; }
+            /* 庫存物件：管理費手機版換行 */
+            .sp-mgmt-row { display:grid !important; grid-template-columns: repeat(3,1fr); gap:4px; }
+            .sp-mgmt-row > div { flex:none !important; min-width:0 !important; }
             /* 租案物件：管理費手機版換行 */
             .rp-mgmt-row { display:grid !important; grid-template-columns: repeat(3,1fr); gap:4px; }
             .rp-mgmt-row > div { flex:none !important; min-width:0 !important; }
@@ -2906,8 +2907,14 @@ function typeDetail(c) {
         var rows = [];
         if (c.dAddrs && c.dAddrs.length) {
             c.dAddrs.forEach(function(a, i) {
-                var label = (a.devType||'') + (c.dAddrs.length>1?' '+(i+1):'');
-                rows.push(dRow(label||'物件', (a.community?a.community+'　':'') + (a.addr||'')));
+                if (c.dAddrs.length > 1) rows.push('<div style="font-weight:700;font-size:13px;color:#92400E;margin-top:8px;margin-bottom:4px">物件 '+(i+1)+'</div>');
+                rows.push(dRow('類別',a.devType||''));
+                rows.push(dRow('社區大樓',a.community||''));
+                rows.push(dRow('地址',a.addr||''));
+                if (a.houseType) rows.push(dRow('房屋型態',a.houseType));
+                if (a.landSz) rows.push(dRow('土地坪數',a.landSz+'坪'));
+                if (a.bldgSz) rows.push(dRow('建物坪數',a.bldgSz+'坪'));
+                if (a.hasParking==='有') { rows.push(dRow('車位',a.parking||'有')); }
             });
         } else {
             if (c.devType) rows.push(dRow('類別',c.devType));
@@ -3171,13 +3178,13 @@ function addSellerProperty(data) {
         '</div>' +
         // 管理費
         '<div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:4px">管理費</div>' +
-        '<div class="sp-mgmt-row" style="display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-bottom:6px">' +
-            '<div><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">建物</label><div class="input-grp"><input data-f="mgmtBuilding" value="'+esc(d.mgmtBuilding||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
-            '<div><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">汽車</label><div class="input-grp"><input data-f="mgmtCar" value="'+esc(d.mgmtCar||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
-            '<div><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">機車</label><div class="input-grp"><input data-f="mgmtMoto" value="'+esc(d.mgmtMoto||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
-            '<div><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">其他</label><div class="input-grp"><input data-f="mgmtOther" value="'+esc(d.mgmtOther||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
-            '<div><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">合計</label><div data-f="mgmtTotal" style="padding:8px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE8E0;color:#5C4A32;text-align:center">0 元</div></div>' +
-            '<div><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">繳費</label><select data-f="mgmtPeriod" style="width:100%;padding:8px 4px;border:1px solid var(--border);border-radius:8px;font-size:14px"><option value="">選擇</option>'+mgmtPSel('月繳','月繳')+mgmtPSel('季繳','季繳')+mgmtPSel('半年繳','半年繳')+mgmtPSel('年繳','年繳')+'</select></div>' +
+        '<div class="sp-mgmt-row" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">' +
+            '<div style="flex:1;min-width:70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">建物</label><div class="input-grp"><input data-f="mgmtBuilding" value="'+esc(d.mgmtBuilding||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
+            '<div style="flex:1;min-width:70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">汽車</label><div class="input-grp"><input data-f="mgmtCar" value="'+esc(d.mgmtCar||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
+            '<div style="flex:1;min-width:70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">機車</label><div class="input-grp"><input data-f="mgmtMoto" value="'+esc(d.mgmtMoto||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
+            '<div style="flex:1;min-width:70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">其他</label><div class="input-grp"><input data-f="mgmtOther" value="'+esc(d.mgmtOther||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
+            '<div style="flex:1;min-width:70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">合計</label><div data-f="mgmtTotal" style="padding:8px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE8E0;color:#5C4A32;text-align:center">0 元</div></div>' +
+            '<div style="flex:0 0 70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">繳費</label><select data-f="mgmtPeriod" style="width:100%;padding:8px 4px;border:1px solid var(--border);border-radius:8px;font-size:14px"><option value="">選擇</option>'+mgmtPSel('月繳','月繳')+mgmtPSel('季繳','季繳')+mgmtPSel('半年繳','半年繳')+mgmtPSel('年繳','年繳')+'</select></div>' +
         '</div>' +
         // 立約日+到期日+續約+續約歷程
         '<div class="sp-contract-row" style="display:grid;grid-template-columns:3fr 3fr auto auto;gap:8px;align-items:end">' +
@@ -4491,27 +4498,34 @@ var dAddrId = 0;
 function addDAddrRow(data) {
     dAddrId++;
     var d = data || {};
-    var localNum = document.querySelectorAll('#dAddrList .c-row').length + 1;
-    var html = '<div class="c-row" id="da-'+dAddrId+'" style="border:1px solid var(--border);border-left:4px solid #92400E;border-radius:10px;padding:8px 10px;margin-bottom:8px;background:#FAFAF9;flex-wrap:wrap;gap:6px">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:2px"><span style="font-size:12px;font-weight:700;color:#92400E">物件 '+localNum+'</span><button type="button" class="c-del" onclick="this.parentElement.parentElement.remove()">✕</button></div>' +
-        '<select style="flex:0 0 70px">' +
-            '<option value="出售"'+(d.devType==='出售'?' selected':'')+'>出售</option>' +
-            '<option value="出租"'+(d.devType==='出租'?' selected':'')+'>出租</option>' +
-        '</select>' +
-        '<input type="text" style="flex:0 0 110px;min-width:0" placeholder="社區大樓" value="'+esc(d.community||'')+'">' +
-        '<input type="text" style="flex:1;min-width:0" placeholder="地址" value="'+esc(d.addr||'')+'">' +
+    var localNum = document.querySelectorAll('#dAddrList .person-block').length + 1;
+    var parkOpts = ['','坡道平面','坡道機械','升降平面','升降機械','塔式車位','其他車位'];
+    var parkHtml = parkOpts.map(function(p){ return '<option value="'+p+'"'+(d.parking===p?' selected':'')+'>'+(p||'選擇')+'</option>'; }).join('');
+    var html = '<div class="person-block" id="da-'+dAddrId+'" style="border:1px solid var(--border);border-left:4px solid #92400E;border-radius:10px;padding:10px;margin-bottom:8px;background:#FAFAF9">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:700;color:#92400E">物件 '+localNum+'</span><button type="button" class="c-del" onclick="this.parentElement.parentElement.remove()">✕</button></div>' +
+        // 出售/出租 + 社區 + 地址
+        '<div style="display:grid;grid-template-columns:auto 1fr 2fr;gap:8px;margin-bottom:6px">' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">出售/出租</label><select data-f="devType" style="width:100%"><option value="出售"'+(d.devType==='出售'?' selected':'')+'>出售</option><option value="出租"'+(d.devType==='出租'?' selected':'')+'>出租</option></select></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">社區大樓</label><input data-f="community" value="'+esc(d.community||'')+'"></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">地址</label><input data-f="addr" value="'+esc(d.addr||'')+'"></div>' +
+        '</div>' +
+        // 房屋型態 + 土地坪數 + 建物坪數 + 車位 + 車位型態
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:8px">' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">房屋型態</label><select data-f="houseType" style="width:100%"><option value="">選擇</option><option value="公寓"'+(d.houseType==='公寓'?' selected':'')+'>公寓</option><option value="電梯大樓"'+(d.houseType==='電梯大樓'?' selected':'')+'>電梯大樓</option><option value="透天"'+(d.houseType==='透天'?' selected':'')+'>透天</option><option value="套房"'+(d.houseType==='套房'?' selected':'')+'>套房</option><option value="店面"'+(d.houseType==='店面'?' selected':'')+'>店面</option><option value="辦公"'+(d.houseType==='辦公'?' selected':'')+'>辦公</option><option value="土地"'+(d.houseType==='土地'?' selected':'')+'>土地</option><option value="其他"'+(d.houseType==='其他'?' selected':'')+'>其他</option></select></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">土地坪數</label><div class="input-grp"><input data-f="landSz" value="'+esc(d.landSz||'')+'" style="min-width:0;flex:1"><span class="input-sfx">坪</span></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">建物坪數</label><div class="input-grp"><input data-f="bldgSz" value="'+esc(d.bldgSz||'')+'" style="min-width:0;flex:1"><span class="input-sfx">坪</span></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">是否有車位</label><select data-f="hasParking" style="width:100%" onchange="var b=this.closest(\'.person-block\');var pk=b.querySelector(\'[data-f=parking]\').parentElement;pk.style.display=this.value===\'有\'?\'\':\'none\';"><option value="無"'+(d.hasParking==='有'?'':' selected')+'>無</option><option value="有"'+(d.hasParking==='有'?' selected':'')+'>有</option></select></div>' +
+            '<div class="fg" style="margin-bottom:0;'+(d.hasParking==='有'?'':'display:none')+'"><label style="font-size:12px">車位型態</label><select data-f="parking" style="width:100%">'+parkHtml+'</select></div>' +
+        '</div>' +
     '</div>';
     document.getElementById('dAddrList').insertAdjacentHTML('beforeend', html);
 }
 function getDAddrs() {
     var r = [];
-    document.querySelectorAll('#dAddrList .c-row').forEach(function(row) {
-        var sel = row.querySelector('select');
-        var inputs = row.querySelectorAll('input');
-        var devType = sel ? sel.value : '';
-        var community = inputs[0].value.trim();
-        var addr = inputs[1].value.trim();
-        if (devType || community || addr) r.push({ devType: devType, community: community, addr: addr });
+    document.querySelectorAll('#dAddrList .person-block').forEach(function(row) {
+        var get = function(f){ var el=row.querySelector('[data-f="'+f+'"]'); return el?el.value.trim():''; };
+        var devType = get('devType'), community = get('community'), addr = get('addr');
+        if (devType || community || addr) r.push({ devType:devType, community:community, addr:addr, houseType:get('houseType'), landSz:get('landSz'), bldgSz:get('bldgSz'), hasParking:get('hasParking'), parking:get('parking') });
     });
     return r;
 }
