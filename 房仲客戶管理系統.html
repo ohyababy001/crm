@@ -165,11 +165,12 @@
         /* 帶入按鈕 */
         .btn-fill { background:none;border:1px solid var(--border);border-radius:6px;padding:2px 8px;cursor:pointer;font-size:12px;color:var(--muted);transition:all 0.12s;white-space:nowrap; }
         .btn-fill:hover { background:#EFF6FF;color:#1D4ED8;border-color:#93C5FD; }
-        .fill-menu { position:absolute;top:100%;left:0;background:white;border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);z-index:999;min-width:180px;padding:4px 0;display:none; }
-        .fill-menu.on { display:block; }
-        .fill-menu-item { padding:8px 14px;cursor:pointer;font-size:13px;color:var(--text);display:flex;justify-content:space-between;gap:10px; }
-        .fill-menu-item:hover { background:var(--bg); }
-        .fill-menu-item .fill-src { color:var(--muted);font-size:11px; }
+        .fill-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.3);z-index:9999;display:flex;align-items:center;justify-content:center; }
+        .fill-menu { background:white;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.15);min-width:240px;max-width:90vw;padding:8px 0;overflow:hidden; }
+        .fill-menu-title { padding:10px 16px;font-size:14px;font-weight:700;color:var(--text);border-bottom:1px solid var(--border); }
+        .fill-menu-item { padding:12px 16px;cursor:pointer;font-size:15px;color:var(--text);display:flex;justify-content:space-between;align-items:center;gap:10px; }
+        .fill-menu-item:active { background:var(--bg); }
+        .fill-menu-item .fill-src { color:var(--muted);font-size:12px; }
 
         /* Equipment checklist */
         .equip-toggle { cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px;font-size:13px;font-weight:600;color:var(--deep);background:var(--bg); }
@@ -703,7 +704,7 @@
             <div class="sec-title" style="margin-top:18px">基本資料</div>
             <div style="display:flex;gap:10px;margin-bottom:10px" id="namePhoneIdRow">
                 <div class="fg" id="nameGroup" style="flex:1;margin-bottom:0">
-                    <label>姓名 <span class="req">*</span> <span style="position:relative"><button type="button" class="btn-fill" onclick="showFillMenu(this,'buyer')">帶入</button></span></label>
+                    <label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'buyer')">帶入</button></label>
                     <input id="fn" placeholder="">
                 </div>
                 <div class="fg" id="phoneGroup" style="flex:1;margin-bottom:0">
@@ -811,7 +812,7 @@
             <div class="type-sec" id="s-庫存屋主">
                 <!-- 屋主基本資料 -->
                 <div id="sellerBasicRow1" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px">
-                    <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <span style="position:relative"><button type="button" class="btn-fill" onclick="showFillMenu(this,'seller')">帶入</button></span></label><input id="f-sName" placeholder=""></div>
+                    <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'seller')">帶入</button></label><input id="f-sName" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-sPhone" placeholder="" onblur="autoPhone(this)"></div>
                 </div>
                 <div id="sellerBasicRow2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px">
@@ -966,7 +967,7 @@
                         <span style="width:22px"></span>
                     </div>
                     <div id="rLandlordList"></div>
-                    <div style="display:flex;gap:8px;align-items:center"><button type="button" class="add-row-btn" onclick="addRPersonRow('rLandlordList','房東')">＋ 新增房東</button><span style="position:relative"><button type="button" class="btn-fill" onclick="showFillMenu(this,'landlord')">帶入</button></span></div>
+                    <div style="display:flex;gap:8px;align-items:center"><button type="button" class="add-row-btn" onclick="addRPersonRow('rLandlordList','房東')">＋ 新增房東</button><button type="button" class="btn-fill" onclick="showFillMenu(this,'landlord')">帶入</button></div>
                 </div>
 
                 <!-- 租客頁面 -->
@@ -1005,7 +1006,7 @@
                         <span style="width:22px"></span>
                     </div>
                     <div id="rTenantList"></div>
-                    <div style="display:flex;gap:8px;align-items:center"><button type="button" class="add-row-btn" onclick="addRPersonRow('rTenantList','租客')">＋ 新增租客</button><span style="position:relative"><button type="button" class="btn-fill" onclick="showFillMenu(this,'tenant')">帶入</button></span></div>
+                    <div style="display:flex;gap:8px;align-items:center"><button type="button" class="add-row-btn" onclick="addRPersonRow('rTenantList','租客')">＋ 新增租客</button><button type="button" class="btn-fill" onclick="showFillMenu(this,'tenant')">帶入</button></div>
                 </div>
 
                 <!-- 共用物件資料 -->
@@ -1109,7 +1110,7 @@
                 <div class="sec-title" style="margin-top:4px">聯絡人</div>
                 <div id="cContactHeader"></div>
                 <div id="cContactList"></div>
-                <div style="display:flex;gap:8px;align-items:center"><button type="button" class="add-row-btn" onclick="addCContactRow()">＋ 新增聯絡人</button><span style="position:relative"><button type="button" class="btn-fill" onclick="showFillMenu(this,'closed')">帶入</button></span></div>
+                <div style="display:flex;gap:8px;align-items:center"><button type="button" class="add-row-btn" onclick="addCContactRow()">＋ 新增聯絡人</button><button type="button" class="btn-fill" onclick="showFillMenu(this,'closed')">帶入</button></div>
 
                 <div class="c-row c-row-header" style="margin-top:6px;margin-bottom:2px">
                     <span style="width:70px;font-size:13px;color:var(--text);font-weight:600;padding-left:4px">類型</span>
@@ -1134,7 +1135,7 @@
                     <span style="width:22px"></span>
                 </div>
                 <div id="dPersonList"></div>
-                <div style="display:flex;gap:8px;align-items:center"><button type="button" class="add-row-btn" onclick="addDPersonRow()">＋ 新增屋主</button><span style="position:relative"><button type="button" class="btn-fill" onclick="showFillMenu(this,'dev')">帶入</button></span></div>
+                <div style="display:flex;gap:8px;align-items:center"><button type="button" class="add-row-btn" onclick="addDPersonRow()">＋ 新增屋主</button><button type="button" class="btn-fill" onclick="showFillMenu(this,'dev')">帶入</button></div>
                 <div class="c-row" style="margin-bottom:2px;margin-top:10px">
                     <span style="flex:0 0 70px;font-size:13px;color:var(--text);font-weight:600;padding-left:4px">類別</span>
                     <span style="flex:0 0 110px;font-size:13px;color:var(--text);font-weight:600;padding-left:11px">社區大樓</span>
@@ -3471,26 +3472,27 @@ function collectPersonSources(excludeTarget) {
 
 function showFillMenu(btn, target) {
     // 關閉其他選單
-    document.querySelectorAll('.fill-menu.on').forEach(function(m){ m.remove(); });
+    document.querySelectorAll('.fill-overlay').forEach(function(m){ m.remove(); });
     var sources = collectPersonSources(target);
     if (!sources.length) { alert('其他類型沒有可帶入的資料'); return; }
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
     var menu = document.createElement('div');
-    menu.className = 'fill-menu on';
-    sources.forEach(function(s, i) {
+    menu.className = 'fill-menu';
+    var title = document.createElement('div');
+    title.className = 'fill-menu-title';
+    title.textContent = '選擇要帶入的資料';
+    menu.appendChild(title);
+    sources.forEach(function(s) {
         var item = document.createElement('div');
         item.className = 'fill-menu-item';
         item.innerHTML = '<span>' + esc(s.name) + (s.phone ? ' ' + esc(s.phone) : '') + '</span><span class="fill-src">' + esc(s.src) + '</span>';
-        item.onclick = function(e) { e.stopPropagation(); applyFill(target, s); menu.remove(); };
+        item.onclick = function(e) { e.stopPropagation(); applyFill(target, s); overlay.remove(); };
         menu.appendChild(item);
     });
-    btn.parentElement.appendChild(menu);
-    // 點外面關閉
-    setTimeout(function() {
-        document.addEventListener('click', function closeMenu() {
-            menu.remove();
-            document.removeEventListener('click', closeMenu);
-        }, {once:true});
-    }, 0);
+    overlay.appendChild(menu);
+    overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+    document.body.appendChild(overlay);
 }
 
 function applyFill(target, s) {
