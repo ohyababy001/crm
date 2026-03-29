@@ -1297,7 +1297,7 @@
 </div>
 
 <script>
-window.onerror = function(msg, url, line, col, err) { alert('JS錯誤: ' + msg + '\n行號: ' + line); };
+window.onerror = function(msg, url, line, col, err) { if (msg === 'Script error.' && line === 0) return true; alert('JS錯誤: ' + msg + '\n行號: ' + line); };
 // ── 區域資料 ──
 const DISTRICTS = {
     '新北市': ['板橋','三重','中和','永和','新莊','新店','蘆洲','土城','五股','泰山','樹林','三峽','林口','鶯歌','淡水','汐止'],
@@ -5879,39 +5879,55 @@ function cloudRestore() {
     if (statusEl) statusEl.textContent = '還原中…';
     if (btnEl) btnEl.disabled = true;
 
+    function processRestore(data) {
+        if (Array.isArray(data)) {
+            DB = data;
+        } else if (data && typeof data === 'object') {
+            var raw = data.payload ? String(data.payload) : JSON.stringify(data);
+            try { var obj = JSON.parse(raw); if (obj && obj.payload && typeof obj.payload === 'string') raw = obj.payload; } catch(e) {}
+            if (raw.indexOf('\\"') >= 0) raw = raw.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+            var restored = JSON.parse(raw);
+            if (!Array.isArray(restored)) throw new Error('資料格式錯誤');
+            DB = restored;
+        } else {
+            throw new Error('雲端沒有備份資料');
+        }
+        DB.forEach(function(c) { if (!c.types) c.types = c.type ? [c.type] : []; });
+        persist(); render();
+        if (statusEl) statusEl.textContent = '✅ 還原成功（共 ' + DB.length + ' 筆）';
+        alert('還原成功，共 ' + DB.length + ' 筆資料');
+    }
+
+    // 優先用 fetch（支援大資料），fallback 到 JSONP
+    if (window.fetch) {
+        fetch(CLOUD_URL + '?t=' + Date.now())
+            .then(function(res) { return res.text(); })
+            .then(function(text) {
+                try {
+                    var data = JSON.parse(text);
+                    processRestore(data);
+                } catch(err) {
+                    if (statusEl) statusEl.textContent = '❌ 還原失敗：' + err.message;
+                    alert('還原失敗：' + err.message);
+                }
+                if (btnEl) btnEl.disabled = false;
+            })
+            .catch(function(err) {
+                // fetch 失敗（可能跨域），fallback 到 JSONP
+                cloudRestoreJSONP(statusEl, btnEl, processRestore);
+            });
+    } else {
+        cloudRestoreJSONP(statusEl, btnEl, processRestore);
+    }
+}
+function cloudRestoreJSONP(statusEl, btnEl, processRestore) {
     var cbName = 'cloudCb_' + Date.now();
     var script = document.createElement('script');
     window[cbName] = function(data) {
-        try {
-            if (Array.isArray(data)) {
-                // doGet 直接回傳陣列
-                DB = data;
-                DB.forEach(function(c) { if (!c.types) c.types = c.type ? [c.type] : []; });
-                persist(); render();
-                if (statusEl) statusEl.textContent = '✅ 還原成功（共 ' + DB.length + ' 筆）';
-                alert('還原成功，共 ' + DB.length + ' 筆資料');
-            } else if (data && typeof data === 'object') {
-                // 可能是包裹格式
-                var raw = data.payload ? String(data.payload) : JSON.stringify(data);
-                if (raw.indexOf('data=') === 0 || raw.indexOf('payload=') === 0) {
-                    raw = decodeURIComponent(raw.substring(raw.indexOf('=') + 1));
-                }
-                try { var obj = JSON.parse(raw); if (obj && obj.payload && typeof obj.payload === 'string') raw = obj.payload; } catch(e) {}
-                if (raw.indexOf('\\"') >= 0) raw = raw.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
-                var restored = JSON.parse(raw);
-                if (!Array.isArray(restored)) throw new Error('資料格式錯誤');
-                DB = restored;
-                DB.forEach(function(c) { if (!c.types) c.types = c.type ? [c.type] : []; });
-                persist(); render();
-                if (statusEl) statusEl.textContent = '✅ 還原成功（共 ' + DB.length + ' 筆）';
-                alert('還原成功，共 ' + DB.length + ' 筆資料');
-            } else {
-                if (statusEl) statusEl.textContent = '⚠️ 雲端沒有備份資料';
-                alert('雲端沒有備份資料\n\n收到的資料類型：' + typeof data + '\n內容：' + JSON.stringify(data).substring(0, 200));
-            }
-        } catch(err) {
+        try { processRestore(data); }
+        catch(err) {
             if (statusEl) statusEl.textContent = '❌ 還原失敗：' + err.message;
-            alert('還原失敗：' + err.message + '\n\n收到的資料類型：' + typeof data + '\n內容：' + JSON.stringify(data).substring(0, 200));
+            alert('還原失敗：' + err.message);
         }
         if (btnEl) btnEl.disabled = false;
         delete window[cbName];
