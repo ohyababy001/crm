@@ -97,8 +97,8 @@
         .deal-box .fg input,.deal-box .fg select { padding:6px 8px;font-size:13px; }
         .deal-box .deal-del { position:absolute;top:4px;right:6px;background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted); }
         .deal-box .deal-del:hover { color:#EF4444; }
-        .roc-date-wrap { display: flex; gap: 4px; align-items: center; }
-        .roc-date-wrap input[type="text"] { flex: 1; }
+        .roc-date-wrap { display: flex; gap: 4px; align-items: center; min-width: 0; }
+        .roc-date-wrap input[type="text"] { flex: 1; min-width: 0; }
         .roc-date-wrap .cal-btn { padding: 8px; border: 1px solid var(--border); border-radius: 8px; background: white; cursor: pointer; font-size: 14px; line-height: 1; flex-shrink: 0; }
         .roc-date-wrap .cal-btn:hover { background: var(--bg); border-color: #94A3B8; }
 
@@ -203,7 +203,7 @@
         .sec-title { font-size: 13px; font-weight: 700; color: #475569; letter-spacing: 0.3px; padding-bottom: 6px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .hidden { display: none !important; }
-        .fg { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+        .fg { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; min-width: 0; }
         .fg.full { grid-column: 1 / -1; }
         .fg label { font-size: 13px; font-weight: 600; padding-left: 4px; }
         .fg label .req { color: #EF4444; margin-left: 2px; }
