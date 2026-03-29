@@ -4111,11 +4111,9 @@ function pickCity(btn, city) {
     } else {
         selectedCities = selectedCities.filter(function(c){ return c !== city; });
         // 取消該城市的區域選取
-        document.querySelectorAll('#dg-'+city+' .dist-btn').forEach(function(b){ b.classList.remove('on'); });
-        selectedDists = selectedDists.filter(function(d){
-            var dists = DISTRICTS[city] || [];
-            return !dists.some(function(dd){ return d === dd+'區'; });
-        });
+        var cityRemovedDists = [];
+        document.querySelectorAll('#dg-'+city+' .dist-btn').forEach(function(b){ cityRemovedDists.push(b.getAttribute('data-dist')); b.classList.remove('on'); });
+        selectedDists = selectedDists.filter(function(d){ return !cityRemovedDists.includes(d); });
     }
     // 顯示/隱藏區域
     document.querySelectorAll('.dist-area').forEach(function(el){ el.classList.remove('on'); });
@@ -4473,16 +4471,21 @@ function openEdit(id, viewAs) {
         }
         if (c.areaDists) {
             selectedDists = c.areaDists.split(',').filter(Boolean);
+            // 判斷每個區域屬於哪個城市
             cities.forEach(function(city) {
                 if (city === '其他縣市') return;
+                var cityDistNames = (DISTRICTS[city] || []).map(function(d){ return d+'區'; });
                 var existingDists = [];
                 document.querySelectorAll('#dg-'+city+' .dist-btn').forEach(function(b){ existingDists.push(b.getAttribute('data-dist')); });
-                selectedDists.forEach(function(d) {
+                // 只處理屬於該城市的區域（或已儲存為該城市自訂區的）
+                var cityAreaDists = c.areaCityDists && c.areaCityDists[city] ? c.areaCityDists[city] : selectedDists.filter(function(d){ return cityDistNames.includes(d); });
+                cityAreaDists.forEach(function(d) {
                     if (!existingDists.includes(d)) addCustomDist(city, d);
                 });
-            });
-            document.querySelectorAll('.dist-btn').forEach(function(btn) {
-                if (selectedDists.includes(btn.getAttribute('data-dist'))) btn.classList.add('on');
+                // 只高亮該城市的按鈕
+                document.querySelectorAll('#dg-'+city+' .dist-btn').forEach(function(btn) {
+                    if (selectedDists.includes(btn.getAttribute('data-dist'))) btn.classList.add('on');
+                });
             });
         }
     }
@@ -4601,8 +4604,12 @@ function saveClient() {
         var parts = [];
         areaCities.forEach(function(city) {
             if (city === '其他縣市') { if (areaOther) parts.push(areaOther); return; }
-            var cityDists = (DISTRICTS[city] || []).map(function(d){ return d+'區'; });
-            var matched = selectedDists.filter(function(d){ return cityDists.includes(d); });
+            // 從該城市的 grid 中取得已選的區域
+            var matched = [];
+            document.querySelectorAll('#dg-'+city+' .dist-btn.on').forEach(function(b){
+                var d = b.getAttribute('data-dist');
+                if (d && !b.textContent.includes('自訂')) matched.push(d);
+            });
             if (matched.length) parts.push(city + matched.join('、'));
             else parts.push(city);
         });
@@ -4623,6 +4630,7 @@ function saveClient() {
         budget: (get('f-budgetMin')&&get('f-budgetMax')) ? get('f-budgetMin')+'-'+get('f-budgetMax') : get('f-budgetMin')||get('f-budgetMax')||'',
         roomTypes:roomTypesStr, roomOther,
         areaCity, areaCities, areaDists, areaOther, areaDisplay,
+        areaCityDists: (function(){ var m={}; areaCities.forEach(function(city){ if(city==='其他縣市')return; var cd=(DISTRICTS[city]||[]).map(function(d){return d+'區';}); var all=[]; document.querySelectorAll('#dg-'+city+' .dist-btn.on').forEach(function(b){var d=b.getAttribute('data-dist');if(d)all.push(d);}); m[city]=all; }); return m; })(),
         floor:get('f-bOccupation'), decisionMaker:'', bAddrs:getBAddrs(),
         bOther: getBAddrs().map(function(a){ return (a.type?a.type+'：':'')+a.addr; }).join('、'),
         want:get('f-want'), noWant:get('f-noWant'),
