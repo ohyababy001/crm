@@ -1238,6 +1238,7 @@
     <div class="modal" style="max-width:600px" onclick="event.stopPropagation()">
         <div class="modal-head">
             <div class="modal-title" id="historyTitle">修改歷程</div>
+            <button class="btn-ic del" onclick="clearHistory()" title="刪除歷程" style="font-size:14px;padding:4px 10px;margin-right:4px">🗑️</button>
             <button class="btn-x" onclick="closeHistory()">✕</button>
         </div>
         <div class="modal-body">
@@ -1893,7 +1894,9 @@ var FIELD_LABELS = {
     devType:'出售/出租', dCommunity:'社區(開發)', dAddr:'地址(開發)'
 };
 
+var _historyClientId = null;
 function showHistory(id) {
+    _historyClientId = id;
     var c = DB.find(function(x) { return x.id === id; });
     if (!c || !c.history || !c.history.length) return;
     document.getElementById('historyTitle').textContent = c.name + ' — 修改歷程';
@@ -1921,6 +1924,30 @@ function showHistory(id) {
     document.getElementById('hModal').style.display = 'flex';
 }
 function closeHistory() { document.getElementById('hModal').style.display = 'none'; }
+function clearHistory() {
+    if (!_historyClientId) return;
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.padding = '16px'; box.style.minWidth = '260px';
+    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">確定刪除所有修改歷程？</div>' +
+        '<div style="font-size:13px;color:var(--muted);margin-bottom:12px">此操作無法復原</div>' +
+        '<div style="display:flex;gap:8px;justify-content:flex-end">' +
+            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
+            '<button type="button" id="confirmClearHistory" style="padding:8px 16px;border:none;border-radius:8px;background:#DC2626;color:white;cursor:pointer;font-size:14px">刪除</button>' +
+        '</div>';
+    overlay.appendChild(box);
+    overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+    document.body.appendChild(overlay);
+    document.getElementById('confirmClearHistory').onclick = function() {
+        var c = DB.find(function(x){ return x.id === _historyClientId; });
+        if (c) { c.history = []; persist(); }
+        overlay.remove();
+        closeHistory();
+        render();
+    };
+}
 
 
 function relTime(dateStr) {
