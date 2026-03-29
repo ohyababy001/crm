@@ -2469,10 +2469,13 @@ function renderCard(c) {
         const tc = TC[primaryType]||'buyer';
         // 根據角色顯示對應標籤
         var displayTypes;
+        var otherTypes = cTypes.filter(function(t){ return t !== '租案管理'; });
         if (c._viewAs === 'tenant') {
-            displayTypes = ['租案管理'].concat(c.rTenantTypes || []);
+            var tt = (c.rTenantTypes && c.rTenantTypes.length) ? c.rTenantTypes : otherTypes;
+            displayTypes = ['租案管理'].concat(tt);
         } else if (c._viewAs === 'landlord') {
-            displayTypes = ['租案管理'].concat(c.rLandlordTypes || []);
+            var lt = (c.rLandlordTypes && c.rLandlordTypes.length) ? c.rLandlordTypes : otherTypes;
+            displayTypes = ['租案管理'].concat(lt);
         } else {
             displayTypes = cTypes.slice();
         }
