@@ -589,7 +589,6 @@
         <input type="file" id="csvImportInput" accept=".csv" style="display:none" onchange="importCSV(this.files[0])">
         <div id="importTime" style="text-align:center;font-size:10px;color:var(--muted);padding:0 10px"></div>
         <button class="btn-export" onclick="openTrash()">🗑️ 資源回收桶 <span id="trashCount" style="font-size:11px;color:var(--muted)"></span></button>
-        <button class="btn-export" onclick="manualSync()">☁️ 手動同步</button>
         <button class="btn-export" onclick="cloudRestore()" id="btnRestore">📥 雲端還原</button>
         <div id="cloudStatus" style="text-align:center;font-size:11px;color:var(--muted);margin-top:4px;padding:0 10px">☁️ 自動同步中</div>
     </aside>
@@ -4114,10 +4113,6 @@ function closeVcfModal() {
 }
 
 // ── 雲端備份/還原 ──
-function manualSync() {
-    autoSync();
-    document.getElementById('cloudStatus').textContent = '☁️ 手動同步中…';
-}
 
 
 function cloudRestore() {
