@@ -2294,13 +2294,14 @@ function renderDashboard() {
     var thisMonth = today.slice(0,7);
 
     // 數據卡片
+    var dashDB = DB.filter(function(c){ return !c._deleted && !c.archived; });
     var counts = [
-        { label:'買方', num: DB.filter(c=>hasType(c,'經營買方')).length, color:'#1D4ED8', filter:'經營買方' },
-        { label:'庫存', num: DB.filter(c=>hasType(c,'庫存屋主')).length, color:'#065F46', filter:'庫存屋主' },
-        { label:'租案', num: DB.filter(c=>hasType(c,'租案管理')).length, color:'#5B21B6', filter:'租案管理' },
-        { label:'成交', num: DB.filter(c=>hasType(c,'成交客戶')).length, color:'#92400E', filter:'成交客戶' },
-        { label:'商機', num: DB.filter(c=>hasType(c,'商機募集')).length, color:'#991B1B', filter:'商機募集' },
-        { label:'本月新增', num: DB.filter(c=>(c.created||'').slice(0,7)===thisMonth).length, color:'#0891B2', filter:'', action:'thisMonth' }
+        { label:'買方', num: dashDB.filter(c=>hasType(c,'經營買方')).length, color:'#1D4ED8', filter:'經營買方' },
+        { label:'庫存', num: dashDB.filter(c=>hasType(c,'庫存屋主')).length, color:'#065F46', filter:'庫存屋主' },
+        { label:'租案', num: dashDB.filter(c=>hasType(c,'租案管理')).length, color:'#5B21B6', filter:'租案管理' },
+        { label:'成交', num: dashDB.filter(c=>hasType(c,'成交客戶')).length, color:'#92400E', filter:'成交客戶' },
+        { label:'商機', num: dashDB.filter(c=>hasType(c,'商機募集')).length, color:'#991B1B', filter:'商機募集' },
+        { label:'本月新增', num: dashDB.filter(c=>(c.created||'').slice(0,7)===thisMonth).length, color:'#0891B2', filter:'', action:'thisMonth' }
     ];
     document.getElementById('dashCards').innerHTML = counts.map(function(item) {
         var click = '';
