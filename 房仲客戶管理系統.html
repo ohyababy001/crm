@@ -38,6 +38,10 @@
         .filter-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 16px; border: none; background: none; border-radius: 10px; cursor: pointer; font-size: 22px; color: var(--text); transition: all 0.15s; text-align: center; margin: 2px 6px; width: calc(100% - 12px); }
         .filter-btn:hover { background: var(--bg); }
         .filter-btn.active { background: linear-gradient(135deg, #F5F5F4, #E7E5E4); color: var(--deep); font-weight: 700; box-shadow: 0 1px 4px rgba(87,83,78,0.1); }
+        .filter-overview { font-size: 20px; background: linear-gradient(135deg, #292524, #44403C); color: #FAFAF9 !important; border-radius: 12px; }
+        .filter-overview:hover { background: linear-gradient(135deg, #44403C, #57534E); }
+        .filter-overview.active { background: linear-gradient(135deg, #292524, #44403C); color: #FAFAF9 !important; box-shadow: 0 2px 8px rgba(41,37,36,0.3); }
+        .filter-overview .cnt { background: rgba(255,255,255,0.2) !important; color: #FAFAF9 !important; }
         .filter-left { display: flex; align-items: center; gap: 8px; }
         .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
         .cnt { background: var(--bg); color: var(--muted); border-radius: 20px; padding: 2px 10px; font-size: 16px; font-weight: 600; }
@@ -574,10 +578,11 @@
     <!-- Sidebar -->
     <aside class="sidebar">
         <div style="padding:0 6px;margin-bottom:4px">
-            <button class="filter-btn active" onclick="setFilter('all',this)">
-                <span class="filter-left"><span class="dot" style="background:#94A3B8"></span>總覽</span>
+            <button class="filter-btn filter-overview active" onclick="setFilter('all',this)">
+                <span class="filter-left">📊 總覽</span>
                 <span class="cnt" id="ct-all">0</span>
             </button>
+            <div style="border-bottom:1px solid var(--border);margin:6px 14px 8px"></div>
             <button class="filter-btn" onclick="setFilter('經營買方',this)">
                 <span class="filter-left"><span class="dot c-buyer"></span>買方</span>
                 <span><span class="cnt" id="ct-經營買方">0</span><span class="cnt-archived" id="ca-經營買方"></span></span>
