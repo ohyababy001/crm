@@ -3833,15 +3833,34 @@ function navEdit(dir) {
 function updateEditNav() {
     var nav = document.getElementById('editNavGroup');
     if (!editId) { nav.style.display = 'none'; return; }
-    // 去重：同 id 只保留一筆
-    var raw = getData();
-    // 若編輯頁有選擇標籤，只顯示該標籤的客戶
+    // 根據 activeView 從 DB 直接篩選，不依賴 getData() 的 curFilter
+    var list = DB.filter(function(c){ return !c._deleted && !c.archived; });
     if (activeView) {
-        raw = raw.filter(function(c){ return hasType(c, activeView); });
+        list = list.filter(function(c){ return hasType(c, activeView); });
+    } else if (curFilter !== 'all') {
+        list = list.filter(function(c){ return hasType(c, curFilter); });
     }
+    // 排序：沿用 getData 的排序邏輯
+    var sortType = activeView || curFilter;
+    if (sortType === '租案管理' || sortType === '庫存屋主') {
+        var endField = sortType === '租案管理' ? 'rEndDate' : 'contractEnd';
+        list.sort(function(a,b) { return (a[endField]||'9999-12-31').localeCompare(b[endField]||'9999-12-31'); });
+    } else if (sortType === '成交客戶') {
+        list.sort(function(a,b) { return (b.deals||[]).length - (a.deals||[]).length; });
+    } else {
+        var s = document.getElementById('sortSel').value;
+        list.sort(function(a,b) {
+            if (s==='newest') return (b.created||'').localeCompare(a.created||'');
+            if (s==='oldest') return (a.created||'').localeCompare(b.created||'');
+            if (s==='name')   return a.name.localeCompare(b.name,'zh');
+            if (s==='lastContact') return (b.lastContact||'').localeCompare(a.lastContact||'');
+            return 0;
+        });
+    }
+    // 去重
     var seen = {};
     editListCache = [];
-    raw.forEach(function(c) { if (!seen[c.id]) { seen[c.id] = true; editListCache.push(c); } });
+    list.forEach(function(c) { if (!seen[c.id]) { seen[c.id] = true; editListCache.push(c); } });
     var idx = editListCache.findIndex(function(c){ return c.id === editId; });
     if (idx < 0 || editListCache.length <= 1) { nav.style.display = 'none'; return; }
     nav.style.display = 'flex';
