@@ -3284,11 +3284,6 @@ function applyTypePicker() {
     document.getElementById('flcGroup').style.display = 'none';
     document.getElementById('namePhoneIdRow').classList.toggle('hidden', hideBasic);
     document.getElementById('emailSourceRow').classList.toggle('hidden', hideBasic);
-    // 成交客戶：自動加空白行
-    if (isClosed) {
-        if (!document.querySelectorAll('#cContactList .c-row').length) addCContactRow();
-        if (!document.querySelectorAll('#dealList .deal-box').length) addDealRow();
-    }
     // 租案管理：顯示子頁籤
     if (isRental) switchRentalTab(activeRentalTab);
     // 自動帶入基本資料
