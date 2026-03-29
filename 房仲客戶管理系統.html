@@ -2734,14 +2734,22 @@ function typeDetail(c) {
         var rows = [
             (c.sGrade ? `<div class="det-row"><span class="det-key">客戶等級</span><span class="det-val"><span class="tag grade-tag-${c.sGrade.toLowerCase()}" style="font-size:14px;padding:3px 12px">${c.sGrade}級</span></span></div>` : ''),
             dRow('身份證字號',c.sIdNo), dRow('生日',isoToROC(c.sBirthday)), dRow('地址',c.sOwnerAddr),
-            dRow('約種',c.contractType), dRow('社區大樓',c.community), dRow('物件地址',c.sAddr),
-            dRow('開價', c.sPrice ? c.sPrice+(c.sPrice.includes('萬')?'':'萬') : ''),
-            dRow('底價', c.sFloorPrice ? c.sFloorPrice+(c.sFloorPrice.includes('萬')?'':'萬') : ''),
-            dRow('服務費', c.sServiceFee ? c.sServiceFee+'%' : ''),
-            dRow('土地坪數',c.sLandSz ? c.sLandSz + (c.sLandSz.includes('坪')?'':'坪') : ''),
-            dRow('建物坪數',c.sSz ? c.sSz + (c.sSz.includes('坪')?'':'坪') : ''), dRow('格局',c.layout),
-            dRow('車位',c.parking), dRow('車位價格', c.parkingPrice ? c.parkingPrice+(c.parkingPrice.includes('萬')?'':'萬') : ''), dRow('車位編號',c.parkingNo),
-            dRow('立約日',isoToROC(c.contractStart)), dRow('到期日',isoToROC(c.contractEnd))
+            dRow('約種',c.contractType||((c.sProperties&&c.sProperties[0])?c.sProperties[0].contractType:'')),
+            dRow('社區大樓',c.community||((c.sProperties&&c.sProperties[0])?c.sProperties[0].community:'')),
+            dRow('物件地址',c.sAddr||((c.sProperties&&c.sProperties[0])?c.sProperties[0].addr:'')),
+            dRow('開價', (function(){ var p=c.sPrice||((c.sProperties&&c.sProperties[0])?c.sProperties[0].price:''); return p?p+(p.includes('萬')?'':'萬'):''; })()),
+            dRow('底價', (function(){ var p=c.sFloorPrice||((c.sProperties&&c.sProperties[0])?c.sProperties[0].floorPrice:''); return p?p+(p.includes('萬')?'':'萬'):''; })()),
+            dRow('服務費', (function(){ var p=c.sServiceFee||((c.sProperties&&c.sProperties[0])?c.sProperties[0].serviceFee:''); return p?p+'%':''; })()),
+            dRow('基地面積', c.sBaseLand ? c.sBaseLand+'坪' : ''),
+            dRow('土地持分', c.sLandShare ? c.sLandShare+'坪' : ''),
+            dRow('主建物', c.sMainBldg ? c.sMainBldg+'坪' : ''),
+            dRow('附屬建物', c.sAncBldg ? c.sAncBldg+'坪' : ''),
+            dRow('共有部分', c.sCommon ? c.sCommon+'坪' : ''),
+            dRow('車位坪數', c.sParkingSz ? c.sParkingSz+'坪' : ''),
+            dRow('車位形態',c.parking), dRow('車位價格', c.parkingPrice ? c.parkingPrice+(c.parkingPrice.includes('萬')?'':'萬') : ''), dRow('車位編號',c.parkingNo),
+            (function(){ var m=parseFloat(c.sMainBldg)||0,a=parseFloat(c.sAncBldg)||0,co=parseFloat(c.sCommon)||0,pk=parseFloat(c.sParkingSz)||0; var b=m+a+co; var reg=b+pk; var ratio=b>0?(co/b*100).toFixed(1):0; return (reg?dRow('登記面積',reg.toFixed(2)+'坪'):'')+(b?dRow('公設比',ratio+'%'):''); })(),
+            dRow('立約日',isoToROC(c.contractStart||((c.sProperties&&c.sProperties[0])?c.sProperties[0].contractStart:''))),
+            dRow('到期日',isoToROC(c.contractEnd||((c.sProperties&&c.sProperties[0])?c.sProperties[0].contractEnd:'')))
         ];
         // 管理費明細
         var mgmtParts = [];
