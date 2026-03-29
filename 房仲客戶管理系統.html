@@ -4600,7 +4600,13 @@ function saveClient() {
 
     // 處理區域
     const areaCity = selectedCities.length ? selectedCities[0] : selectedCity;
-    const areaCities = selectedCities.slice();
+    // 只保留有選區域的城市（其他縣市除外）
+    const areaCities = selectedCities.filter(function(city) {
+        if (city === '其他縣市') return true;
+        var hasSelected = false;
+        document.querySelectorAll('#dg-'+city+' .dist-btn.on').forEach(function(b){ if(b.getAttribute('data-dist')) hasSelected = true; });
+        return hasSelected;
+    });
     const areaDists = selectedDists.join(',');
     const areaOther = get('f-areaOther');
     let areaDisplay = '';
@@ -4615,7 +4621,6 @@ function saveClient() {
                 if (d && !b.textContent.includes('自訂')) matched.push(d);
             });
             if (matched.length) parts.push(city + matched.join('、'));
-            else parts.push(city);
         });
         areaDisplay = parts.join('\n');
     } else if (areaCity === '其他縣市') { areaDisplay = areaOther; }
