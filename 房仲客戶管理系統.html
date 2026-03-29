@@ -1331,6 +1331,7 @@
 </div>
 
 <script>
+window.onerror = function(msg, url, line, col, err) { alert('JS錯誤: ' + msg + '\n行號: ' + line); };
 // ── 區域資料 ──
 const DISTRICTS = {
     '新北市': ['板橋','三重','中和','永和','新莊','新店','蘆洲','土城','五股','泰山','樹林','三峽','林口','鶯歌','淡水','汐止'],
