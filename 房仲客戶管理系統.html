@@ -1551,10 +1551,10 @@ function syncViaIframe(payload, status) {
     form.action = CLOUD_URL;
     form.target = iframe.name;
     form.enctype = 'application/x-www-form-urlencoded';
-    var input = document.createElement('input');
-    input.type = 'hidden';
+    var input = document.createElement('textarea');
     input.name = 'payload';
     input.value = payload;
+    input.style.display = 'none';
     form.appendChild(input);
     document.body.appendChild(form);
     function cleanup() {
