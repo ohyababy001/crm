@@ -922,7 +922,7 @@
                 </div>
                 <div id="szParkingRow" style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap">
                     <div class="fg" style="flex:1;min-width:60px;margin-bottom:0"><label>土地坪數</label><div class="input-grp"><input id="f-sLandSz" placeholder="" style="min-width:0;flex:1"><span class="input-sfx">坪</span></div></div>
-                    <div class="fg" style="flex:1;min-width:60px;margin-bottom:0"><label>建物坪數 <button type="button" class="btn-fill" onclick="openDetailSz()">詳細坪數</button></label><div class="input-grp"><input id="f-sSz" placeholder="" style="min-width:0;flex:1"><span class="input-sfx">坪</span></div></div>
+                    <div class="fg" style="flex:1;min-width:60px;margin-bottom:0"><label>建物坪數</label><div class="input-grp"><input id="f-sSz" placeholder="" style="min-width:0;flex:1"><span class="input-sfx">坪</span></div><button type="button" class="btn-fill" onclick="openDetailSz()" style="margin-top:4px">詳細坪數</button></div>
                     <div class="fg" style="flex:3;min-width:180px;margin-bottom:0">
                         <label>車位 <span id="parkingSzLabel" style="font-weight:400;color:var(--muted);font-size:12px"></span></label>
                         <div style="display:flex;gap:4px;min-width:0">
@@ -3139,7 +3139,7 @@ function calcDetailSz() {
     var total = main + ancillary + common;
     var ratio = total > 0 ? (common / total * 100).toFixed(1) : 0;
     document.getElementById('dSz-ratio').textContent = ratio;
-    document.getElementById('dSz-total').textContent = (total + parking).toFixed(1);
+    document.getElementById('dSz-total').textContent = (total + parking).toFixed(2);
 }
 function saveDetailSz() {
     _detailSz.main = document.getElementById('dSz-main').value.trim();
@@ -3152,7 +3152,7 @@ function saveDetailSz() {
     var common = parseFloat(_detailSz.common) || 0;
     var parking = parseFloat(_detailSz.parking) || 0;
     var total = main + ancillary + common;
-    if (total > 0) document.getElementById('f-sSz').value = total.toFixed(1);
+    if (total > 0) document.getElementById('f-sSz').value = total.toFixed(2);
     // 車位坪數顯示
     var label = document.getElementById('parkingSzLabel');
     if (label) label.textContent = parking > 0 ? '(' + parking + '坪)' : '';
