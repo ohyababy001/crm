@@ -1558,14 +1558,13 @@ function autoSync() {
         cleanup();
     };
     form.submit();
-    document.body.removeChild(form);
-    // Fallback timeout in case neither onload nor onerror fires
+    // Fallback timeout：超時視為失敗，不假裝成功
     setTimeout(function() {
         if (status && status.textContent === '☁️ 同步中…') {
-            status.textContent = '☁️ 已同步 ' + new Date().toLocaleTimeString('zh-TW');
+            status.textContent = '⚠️ 同步逾時，請手動備份確認';
         }
-        try { document.body.removeChild(iframe); } catch(e){}
-    }, 10000);
+        cleanup();
+    }, 15000);
 }
 
 // ── 自動檢查雲端更新（每5分鐘）──
@@ -3090,28 +3089,8 @@ function toggleParkingPrice() {
     document.getElementById('parkingPriceGroup').style.visibility = val ? 'visible' : 'hidden';
     document.getElementById('f-parkingNo').style.display = val ? '' : 'none';
 }
-function toggleRParkingNo() {
-    const val = document.getElementById('f-rParking').value;
-    document.getElementById('rParkingNoGroup').style.display = val ? '' : 'none';
-}
-
-// ── 管理費合計 ──
-function calcMgmtTotal() {
-    var b = parseFloat(document.getElementById('f-sMgmtBuilding').value) || 0;
-    var c = parseFloat(document.getElementById('f-sMgmtCar').value) || 0;
-    var m = parseFloat(document.getElementById('f-sMgmtMoto').value) || 0;
-    var o = parseFloat(document.getElementById('f-sMgmtOther').value) || 0;
-    var total = b + c + m + o;
-    document.getElementById('sMgmtTotal').textContent = total.toLocaleString() + ' 元';
-}
-function calcRMgmtTotal() {
-    var b = parseFloat(document.getElementById('f-rMgmtBuilding').value) || 0;
-    var c = parseFloat(document.getElementById('f-rMgmtCar').value) || 0;
-    var m = parseFloat(document.getElementById('f-rMgmtMoto').value) || 0;
-    var o = parseFloat(document.getElementById('f-rMgmtOther').value) || 0;
-    var total = b + c + m + o;
-    document.getElementById('rMgmtTotal').textContent = total.toLocaleString() + ' 元';
-}
+// toggleRParkingNo 已移至租案物件區塊 inline handler
+// calcRMgmtTotal 已由 calcRpMgmt 取代
 
 // ── 訊息彈窗 ──
 var _msgCancelFn = null;
@@ -4325,66 +4304,8 @@ function getRentalProperties() {
 }
 function clearRentalProperties() { document.getElementById('rPropertyList').innerHTML = ''; rPropId = 0; }
 
-function renewLease() {
-    var oldEnd = document.getElementById('f-rEndDate').value;
-    var oldStart = document.getElementById('f-rStartDate').value;
-    if (!oldEnd) { alert('請先填寫到期日'); return; }
-
-    var months = 12;
-    if (oldStart && oldEnd) {
-        var s = rocToISO(oldStart), e = rocToISO(oldEnd);
-        if (s && e) {
-            var sd = new Date(s+'T00:00:00'), ed = new Date(e+'T00:00:00');
-            // 到期日+1天 = 實際結束日，用結束日算月數才準確
-            var endPlus1 = new Date(ed); endPlus1.setDate(endPlus1.getDate() + 1);
-            months = (endPlus1.getFullYear()-sd.getFullYear())*12 + (endPlus1.getMonth()-sd.getMonth());
-            if (months <= 0) months = 12;
-        }
-    }
-
-    var oldEndISO = rocToISO(oldEnd);
-    var oldStartISO = rocToISO(oldStart);
-    var newStart = new Date(oldEndISO+'T00:00:00');
-    newStart.setDate(newStart.getDate() + 1);
-    var newEnd = new Date(newStart);
-    newEnd.setMonth(newEnd.getMonth() + months);
-    newEnd.setDate(newEnd.getDate() - 1);
-
-    var newStartISO = localDateISO(newStart);
-    var newEndISO = localDateISO(newEnd);
-
-    // 存入續約紀錄
-    pendingRenewals.push({
-        oldStart: oldStartISO, oldEnd: oldEndISO,
-        newStart: newStartISO, newEnd: newEndISO,
-        months: months, time: new Date().toISOString()
-    });
-
-    // 更新日期
-    document.getElementById('f-rStartDate').value = isoToROC(newStartISO);
-    document.getElementById('f-rEndDate').value = isoToROC(newEndISO);
-
-    renderRRenewals();
-    showMsg('已續約 ' + months + ' 個月', '新租期：' + isoToROC(newStartISO) + ' ~ ' + isoToROC(newEndISO) + '\n（請按儲存完成續約）');
-}
-function renderRRenewals() {
-    var el = document.getElementById('rRenewalHistory');
-    var list = document.getElementById('rRenewalList');
-    if (!el || !list) return;
-    var editData = editId ? (DB.find(function(x){return x.id===editId;})||{}).renewals || [] : [];
-    var all = editData.concat(pendingRenewals);
-    if (all.length) {
-        var endEl = document.getElementById('f-rEndDate');
-        var curEnd = endEl ? endEl.value : '';
-        el.style.display = '';
-        list.innerHTML = all.map(function(r) {
-            return '<span style="padding:5px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--bg)">' + isoToROC(r.oldEnd) + '</span>';
-        }).join('') + '<span style="padding:5px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--bg);font-weight:700;color:var(--deep)">' + esc(curEnd) + ' (現)</span>';
-    } else {
-        el.style.display = 'none';
-    }
-}
-
+// renewLease 已由 renewRpContract 取代
+// renderRRenewals 已由 showRpRenewalHistory 取代
 
 // ── 預排行程 ──
 function buildTimeOptions(sel) {
@@ -5025,7 +4946,7 @@ function toggleRoom(btn, room) {
     btn.classList.toggle('on');
     if (btn.classList.contains('on')) { if (!selectedRooms.includes(room)) selectedRooms.push(room); }
     else selectedRooms = selectedRooms.filter(r => r !== room);
-    var _roomOther = document.getElementById('f-roomOther'); if(_roomOther) _roomOther.style.display = selectedRooms.includes('其他') ? '' : 'none';
+    // f-roomOther 已移至買方需求區塊
 }
 function pickRoom(btn, room) {
     // 單選：取消其他，只選一個
@@ -5080,7 +5001,6 @@ function getAreaDisplay() {
 // ── Form: Reset ──
 const SIMPLE_FIELDS = ['fn','fp','f-idNo','fe','fs','flc','fso','fnotes',
     'f-bName','f-bPhone','f-bIdNo','f-bOccupation','f-bBirthday','f-bZip','f-bAddr','f-bEmail','f-bSource',
-    'f-budgetMin','f-budgetMax','f-downPayment','f-want','f-noWant','f-roomOther','f-areaOther',
     'f-sName','f-sPhone','f-sIdNo','f-sOccupation','f-sBirthday','f-sOwnerAddr','f-sEmail','f-sSource',
     'f-community','f-sAddr','f-sPrice','f-sFloorPrice','f-sServiceFee','f-sBaseLand','f-sLandShare','f-sMainBldg','f-sAncBldg','f-sCommon','f-sParkingSz','f-sLandSz','f-sSz','f-layout','f-sMgmtBuilding','f-sMgmtCar','f-sMgmtMoto','f-sMgmtOther','f-parkingPrice','f-parkingNo','f-contractStart','f-contractEnd',
     'f-cName','f-cPhone','f-cIdNo','f-cOccupation','f-cBirthday','f-cZip','f-cAddr','f-cEmail','f-cSource',
@@ -5088,7 +5008,6 @@ const SIMPLE_FIELDS = ['fn','fp','f-idNo','fe','fs','flc','fso','fnotes',
     'f-llName','f-llPhone','f-llIdNo','f-llOccupation','f-llBirthday','f-llEmail','f-llSource','f-llZip','f-llAddr',
     'f-ttName','f-ttPhone','f-ttIdNo','f-ttOccupation','f-ttBirthday','f-ttEmail','f-ttSource','f-ttZip','f-ttAddr',
     'f-rSource',
-    'f-rCommunity','f-rAddr','f-rent','f-rSz','f-rMgmtBuilding','f-rMgmtCar','f-rMgmtMoto','f-rMgmtOther','f-rParkingNo','f-rStartDate','f-rEndDate',
     ];
 
 function resetForm() {
@@ -5103,23 +5022,20 @@ function resetForm() {
     document.querySelectorAll('.city-btn').forEach(b=>b.classList.remove('on'));
     document.querySelectorAll('.dist-btn').forEach(b=>b.classList.remove('on'));
     document.querySelectorAll('.dist-area').forEach(el=>el.classList.remove('on'));
-    var _roomOther2 = document.getElementById('f-roomOther'); if(_roomOther2) _roomOther2.style.display = 'none';
+    // f-roomOther 已移至買方需求區塊
     document.getElementById('f-contractType').value = '';
     document.getElementById('f-parking').value = '';
     document.getElementById('f-sMgmtPeriod').value = '';
     document.getElementById('parkingPriceGroup').style.visibility = 'hidden';
     document.getElementById('f-parkingNo').style.display = 'none';
-    var _rp = document.getElementById('f-rParking'); if(_rp) _rp.value = '';
-    var _rpng = document.getElementById('rParkingNoGroup'); if(_rpng) _rpng.style.display = 'none';
-    var _rrp = document.getElementById('f-rRentPeriod'); if(_rrp) _rrp.value = '月繳';
+    // f-rParking, rParkingNoGroup, f-rRentPeriod 已移至租案物件區塊
     ['f-rSubsidy','f-rSocialHouse','f-rRegister','f-rTax','f-rPet','f-rAltar','f-rGoodCitizen','f-rSubsidy2','f-rSocialHouse2','f-rRegister2','f-rTax2','f-rPet2','f-rAltar2','f-rGoodCitizen2'].forEach(function(id){ var el=document.getElementById(id); if(el) el.checked=false; });
     syncCondBtns();
     activeRentalTab = '房東';
-    var rh = document.getElementById('rRenewalHistory'); if(rh) rh.style.display='none';
-    clearEquipData();
-    var eb = document.getElementById('equipBody'); if(eb) eb.classList.remove('on');
-    var _rmt = document.getElementById('f-rMgmtType'); if(_rmt) _rmt.value = '';
-    var _rmtt = document.getElementById('rMgmtTotal'); if(_rmtt) _rmtt.textContent = '0 元';
+    // rRenewalHistory 已由租案物件區塊處理
+    // clearEquipData 已由 clearRentalProperties 處理
+    // equipBody 已由租案物件區塊處理
+    // f-rMgmtType, rMgmtTotal 已移至租案物件區塊
     document.getElementById('namePhoneIdRow').classList.remove('hidden');
     document.getElementById('emailSourceRow').classList.remove('hidden');
     document.getElementById('emailGroup').style.display = '';
