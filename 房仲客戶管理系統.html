@@ -650,26 +650,26 @@
 
         <!-- 經營買方過濾列 -->
         <div class="buyer-filter" id="buyerFilter">
-            <div style="display:flex;align-items:flex-start">
-                <div style="display:flex;gap:6px;flex-wrap:wrap;flex:1">
-                    <button class="bf-chip on" onclick="clearBfRoom()">全部</button>
-                    <span style="flex-shrink:0;font-size:14px;font-weight:600;color:white;background:#1D4ED8;padding:6px 16px;border-radius:20px;margin-left:8px">房型</span>
-                    <button class="bf-chip" onclick="toggleBfRoom(this,'套房')">套房</button>
-                    <button class="bf-chip" onclick="toggleBfRoom(this,'二房')">二房</button>
-                    <button class="bf-chip" onclick="toggleBfRoom(this,'三房')">三房</button>
-                    <button class="bf-chip" onclick="toggleBfRoom(this,'四房')">四房</button>
-                    <button class="bf-chip" onclick="toggleBfRoom(this,'公寓')">公寓</button>
-                    <button class="bf-chip" onclick="toggleBfRoom(this,'豪宅')">豪宅</button>
-                    <button class="bf-chip" onclick="toggleBfRoom(this,'店面')">店面</button>
-                    <button class="bf-chip" onclick="toggleBfRoom(this,'辦公')">辦公</button>
-                    <button class="bf-chip" onclick="toggleBfRoom(this,'透天')">透天</button>
-                    <span style="width:1px;background:var(--border);margin:2px 4px;flex-shrink:0"></span>
-                    <span style="flex-shrink:0;font-size:14px;font-weight:600;color:white;background:#9333EA;padding:6px 16px;border-radius:20px;margin-left:8px">等級</span>
-                    <button class="bf-chip bf-grade-a" onclick="toggleBfGrade(this,'A')">A級</button>
-                    <button class="bf-chip bf-grade-b" onclick="toggleBfGrade(this,'B')">B級</button>
-                    <button class="bf-chip bf-grade-c" onclick="toggleBfGrade(this,'C')">C級</button>
-                </div>
-                <span class="bf-clear" onclick="clearBfRoom();clearBfGrade()" style="flex-shrink:0">清除</span>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+                <span style="flex-shrink:0;font-size:14px;font-weight:600;color:white;background:#1D4ED8;padding:6px 16px;border-radius:20px">房型</span>
+                <button class="bf-chip on" onclick="clearBfRoom()">全部</button>
+                <button class="bf-chip" onclick="toggleBfRoom(this,'套房')">套房</button>
+                <button class="bf-chip" onclick="toggleBfRoom(this,'二房')">二房</button>
+                <button class="bf-chip" onclick="toggleBfRoom(this,'三房')">三房</button>
+                <button class="bf-chip" onclick="toggleBfRoom(this,'四房')">四房</button>
+                <button class="bf-chip" onclick="toggleBfRoom(this,'公寓')">公寓</button>
+                <button class="bf-chip" onclick="toggleBfRoom(this,'豪宅')">豪宅</button>
+                <button class="bf-chip" onclick="toggleBfRoom(this,'店面')">店面</button>
+                <button class="bf-chip" onclick="toggleBfRoom(this,'辦公')">辦公</button>
+                <button class="bf-chip" onclick="toggleBfRoom(this,'透天')">透天</button>
+                <span class="bf-clear" onclick="clearBfRoom()" style="flex-shrink:0">清除</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+                <span style="flex-shrink:0;font-size:14px;font-weight:600;color:white;background:#9333EA;padding:6px 16px;border-radius:20px">等級</span>
+                <button class="bf-chip bf-grade-a" onclick="toggleBfGrade(this,'A')">A級</button>
+                <button class="bf-chip bf-grade-b" onclick="toggleBfGrade(this,'B')">B級</button>
+                <button class="bf-chip bf-grade-c" onclick="toggleBfGrade(this,'C')">C級</button>
+                <span class="bf-clear" onclick="clearBfGrade()" style="flex-shrink:0">清除</span>
             </div>
         </div>
 
@@ -2082,7 +2082,7 @@ function toggleBfRoom(btn, room) {
     document.querySelector('#buyerFilter .bf-chip[onclick*="clearBfRoom"]').classList.remove('on');
     if (wasOn) {
         bfRooms = [];
-        if (!bfGrade) document.querySelector('#buyerFilter .bf-chip[onclick*="clearBfRoom"]').classList.add('on');
+        document.querySelector('#buyerFilter .bf-chip[onclick*="clearBfRoom"]').classList.add('on');
     } else {
         bfRooms = [room];
         btn.classList.add('on');
@@ -4114,11 +4114,8 @@ function applyFill(target, s) {
 var bfGrade = '';
 function toggleBfGrade(btn, grade) {
     var wasOn = btn.classList.contains('on');
-    document.querySelectorAll('.bf-chip[onclick*="toggleBfGrade"]').forEach(function(b){ b.classList.remove('on'); });
+    document.querySelectorAll('#buyerFilter .bf-chip[onclick*="toggleBfGrade"]').forEach(function(b){ b.classList.remove('on'); });
     if (wasOn) { bfGrade = ''; } else { bfGrade = grade; btn.classList.add('on'); }
-    // 更新全部按鈕狀態
-    if (bfGrade || bfRooms.length) document.querySelector('#buyerFilter .bf-chip[onclick*="clearBfRoom"]').classList.remove('on');
-    else document.querySelector('#buyerFilter .bf-chip[onclick*="clearBfRoom"]').classList.add('on');
     render();
 }
 function clearBfGrade() {
