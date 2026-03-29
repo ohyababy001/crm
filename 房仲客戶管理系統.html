@@ -637,7 +637,7 @@
                 <span class="filter-left"><span class="dot c-rental"></span>租案</span>
                 <span><span class="cnt" id="ct-租案管理">0</span><span class="cnt-archived" id="ca-租案管理"></span></span>
             </button>
-            <div id="rentalSub" style="display:none;padding-left:20px">
+            <div id="rentalSub" style="padding-left:20px;overflow:hidden;max-height:0;transition:max-height 0.2s ease">
                 <button class="filter-btn filter-sub" onclick="setFilter('租案_房東',this)" style="padding:8px 12px;font-size:18px">
                     <span class="filter-left"><span class="dot" style="background:#4A7A4A"></span>房東</span>
                     <span class="cnt" id="ct-租案_房東">0</span>
@@ -1051,14 +1051,15 @@
 
             <!-- 租案管理 -->
             <div class="type-sec" id="s-租案管理">
-                <!-- 子頁籤 -->
-                <div style="display:flex;gap:6px;margin:4px 0 10px">
-                    <button type="button" class="tp-btn tp-rental" style="flex:1;padding:8px" id="rTab-房東" onclick="switchRentalTab('房東')">房東</button>
-                    <button type="button" class="tp-btn tp-rental" style="flex:1;padding:8px" id="rTab-租客" onclick="switchRentalTab('租客')">租客</button>
+                <!-- 隱藏的 tab 按鈕（保留 DOM 供 JS 引用） -->
+                <div style="display:none">
+                    <button id="rTab-房東">房東</button>
+                    <button id="rTab-租客">租客</button>
                 </div>
 
                 <!-- 房東頁面 -->
-                <div id="rPage-房東" style="display:none">
+                <div id="rPage-房東">
+                    <div class="sec-title" style="margin-top:4px;color:#4A7A4A">房東資料</div>
                     <div style="display:flex;margin-bottom:14px;align-items:flex-start">
                         <span style="font-size:15px;color:var(--text);line-height:30px;font-weight:700;flex-shrink:0">租屋條件：</span>
                         <input type="checkbox" id="f-rSubsidy" style="display:none">
@@ -1101,7 +1102,8 @@
                 </div>
 
                 <!-- 租客頁面 -->
-                <div id="rPage-租客" style="display:none">
+                <div id="rPage-租客" style="margin-top:14px;padding-top:14px;border-top:2px solid var(--border)">
+                    <div class="sec-title" style="margin-top:0;color:#7C3AED">租客資料</div>
                     <div style="display:flex;margin-bottom:14px;align-items:flex-start">
                         <span style="font-size:15px;color:var(--text);line-height:30px;font-weight:700;flex-shrink:0">租屋條件：</span>
                         <input type="checkbox" id="f-rSubsidy2" style="display:none">
@@ -2112,7 +2114,7 @@ function setFilter(type, btn) {
     document.getElementById('sellerFilter').classList.toggle('on', type === '庫存屋主');
     // 租案子項目展開/收合
     var rentalSub = document.getElementById('rentalSub');
-    rentalSub.style.display = (type === '租案管理' || type === '租案_房東' || type === '租案_租客') ? '' : 'none';
+    rentalSub.style.maxHeight = (type === '租案管理' || type === '租案_房東' || type === '租案_租客') ? '120px' : '0';
     var isRentalType = type === '租案管理' || type === '租案_房東' || type === '租案_租客';
     document.getElementById('sortSel').style.display = (type === '成交客戶' || isRentalType || type === '庫存屋主') ? 'none' : '';
     // 預設排序
@@ -3510,10 +3512,7 @@ initCContactHeader();
 var activeRentalTab = '房東';
 function switchRentalTab(tab) {
     activeRentalTab = tab;
-    document.getElementById('rPage-房東').style.display = tab==='房東' ? '' : 'none';
-    document.getElementById('rPage-租客').style.display = tab==='租客' ? '' : 'none';
-    document.getElementById('rTab-房東').classList.toggle('selected', tab==='房東');
-    document.getElementById('rTab-租客').classList.toggle('selected', tab==='租客');
+    // 房東和租客都直接顯示，不再切換隱藏
 }
 
 // ── 租案角色標籤 ──
