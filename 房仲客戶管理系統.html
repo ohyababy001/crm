@@ -797,17 +797,17 @@
                 </div>
 
                 <div class="fg full" style="margin-bottom:6px">
-                    <label style="margin-bottom:6px">房型需求</label>
+                    <label style="margin-bottom:6px">房型需求（可複選）</label>
                     <div class="room-picker">
-                        <button type="button" class="rm-btn" onclick="pickRoom(this,'套房')">套房</button>
-                        <button type="button" class="rm-btn" onclick="pickRoom(this,'二房')">二房</button>
-                        <button type="button" class="rm-btn" onclick="pickRoom(this,'三房')">三房</button>
-                        <button type="button" class="rm-btn" onclick="pickRoom(this,'四房')">四房</button>
-                        <button type="button" class="rm-btn" onclick="pickRoom(this,'公寓')">公寓</button>
-                        <button type="button" class="rm-btn" onclick="pickRoom(this,'豪宅')">豪宅</button>
-                        <button type="button" class="rm-btn" onclick="pickRoom(this,'店面')">店面</button>
-                        <button type="button" class="rm-btn" onclick="pickRoom(this,'辦公')">辦公</button>
-                        <button type="button" class="rm-btn" onclick="pickRoom(this,'透天')">透天</button>
+                        <button type="button" class="rm-btn" onclick="toggleRoom(this,'套房')">套房</button>
+                        <button type="button" class="rm-btn" onclick="toggleRoom(this,'二房')">二房</button>
+                        <button type="button" class="rm-btn" onclick="toggleRoom(this,'三房')">三房</button>
+                        <button type="button" class="rm-btn" onclick="toggleRoom(this,'四房')">四房</button>
+                        <button type="button" class="rm-btn" onclick="toggleRoom(this,'公寓')">公寓</button>
+                        <button type="button" class="rm-btn" onclick="toggleRoom(this,'豪宅')">豪宅</button>
+                        <button type="button" class="rm-btn" onclick="toggleRoom(this,'店面')">店面</button>
+                        <button type="button" class="rm-btn" onclick="toggleRoom(this,'辦公')">辦公</button>
+                        <button type="button" class="rm-btn" onclick="toggleRoom(this,'透天')">透天</button>
                     </div>
                     <input id="f-roomOther" placeholder="" style="margin-top:6px;display:none">
                 </div>
@@ -1447,24 +1447,64 @@ Object.entries(DISTRICTS).forEach(([city, dists]) => {
     ).join('') + (city === '台北市' ? '' : `<button type="button" class="dist-btn" onclick="addCustomDist('${city}')" style="color:var(--muted);border-style:dashed">＋ 自訂</button>`);
 });
 function addCustomDist(city, presetName) {
-    var name = presetName || prompt('請輸入自訂區域名稱（例：八里區）');
+    if (presetName) {
+        _insertCustomDist(city, presetName, false);
+    } else {
+        showCustomDistDialog(city);
+    }
+}
+function showCustomDistDialog(city) {
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.padding = '16px'; box.style.minWidth = '260px';
+    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">新增自訂區域</div>' +
+        '<input type="text" id="customDistInput" placeholder="例：八里區" style="width:100%;padding:8px 11px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box;margin-bottom:12px">' +
+        '<div style="display:flex;gap:8px;justify-content:flex-end">' +
+            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
+            '<button type="button" onclick="confirmCustomDist(\''+city+'\')" style="padding:8px 16px;border:none;border-radius:8px;background:var(--deep);color:white;cursor:pointer;font-size:14px">確定</button>' +
+        '</div>';
+    overlay.appendChild(box);
+    overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+    document.body.appendChild(overlay);
+    setTimeout(function(){ document.getElementById('customDistInput').focus(); }, 100);
+}
+function confirmCustomDist(city) {
+    var input = document.getElementById('customDistInput');
+    var name = input ? input.value.trim() : '';
     if (!name) return;
+    document.querySelector('.fill-overlay').remove();
+    _insertCustomDist(city, name, true);
+}
+function _insertCustomDist(city, name, autoSelect) {
     if (!name.endsWith('區') && !name.endsWith('鄉') && !name.endsWith('鎮') && !name.endsWith('市')) name += '區';
     var grid = document.getElementById('dg-'+city);
     if (!grid) return;
-    // 檢查是否已存在
     var existing = grid.querySelector('[data-dist="'+name+'"]');
     if (existing) return;
-    // 在 ＋自訂 按鈕前插入
     var addBtn = grid.querySelector('[onclick*="addCustomDist"]');
     var btn = document.createElement('button');
     btn.type = 'button'; btn.className = 'dist-btn custom-dist';
     btn.setAttribute('data-dist', name);
     btn.textContent = name;
     btn.onclick = function(){ toggleDist(btn, name); };
+    // 長按刪除
+    var holdTimer;
+    btn.addEventListener('pointerdown', function(){ holdTimer = setTimeout(function(){ deleteCustomDist(btn, name); }, 800); });
+    btn.addEventListener('pointerup', function(){ clearTimeout(holdTimer); });
+    btn.addEventListener('pointerleave', function(){ clearTimeout(holdTimer); });
     grid.insertBefore(btn, addBtn);
-    // 手動新增時自動選取，載入時不自動選取
-    if (!presetName) toggleDist(btn, name);
+    if (autoSelect) toggleDist(btn, name);
+}
+function deleteCustomDist(btn, name) {
+    if (confirm('確定刪除自訂區域「'+name+'」？')) {
+        // 取消選取
+        if (selectedDists.includes(name)) {
+            selectedDists = selectedDists.filter(function(d){ return d !== name; });
+        }
+        btn.remove();
+    }
 }
 
 // ── State ──
@@ -1940,9 +1980,15 @@ function setFilter(type, btn) {
 
 // ── Buyer filter chips ──
 function toggleBfRoom(btn, room) {
-    btn.classList.toggle('on');
-    if (btn.classList.contains('on')) { if (!bfRooms.includes(room)) bfRooms.push(room); }
-    else bfRooms = bfRooms.filter(r => r !== room);
+    // 單選篩選
+    var wasOn = btn.classList.contains('on');
+    document.querySelectorAll('.bf-chip[onclick*="toggleBfRoom"]').forEach(function(b){ b.classList.remove('on'); });
+    if (wasOn) {
+        bfRooms = [];
+    } else {
+        bfRooms = [room];
+        btn.classList.add('on');
+    }
     render();
 }
 function clearBfRoom() {
