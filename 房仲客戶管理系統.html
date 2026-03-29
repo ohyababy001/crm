@@ -751,22 +751,20 @@
 
             <!-- 經營買方 -->
             <div class="type-sec" id="s-經營買方">
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px;margin-top:4px">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px;margin-top:4px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'buyer')">帶入</button></label><input id="f-bName" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-bPhone" placeholder="" onblur="autoPhone(this)"></div>
-                </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-bIdNo" placeholder=""></div>
-                    <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-bBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                 </div>
-                <div data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr;gap:6px;margin-bottom:6px">
+                <div style="display:grid;grid-template-columns:1fr 3fr 1fr;gap:10px;margin-bottom:6px">
+                    <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-bBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
+                    <div class="fg" style="margin-bottom:0"><label>Email</label><input id="f-bEmail" type="email" placeholder=""></div>
+                    <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-bSource" placeholder=""></div>
+                </div>
+                <div data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr;gap:6px;margin-bottom:10px">
                     <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-bAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="娘家">娘家</option><option value="自訂">自訂</option></select></div>
                     <div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input id="f-bZip" data-f="zip" placeholder="" style="min-width:0"></div>
                     <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-bAddr" placeholder="" onblur="autoZip(this)"></div>
-                </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-                    <div class="fg" style="margin-bottom:0"><label>Email</label><input id="f-bEmail" type="email" placeholder=""></div>
-                    <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-bSource" placeholder=""></div>
                 </div>
                 <div id="bPersonList"></div>
                 <button type="button" class="add-row-btn" onclick="addBPersonRow()" style="margin-bottom:10px">＋ 新增聯絡人</button>
@@ -838,22 +836,20 @@
             <!-- 庫存屋主 -->
             <div class="type-sec" id="s-庫存屋主">
                 <!-- 屋主基本資料 -->
-                <div id="sellerBasicRow1" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px">
+                <div id="sellerBasicRow1" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'seller')">帶入</button></label><input id="f-sName" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-sPhone" placeholder="" onblur="autoPhone(this)"></div>
-                </div>
-                <div id="sellerBasicRow2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-sIdNo" placeholder=""></div>
-                    <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-sBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                 </div>
-                <div id="sellerBasicRow3" data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr;gap:6px;margin-bottom:6px">
+                <div id="sellerBasicRow2" style="display:grid;grid-template-columns:1fr 3fr 1fr;gap:10px;margin-bottom:6px">
+                    <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-sBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
+                    <div class="fg" style="margin-bottom:0"><label>Email</label><input id="f-sEmail" type="email" placeholder=""></div>
+                    <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-sSource" placeholder=""></div>
+                </div>
+                <div id="sellerBasicRow3" data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr;gap:6px;margin-bottom:10px">
                     <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-sAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="娘家">娘家</option><option value="自訂">自訂</option></select></div>
                     <div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input id="f-sZip" data-f="zip" placeholder="" style="min-width:0"></div>
                     <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-sOwnerAddr" placeholder="" onblur="autoZip(this)"></div>
-                </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-                    <div class="fg" style="margin-bottom:0"><label>Email</label><input id="f-sEmail" type="email" placeholder=""></div>
-                    <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-sSource" placeholder=""></div>
                 </div>
                 <div id="sPersonList"></div>
                 <button type="button" class="add-row-btn" onclick="addPersonBlock('sPersonList')" style="margin-bottom:10px">＋ 新增聯絡人</button>
@@ -990,12 +986,12 @@
                             <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rGoodCitizen')" style="padding:4px 12px;font-size:13px">良民</button>
                         </div>
                     </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px">
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                         <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'landlord')">帶入</button></label><input id="f-llName" placeholder=""></div>
                         <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-llPhone" placeholder="" onblur="autoPhone(this)"></div>
-                    </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px">
                         <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-llIdNo" placeholder=""></div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:6px">
                         <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-llBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                     </div>
                     <div data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr;gap:6px;margin-bottom:6px">
@@ -1035,12 +1031,12 @@
                             <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rGoodCitizen2')" style="padding:4px 12px;font-size:13px">良民</button>
                         </div>
                     </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px">
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                         <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'tenant')">帶入</button></label><input id="f-ttName" placeholder=""></div>
                         <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-ttPhone" placeholder="" onblur="autoPhone(this)"></div>
-                    </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px">
                         <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-ttIdNo" placeholder=""></div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:6px">
                         <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-ttBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                     </div>
                     <div data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr;gap:6px;margin-bottom:6px">
@@ -1150,22 +1146,20 @@
 
             <!-- 成交 -->
             <div class="type-sec" id="s-成交客戶">
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px;margin-top:4px">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px;margin-top:4px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'closed')">帶入</button></label><input id="f-cName" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-cPhone" placeholder="" onblur="autoPhone(this)"></div>
-                </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-cIdNo" placeholder=""></div>
-                    <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-cBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                 </div>
-                <div data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr;gap:6px;margin-bottom:6px">
+                <div style="display:grid;grid-template-columns:1fr 3fr 1fr;gap:10px;margin-bottom:6px">
+                    <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-cBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
+                    <div class="fg" style="margin-bottom:0"><label>Email</label><input id="f-cEmail" type="email" placeholder=""></div>
+                    <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-cSource" placeholder=""></div>
+                </div>
+                <div data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr;gap:6px;margin-bottom:10px">
                     <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-cAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="娘家">娘家</option><option value="自訂">自訂</option></select></div>
                     <div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input id="f-cZip" data-f="zip" placeholder="" style="min-width:0"></div>
                     <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-cAddr" placeholder="" onblur="autoZip(this)"></div>
-                </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-                    <div class="fg" style="margin-bottom:0"><label>Email</label><input id="f-cEmail" type="email" placeholder=""></div>
-                    <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-cSource" placeholder=""></div>
                 </div>
                 <div id="cContactList"></div>
                 <button type="button" class="add-row-btn" onclick="addCContactRow()" style="margin-bottom:6px">＋ 新增聯絡人</button>
@@ -1178,22 +1172,20 @@
 
             <!-- 商機募集 -->
             <div class="type-sec" id="s-商機募集">
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px;margin-top:4px">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px;margin-top:4px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'dev')">帶入</button></label><input id="f-dName" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-dPhone" placeholder="" onblur="autoPhone(this)"></div>
-                </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-dIdNo" placeholder=""></div>
-                    <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-dBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                 </div>
-                <div data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr;gap:6px;margin-bottom:6px">
+                <div style="display:grid;grid-template-columns:1fr 3fr 1fr;gap:10px;margin-bottom:6px">
+                    <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-dBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
+                    <div class="fg" style="margin-bottom:0"><label>Email</label><input id="f-dEmail" type="email" placeholder=""></div>
+                    <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-dSource" placeholder=""></div>
+                </div>
+                <div data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr;gap:6px;margin-bottom:10px">
                     <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-dAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="娘家">娘家</option><option value="自訂">自訂</option></select></div>
                     <div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input id="f-dZip" data-f="zip" placeholder="" style="min-width:0"></div>
                     <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-dAddr" placeholder="" onblur="autoZip(this)"></div>
-                </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-                    <div class="fg" style="margin-bottom:0"><label>Email</label><input id="f-dEmail" type="email" placeholder=""></div>
-                    <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-dSource" placeholder=""></div>
                 </div>
                 <div id="dPersonList"></div>
                 <button type="button" class="add-row-btn" onclick="addDPersonRow()" style="margin-bottom:6px">＋ 新增聯絡人</button>
@@ -3150,22 +3142,20 @@ function addPersonBlock(listId, data) {
         : '<select data-f="addrType" onchange="onAddrTypeChange(this)"><option value="住家"'+(d.addrType==='住家'?' selected':'')+'>住家</option><option value="公司"'+(d.addrType==='公司'?' selected':'')+'>公司</option><option value="娘家"'+(d.addrType==='娘家'?' selected':'')+'>娘家</option><option value="自訂"'+(d.addrType==='自訂'?' selected':'')+'>自訂</option></select>';
     var html = '<div class="person-block" id="pb-'+personBlockId+'" style="border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px;position:relative">' +
         '<button type="button" class="c-del" onclick="this.parentElement.remove()" style="position:absolute;top:6px;right:8px">✕</button>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px">' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px">' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">姓名</label><input data-f="name" value="'+esc(d.name||'')+'" placeholder=""></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">電話</label><input data-f="phone" value="'+esc(d.phone||'')+'" placeholder="" onblur="autoPhone(this)"></div>' +
-        '</div>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px">' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">身份證字號</label><input data-f="idNo" value="'+esc(d.idNo||'')+'" placeholder=""></div>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 3fr 1fr;gap:8px;margin-bottom:4px">' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">生日</label><div class="roc-date-wrap"><input data-f="birthday" type="text" value="'+esc(bdVal)+'" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">Email</label><input data-f="email" type="email" value="'+esc(d.email||'')+'" placeholder=""></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">客戶來源</label><input data-f="source" value="'+esc(d.source||'')+'" placeholder=""></div>' +
         '</div>' +
         '<div data-addr-row style="display:grid;grid-template-columns:1fr 1fr 6fr;gap:6px;margin-bottom:4px">' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">類型</label>'+typeHtml+'</div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">郵遞區號</label><input data-f="zip" value="'+esc(d.zip||'')+'" placeholder="" style="min-width:0"></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">地址</label><input data-f="addr" value="'+esc(d.addr||'')+'" placeholder="" onblur="autoZip(this)"></div>' +
-        '</div>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
-            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">Email</label><input data-f="email" type="email" value="'+esc(d.email||'')+'" placeholder=""></div>' +
-            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">客戶來源</label><input data-f="source" value="'+esc(d.source||'')+'" placeholder=""></div>' +
         '</div>' +
     '</div>';
     document.getElementById(listId).insertAdjacentHTML('beforeend', html);
