@@ -2511,10 +2511,9 @@ function renderCard(c) {
             displayTypes = [curFilter].concat(displayTypes.filter(function(t){ return t !== curFilter; }));
         }
         const typeTags = displayTypes.map(t => {
-            var tag = `<span class="tag t-${TC[t]||'buyer'}">${TYPE_DISPLAY[t]||t}</span>`;
-            if (t === '經營買方' && c.bGrade) tag = `<span class="tag grade-tag-${c.bGrade.toLowerCase()}">${c.bGrade}級</span>` + tag;
-            if (t === '庫存屋主' && c.sGrade) tag = `<span class="tag grade-tag-${c.sGrade.toLowerCase()}">${c.sGrade}級</span>` + tag;
-            return tag;
+            if (t === '經營買方' && c.bGrade) return `<span class="tag grade-tag-${c.bGrade.toLowerCase()}">${c.bGrade}級買方</span>`;
+            if (t === '庫存屋主' && c.sGrade) return `<span class="tag grade-tag-${c.sGrade.toLowerCase()}">${c.sGrade}級庫存</span>`;
+            return `<span class="tag t-${TC[t]||'buyer'}">${TYPE_DISPLAY[t]||t}</span>`;
         }).join('');
         const statusTag = !cTypes.includes('經營買方') && c.status ? `<span class="tag s-${c.status}">${c.status}</span>` : '';
         const notesText = c.notes ? c.notes.replace(/[\r\n]+/g,' ').replace(/\s+/g,' ').trim() : '';
