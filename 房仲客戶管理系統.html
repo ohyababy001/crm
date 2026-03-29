@@ -2765,6 +2765,26 @@ function typeDetail(c) {
                 rows.push(dRow('第'+(i+1)+'次', isoToROC(r.oldStart)+'~'+isoToROC(r.oldEnd)+' → '+isoToROC(r.newStart)+'~'+isoToROC(r.newEnd)+'（'+r.months+'個月）'));
             });
         }
+        // 關聯租案：自動比對地址
+        if (c.rAddr) {
+            var related = DB.filter(function(r) {
+                if (r.id === c.id || r._deleted) return false;
+                if (!hasType(r,'租案管理')) return false;
+                return r.rAddr && r.rAddr === c.rAddr;
+            });
+            if (related.length) {
+                rows.push('<div style="font-weight:700;font-size:13px;color:#6366F1;margin-top:12px;margin-bottom:6px;border-top:1px solid var(--border);padding-top:8px">📎 關聯租案（同地址）</div>');
+                related.forEach(function(r) {
+                    var rll = (r.rLandlords && r.rLandlords[0]) || {name:r.rLandlord||''};
+                    var rtt = (r.rTenants && r.rTenants[0]) || {name:r.rTenant||''};
+                    var label = '房東：'+(rll.name||'未填')+'　租客：'+(rtt.name||'未填');
+                    rows.push('<div style="padding:8px 12px;margin-bottom:4px;background:#F5F3FF;border-radius:8px;cursor:pointer;font-size:13px" onclick="closeDet();setTimeout(function(){showDetByView(\''+r.id+'\',\'\')},100)">' +
+                        '<div style="font-weight:600;color:#6366F1">'+esc(label)+'</div>' +
+                        (r.rent ? '<div style="color:var(--muted);font-size:12px;margin-top:2px">租金 '+esc(r.rent)+(r.rent.includes('元')?'':'元')+(r.rEndDate?' ・到期 '+isoToROC(r.rEndDate):'')+'</div>' : '') +
+                    '</div>');
+                });
+            }
+        }
         return rows.join('');
     }
     if (c.type==='成交客戶') {
