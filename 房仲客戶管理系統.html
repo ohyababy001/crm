@@ -637,6 +637,16 @@
                 <span class="filter-left"><span class="dot c-rental"></span>租案</span>
                 <span><span class="cnt" id="ct-租案管理">0</span><span class="cnt-archived" id="ca-租案管理"></span></span>
             </button>
+            <div id="rentalSub" style="display:none;padding-left:20px">
+                <button class="filter-btn filter-sub" onclick="setFilter('租案_房東',this)" style="padding:8px 12px;font-size:18px">
+                    <span class="filter-left"><span class="dot" style="background:#4A7A4A"></span>房東</span>
+                    <span class="cnt" id="ct-租案_房東">0</span>
+                </button>
+                <button class="filter-btn filter-sub" onclick="setFilter('租案_租客',this)" style="padding:8px 12px;font-size:18px">
+                    <span class="filter-left"><span class="dot" style="background:#7C3AED"></span>租客</span>
+                    <span class="cnt" id="ct-租案_租客">0</span>
+                </button>
+            </div>
             <button class="filter-btn" onclick="setFilter('成交客戶',this)">
                 <span class="filter-left"><span class="dot c-closed"></span>成交</span>
                 <span class="cnt" id="ct-成交客戶">0</span>
@@ -2095,16 +2105,26 @@ function setFilter(type, btn) {
     showThisMonthMode = false;
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    const titles = { all:'總覽','經營買方':'買方','庫存屋主':'庫存','租案管理':'租案','成交客戶':'成交','商機募集':'商機' };
-    document.getElementById('filterTitle').textContent = titles[type];
+    // 租案子項目也要高亮父項
+    if (type === '租案_房東' || type === '租案_租客') {
+        document.querySelectorAll('.filter-btn').forEach(function(b) {
+            if (b.textContent.includes('租案') && !b.classList.contains('filter-sub')) b.classList.add('active');
+        });
+    }
+    const titles = { all:'總覽','經營買方':'買方','庫存屋主':'庫存','租案管理':'租案','租案_房東':'租案（房東）','租案_租客':'租案（租客）','成交客戶':'成交','商機募集':'商機' };
+    document.getElementById('filterTitle').textContent = titles[type] || type;
     document.getElementById('buyerFilter').classList.toggle('on', type === '經營買方');
     document.getElementById('sellerFilter').classList.toggle('on', type === '庫存屋主');
-    document.getElementById('sortSel').style.display = (type === '成交客戶' || type === '租案管理' || type === '庫存屋主') ? 'none' : '';
+    // 租案子項目展開/收合
+    var rentalSub = document.getElementById('rentalSub');
+    rentalSub.style.display = (type === '租案管理' || type === '租案_房東' || type === '租案_租客') ? '' : 'none';
+    var isRentalType = type === '租案管理' || type === '租案_房東' || type === '租案_租客';
+    document.getElementById('sortSel').style.display = (type === '成交客戶' || isRentalType || type === '庫存屋主') ? 'none' : '';
     // 預設排序
     var sel = document.getElementById('sortSel');
     if (type === '經營買方' || type === '庫存屋主') sel.value = 'lastContact';
     else if (type === '商機募集') sel.value = 'nextSchedule';
-    else if (type !== '成交客戶' && type !== '租案管理') sel.value = 'newest';
+    else if (type !== '成交客戶' && !isRentalType) sel.value = 'newest';
     render();
 }
 
@@ -2162,7 +2182,10 @@ function getData() {
     if (q && curFilter === 'all') {
         list = [...activeDB]; // 全搜尋（含封存）
     } else {
-        list = curFilter === 'all' ? [...activeDB] : activeDB.filter(c => hasType(c, curFilter));
+        if (curFilter === 'all') list = [...activeDB];
+        else if (curFilter === '租案_房東') list = activeDB.filter(function(c){ return hasType(c,'租案管理') && ((c.rLandlords && c.rLandlords.length) || c.rLandlord || c.llName); });
+        else if (curFilter === '租案_租客') list = activeDB.filter(function(c){ return hasType(c,'租案管理') && ((c.rTenants && c.rTenants.length) || c.rTenant || c.ttName); });
+        else list = activeDB.filter(c => hasType(c, curFilter));
         if (!showArchived) list = list.filter(c => !c.archived);
     }
     if (q) list = list.filter(c =>
@@ -2189,8 +2212,8 @@ function getData() {
         list = list.filter(function(c){ return (c.sGrade||'') === bfSGrade; });
     }
     // 租案管理/庫存屋主：強制按到期日排序
-    if (curFilter === '租案管理' || curFilter === '庫存屋主') {
-        var endField = curFilter === '租案管理' ? 'rEndDate' : 'contractEnd';
+    if (curFilter === '租案管理' || curFilter === '租案_房東' || curFilter === '租案_租客' || curFilter === '庫存屋主') {
+        var endField = (curFilter === '租案管理' || curFilter === '租案_房東' || curFilter === '租案_租客') ? 'rEndDate' : 'contractEnd';
         list.sort(function(a,b) { return (a[endField]||'9999-12-31').localeCompare(b[endField]||'9999-12-31'); });
     // 成交客戶：強制按成交次數排序（多→少）
     } else if (curFilter === '成交客戶') {
@@ -2398,6 +2421,12 @@ function render() {
         var archEl = _caEls[t] || (_caEls[t] = document.getElementById('ca-'+t));
         if (archEl) archEl.textContent = arch ? '（封存 '+arch+'）' : '';
     });
+    // 租案子項目計數
+    var rentalActive = liveDB.filter(function(c){ return hasType(c,'租案管理') && !c.archived; });
+    var llCount = rentalActive.filter(function(c){ return (c.rLandlords && c.rLandlords.length) || c.rLandlord || c.llName; }).length;
+    var ttCount = rentalActive.filter(function(c){ return (c.rTenants && c.rTenants.length) || c.rTenant || c.ttName; }).length;
+    var ctLL = document.getElementById('ct-租案_房東'); if(ctLL) ctLL.textContent = llCount;
+    var ctTT = document.getElementById('ct-租案_租客'); if(ctTT) ctTT.textContent = ttCount;
     // 封存切換按鈕：僅在可封存的類型頁面顯示
     var showToggle = ARCHIVABLE.includes(curFilter) && DB.some(c => hasType(c,curFilter) && c.archived);
     document.getElementById('archiveToggle').style.display = showToggle ? '' : 'none';
