@@ -1112,6 +1112,7 @@
 
             <!-- 成交 -->
             <div class="type-sec" id="s-成交客戶">
+                <div class="fg" style="margin-top:4px"><label>客戶來源</label><input id="f-cSource" placeholder=""></div>
                 <div class="sec-title" style="margin-top:4px">聯絡人</div>
                 <div id="cContactHeader"></div>
                 <div id="cContactList"></div>
@@ -1133,6 +1134,7 @@
 
             <!-- 商機募集 -->
             <div class="type-sec" id="s-商機募集">
+                <div class="fg" style="margin-top:4px"><label>客戶來源</label><input id="f-dSource" placeholder=""></div>
                 <div class="c-row" style="margin-bottom:2px;margin-top:4px">
                     <span style="flex:1;font-size:13px;color:var(--text);font-weight:600;min-width:0;padding-left:11px">姓名</span>
                     <span style="flex:1;font-size:13px;color:var(--text);font-weight:600;min-width:0;padding-left:11px">電話</span>
@@ -3512,7 +3514,7 @@ const SIMPLE_FIELDS = ['fn','fp','f-idNo','fe','fs','flc','fso','fnotes',
     'f-budgetMin','f-budgetMax','f-downPayment','f-floor','f-decisionMaker','f-want','f-noWant','f-roomOther','f-areaOther',
     'f-sName','f-sPhone','f-sIdNo','f-sBirthday','f-sOwnerAddr','f-sEmail','f-sSource',
     'f-community','f-sAddr','f-sPrice','f-sFloorPrice','f-sServiceFee','f-sLandSz','f-sSz','f-layout','f-sMgmtBuilding','f-sMgmtCar','f-sMgmtMoto','f-sMgmtOther','f-parkingPrice','f-parkingNo','f-contractStart','f-contractEnd',
-    'f-rSource',
+    'f-rSource','f-cSource','f-dSource',
     'f-rCommunity','f-rAddr','f-rent','f-rSz','f-rMgmtBuilding','f-rMgmtCar','f-rMgmtMoto','f-rMgmtOther','f-rParkingNo','f-rStartDate','f-rEndDate',
     ];
 
@@ -3657,7 +3659,8 @@ function openEdit(id, viewAs) {
     if (c.rTenants && c.rTenants.length) c.rTenants.forEach(function(p){ addRPersonRow('rTenantList','租客',p); });
     else if (c.rTenant) addRPersonRow('rTenantList','租客',{name:c.rTenant,phone:c.rTenantPhone});
     // activeRentalTab 已在 applyTypePicker 之前設定
-    setVal('f-rSource',c.rSource||c.source);
+    var rentalOnly = hasType(c,'租案管理') && !hasType(c,'經營買方');
+    setVal('f-rSource',c.rSource || (rentalOnly ? c.source : ''));
     loadEquipData(c.rEquipment);
     if (hasType(c,'租案管理')) loadRoleTypes(c);
     setVal('f-rCommunity',c.rCommunity); setVal('f-rAddr',c.rAddr); setVal('f-rent',c.rent); setVal('f-rSz',c.rSz);
@@ -3685,6 +3688,8 @@ function openEdit(id, viewAs) {
     if (c.renewals && c.renewals.length) renderRRenewals();
     if (c.rParking) { document.getElementById('f-rParking').value = c.rParking; toggleRParkingNo(); setVal('f-rParkingNo',c.rParkingNo); }
     // 成交客戶
+    var closedOnly = hasType(c,'成交客戶') && !hasType(c,'經營買方');
+    setVal('f-cSource', c.cSource || (closedOnly ? c.source : ''));
     if (c.cContacts && c.cContacts.length) c.cContacts.forEach(function(ct){ addCContactRow(ct); });
     if (c.cAddrs && c.cAddrs.length) c.cAddrs.forEach(function(a){ addCAddrRow(a); });
     if (c.deals && c.deals.length) {
@@ -3692,6 +3697,9 @@ function openEdit(id, viewAs) {
     } else if (c.cProp || c.cPrice || c.cDate) {
         addDealRow({ date:c.cDate, community:'', addr:c.cProp, price:c.cPrice });
     }
+    // 商機募集
+    var devOnly = hasType(c,'商機募集') && !hasType(c,'經營買方');
+    setVal('f-dSource', c.dSource || (devOnly ? c.source : ''));
     if (c.dPersons && c.dPersons.length) c.dPersons.forEach(function(p){ addDPersonRow(p); });
     if (c.dAddrs && c.dAddrs.length) c.dAddrs.forEach(function(a){ addDAddrRow(a); });
     else if (c.dCommunity || c.dAddr) addDAddrRow({devType:c.devType||'出售', community:c.dCommunity, addr:c.dAddr});
@@ -3858,10 +3866,9 @@ function saveClient() {
 
     const data = {
         name, phone, idNo: get('f-idNo'), type, types,
-        email: isSeller ? get('f-sEmail') : (onlySpecial ? '' : get('fe')),
-        status: '',
+        email: get('fe'), status: '',
         lastContact: new Date().toISOString(),
-        source: isSeller ? get('f-sSource') : (isRental ? get('f-rSource') : get('fso')), notes:get('fnotes'),
+        source: get('fso'), notes:get('fnotes'),
         // 經營買方
         budgetMin:get('f-budgetMin'), budgetMax:get('f-budgetMax'), downPayment:get('f-downPayment'),
         budget: (get('f-budgetMin')&&get('f-budgetMax')) ? get('f-budgetMin')+'-'+get('f-budgetMax') : get('f-budgetMin')||get('f-budgetMax')||'',
@@ -3909,10 +3916,12 @@ function saveClient() {
         rStartDate:rocToISO(get('f-rStartDate')), rEndDate:rocToISO(get('f-rEndDate')),
         renewals: (function(){ var existing = editId ? (DB.find(function(x){return x.id===editId;})||{}).renewals || [] : []; return existing.concat(pendingRenewals); })(),
         // 成交
+        cSource:get('f-cSource'),
         cContacts: isClosed ? getCContacts() : [],
         cAddrs: isClosed ? getCAddrs() : [],
         deals: getDeals(),
         // 商機募集
+        dSource:get('f-dSource'),
         dPersons:getDPersons(), dAddrs:getDAddrs(),
         devType: (function(){ var types=[]; getDAddrs().forEach(function(a){ if(a.devType&&types.indexOf(a.devType)<0) types.push(a.devType); }); return types.join('、'); })(),
         dCommunity:(getDAddrs()[0]||{}).community||'', dAddr:(getDAddrs()[0]||{}).addr||'',
