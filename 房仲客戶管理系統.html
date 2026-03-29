@@ -450,12 +450,13 @@
 
             /* 庫存預覽：並列欄位3欄改2欄 */
             .sp-grid { grid-template-columns: repeat(2,1fr) !important; }
-            .sp-grid .det-key { width: 72px; }
             /* 庫存物件：社區半寬+地址全寬 */
             .sp-addr-row { grid-template-columns: 1fr !important; }
             .sp-addr-row > .fg:first-child { width: 50% !important; }
             /* 庫存物件：管理費 3x2 */
             .sp-mgmt-row { grid-template-columns: repeat(3,1fr) !important; }
+            /* 租案物件：管理費 3x2 */
+            .rp-mgmt-row { grid-template-columns: repeat(3,1fr) !important; }
             /* 庫存物件：立約日+到期日+續約+歷程 換行 */
             .sp-contract-row { grid-template-columns: 1fr 1fr !important; }
             .sp-contract-row > .bf-chip { padding: 8px 10px !important; font-size: 13px !important; }
@@ -4091,13 +4092,13 @@ function addRentalProperty(data) {
         '</div>' +
         // 管理費
         '<div style="font-size:12px;font-weight:700;color:#4A7A4A;margin-bottom:4px">管理費</div>' +
-        '<div style="display:flex;gap:4px;align-items:end;margin-bottom:6px">' +
-            '<div style="flex:0 0 auto"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">&nbsp;</label><select data-f="mgmtType" style="width:70px;padding:7px 4px;border:1px solid var(--border);border-radius:8px;font-size:13px"><option value="">選擇</option>'+mgmtSel('含管')+mgmtSel('不含管')+'</select></div>' +
-            '<div style="flex:1;min-width:0"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">建物</label><div class="input-grp"><input data-f="mgmtBuilding" value="'+esc(d.rMgmtBuilding||'')+'" style="min-width:0;flex:1" oninput="calcRpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
-            '<div style="flex:1;min-width:0"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">汽車</label><div class="input-grp"><input data-f="mgmtCar" value="'+esc(d.rMgmtCar||'')+'" style="min-width:0;flex:1" oninput="calcRpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
-            '<div style="flex:1;min-width:0"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">機車</label><div class="input-grp"><input data-f="mgmtMoto" value="'+esc(d.rMgmtMoto||'')+'" style="min-width:0;flex:1" oninput="calcRpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
-            '<div style="flex:1;min-width:0"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">其他</label><div class="input-grp"><input data-f="mgmtOther" value="'+esc(d.rMgmtOther||'')+'" style="min-width:0;flex:1" oninput="calcRpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
-            '<div style="flex:1;min-width:0"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">合計</label><div data-f="mgmtTotal" style="padding:7px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE8E0;color:#5C4A32;text-align:center">0 元</div></div>' +
+        '<div class="rp-mgmt-row" style="display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-bottom:6px">' +
+            '<div><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">含管</label><select data-f="mgmtType" style="width:100%;padding:7px 4px;border:1px solid var(--border);border-radius:8px;font-size:13px"><option value="">選擇</option>'+mgmtSel('含管')+mgmtSel('不含管')+'</select></div>' +
+            '<div><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">建物</label><div class="input-grp"><input data-f="mgmtBuilding" value="'+esc(d.rMgmtBuilding||'')+'" style="min-width:0;flex:1" oninput="calcRpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
+            '<div><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">汽車</label><div class="input-grp"><input data-f="mgmtCar" value="'+esc(d.rMgmtCar||'')+'" style="min-width:0;flex:1" oninput="calcRpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
+            '<div><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">機車</label><div class="input-grp"><input data-f="mgmtMoto" value="'+esc(d.rMgmtMoto||'')+'" style="min-width:0;flex:1" oninput="calcRpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
+            '<div><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">其他</label><div class="input-grp"><input data-f="mgmtOther" value="'+esc(d.rMgmtOther||'')+'" style="min-width:0;flex:1" oninput="calcRpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
+            '<div><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">合計</label><div data-f="mgmtTotal" style="padding:7px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE8E0;color:#5C4A32;text-align:center">0 元</div></div>' +
         '</div>' +
         // 起租日+到期日+續約+歷程
         '<div class="sp-contract-row" style="display:grid;grid-template-columns:3fr 3fr auto auto;gap:8px;align-items:end">' +
