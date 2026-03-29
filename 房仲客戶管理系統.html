@@ -242,12 +242,8 @@
         .type-picker { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
         .tp-btn { flex: 1; min-width: 80px; padding: 10px 6px; border-radius: 10px; border: 2px solid var(--border); background: white; font-size: 13px; font-weight: 700; cursor: pointer; color: var(--muted); transition: all 0.15s; font-family: inherit; }
         .tp-btn:hover { border-color: #94A3B8; color: var(--text); }
-        .tp-btn.active-view { box-shadow: 0 0 0 2px var(--deep); transform: scale(1.05); }
-        .tp-buyer.active-view   { background: #1D4ED8; border-color: #1D4ED8; color: white; }
-        .tp-seller.active-view  { background: #059669; border-color: #059669; color: white; }
-        .tp-rental.active-view  { background: #7C3AED; border-color: #7C3AED; color: white; }
-        .tp-closed.active-view  { background: #D97706; border-color: #D97706; color: white; }
-        .tp-potential.active-view { background: #DC2626; border-color: #DC2626; color: white; }
+        .tp-btn.active-view { background: #F5F5F4; border-color: #78716C; color: var(--deep); border-bottom: 3px solid var(--deep); }
+        .tp-btn.active-view.selected { border-bottom: 3px solid var(--deep); }
         .tp-buyer.selected   { background: #DBEAFE; border-color: #3B82F6; color: #1E40AF; }
         .tp-seller.selected  { background: #D1FAE5; border-color: #10B981; color: #065F46; }
         .tp-rental.selected  { background: #EDE9FE; border-color: #8B5CF6; color: #5B21B6; }
