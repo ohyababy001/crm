@@ -1078,13 +1078,16 @@
                             <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rGoodCitizen')" style="padding:4px 12px;font-size:13px">良民</button>
                         </div>
                     </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px">
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                         <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'landlord')">帶入</button></label><input id="f-llName" placeholder=""></div>
                         <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-llPhone" placeholder="" onblur="autoPhone(this)"></div>
                         <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-llIdNo" placeholder=""></div>
+                        <div class="fg" style="margin-bottom:0"><label>職業</label><input id="f-llOccupation" placeholder=""></div>
                     </div>
-                    <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:6px">
+                    <div style="display:grid;grid-template-columns:2fr 5fr 2fr;gap:10px;margin-bottom:6px">
                         <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-llBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
+                        <div class="fg" style="margin-bottom:0"><label>Email</label><input id="f-llEmail" type="email" placeholder=""></div>
+                        <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-llSource" placeholder=""></div>
                     </div>
                     <div data-addr-row style="display:grid;grid-template-columns:2fr 2fr 10fr auto;gap:6px;margin-bottom:6px;align-items:end">
                         <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-llAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="自訂">自訂</option></select></div>
@@ -1125,13 +1128,16 @@
                             <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rGoodCitizen2')" style="padding:4px 12px;font-size:13px">良民</button>
                         </div>
                     </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px">
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                         <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'tenant')">帶入</button></label><input id="f-ttName" placeholder=""></div>
                         <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-ttPhone" placeholder="" onblur="autoPhone(this)"></div>
                         <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-ttIdNo" placeholder=""></div>
+                        <div class="fg" style="margin-bottom:0"><label>職業</label><input id="f-ttOccupation" placeholder=""></div>
                     </div>
-                    <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:6px">
+                    <div style="display:grid;grid-template-columns:2fr 5fr 2fr;gap:10px;margin-bottom:6px">
                         <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-ttBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
+                        <div class="fg" style="margin-bottom:0"><label>Email</label><input id="f-ttEmail" type="email" placeholder=""></div>
+                        <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-ttSource" placeholder=""></div>
                     </div>
                     <div data-addr-row style="display:grid;grid-template-columns:2fr 2fr 10fr auto;gap:6px;margin-bottom:6px;align-items:end">
                         <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-ttAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="自訂">自訂</option></select></div>
@@ -4265,8 +4271,8 @@ const SIMPLE_FIELDS = ['fn','fp','f-idNo','fe','fs','flc','fso','fnotes',
     'f-community','f-sAddr','f-sPrice','f-sFloorPrice','f-sServiceFee','f-sLandSz','f-sSz','f-layout','f-sMgmtBuilding','f-sMgmtCar','f-sMgmtMoto','f-sMgmtOther','f-parkingPrice','f-parkingNo','f-contractStart','f-contractEnd',
     'f-cName','f-cPhone','f-cIdNo','f-cBirthday','f-cZip','f-cAddr','f-cEmail','f-cSource',
     'f-dName','f-dPhone','f-dIdNo','f-dBirthday','f-dZip','f-dAddr','f-dEmail','f-dSource',
-    'f-llName','f-llPhone','f-llIdNo','f-llBirthday','f-llZip','f-llAddr',
-    'f-ttName','f-ttPhone','f-ttIdNo','f-ttBirthday','f-ttZip','f-ttAddr',
+    'f-llName','f-llPhone','f-llIdNo','f-llOccupation','f-llBirthday','f-llEmail','f-llSource','f-llZip','f-llAddr',
+    'f-ttName','f-ttPhone','f-ttIdNo','f-ttOccupation','f-ttBirthday','f-ttEmail','f-ttSource','f-ttZip','f-ttAddr',
     'f-rSource',
     'f-rCommunity','f-rAddr','f-rent','f-rSz','f-rMgmtBuilding','f-rMgmtCar','f-rMgmtMoto','f-rMgmtOther','f-rParkingNo','f-rStartDate','f-rEndDate',
     ];
@@ -4461,7 +4467,10 @@ function openEdit(id, viewAs) {
     setVal('f-llName', c.llName || llFirst.name || c.rLandlord || '');
     setVal('f-llPhone', c.llPhone || llFirst.phone || c.rLandlordPhone || '');
     setVal('f-llIdNo', c.llIdNo || llFirst.idNo || '');
+    setVal('f-llOccupation', c.llOccupation || '');
     setVal('f-llBirthday', c.llBirthday ? isoToROC(c.llBirthday) : '');
+    setVal('f-llEmail', c.llEmail || '');
+    setVal('f-llSource', c.llSource || '');
     loadAddrType('f-llAddrType', c.llAddrType);
     setVal('f-llZip', c.llZip || ''); setVal('f-llAddr', c.llAddr || '');
     // 房東額外人員（跳過第一筆）
@@ -4471,7 +4480,10 @@ function openEdit(id, viewAs) {
     setVal('f-ttName', c.ttName || ttFirst.name || c.rTenant || '');
     setVal('f-ttPhone', c.ttPhone || ttFirst.phone || c.rTenantPhone || '');
     setVal('f-ttIdNo', c.ttIdNo || ttFirst.idNo || '');
+    setVal('f-ttOccupation', c.ttOccupation || '');
     setVal('f-ttBirthday', c.ttBirthday ? isoToROC(c.ttBirthday) : '');
+    setVal('f-ttEmail', c.ttEmail || '');
+    setVal('f-ttSource', c.ttSource || '');
     loadAddrType('f-ttAddrType', c.ttAddrType);
     setVal('f-ttZip', c.ttZip || ''); setVal('f-ttAddr', c.ttAddr || '');
     // 租客額外人員（跳過第一筆）
@@ -4774,8 +4786,8 @@ function saveClient() {
         sRenewals: (function(){ var existing = editId ? (DB.find(function(x){return x.id===editId;})||{}).sRenewals || [] : []; return existing.concat(sRenewals); })(),
         contractStart:rocToISO(get('f-contractStart')), contractEnd:rocToISO(get('f-contractEnd')),
         // 租案管理
-        llName:get('f-llName'), llPhone:get('f-llPhone'), llIdNo:get('f-llIdNo'), llBirthday:rocToISO(get('f-llBirthday')), llAddrType:get('f-llAddrType'), llZip:get('f-llZip'), llAddr:get('f-llAddr'),
-        ttName:get('f-ttName'), ttPhone:get('f-ttPhone'), ttIdNo:get('f-ttIdNo'), ttBirthday:rocToISO(get('f-ttBirthday')), ttAddrType:get('f-ttAddrType'), ttZip:get('f-ttZip'), ttAddr:get('f-ttAddr'),
+        llName:get('f-llName'), llPhone:get('f-llPhone'), llIdNo:get('f-llIdNo'), llOccupation:get('f-llOccupation'), llBirthday:rocToISO(get('f-llBirthday')), llEmail:get('f-llEmail'), llSource:get('f-llSource'), llAddrType:get('f-llAddrType'), llZip:get('f-llZip'), llAddr:get('f-llAddr'),
+        ttName:get('f-ttName'), ttPhone:get('f-ttPhone'), ttIdNo:get('f-ttIdNo'), ttOccupation:get('f-ttOccupation'), ttBirthday:rocToISO(get('f-ttBirthday')), ttEmail:get('f-ttEmail'), ttSource:get('f-ttSource'), ttAddrType:get('f-ttAddrType'), ttZip:get('f-ttZip'), ttAddr:get('f-ttAddr'),
         rLandlords: (function(){ var arr=[]; if(get('f-llName')||get('f-llPhone')) arr.push({name:get('f-llName'),phone:get('f-llPhone'),idNo:get('f-llIdNo'),occupation:''}); return arr.concat(getRPersons('rLandlordList')); })(),
         rTenants: (function(){ var arr=[]; if(get('f-ttName')||get('f-ttPhone')) arr.push({name:get('f-ttName'),phone:get('f-ttPhone'),idNo:get('f-ttIdNo'),occupation:''}); return arr.concat(getRPersons('rTenantList')); })(),
         rLandlord:get('f-llName'), rLandlordPhone:get('f-llPhone'),
