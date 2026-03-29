@@ -1052,15 +1052,13 @@
 
             <!-- 租案管理 -->
             <div class="type-sec" id="s-租案管理">
-                <!-- 隱藏的 tab 按鈕（保留 DOM 供 JS 引用） -->
-                <div style="display:none">
-                    <button id="rTab-房東">房東</button>
-                    <button id="rTab-租客">租客</button>
+                <div style="display:flex;gap:6px;margin:4px 0 10px">
+                    <button type="button" class="tp-btn tp-rental" style="flex:1;padding:8px;border-left:3px solid #4A7A4A" id="rTab-房東" onclick="switchRentalTab('房東')">房東</button>
+                    <button type="button" class="tp-btn tp-rental" style="flex:1;padding:8px;border-left:3px solid #7C3AED" id="rTab-租客" onclick="switchRentalTab('租客')">租客</button>
                 </div>
 
                 <!-- 房東頁面 -->
-                <div id="rPage-房東">
-                    <div class="sec-title" style="margin-top:4px;color:#4A7A4A">房東資料</div>
+                <div id="rPage-房東" style="display:none">
                     <div style="display:flex;margin-bottom:14px;align-items:flex-start">
                         <span style="font-size:15px;color:var(--text);line-height:30px;font-weight:700;flex-shrink:0">租屋條件：</span>
                         <input type="checkbox" id="f-rSubsidy" style="display:none">
@@ -1104,8 +1102,7 @@
                 </div>
 
                 <!-- 租客頁面 -->
-                <div id="rPage-租客" style="margin-top:14px;padding-top:14px;border-top:2px solid var(--border)">
-                    <div class="sec-title" style="margin-top:0;color:#7C3AED">租客資料</div>
+                <div id="rPage-租客" style="display:none">
                     <div style="display:flex;margin-bottom:14px;align-items:flex-start">
                         <span style="font-size:15px;color:var(--text);line-height:30px;font-weight:700;flex-shrink:0">租屋條件：</span>
                         <input type="checkbox" id="f-rSubsidy2" style="display:none">
@@ -3516,7 +3513,10 @@ initCContactHeader();
 var activeRentalTab = '房東';
 function switchRentalTab(tab) {
     activeRentalTab = tab;
-    // 房東和租客都直接顯示，不再切換隱藏
+    document.getElementById('rPage-房東').style.display = tab==='房東' ? '' : 'none';
+    document.getElementById('rPage-租客').style.display = tab==='租客' ? '' : 'none';
+    document.getElementById('rTab-房東').classList.toggle('selected', tab==='房東');
+    document.getElementById('rTab-租客').classList.toggle('selected', tab==='租客');
 }
 
 // ── 租案角色標籤 ──
