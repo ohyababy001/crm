@@ -166,6 +166,21 @@
         .btn-ic:hover { background: var(--bg); }
         .btn-ic.del:hover { background: #FEE2E2; color: #EF4444; border-color: #EF4444; }
 
+        /* 客戶等級 */
+        .bf-grade-a.on { background:#DC2626;color:white;border-color:#DC2626; }
+        .bf-grade-b.on { background:#D97706;color:white;border-color:#D97706; }
+        .bf-grade-c.on { background:#16A34A;color:white;border-color:#16A34A; }
+        .grade-tag-a { background:#FEE2E2;color:#DC2626;font-weight:700; }
+        .grade-tag-b { background:#FEF3C7;color:#D97706;font-weight:700; }
+        .grade-tag-c { background:#DCFCE7;color:#16A34A;font-weight:700; }
+        .grade-btn { padding:6px 16px;border-radius:8px;border:2px solid;cursor:pointer;font-size:14px;font-weight:700;transition:all 0.15s;background:white;font-family:inherit; }
+        .grade-a { border-color:#FCA5A5;color:#DC2626; }
+        .grade-a.on { background:#DC2626;color:white;border-color:#DC2626; }
+        .grade-b { border-color:#FCD34D;color:#D97706; }
+        .grade-b.on { background:#D97706;color:white;border-color:#D97706; }
+        .grade-c { border-color:#86EFAC;color:#16A34A; }
+        .grade-c.on { background:#16A34A;color:white;border-color:#16A34A; }
+
         /* 地址列 */
         [data-addr-row] select, [data-addr-row] input { width:100%;min-width:0;box-sizing:border-box; }
 
@@ -648,8 +663,12 @@
                     <button class="bf-chip" onclick="toggleBfRoom(this,'店面')">店面</button>
                     <button class="bf-chip" onclick="toggleBfRoom(this,'辦公')">辦公</button>
                     <button class="bf-chip" onclick="toggleBfRoom(this,'透天')">透天</button>
+                    <span style="width:1px;background:var(--border);margin:2px 4px;flex-shrink:0"></span>
+                    <button class="bf-chip bf-grade-a" onclick="toggleBfGrade(this,'A')">A級</button>
+                    <button class="bf-chip bf-grade-b" onclick="toggleBfGrade(this,'B')">B級</button>
+                    <button class="bf-chip bf-grade-c" onclick="toggleBfGrade(this,'C')">C級</button>
                 </div>
-                <span class="bf-clear" onclick="clearBfRoom()" style="flex-shrink:0">清除</span>
+                <span class="bf-clear" onclick="clearBfRoom();clearBfGrade()" style="flex-shrink:0">清除</span>
             </div>
         </div>
 
@@ -759,6 +778,13 @@
 
             <!-- 經營買方 -->
             <div class="type-sec" id="s-經營買方">
+                <div style="display:flex;align-items:center;gap:8px;margin:4px 0 10px">
+                    <span style="font-size:14px;font-weight:700;color:var(--text)">客戶等級</span>
+                    <button type="button" class="grade-btn grade-a" onclick="pickGrade(this,'A')" data-grade="A">A級</button>
+                    <button type="button" class="grade-btn grade-b" onclick="pickGrade(this,'B')" data-grade="B">B級</button>
+                    <button type="button" class="grade-btn grade-c" onclick="pickGrade(this,'C')" data-grade="C">C級</button>
+                    <input type="hidden" id="f-bGrade" value="">
+                </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px;margin-top:4px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'buyer')">帶入</button></label><input id="f-bName" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-bPhone" placeholder="" onblur="autoPhone(this)"></div>
@@ -2101,6 +2127,7 @@ function getData() {
             const rooms = (c.roomTypes||'').split(',');
             return bfRooms.some(r => rooms.includes(r));
         });
+        if (bfGrade) list = list.filter(c => (c.bGrade||'') === bfGrade);
         if (bfCity) list = list.filter(c => (c.areaCity||'') === bfCity || (bfCity==='其他' && c.areaCity==='其他縣市'));
     }
     // 租案管理/庫存屋主：強制按到期日排序
@@ -2394,6 +2421,7 @@ function renderCard(c) {
             displayTypes = [curFilter].concat(displayTypes.filter(function(t){ return t !== curFilter; }));
         }
         const typeTags = displayTypes.map(t => `<span class="tag t-${TC[t]||'buyer'}">${TYPE_DISPLAY[t]||t}</span>`).join('');
+        const gradeTag = c.bGrade ? `<span class="tag grade-tag-${c.bGrade.toLowerCase()}">${c.bGrade}級</span>` : '';
         const statusTag = !cTypes.includes('經營買方') && c.status ? `<span class="tag s-${c.status}">${c.status}</span>` : '';
         const notesText = c.notes ? c.notes.replace(/[\r\n]+/g,' ').replace(/\s+/g,' ').trim() : '';
         const dateLabel = c.lastContact ? '📞 '+relTime(c.lastContact) : '';
@@ -2534,6 +2562,7 @@ function renderCard(c) {
                 <div class="card-phone">${esc(cardPhone)}</div>
                 <div class="tags">
                     ${typeTags}
+                    ${gradeTag}
                     ${statusTag}
                     ${expireTag}
                     ${archivedTag}
@@ -3884,6 +3913,33 @@ function applyFill(target, s) {
 }
 
 // ── Form: Room Type ──
+// ── 客戶等級 ──
+var bfGrade = '';
+function toggleBfGrade(btn, grade) {
+    var wasOn = btn.classList.contains('on');
+    document.querySelectorAll('.bf-chip[onclick*="toggleBfGrade"]').forEach(function(b){ b.classList.remove('on'); });
+    if (wasOn) { bfGrade = ''; } else { bfGrade = grade; btn.classList.add('on'); }
+    // 點等級時也取消全部的高亮
+    if (bfGrade) document.querySelector('#buyerFilter .bf-chip[onclick*="clearBfRoom"]').classList.remove('on');
+    else if (!bfRooms.length) document.querySelector('#buyerFilter .bf-chip[onclick*="clearBfRoom"]').classList.add('on');
+    render();
+}
+function clearBfGrade() {
+    bfGrade = '';
+    document.querySelectorAll('.bf-chip[onclick*="toggleBfGrade"]').forEach(function(b){ b.classList.remove('on'); });
+}
+function pickGrade(btn, grade) {
+    var input = document.getElementById('f-bGrade');
+    var wasOn = btn.classList.contains('on');
+    document.querySelectorAll('.grade-btn').forEach(function(b){ b.classList.remove('on'); });
+    if (wasOn) {
+        input.value = '';
+    } else {
+        btn.classList.add('on');
+        input.value = grade;
+    }
+}
+
 function toggleRoom(btn, room) {
     btn.classList.toggle('on');
     if (btn.classList.contains('on')) { if (!selectedRooms.includes(room)) selectedRooms.push(room); }
@@ -4045,6 +4101,10 @@ function openEdit(id, viewAs) {
     const setVal = (id, val) => { const el=document.getElementById(id); if(el) el.value=val||''; };
     // 買方欄位
     var hasBuyer = hasType(c,'經營買方');
+    // 客戶等級
+    document.getElementById('f-bGrade').value = c.bGrade || '';
+    document.querySelectorAll('.grade-btn').forEach(function(b){ b.classList.remove('on'); });
+    if (c.bGrade) { var gb = document.querySelector('.grade-btn[data-grade="'+c.bGrade+'"]'); if(gb) gb.classList.add('on'); }
     setVal('f-bName', c.bName || (hasBuyer ? c.name : ''));
     setVal('f-bPhone', c.bPhone || (hasBuyer ? c.phone : ''));
     setVal('f-bIdNo', c.bIdNo || (hasBuyer ? c.idNo : ''));
@@ -4371,6 +4431,7 @@ function saveClient() {
         lastContact: new Date().toISOString(),
         source: get('f-bSource') || get('fso'), notes:get('fnotes'),
         // 經營買方
+        bGrade:get('f-bGrade'),
         bName:get('f-bName'), bPhone:get('f-bPhone'), bIdNo:get('f-bIdNo'), bOccupation:get('f-bOccupation'), bBirthday:rocToISO(get('f-bBirthday')), bAddrType:get('f-bAddrType'), bZip:get('f-bZip'), bAddr:get('f-bAddr'), bBasicAddrs:getBuyerBasicAddrs(), bEmail:get('f-bEmail'), bSource:get('f-bSource'),
         bPersons: getBPersons(),
         budgetMin:get('f-budgetMin'), budgetMax:get('f-budgetMax'), downPayment:get('f-downPayment'),
