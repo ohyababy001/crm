@@ -3067,7 +3067,7 @@ function addSellerProperty(data) {
             '</select></div>' +
             '<div class="fg" style="margin-bottom:0"><div class="input-grp" style="'+(d.parking?'':'visibility:hidden')+'"><input data-f="parkingPrice" value="'+esc(d.parkingPrice||'')+'" placeholder="車價" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>' +
             '<div class="fg" style="margin-bottom:0"><input data-f="parkingNo" value="'+esc(d.parkingNo||'')+'" placeholder="車位編號" style="'+(d.parking?'':'display:none')+'"></div>' +
-            // 坪數輸入在土地下方
+            '<button type="button" onclick="openSpDetailSz(this)" style="grid-column:1/2;background:white;color:#0D9488;border:1.5px dashed #0D9488;border-radius:8px;padding:7px 0;font-size:13px;font-weight:600;cursor:pointer;text-align:center;letter-spacing:0.1em">坪數輸入</button>' +
         '</div>' +
         // 管理費
         '<div style="font-size:12px;font-weight:600;color:var(--wood);margin-bottom:4px">管理費</div>' +
@@ -3090,6 +3090,53 @@ function addSellerProperty(data) {
     // 計算管理費合計
     var block = document.getElementById(pid);
     if (block) calcSpMgmt(block.querySelector('[data-f="mgmtBuilding"]'));
+}
+function openSpDetailSz(btn) {
+    var block = btn.closest('.person-block'); if (!block) return;
+    var szInput = block.querySelector('[data-f="sz"]');
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.padding = '16px'; box.style.minWidth = '300px';
+    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">坪數輸入</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">主建物</label><div class="input-grp"><input id="spSz-main" placeholder="" style="min-width:0;flex:1" oninput="calcSpDetailSz()"><span class="input-sfx">坪</span></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">附屬建物</label><div class="input-grp"><input id="spSz-ancillary" placeholder="" style="min-width:0;flex:1" oninput="calcSpDetailSz()"><span class="input-sfx">坪</span></div></div>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">公設</label><div class="input-grp"><input id="spSz-common" placeholder="" style="min-width:0;flex:1" oninput="calcSpDetailSz()"><span class="input-sfx">坪</span></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">車位</label><div class="input-grp"><input id="spSz-parking" placeholder="" style="min-width:0;flex:1" oninput="calcSpDetailSz()"><span class="input-sfx">坪</span></div></div>' +
+        '</div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--border);margin-bottom:12px">' +
+            '<span style="font-size:14px;font-weight:700">公設比：<span id="spSz-ratio">0</span>%</span>' +
+            '<span style="font-size:14px;font-weight:700">合計：<span id="spSz-total">0</span> 坪</span>' +
+        '</div>' +
+        '<div style="display:flex;gap:8px;justify-content:flex-end">' +
+            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
+            '<button type="button" id="spSzConfirm" style="padding:8px 16px;border:none;border-radius:8px;background:var(--deep);color:white;cursor:pointer;font-size:14px">確定</button>' +
+        '</div>';
+    overlay.appendChild(box);
+    overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+    document.body.appendChild(overlay);
+    document.getElementById('spSzConfirm').onclick = function() {
+        var main = parseFloat(document.getElementById('spSz-main').value)||0;
+        var anc = parseFloat(document.getElementById('spSz-ancillary').value)||0;
+        var com = parseFloat(document.getElementById('spSz-common').value)||0;
+        var total = main+anc+com;
+        if (total > 0 && szInput) szInput.value = total.toFixed(2);
+        overlay.remove();
+    };
+}
+function calcSpDetailSz() {
+    var main = parseFloat(document.getElementById('spSz-main').value)||0;
+    var anc = parseFloat(document.getElementById('spSz-ancillary').value)||0;
+    var com = parseFloat(document.getElementById('spSz-common').value)||0;
+    var pk = parseFloat(document.getElementById('spSz-parking').value)||0;
+    var total = main+anc+com;
+    var ratio = total > 0 ? (com/total*100).toFixed(1) : 0;
+    document.getElementById('spSz-ratio').textContent = ratio;
+    document.getElementById('spSz-total').textContent = (total+pk).toFixed(2);
 }
 function pickSpContract(btn, type) {
     var block = btn.closest('.person-block'); if (!block) return;
