@@ -948,6 +948,8 @@
                         <div id="sRenewalList" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div>
                     </div>
                 </div>
+                <div id="sPropertyList"></div>
+                <button type="button" class="add-row-btn" onclick="addSellerProperty()" style="margin-bottom:10px">＋ 新增庫存物件</button>
             </div>
 
             <!-- 租案管理 -->
@@ -2771,6 +2773,46 @@ function showMsgWithCancel(title, body, cancelFn) {
 function closeMsgModal() { document.getElementById('msgModal').style.display = 'none'; _msgCancelFn = null; }
 function cancelMsg() { if (_msgCancelFn) _msgCancelFn(); closeMsgModal(); }
 
+// ── 庫存物件：額外物件 ──
+var sPropId = 0;
+function addSellerProperty(data) {
+    sPropId++;
+    var d = data || {};
+    var html = '<div class="person-block" id="sp-'+sPropId+'" style="border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px;position:relative">' +
+        '<button type="button" class="c-del" onclick="this.parentElement.remove()" style="position:absolute;top:6px;right:8px">✕</button>' +
+        '<div style="display:grid;grid-template-columns:1fr 3fr;gap:8px;margin-bottom:4px">' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">社區大樓</label><input data-f="community" value="'+esc(d.community||'')+'" placeholder=""></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">物件地址</label><input data-f="addr" value="'+esc(d.addr||'')+'" placeholder=""></div>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px">' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">開價</label><div class="input-grp"><input data-f="price" value="'+esc(d.price||'')+'" placeholder="" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">底價</label><div class="input-grp"><input data-f="floorPrice" value="'+esc(d.floorPrice||'')+'" placeholder="" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">服務費</label><div class="input-grp"><input data-f="serviceFee" value="'+esc(d.serviceFee||'')+'" placeholder="" style="min-width:0;flex:1"><span class="input-sfx">%</span></div></div>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px">' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">土地坪數</label><div class="input-grp"><input data-f="landSz" value="'+esc(d.landSz||'')+'" placeholder="" style="min-width:0;flex:1"><span class="input-sfx">坪</span></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">建物坪數</label><div class="input-grp"><input data-f="sz" value="'+esc(d.sz||'')+'" placeholder="" style="min-width:0;flex:1"><span class="input-sfx">坪</span></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">格局</label><input data-f="layout" value="'+esc(d.layout||'')+'" placeholder=""></div>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">立約日</label><div class="roc-date-wrap"><input data-f="contractStart" type="text" value="'+esc(d.contractStart?isoToROC(d.contractStart):'')+'" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">到期日</label><div class="roc-date-wrap"><input data-f="contractEnd" type="text" value="'+esc(d.contractEnd?isoToROC(d.contractEnd):'')+'" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
+        '</div>' +
+    '</div>';
+    document.getElementById('sPropertyList').insertAdjacentHTML('beforeend', html);
+}
+function getSellerProperties() {
+    var r = [];
+    document.querySelectorAll('#sPropertyList .person-block').forEach(function(block) {
+        var get = function(f) { var el = block.querySelector('[data-f="'+f+'"]'); return el ? el.value.trim() : ''; };
+        if (get('community') || get('addr') || get('price')) {
+            r.push({ community:get('community'), addr:get('addr'), price:get('price'), floorPrice:get('floorPrice'), serviceFee:get('serviceFee'), landSz:get('landSz'), sz:get('sz'), layout:get('layout'), contractStart:rocToISO(get('contractStart')), contractEnd:rocToISO(get('contractEnd')) });
+        }
+    });
+    return r;
+}
+function clearSellerProperties() { document.getElementById('sPropertyList').innerHTML = ''; sPropId = 0; }
+
 // ── 庫存續約 ──
 var sRenewals = [];
 function renewContract() {
@@ -3703,6 +3745,7 @@ function resetForm() {
     document.getElementById('sourceGroup').style.display = '';
     clearBPersons();
     clearPersonBlocks('sPersonList');
+    clearSellerProperties();
     clearDPersons();
     clearDAddrs();
     clearSchedules();
@@ -3799,6 +3842,7 @@ function openEdit(id, viewAs) {
     setVal('f-sSource', c.sSource || (sellerOnly ? c.source : ''));
     setVal('f-sServiceFee',c.sServiceFee);
     if (c.sPersons && c.sPersons.length) c.sPersons.forEach(function(p){ addPersonBlock('sPersonList', p); });
+    if (c.sProperties && c.sProperties.length) c.sProperties.forEach(function(p){ addSellerProperty(p); });
     setVal('f-community',c.community); setVal('f-sAddr',c.sAddr); setVal('f-sPrice',c.sPrice); setVal('f-sFloorPrice',c.sFloorPrice); setVal('f-sLandSz',c.sLandSz); setVal('f-sSz',c.sSz); setVal('f-layout',c.layout);
     setVal('f-sMgmtBuilding',c.sMgmtBuilding); setVal('f-sMgmtCar',c.sMgmtCar); setVal('f-sMgmtMoto',c.sMgmtMoto); setVal('f-sMgmtOther',c.sMgmtOther);
     if(c.sMgmtPeriod) document.getElementById('f-sMgmtPeriod').value=c.sMgmtPeriod;
@@ -4090,6 +4134,7 @@ function saveClient() {
         sName:get('f-sName'), sPhone:get('f-sPhone'), sEmail:get('f-sEmail'), sSource:get('f-sSource'),
         sIdNo:get('f-sIdNo'), sBirthday:rocToISO(get('f-sBirthday')), sAddrType:get('f-sAddrType'), sZip:get('f-sZip'), sOwnerAddr:get('f-sOwnerAddr'),
         sPersons:getPersonBlocks('sPersonList'),
+        sProperties:getSellerProperties(),
         contractType:get('f-contractType'),
         community:get('f-community'), sAddr:get('f-sAddr'), sPrice:get('f-sPrice'), sFloorPrice:get('f-sFloorPrice'), sServiceFee:get('f-sServiceFee'), sLandSz:get('f-sLandSz'), sSz:get('f-sSz'), layout:get('f-layout'),
         parking:get('f-parking'), parkingPrice:get('f-parkingPrice'), parkingNo:get('f-parkingNo'),
