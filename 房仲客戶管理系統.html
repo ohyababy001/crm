@@ -2560,30 +2560,24 @@ function renderCard(c) {
                 let priceDisp = esc(c.sPrice) + (c.sPrice&&!c.sPrice.includes('萬')?'萬':'');
                 meta += `<div class="cmeta-row"><span class="cmeta-k">開價</span><span class="cmeta-v">${priceDisp}</span></div>`;
             }
-            if (c.sLandSz && !c.sSz) {
+            // 坪數（從新欄位計算，向下相容舊欄位）
+            var mainB = parseFloat(c.sMainBldg)||0, ancB = parseFloat(c.sAncBldg)||0, comB = parseFloat(c.sCommon)||0, pkSz = parseFloat(c.sParkingSz)||0;
+            var bldgSz = mainB+ancB+comB;
+            var regSz = bldgSz+pkSz;
+            var oldSz = parseFloat(String(c.sSz||'').replace(/[坪,]/g,''))||0;
+            var displaySz = regSz || oldSz;
+            if (displaySz) {
                 const priceNum = parseFloat(String(c.sPrice||'').replace(/[萬,]/g,'')) || 0;
-                const landSzNum = parseFloat(String(c.sLandSz||'').replace(/[坪,]/g,'')) || 0;
                 const pkPriceNum = parseFloat(String(c.parkingPrice||'').replace(/[萬,]/g,'')) || 0;
-                let landDisp = esc(c.sLandSz) + '坪';
-                if (priceNum && landSzNum) {
-                    const landUnitPrice = ((priceNum - pkPriceNum) / landSzNum).toFixed(2);
-                    landDisp += ` <span style="color:#059669;font-weight:600">@${landUnitPrice}萬</span>`;
-                }
-                meta += `<div class="cmeta-row"><span class="cmeta-k">地坪</span><span class="cmeta-v">${landDisp}</span></div>`;
-            }
-            if (c.sSz) {
-                const priceNum = parseFloat(String(c.sPrice||'').replace(/[萬,]/g,'')) || 0;
-                const szNum = parseFloat(String(c.sSz||'').replace(/[坪,]/g,'')) || 0;
-                const pkPriceNum = parseFloat(String(c.parkingPrice||'').replace(/[萬,]/g,'')) || 0;
-                let szDisp = esc(c.sSz) + '坪';
-                if (priceNum && szNum) {
-                    const unitPrice = ((priceNum - pkPriceNum) / szNum).toFixed(2);
+                let szDisp = displaySz.toFixed(2) + '坪';
+                if (priceNum && bldgSz) {
+                    const unitPrice = ((priceNum - pkPriceNum) / bldgSz).toFixed(2);
                     szDisp += ` <span style="color:#6366F1;font-weight:600">@${unitPrice}萬</span>`;
                 }
                 if (c.parking && c.parking !== '無車位') {
                     szDisp += ` <span style="color:#64748B">+${esc(c.parking)}${c.parkingPrice ? ' ' + esc(c.parkingPrice) + (c.parkingPrice.includes('萬')?'':'萬') : ''}</span>`;
                 }
-                meta += `<div class="cmeta-row"><span class="cmeta-k">建坪</span><span class="cmeta-v">${szDisp}</span></div>`;
+                meta += `<div class="cmeta-row"><span class="cmeta-k">登記</span><span class="cmeta-v">${szDisp}</span></div>`;
             }
             var mgmtTotal = (parseFloat(c.sMgmtBuilding)||0)+(parseFloat(c.sMgmtCar)||0)+(parseFloat(c.sMgmtMoto)||0)+(parseFloat(c.sMgmtOther)||0);
             if (mgmtTotal) meta += `<div class="cmeta-row"><span class="cmeta-k">管理費</span><span class="cmeta-v">${mgmtTotal.toLocaleString()}元${c.sMgmtPeriod?'／'+esc(c.sMgmtPeriod):''}</span></div>`;
