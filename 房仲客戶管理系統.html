@@ -552,6 +552,7 @@
 
             /* 手機雲端按鈕 */
             .mobile-cloud { display: flex !important; }
+            .header-tools { display: none !important; }
 
             /* 手機頂部導航 */
             .mobile-nav { display: flex !important; }
@@ -600,6 +601,13 @@
         <button onclick="cloudRestore()">📥 還原</button>
         <button onclick="clearCache()">🔄 更新</button>
         <button onclick="openTrash()" style="color:#EF4444">🗑️ 回收</button>
+    </div>
+    <div class="header-tools" style="display:flex;gap:6px;align-items:center">
+        <button class="btn-ic" onclick="exportCSV()" title="匯出 CSV" style="font-size:14px;padding:4px 8px">📊</button>
+        <button class="btn-ic" onclick="document.getElementById('csvImportInput').click()" title="匯入 CSV" style="font-size:14px;padding:4px 8px">📥</button>
+        <input type="file" id="csvImportInput" accept=".csv" style="display:none" onchange="importCSV(this.files[0])">
+        <button class="btn-ic" onclick="openTrash()" title="資源回收桶" style="font-size:14px;padding:4px 8px">🗑️<span id="trashCount" style="font-size:10px;color:var(--muted)"></span></button>
+        <button class="btn-ic" onclick="cloudRestore()" title="雲端還原" style="font-size:14px;padding:4px 8px" id="btnRestore">☁️</button>
     </div>
     <button class="btn-add" onclick="openAdd()">＋ 新增客戶</button>
 </header>
@@ -652,13 +660,6 @@
                 <span class="cnt" id="ct-商機募集">0</span>
             </button>
         </div>
-        <button class="btn-export" onclick="exportCSV()">📊 匯出 CSV</button>
-        <div id="exportTime" style="text-align:center;font-size:10px;color:var(--muted);padding:0 10px"></div>
-        <button class="btn-export" onclick="document.getElementById('csvImportInput').click()">📥 匯入 CSV</button>
-        <input type="file" id="csvImportInput" accept=".csv" style="display:none" onchange="importCSV(this.files[0])">
-        <div id="importTime" style="text-align:center;font-size:10px;color:var(--muted);padding:0 10px"></div>
-        <button class="btn-export" onclick="openTrash()">🗑️ 資源回收桶 <span id="trashCount" style="font-size:11px;color:var(--muted)"></span></button>
-        <button class="btn-export" onclick="cloudRestore()" id="btnRestore">📥 雲端還原</button>
         <div id="cloudStatus" style="text-align:center;font-size:11px;color:var(--muted);margin-top:4px;padding:0 10px">☁️ 自動同步中</div>
     </aside>
 
@@ -2511,8 +2512,8 @@ function renderCard(c) {
         }
         const typeTags = displayTypes.map(t => {
             var tag = `<span class="tag t-${TC[t]||'buyer'}">${TYPE_DISPLAY[t]||t}</span>`;
-            if (t === '經營買方' && c.bGrade) tag += `<span class="tag grade-tag-${c.bGrade.toLowerCase()}">${c.bGrade}級</span>`;
-            if (t === '庫存屋主' && c.sGrade) tag += `<span class="tag grade-tag-${c.sGrade.toLowerCase()}">${c.sGrade}級</span>`;
+            if (t === '經營買方' && c.bGrade) tag = `<span class="tag grade-tag-${c.bGrade.toLowerCase()}">${c.bGrade}級</span>` + tag;
+            if (t === '庫存屋主' && c.sGrade) tag = `<span class="tag grade-tag-${c.sGrade.toLowerCase()}">${c.sGrade}級</span>` + tag;
             return tag;
         }).join('');
         const statusTag = !cTypes.includes('經營買方') && c.status ? `<span class="tag s-${c.status}">${c.status}</span>` : '';
