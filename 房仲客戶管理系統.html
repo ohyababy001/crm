@@ -96,8 +96,8 @@
         .deal-box { border:1px solid var(--border);border-left:4px solid #92400E;border-radius:10px;padding:10px;margin-bottom:10px;position:relative;overflow:hidden;background:#FAFAF9; }
         .deal-row { display:flex;gap:6px;margin-bottom:4px; }
         .deal-row:last-child { margin-bottom:0; }
-        .deal-box input,.deal-box select,.person-block input,.person-block select { padding:8px 11px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);outline:none;font-family:inherit;background:white;box-sizing:border-box; }
-        .deal-box input:focus,.deal-box select:focus,.person-block input:focus,.person-block select:focus { border-color:var(--wood);box-shadow:0 0 0 3px rgba(87,83,78,0.1); }
+        .deal-box input,.deal-box select,.person-block input,.person-block select,.basic-contact-box input,.basic-contact-box select { padding:8px 11px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);outline:none;font-family:inherit;background:white;box-sizing:border-box; }
+        .deal-box input:focus,.deal-box select:focus,.person-block input:focus,.person-block select:focus,.basic-contact-box input:focus,.basic-contact-box select:focus { border-color:var(--wood);box-shadow:0 0 0 3px rgba(87,83,78,0.1); }
         .deal-box .deal-del { position:absolute;top:4px;right:6px;background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted); }
         .deal-box .deal-del:hover { color:#EF4444; }
         .roc-date-wrap { display: flex; gap: 4px; align-items: center; min-width: 0; }
@@ -392,9 +392,19 @@
             [data-addr-row] > .fg:nth-child(3) { grid-column: 1 / 5; }
             [data-addr-row] > .btn-ic,
             [data-addr-row] > button.c-del { grid-column: 5; grid-row: 2; align-self: end; margin-bottom: 4px; }
+            /* 基本聯絡人區塊內欄位重排（同新增聯絡人） */
+            .basic-contact-box > div[style*="1fr 1fr 1fr"] { grid-template-columns: 1fr 1fr !important; }
+            .basic-contact-box > div[style*="1fr 1fr 1fr 1fr"] > .fg[style*="span 2"] { grid-column: span 2 !important; }
+            /* 生日/Email/來源行：客戶來源移到生日右側，Email 移到最後滿版 */
+            .basic-contact-box > div:has(> .fg[style*="span 2"]) > .fg:nth-child(1) { order: 1; }
+            .basic-contact-box > div:has(> .fg[style*="span 2"]) > .fg:nth-child(4) { order: 2; }
+            .basic-contact-box > div:has(> .fg[style*="span 2"]) > .fg[style*="span 2"] { order: 3; }
             /* 新增聯絡人區塊內欄位也重排 */
             .person-block > div[style*="1fr 1fr 1fr"] { grid-template-columns: 1fr 1fr !important; }
             .person-block > div[style*="1fr 1fr 1fr 1fr"] > .fg[style*="span 2"] { grid-column: span 2 !important; }
+            .person-block > div:has(> .fg[style*="span 2"]) > .fg:nth-child(1) { order: 1; }
+            .person-block > div:has(> .fg[style*="span 2"]) > .fg:nth-child(4) { order: 2; }
+            .person-block > div:has(> .fg[style*="span 2"]) > .fg[style*="span 2"] { order: 3; }
             .person-block [data-addr-row] > .fg:nth-child(1) { grid-column: 1 / 2; }
             .person-block [data-addr-row] > .fg:nth-child(2) { grid-column: 2 / 3; }
             .person-block [data-addr-row] > .fg:nth-child(3) { grid-column: 1 / 5; }
@@ -438,6 +448,17 @@
             #szParkingRow > .fg:nth-child(1), #szParkingRow > .fg:nth-child(2) { flex: 1 1 45% !important; width: auto !important; }
             #szParkingRow > .fg:nth-child(3) { flex: 1 1 100% !important; width: 100% !important; }
 
+            /* 庫存預覽：並列欄位3欄改2欄 */
+            .sp-grid { grid-template-columns: repeat(2,1fr) !important; }
+            .sp-grid .det-key { width: 72px; }
+            /* 庫存物件：社區半寬+地址全寬 */
+            .sp-addr-row { grid-template-columns: 1fr !important; }
+            .sp-addr-row > .fg:first-child { width: 50% !important; }
+            /* 庫存物件：管理費 3x2 */
+            .sp-mgmt-row { grid-template-columns: repeat(3,1fr) !important; }
+            /* 庫存物件：立約日+到期日+續約+歷程 換行 */
+            .sp-contract-row { grid-template-columns: 1fr 1fr !important; }
+            .sp-contract-row > .bf-chip { padding: 8px 10px !important; font-size: 13px !important; }
             /* 庫存基本：姓名/電話一排 */
             #sellerBasicRow1 { grid-template-columns: 1fr 1fr !important; }
             /* 庫存身份證/生日並排 */
@@ -468,15 +489,10 @@
             #cAddrList .c-row input[style*="width:76px"] { flex: 0 0 70px !important; width: 70px !important; }
             #cAddrList .c-row input[style*="flex:1"] { flex: 1 1 100% !important; }
 
-            /* 成交物件：買賣方1份 日期2份 社區2份，地址全寬，價格半寬 */
+            /* 成交物件：手機版 2欄重排 */
             .deal-box { overflow: hidden; }
-            .deal-row:nth-child(2) { flex-wrap: nowrap !important; }
-            .deal-row:nth-child(2) > .fg:nth-child(1) { flex: 1 !important; min-width: 0 !important; }
-            .deal-row:nth-child(2) > .fg:nth-child(2) { flex: 2 !important; min-width: 0 !important; }
-            .deal-row:nth-child(2) > .fg:nth-child(3) { flex: 2 !important; min-width: 0 !important; }
-            .deal-row:nth-child(3) { flex-wrap: wrap !important; }
-            .deal-row:nth-child(3) > .fg:first-child { flex: 1 1 100% !important; }
-            .deal-row:nth-child(3) > .fg:last-child { flex: 0 0 50% !important; width: 50% !important; }
+            .deal-fields { grid-template-columns: 1fr 1fr !important; }
+            .deal-f-addr { grid-column: span 2 !important; }
 
             /* 附屬設備 grid 改三欄 */
             .equip-grid { gap: 4px 8px !important; }
@@ -837,7 +853,7 @@
                     <button type="button" class="grade-btn grade-c" onclick="pickGrade(this,'C','f-bGrade')" data-grade="C">C級</button>
                     <input type="hidden" id="f-bGrade" value="">
                 </div>
-                <div style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9">
+                <div class="basic-contact-box" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9">
                 <div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px">基本聯絡人</div>
                 <div id="bRow1" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'buyer')">帶入</button></label><input id="f-bName" placeholder=""></div>
@@ -869,7 +885,7 @@
             <div class="type-sec" id="s-庫存屋主">
                 <!-- 屋主基本資料 -->
                 <input type="hidden" id="f-sGrade" value="">
-                <div style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9">
+                <div class="basic-contact-box" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9">
                 <div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px">基本聯絡人</div>
                 <div id="sellerBasicRow1" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'seller')">帶入</button></label><input id="f-sName" placeholder=""></div>
@@ -998,7 +1014,7 @@
                             <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rGoodCitizen')" style="padding:4px 12px;font-size:13px">良民</button>
                         </div>
                     </div>
-                    <div style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9"><div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px">基本聯絡人</div>
+                    <div class="basic-contact-box" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9"><div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px">基本聯絡人</div>
                     <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                         <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'landlord')">帶入</button></label><input id="f-llName" placeholder=""></div>
                         <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-llPhone" placeholder="" onblur="autoPhone(this)"></div>
@@ -1043,7 +1059,7 @@
                             <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rGoodCitizen2')" style="padding:4px 12px;font-size:13px">良民</button>
                         </div>
                     </div>
-                    <div style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9"><div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px">基本聯絡人</div>
+                    <div class="basic-contact-box" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9"><div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px">基本聯絡人</div>
                     <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                         <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'tenant')">帶入</button></label><input id="f-ttName" placeholder=""></div>
                         <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-ttPhone" placeholder="" onblur="autoPhone(this)"></div>
@@ -1070,102 +1086,13 @@
                 <!-- 共用物件資料 -->
                 <input type="hidden" id="f-rSource" value="">
                 <div class="sec-title" style="margin-top:8px">物件資料</div>
-                <div id="rentalAddrRow" style="display:grid;grid-template-columns:1fr 3fr;gap:10px;margin-bottom:6px">
-                    <div class="fg" style="margin-bottom:0"><label>社區大樓</label><input id="f-rCommunity" placeholder=""></div>
-                    <div class="fg" style="margin-bottom:0"><label>物件地址</label><input id="f-rAddr" placeholder=""></div>
-                </div>
-                <div class="equip-toggle" onclick="var b=document.getElementById('equipBody');b.classList.toggle('on');this.querySelector('span:last-child').textContent=b.classList.contains('on')?'▼':'▶'">
-                    <span>📋 附屬設備清單</span><span>▶</span>
-                </div>
-                <div class="equip-body" id="equipBody">
-                    <div class="equip-cat">家具</div>
-                    <div class="equip-grid" id="equipFurniture"></div>
-                    <div class="equip-cat">家電</div>
-                    <div class="equip-grid" id="equipAppliance"></div>
-                    <div class="equip-cat">廚房</div>
-                    <div class="equip-grid" id="equipKitchen"></div>
-                    <div class="equip-cat">鑰匙 / 遙控器</div>
-                    <div class="equip-grid" id="equipKeys"></div>
-                    <div id="equipCustomList" style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px"></div>
-                    <button type="button" class="add-row-btn" onclick="addCustomEquip()" style="margin-top:4px">＋ 新增其他</button>
-                </div>
-                <div id="rentalInfoRow" style="display:grid;grid-template-columns:1.7fr 1fr 1fr 1.8fr;gap:8px;margin-bottom:10px">
-                    <div class="fg" style="margin-bottom:0;min-width:0"><label>租金</label>
-                        <div style="display:flex;gap:3px">
-                            <div class="input-grp" style="flex:1;min-width:0"><input id="f-rent" placeholder="" style="min-width:0;flex:1"><span class="input-sfx">元</span></div>
-                            <select id="f-rRentPeriod" style="width:55px;padding:4px 2px;border:1px solid var(--border);border-radius:6px;font-size:11px;flex-shrink:0">
-                                <option value="月繳">月繳</option>
-                                <option value="季繳">季繳</option>
-                                <option value="半年繳">半年</option>
-                                <option value="年繳">年繳</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="fg" style="margin-bottom:0;min-width:0"><label>坪數</label><div class="input-grp"><input id="f-rSz" placeholder="" style="min-width:0;flex:1"><span class="input-sfx">坪</span></div></div>
-                    <div class="fg" style="margin-bottom:0;min-width:0">
-                        <label>車位</label>
-                        <select id="f-rParking" onchange="toggleRParkingNo()" style="width:100%">
-                            <option value="">無車位</option>
-                            <option>坡道平面</option>
-                            <option>坡道機械</option>
-                            <option>升降平面</option>
-                            <option>升降機械</option>
-                            <option>塔式車位</option>
-                            <option>其他車位</option>
-                        </select>
-                    </div>
-                    <div class="fg" style="margin-bottom:0;min-width:0;display:none" id="rParkingNoGroup">
-                        <label>車位編號</label>
-                        <input id="f-rParkingNo" placeholder="" style="width:100%">
-                    </div>
-                </div>
-                <div class="fg full" style="margin-top:6px">
-                    <label>管理費</label>
-                    <div style="display:flex;gap:4px;flex-wrap:wrap">
-                        <div style="flex:0 0 70px">
-                            <div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">&nbsp;</div>
-                            <select id="f-rMgmtType" style="width:100%;padding:7px 4px;border:1px solid var(--border);border-radius:8px;font-size:13px">
-                                <option value="">選擇</option>
-                                <option value="含管">含</option>
-                                <option value="不含管">不含</option>
-                            </select>
-                        </div>
-                        <div style="flex:1;min-width:80px">
-                            <div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">建物</div>
-                            <div class="input-grp"><input id="f-rMgmtBuilding" placeholder="" style="min-width:0;flex:1" oninput="calcRMgmtTotal()"><span class="input-sfx">元</span></div>
-                        </div>
-                        <div style="flex:1;min-width:80px">
-                            <div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">汽車位</div>
-                            <div class="input-grp"><input id="f-rMgmtCar" placeholder="" style="min-width:0;flex:1" oninput="calcRMgmtTotal()"><span class="input-sfx">元</span></div>
-                        </div>
-                        <div style="flex:1;min-width:80px">
-                            <div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">機車位</div>
-                            <div class="input-grp"><input id="f-rMgmtMoto" placeholder="" style="min-width:0;flex:1" oninput="calcRMgmtTotal()"><span class="input-sfx">元</span></div>
-                        </div>
-                        <div style="flex:1;min-width:80px">
-                            <div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">其他</div>
-                            <div class="input-grp"><input id="f-rMgmtOther" placeholder="" style="min-width:0;flex:1" oninput="calcRMgmtTotal()"><span class="input-sfx">元</span></div>
-                        </div>
-                        <div style="flex:1;min-width:80px">
-                            <div style="font-size:11px;font-weight:700;color:var(--deep);margin-bottom:2px;padding-left:4px">合計</div>
-                            <div style="padding:7px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE8E0;color:#5C4A32;text-align:center" id="rMgmtTotal">0 元</div>
-                        </div>
-                    </div>
-                </div>
-                <div style="display:grid;grid-template-columns:3fr 3fr 1fr;gap:8px;align-items:end;margin-bottom:10px">
-                    <div class="fg" style="margin-bottom:0"><label>起租日</label><div class="roc-date-wrap"><input id="f-rStartDate" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
-                    <div class="fg" style="margin-bottom:0"><label>到期日</label><div class="roc-date-wrap"><input id="f-rEndDate" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
-                    <button type="button" class="bf-chip" onclick="renewLease()" style="padding:10px 18px;font-size:15px;text-align:center;white-space:nowrap">續約</button>
-                </div>
-                <div class="fg full" id="rRenewalHistory" style="display:none;margin-bottom:10px">
-                    <label>到期日歷程</label>
-                    <div id="rRenewalList" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div>
-                </div>
+                <div id="rPropertyList"></div>
+                <button type="button" class="add-row-btn" onclick="addRentalProperty()" style="margin-bottom:10px">＋ 新增物件資料</button>
             </div>
 
             <!-- 成交 -->
             <div class="type-sec" id="s-成交客戶">
-                <div style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;margin-top:4px;background:#FAFAF9"><div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px">基本聯絡人</div>
+                <div class="basic-contact-box" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;margin-top:4px;background:#FAFAF9"><div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px">基本聯絡人</div>
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'closed')">帶入</button></label><input id="f-cName" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-cPhone" placeholder="" onblur="autoPhone(this)"></div>
@@ -1196,7 +1123,7 @@
 
             <!-- 商機募集 -->
             <div class="type-sec" id="s-商機募集">
-                <div style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;margin-top:4px;background:#FAFAF9"><div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px">基本聯絡人</div>
+                <div class="basic-contact-box" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;margin-top:4px;background:#FAFAF9"><div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px">基本聯絡人</div>
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'dev')">帶入</button></label><input id="f-dName" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-dPhone" placeholder="" onblur="autoPhone(this)"></div>
@@ -1814,9 +1741,8 @@ function renderCal() {
         html += '<div class="' + cls + '" onclick="calPick(\'' + iso + '\')">' + d + '</div>';
         totalCells++;
     }
-    // 補齊最後一行到 7 的倍數
-    var remainder = totalCells % 7;
-    if (remainder > 0) for (var j = 0; j < 7 - remainder; j++) html += '<div class="cal-day empty"></div>';
+    // 固定 6 行（42 格），避免高度變動
+    while (totalCells < 42) { html += '<div class="cal-day empty"></div>'; totalCells++; }
     document.getElementById('calGrid').innerHTML = html;
 }
 
@@ -2744,7 +2670,7 @@ function typeDetail(c) {
     if (c.type==='庫存屋主') {
         // 通用並列欄位渲染
         function _cell(k,v){ return '<div style="display:flex;padding:6px 0;font-size:14px"><span class="det-key">'+k+'</span><span class="det-val">'+esc(v)+'</span></div>'; }
-        function _grid(cols,cells){ return '<div style="display:grid;grid-template-columns:repeat('+cols+',1fr);border-bottom:1px solid var(--bg)">'+cells.join('')+'</div>'; }
+        function _grid(cols,cells){ return '<div class="sp-grid" style="display:grid;grid-template-columns:repeat('+cols+',1fr);border-bottom:1px solid var(--bg)">'+cells.join('')+'</div>'; }
         // 渲染單間物件區塊
         function renderSpBlock(sp) {
             var r = [];
@@ -2853,34 +2779,52 @@ function typeDetail(c) {
         var tts = c.rTenants || (c.rTenant ? [{name:c.rTenant,phone:c.rTenantPhone}] : []);
         lls.forEach(function(p){ rows.push(dRow('房東', (p.name||'')+(p.phone?'　'+p.phone:'')+(p.idNo?'　'+p.idNo:'')+(p.occupation?'　'+p.occupation:''))); });
         tts.forEach(function(p){ rows.push(dRow('租客', (p.name||'')+(p.phone?'　'+p.phone:'')+(p.idNo?'　'+p.idNo:'')+(p.occupation?'　'+p.occupation:''))); });
-        rows = rows.concat([dRow('來源',c.rSource),
-            dRow('社區大樓',c.rCommunity),
-            dRow('房東條件', [c.rSubsidy?'租補':'',c.rSocialHouse?'社宅':'',c.rRegister?'設籍':'',c.rTax?'報稅':'',c.rPet?'寵物':'',c.rAltar?'神桌':'',c.rGoodCitizen?'良民':''].filter(Boolean).join('、')),
-            dRow('租客條件', [c.rSubsidy2?'租補':'',c.rSocialHouse2?'社宅':'',c.rRegister2?'設籍':'',c.rTax2?'報稅':'',c.rPet2?'寵物':'',c.rAltar2?'神桌':'',c.rGoodCitizen2?'良民':''].filter(Boolean).join('、')),
-            (c.rEquipment && Object.keys(c.rEquipment).length ? dRow('附屬設備', Object.keys(c.rEquipment).map(function(k){ return k+' '+c.rEquipment[k]; }).join('、')) : ''),
-            dRow('物件地址',c.rAddr),
-            dRow('租金',c.rent ? c.rent+(c.rent.includes('元')?'':'元')+(c.rRentPeriod?'／'+c.rRentPeriod:'') : ''),
-            dRow('坪數',c.rSz ? c.rSz+(c.rSz.includes('坪')?'':'坪') : ''),
-            dRow('管理費',(function(){
-                var t=c.rMgmtType?c.rMgmtType+' ':'';
-                var total=(parseFloat(c.rMgmtBuilding)||0)+(parseFloat(c.rMgmtCar)||0)+(parseFloat(c.rMgmtMoto)||0)+(parseFloat(c.rMgmtOther)||0);
-                if (!total && c.rMgmtFee) return t+c.rMgmtFee+(c.rMgmtFee.includes('元')?'':'元');
-                if (!total) return t;
-                var parts=[];
-                if(c.rMgmtBuilding)parts.push('建物'+c.rMgmtBuilding);
-                if(c.rMgmtCar)parts.push('汽車位'+c.rMgmtCar);
-                if(c.rMgmtMoto)parts.push('機車位'+c.rMgmtMoto);
-                if(c.rMgmtOther)parts.push('其他'+c.rMgmtOther);
-                return t+'合計'+total.toLocaleString()+'元'+(parts.length?'（'+parts.join('、')+'）':'');
-            })()),
-            dRow('車位',c.rParking), dRow('車位編號',c.rParkingNo),
-            dRow('起租日',isoToROC(c.rStartDate)), dRow('到期日',isoToROC(c.rEndDate))
-        ]);
-        if (c.renewals && c.renewals.length) {
-            rows.push('<div style="font-weight:700;font-size:12px;color:#475569;margin-top:8px;margin-bottom:4px">續約歷程（共 '+c.renewals.length+' 次）</div>');
-            c.renewals.forEach(function(r, i) {
-                rows.push(dRow('第'+(i+1)+'次', isoToROC(r.oldStart)+'~'+isoToROC(r.oldEnd)+' → '+isoToROC(r.newStart)+'~'+isoToROC(r.newEnd)+'（'+r.months+'個月）'));
-            });
+        rows.push(dRow('來源',c.rSource));
+        rows.push(dRow('房東條件', [c.rSubsidy?'租補':'',c.rSocialHouse?'社宅':'',c.rRegister?'設籍':'',c.rTax?'報稅':'',c.rPet?'寵物':'',c.rAltar?'神桌':'',c.rGoodCitizen?'良民':''].filter(Boolean).join('、')));
+        rows.push(dRow('租客條件', [c.rSubsidy2?'租補':'',c.rSocialHouse2?'社宅':'',c.rRegister2?'設籍':'',c.rTax2?'報稅':'',c.rPet2?'寵物':'',c.rAltar2?'神桌':'',c.rGoodCitizen2?'良民':''].filter(Boolean).join('、')));
+        if (c.rEquipment && Object.keys(c.rEquipment).length) rows.push(dRow('附屬設備', Object.keys(c.rEquipment).map(function(k){ return k+' '+c.rEquipment[k]; }).join('、')));
+        // 物件資料區塊
+        function _renderRpBlock(rp) {
+            var h = '';
+            h += dRow('社區大樓',rp.rCommunity||'');
+            h += dRow('物件地址',rp.rAddr||'');
+            h += dRow('租金',rp.rent ? rp.rent+(rp.rent.includes('元')?'':'元')+(rp.rRentPeriod?'／'+rp.rRentPeriod:'') : '');
+            h += dRow('坪數',rp.rSz ? rp.rSz+(rp.rSz.includes('坪')?'':'坪') : '');
+            var mgT=rp.rMgmtType?rp.rMgmtType+' ':'';
+            var mgTotal=(parseFloat(rp.rMgmtBuilding)||0)+(parseFloat(rp.rMgmtCar)||0)+(parseFloat(rp.rMgmtMoto)||0)+(parseFloat(rp.rMgmtOther)||0);
+            if (mgTotal) { var mp=[]; if(rp.rMgmtBuilding)mp.push('建物'+rp.rMgmtBuilding); if(rp.rMgmtCar)mp.push('汽車位'+rp.rMgmtCar); if(rp.rMgmtMoto)mp.push('機車位'+rp.rMgmtMoto); if(rp.rMgmtOther)mp.push('其他'+rp.rMgmtOther); h+=dRow('管理費',mgT+'合計'+mgTotal.toLocaleString()+'元'+(mp.length?'（'+mp.join('、')+'）':'')); }
+            else if (mgT.trim()) h+=dRow('管理費',mgT);
+            h += dRow('車位',rp.rParking||'');
+            h += dRow('車位編號',rp.rParkingNo||'');
+            h += dRow('起租日',isoToROC(rp.rStartDate||''));
+            h += dRow('到期日',isoToROC(rp.rEndDate||''));
+            if (rp.rpRenewals && rp.rpRenewals.length) {
+                h += '<div style="font-weight:700;font-size:12px;color:#475569;margin-top:8px;margin-bottom:4px">續約歷程（共 '+rp.rpRenewals.length+' 次）</div>';
+                rp.rpRenewals.forEach(function(r, i) {
+                    h += dRow('第'+(i+1)+'次', isoToROC(r.oldStart)+'~'+isoToROC(r.oldEnd)+' → '+isoToROC(r.newStart)+'~'+isoToROC(r.newEnd)+'（'+r.months+'個月）');
+                });
+            }
+            return h;
+        }
+        var rps = c.rProperties && c.rProperties.length ? c.rProperties : null;
+        if (rps && rps.length > 1) {
+            var rpTabBtns = rps.map(function(rp,i){ return '<button type="button" onclick="switchBdTab(this,'+i+')" style="padding:4px 14px;border:1px solid var(--border);border-radius:6px;background:'+(i===0?'#4A7A4A':'white')+';color:'+(i===0?'white':'var(--text)')+';cursor:pointer;font-size:13px;font-weight:600">物件 '+(i+1)+'</button>'; }).join('');
+            rows.push('<div style="display:flex;gap:6px;margin-top:8px;margin-bottom:4px" data-bd-tabs data-active-color="#4A7A4A">'+rpTabBtns+'</div>');
+            rps.forEach(function(rp, idx) { rows.push('<div class="bd-tab-panel" style="'+(idx===0?'':'display:none')+'">'+_renderRpBlock(rp)+'</div>'); });
+        } else if (rps && rps.length === 1) {
+            rows.push(_renderRpBlock(rps[0]));
+        } else {
+            // 舊資料 fallback
+            rows.push(dRow('社區大樓',c.rCommunity));
+            rows.push(dRow('物件地址',c.rAddr));
+            rows.push(dRow('租金',c.rent ? c.rent+(c.rent.includes('元')?'':'元')+(c.rRentPeriod?'／'+c.rRentPeriod:'') : ''));
+            rows.push(dRow('坪數',c.rSz ? c.rSz+(c.rSz.includes('坪')?'':'坪') : ''));
+            rows.push(dRow('車位',c.rParking)); rows.push(dRow('車位編號',c.rParkingNo));
+            rows.push(dRow('起租日',isoToROC(c.rStartDate))); rows.push(dRow('到期日',isoToROC(c.rEndDate)));
+            if (c.renewals && c.renewals.length) {
+                rows.push('<div style="font-weight:700;font-size:12px;color:#475569;margin-top:8px;margin-bottom:4px">續約歷程（共 '+c.renewals.length+' 次）</div>');
+                c.renewals.forEach(function(r, i) { rows.push(dRow('第'+(i+1)+'次', isoToROC(r.oldStart)+'~'+isoToROC(r.oldEnd)+' → '+isoToROC(r.newStart)+'~'+isoToROC(r.newEnd)+'（'+r.months+'個月）')); });
+            }
         }
         // 關聯租案：自動比對地址
         if (c.rAddr) {
@@ -3190,7 +3134,7 @@ function addSellerProperty(data) {
             '<input type="hidden" data-f="contractType" value="'+esc(d.contractType||'')+'">' +
         '</div>' +
         // 社區+地址
-        '<div style="display:grid;grid-template-columns:1fr 3fr;gap:8px;margin-bottom:6px">' +
+        '<div class="sp-addr-row" style="display:grid;grid-template-columns:1fr 3fr;gap:8px;margin-bottom:6px">' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">社區大樓</label><input data-f="community" value="'+esc(d.community||'')+'"></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">物件地址</label><input data-f="addr" value="'+esc(d.addr||'')+'"></div>' +
         '</div>' +
@@ -3225,22 +3169,21 @@ function addSellerProperty(data) {
         '</div>' +
         // 管理費
         '<div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:4px">管理費</div>' +
-        '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">' +
-            '<div style="flex:1;min-width:70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">建物</label><div class="input-grp"><input data-f="mgmtBuilding" value="'+esc(d.mgmtBuilding||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
-            '<div style="flex:1;min-width:70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">汽車</label><div class="input-grp"><input data-f="mgmtCar" value="'+esc(d.mgmtCar||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
-            '<div style="flex:1;min-width:70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">機車</label><div class="input-grp"><input data-f="mgmtMoto" value="'+esc(d.mgmtMoto||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
-            '<div style="flex:1;min-width:70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">其他</label><div class="input-grp"><input data-f="mgmtOther" value="'+esc(d.mgmtOther||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
-            '<div style="flex:1;min-width:70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">合計</label><div data-f="mgmtTotal" style="padding:8px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE8E0;color:#5C4A32;text-align:center">0 元</div></div>' +
-            '<div style="flex:0 0 70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">繳費</label><select data-f="mgmtPeriod" style="width:100%;padding:8px 4px;border:1px solid var(--border);border-radius:8px;font-size:14px"><option value="">選擇</option>'+mgmtPSel('月繳','月繳')+mgmtPSel('季繳','季繳')+mgmtPSel('半年繳','半年繳')+mgmtPSel('年繳','年繳')+'</select></div>' +
+        '<div class="sp-mgmt-row" style="display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-bottom:6px">' +
+            '<div><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">建物</label><div class="input-grp"><input data-f="mgmtBuilding" value="'+esc(d.mgmtBuilding||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
+            '<div><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">汽車</label><div class="input-grp"><input data-f="mgmtCar" value="'+esc(d.mgmtCar||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
+            '<div><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">機車</label><div class="input-grp"><input data-f="mgmtMoto" value="'+esc(d.mgmtMoto||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
+            '<div><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">其他</label><div class="input-grp"><input data-f="mgmtOther" value="'+esc(d.mgmtOther||'')+'" style="min-width:0;flex:1" oninput="calcSpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
+            '<div><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">合計</label><div data-f="mgmtTotal" style="padding:8px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE8E0;color:#5C4A32;text-align:center">0 元</div></div>' +
+            '<div><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">繳費</label><select data-f="mgmtPeriod" style="width:100%;padding:8px 4px;border:1px solid var(--border);border-radius:8px;font-size:14px"><option value="">選擇</option>'+mgmtPSel('月繳','月繳')+mgmtPSel('季繳','季繳')+mgmtPSel('半年繳','半年繳')+mgmtPSel('年繳','年繳')+'</select></div>' +
         '</div>' +
-        // 立約日+到期日+續約
-        '<div style="display:grid;grid-template-columns:3fr 3fr 1fr;gap:8px;align-items:end">' +
+        // 立約日+到期日+續約+續約歷程
+        '<div class="sp-contract-row" style="display:grid;grid-template-columns:3fr 3fr auto auto;gap:8px;align-items:end">' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">立約日</label><div class="roc-date-wrap"><input data-f="contractStart" type="text" value="'+esc(d.contractStart?isoToROC(d.contractStart):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">到期日</label><div class="roc-date-wrap"><input data-f="contractEnd" type="text" value="'+esc(d.contractEnd?isoToROC(d.contractEnd):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
             '<button type="button" class="bf-chip" onclick="renewSpContract(this)" style="padding:10px 14px;font-size:14px;text-align:center;white-space:nowrap">續約</button>' +
+            '<button type="button" class="bf-chip sp-renewal-hist-btn" onclick="showSpRenewalHistory(this)" style="padding:10px 14px;font-size:13px;background:#F5F0EB;color:#8B7355;border:1px solid #D6CFC7;white-space:nowrap">📋 歷程</button>' +
         '</div>' +
-        // 續約歷程按鈕（常態顯示）
-        '<div style="margin-top:6px"><button type="button" class="bf-chip sp-renewal-hist-btn" onclick="showSpRenewalHistory(this)" style="padding:6px 14px;font-size:13px;background:#F5F0EB;color:#8B7355;border:1px solid #D6CFC7">📋 續約歷程</button></div>' +
     '</div>';
     document.getElementById('sPropertyList').insertAdjacentHTML('beforeend', html);
     // 計算管理費合計
@@ -4016,7 +3959,7 @@ function addCustomEquip(data) {
         '<input type="number" min="0" value="'+(d.qty||'')+'" style="width:36px;min-width:36px;flex-shrink:0;padding:3px 2px;border:1px solid var(--border);border-radius:4px;font-size:11px;text-align:center">' +
         '<input type="text" style="width:30px;min-width:0;padding:3px 4px;font-size:11px" value="'+esc(d.unit||'')+'">' +
         '<button type="button" class="c-del" onclick="this.parentElement.remove()" style="font-size:11px">✕</button></div>';
-    document.getElementById('equipCustomList').insertAdjacentHTML('beforeend', html);
+    var el = document.getElementById('equipCustomList'); if(el) el.insertAdjacentHTML('beforeend', html);
 }
 function getCustomEquips() {
     var r = {};
@@ -4038,7 +3981,7 @@ function loadCustomEquips(data) {
         if (!presetNames.includes(name)) addCustomEquip({name:name, qty:data[name], checked:true});
     });
 }
-function clearCustomEquips() { document.getElementById('equipCustomList').innerHTML = ''; customEquipId = 0; }
+function clearCustomEquips() { var el = document.getElementById('equipCustomList'); if(el) el.innerHTML = ''; customEquipId = 0; }
 initEquipList();
 initCContactHeader();
 
@@ -4116,6 +4059,148 @@ function clearRPersons() {
 
 var pendingRenewals = [];
 
+// ── 租案物件區塊 ──
+var rPropId = 0;
+function addRentalProperty(data) {
+    rPropId++;
+    var d = data || {};
+    var pid = 'rp-'+rPropId;
+    var localNum = document.querySelectorAll('#rPropertyList .person-block').length + 1;
+    var parkOpts = ['','坡道平面','坡道機械','升降平面','升降機械','塔式車位','其他車位'];
+    var parkHtml = parkOpts.map(function(p){ return '<option value="'+p+'"'+(d.rParking===p?' selected':'')+'>'+(p||'無車位')+'</option>'; }).join('');
+    var mgmtSel = function(v){ return '<option value="'+v+'"'+(d.rMgmtType===v?' selected':'')+'>'+v+'</option>'; };
+    var periodSel = function(v,label){ return '<option value="'+v+'"'+(d.rRentPeriod===v?' selected':'')+'>'+(label||v)+'</option>'; };
+
+    var html = '<div class="person-block" id="'+pid+'" style="border:1px solid var(--border);border-left:4px solid #4A7A4A;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9;position:relative">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:700;color:#4A7A4A">物件資料 '+localNum+'</span><button type="button" class="c-del" onclick="this.parentElement.parentElement.remove()">✕</button></div>' +
+        // 社區+地址
+        '<div class="sp-addr-row" style="display:grid;grid-template-columns:1fr 3fr;gap:8px;margin-bottom:6px">' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">社區大樓</label><input data-f="community" value="'+esc(d.rCommunity||'')+'"></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">物件地址</label><input data-f="addr" value="'+esc(d.rAddr||'')+'"></div>' +
+        '</div>' +
+        // 租金+坪數+車位
+        '<div style="display:grid;grid-template-columns:1.7fr 1fr 1fr 1fr;gap:8px;margin-bottom:6px">' +
+            '<div class="fg" style="margin-bottom:0;min-width:0"><label style="font-size:12px">租金</label>' +
+                '<div style="display:flex;gap:3px">' +
+                    '<div class="input-grp" style="flex:1;min-width:0"><input data-f="rent" value="'+esc(d.rent||'')+'" style="min-width:0;flex:1"><span class="input-sfx">元</span></div>' +
+                    '<select data-f="rentPeriod" style="width:55px;padding:4px 2px;border:1px solid var(--border);border-radius:6px;font-size:11px;flex-shrink:0">'+periodSel('月繳')+periodSel('季繳')+periodSel('半年繳','半年')+periodSel('年繳')+'</select>' +
+                '</div></div>' +
+            '<div class="fg" style="margin-bottom:0;min-width:0"><label style="font-size:12px">坪數</label><div class="input-grp"><input data-f="sz" value="'+esc(d.rSz||'')+'" style="min-width:0;flex:1"><span class="input-sfx">坪</span></div></div>' +
+            '<div class="fg" style="margin-bottom:0;min-width:0"><label style="font-size:12px">車位</label><select data-f="parking" style="width:100%" onchange="var b=this.closest(\'.person-block\');var pn=b.querySelector(\'[data-f=parkingNo]\').parentElement;pn.style.display=this.value?\'\':\'none\';">'+parkHtml+'</select></div>' +
+            '<div class="fg" style="margin-bottom:0;min-width:0;'+(d.rParking?'':'display:none')+'"><label style="font-size:12px">車位編號</label><input data-f="parkingNo" value="'+esc(d.rParkingNo||'')+'"></div>' +
+        '</div>' +
+        // 管理費
+        '<div style="font-size:12px;font-weight:700;color:#4A7A4A;margin-bottom:4px">管理費</div>' +
+        '<div style="display:flex;gap:4px;align-items:end;margin-bottom:6px">' +
+            '<div style="flex:0 0 auto"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">&nbsp;</label><select data-f="mgmtType" style="width:70px;padding:7px 4px;border:1px solid var(--border);border-radius:8px;font-size:13px"><option value="">選擇</option>'+mgmtSel('含管')+mgmtSel('不含管')+'</select></div>' +
+            '<div style="flex:1;min-width:0"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">建物</label><div class="input-grp"><input data-f="mgmtBuilding" value="'+esc(d.rMgmtBuilding||'')+'" style="min-width:0;flex:1" oninput="calcRpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
+            '<div style="flex:1;min-width:0"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">汽車</label><div class="input-grp"><input data-f="mgmtCar" value="'+esc(d.rMgmtCar||'')+'" style="min-width:0;flex:1" oninput="calcRpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
+            '<div style="flex:1;min-width:0"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">機車</label><div class="input-grp"><input data-f="mgmtMoto" value="'+esc(d.rMgmtMoto||'')+'" style="min-width:0;flex:1" oninput="calcRpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
+            '<div style="flex:1;min-width:0"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">其他</label><div class="input-grp"><input data-f="mgmtOther" value="'+esc(d.rMgmtOther||'')+'" style="min-width:0;flex:1" oninput="calcRpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
+            '<div style="flex:1;min-width:0"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">合計</label><div data-f="mgmtTotal" style="padding:7px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE8E0;color:#5C4A32;text-align:center">0 元</div></div>' +
+        '</div>' +
+        // 起租日+到期日+續約+歷程
+        '<div class="sp-contract-row" style="display:grid;grid-template-columns:3fr 3fr auto auto;gap:8px;align-items:end">' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">起租日</label><div class="roc-date-wrap"><input data-f="startDate" type="text" value="'+esc(d.rStartDate?isoToROC(d.rStartDate):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">到期日</label><div class="roc-date-wrap"><input data-f="endDate" type="text" value="'+esc(d.rEndDate?isoToROC(d.rEndDate):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
+            '<button type="button" class="bf-chip" onclick="renewRpContract(this)" style="padding:10px 14px;font-size:14px;text-align:center;white-space:nowrap">續約</button>' +
+            '<button type="button" class="bf-chip" onclick="showRpRenewalHistory(this)" style="padding:10px 14px;font-size:13px;background:#F5F0EB;color:#4A7A4A;border:1px solid #D6CFC7;white-space:nowrap">📋 歷程</button>' +
+        '</div>' +
+    '</div>';
+    document.getElementById('rPropertyList').insertAdjacentHTML('beforeend', html);
+    var block = document.getElementById(pid);
+    if (block) {
+        block._rpRenewals = d.rpRenewals || [];
+        calcRpMgmt(block.querySelector('[data-f="mgmtBuilding"]'));
+    }
+}
+function calcRpMgmt(el) {
+    var block = el.closest('.person-block'); if (!block) return;
+    var get = function(f){ var e=block.querySelector('[data-f="'+f+'"]'); return parseFloat(e?e.value:'')||0; };
+    var total = get('mgmtBuilding')+get('mgmtCar')+get('mgmtMoto')+get('mgmtOther');
+    var totalEl = block.querySelector('[data-f="mgmtTotal"]');
+    if (totalEl) totalEl.textContent = total ? total.toLocaleString()+' 元' : '0 元';
+}
+function renewRpContract(btn) {
+    var block = btn.closest('.person-block'); if (!block) return;
+    var endInput = block.querySelector('[data-f="endDate"]');
+    var startInput = block.querySelector('[data-f="startDate"]');
+    if (!endInput || !endInput.value.trim()) { alert('請先填寫到期日'); return; }
+    var oldEnd = endInput.value.trim();
+    var oldEndISO = rocToISO(oldEnd);
+    var oldStart = startInput.value.trim();
+    var oldStartISO = rocToISO(oldStart);
+    // 計算月數（用到期日+1天算，因為到期日通常是月底）
+    var months = 12;
+    if (oldStartISO && oldEndISO) {
+        var ds = new Date(oldStartISO+'T00:00:00');
+        var deNext = new Date(oldEndISO+'T00:00:00');
+        deNext.setDate(deNext.getDate()+1);
+        months = (deNext.getFullYear()-ds.getFullYear())*12 + (deNext.getMonth()-ds.getMonth());
+        if (months <= 0) months = 12;
+    }
+    var newStart = new Date(oldEndISO+'T00:00:00');
+    newStart.setDate(newStart.getDate()+1);
+    var newStartISO = localDateISO(newStart);
+    var newEnd = new Date(newStartISO+'T00:00:00');
+    newEnd.setMonth(newEnd.getMonth()+months);
+    newEnd.setDate(newEnd.getDate()-1);
+    var newEndISO = localDateISO(newEnd);
+    if (!block._rpRenewals) block._rpRenewals = [];
+    block._rpRenewals.push({ oldStart:oldStartISO, oldEnd:oldEndISO, newStart:newStartISO, newEnd:newEndISO, months:months, time:new Date().toISOString() });
+    startInput.value = isoToROC(newStartISO);
+    endInput.value = isoToROC(newEndISO);
+    showMsg('已續約', '新合約：'+isoToROC(newStartISO)+' ~ '+isoToROC(newEndISO)+'（'+months+'個月）\n（請儲存完成續約）');
+}
+function showRpRenewalHistory(btn) {
+    var block = btn.closest('.person-block'); if (!block) return;
+    var all = block._rpRenewals || [];
+    if (!all.length) { showMsg('續約歷程', '尚無續約紀錄'); return; }
+    var curEnd = (block.querySelector('[data-f="endDate"]') || {}).value || '';
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.padding = '16px'; box.style.minWidth = '320px';
+    var html = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">續約歷程</div>';
+    html += all.map(function(r, i) {
+        return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">' +
+            '<input type="checkbox" data-rp-rn-idx="'+i+'" style="width:16px;height:16px;flex-shrink:0">' +
+            '<span style="flex:1">'+esc(isoToROC(r.oldStart))+'~'+esc(isoToROC(r.oldEnd))+' → '+esc(isoToROC(r.newStart))+'~'+esc(isoToROC(r.newEnd))+'（'+r.months+'個月）</span></div>';
+    }).join('');
+    html += '<div style="padding:6px 0;font-size:13px;font-weight:700;color:var(--deep)">現行到期日：'+esc(curEnd)+'</div>';
+    html += '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">' +
+        '<button type="button" class="rp-rn-del-btn" style="padding:8px 16px;border:none;border-radius:8px;background:#DC2626;color:white;cursor:pointer;font-size:14px;display:none">刪除勾選</button>' +
+        '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">關閉</button></div>';
+    box.innerHTML = html;
+    box.addEventListener('change', function() {
+        var checked = box.querySelectorAll('input[data-rp-rn-idx]:checked').length;
+        box.querySelector('.rp-rn-del-btn').style.display = checked ? '' : 'none';
+    });
+    box.querySelector('.rp-rn-del-btn').onclick = function() {
+        var checks = box.querySelectorAll('input[data-rp-rn-idx]:checked');
+        var idxs = []; checks.forEach(function(cb){ idxs.push(parseInt(cb.getAttribute('data-rp-rn-idx'))); });
+        idxs.sort(function(a,b){ return b-a; });
+        idxs.forEach(function(idx){ block._rpRenewals.splice(idx, 1); });
+        overlay.remove();
+        if (block._rpRenewals.length) showRpRenewalHistory(btn);
+    };
+    overlay.appendChild(box);
+    overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+    document.body.appendChild(overlay);
+}
+function getRentalProperties() {
+    var r = [];
+    document.querySelectorAll('#rPropertyList .person-block').forEach(function(block) {
+        var get = function(f){ var el=block.querySelector('[data-f="'+f+'"]'); return el?el.value.trim():''; };
+        if (get('community') || get('addr') || get('rent')) {
+            r.push({ rCommunity:get('community'), rAddr:get('addr'), rent:get('rent'), rRentPeriod:get('rentPeriod'), rSz:get('sz'), rParking:get('parking'), rParkingNo:get('parkingNo'), rMgmtType:get('mgmtType'), rMgmtBuilding:get('mgmtBuilding'), rMgmtCar:get('mgmtCar'), rMgmtMoto:get('mgmtMoto'), rMgmtOther:get('mgmtOther'), rStartDate:rocToISO(get('startDate')), rEndDate:rocToISO(get('endDate')), rpRenewals: block._rpRenewals || [] });
+        }
+    });
+    return r;
+}
+function clearRentalProperties() { document.getElementById('rPropertyList').innerHTML = ''; rPropId = 0; }
+
 function renewLease() {
     var oldEnd = document.getElementById('f-rEndDate').value;
     var oldStart = document.getElementById('f-rStartDate').value;
@@ -4159,12 +4244,14 @@ function renewLease() {
     showMsg('已續約 ' + months + ' 個月', '新租期：' + isoToROC(newStartISO) + ' ~ ' + isoToROC(newEndISO) + '\n（請按儲存完成續約）');
 }
 function renderRRenewals() {
-    var editData = editId ? (DB.find(function(x){return x.id===editId;})||{}).renewals || [] : [];
-    var all = editData.concat(pendingRenewals);
     var el = document.getElementById('rRenewalHistory');
     var list = document.getElementById('rRenewalList');
+    if (!el || !list) return;
+    var editData = editId ? (DB.find(function(x){return x.id===editId;})||{}).renewals || [] : [];
+    var all = editData.concat(pendingRenewals);
     if (all.length) {
-        var curEnd = document.getElementById('f-rEndDate').value;
+        var endEl = document.getElementById('f-rEndDate');
+        var curEnd = endEl ? endEl.value : '';
         el.style.display = '';
         list.innerHTML = all.map(function(r) {
             return '<span style="padding:5px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--bg)">' + isoToROC(r.oldEnd) + '</span>';
@@ -4478,14 +4565,12 @@ function addDealRow(data) {
     var localNum = document.querySelectorAll('#dealList .deal-box').length + 1;
     var html = '<div class="deal-box" id="deal-'+i+'" style="border:1px solid var(--border);border-left:4px solid #92400E;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9;position:relative">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:700;color:#92400E">成交物件 '+localNum+'</span><button type="button" class="c-del" onclick="removeDeal('+i+')">✕</button></div>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px">' +
-            '<div class="roc-date-wrap"><input class="deal-date" type="text" placeholder="成交日期" style="min-width:0;flex:1" value="'+esc(d.date?isoToROC(d.date):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>' +
-            '<select class="deal-role"><option value=""'+(d.role?'':' selected')+'>買/賣方</option><option value="買方"'+(d.role==='買方'?' selected':'')+'>買方</option><option value="賣方"'+(d.role==='賣方'?' selected':'')+'>賣方</option></select>' +
-            '<div class="input-grp"><input class="deal-price" style="min-width:0;flex:1" placeholder="成交價格" value="'+esc(d.price||'')+'"><span class="input-sfx">萬</span></div>' +
-        '</div>' +
-        '<div style="display:grid;grid-template-columns:2fr 8fr;gap:8px">' +
-            '<input class="deal-community" placeholder="社區大樓" value="'+esc(d.community||'')+'">' +
-            '<input class="deal-addr" placeholder="成交地址" value="'+esc(d.addr||'')+'">' +
+        '<div class="deal-fields" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">' +
+            '<div class="deal-f-date roc-date-wrap"><input class="deal-date" type="text" placeholder="成交日期" style="min-width:0;flex:1" value="'+esc(d.date?isoToROC(d.date):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>' +
+            '<select class="deal-f-role deal-role"><option value=""'+(d.role?'':' selected')+'>買/賣方</option><option value="買方"'+(d.role==='買方'?' selected':'')+'>買方</option><option value="賣方"'+(d.role==='賣方'?' selected':'')+'>賣方</option></select>' +
+            '<div class="deal-f-price input-grp"><input class="deal-price" style="min-width:0;flex:1" placeholder="成交價格" value="'+esc(d.price||'')+'"><span class="input-sfx">萬</span></div>' +
+            '<input class="deal-f-community deal-community" placeholder="社區大樓" value="'+esc(d.community||'')+'">' +
+            '<input class="deal-f-addr deal-addr" placeholder="成交地址" value="'+esc(d.addr||'')+'" style="grid-column:span 2">' +
         '</div>' +
         '</div>';
     document.getElementById('dealList').insertAdjacentHTML('beforeend', html);
@@ -4893,17 +4978,17 @@ function resetForm() {
     document.getElementById('f-sMgmtPeriod').value = '';
     document.getElementById('parkingPriceGroup').style.visibility = 'hidden';
     document.getElementById('f-parkingNo').style.display = 'none';
-    document.getElementById('f-rParking').value = '';
-    document.getElementById('rParkingNoGroup').style.display = 'none';
-    document.getElementById('f-rRentPeriod').value = '月繳';
+    var _rp = document.getElementById('f-rParking'); if(_rp) _rp.value = '';
+    var _rpng = document.getElementById('rParkingNoGroup'); if(_rpng) _rpng.style.display = 'none';
+    var _rrp = document.getElementById('f-rRentPeriod'); if(_rrp) _rrp.value = '月繳';
     ['f-rSubsidy','f-rSocialHouse','f-rRegister','f-rTax','f-rPet','f-rAltar','f-rGoodCitizen','f-rSubsidy2','f-rSocialHouse2','f-rRegister2','f-rTax2','f-rPet2','f-rAltar2','f-rGoodCitizen2'].forEach(function(id){ var el=document.getElementById(id); if(el) el.checked=false; });
     syncCondBtns();
     activeRentalTab = '房東';
     var rh = document.getElementById('rRenewalHistory'); if(rh) rh.style.display='none';
     clearEquipData();
     var eb = document.getElementById('equipBody'); if(eb) eb.classList.remove('on');
-    document.getElementById('f-rMgmtType').value = '';
-    document.getElementById('rMgmtTotal').textContent = '0 元';
+    var _rmt = document.getElementById('f-rMgmtType'); if(_rmt) _rmt.value = '';
+    var _rmtt = document.getElementById('rMgmtTotal'); if(_rmtt) _rmtt.textContent = '0 元';
     document.getElementById('namePhoneIdRow').classList.remove('hidden');
     document.getElementById('emailSourceRow').classList.remove('hidden');
     document.getElementById('emailGroup').style.display = '';
@@ -4933,6 +5018,7 @@ function resetForm() {
     selectedTypes = [];
     activeView = '';
     pendingRenewals = [];
+    clearRentalProperties();
     sRenewals = [];
     document.getElementById('btnRenewalHist').style.display = 'none';
     clearBAddrs();
@@ -5100,8 +5186,14 @@ function openEdit(id, viewAs) {
     setVal('f-rSource',c.rSource || (rentalOnly ? c.source : ''));
     loadEquipData(c.rEquipment);
     if (hasType(c,'租案管理')) loadRoleTypes(c);
-    setVal('f-rCommunity',c.rCommunity); setVal('f-rAddr',c.rAddr); setVal('f-rent',c.rent); setVal('f-rSz',c.rSz);
-    if (c.rRentPeriod) document.getElementById('f-rRentPeriod').value = c.rRentPeriod;
+    // 租案物件資料區塊
+    if (c.rProperties && c.rProperties.length) {
+        c.rProperties.forEach(function(rp){ addRentalProperty(rp); });
+    } else if (c.rCommunity || c.rAddr || c.rent) {
+        // 舊資料相容：從頂層欄位建立一組物件
+        var oldRp = { rCommunity:c.rCommunity||'', rAddr:c.rAddr||'', rent:c.rent||'', rRentPeriod:c.rRentPeriod||'月繳', rSz:c.rSz||'', rParking:c.rParking||'', rParkingNo:c.rParkingNo||'', rMgmtType:c.rMgmtType||'', rMgmtBuilding:c.rMgmtBuilding||(c.rMgmtFee&&!c.rMgmtBuilding?c.rMgmtFee:''), rMgmtCar:c.rMgmtCar||'', rMgmtMoto:c.rMgmtMoto||'', rMgmtOther:c.rMgmtOther||'', rStartDate:c.rStartDate||'', rEndDate:c.rEndDate||'', rpRenewals:c.renewals||[] };
+        addRentalProperty(oldRp);
+    }
     document.getElementById('f-rSubsidy').checked = !!c.rSubsidy;
     document.getElementById('f-rSocialHouse').checked = !!c.rSocialHouse;
     document.getElementById('f-rRegister').checked = !!c.rRegister;
@@ -5117,13 +5209,7 @@ function openEdit(id, viewAs) {
     document.getElementById('f-rGoodCitizen').checked = !!c.rGoodCitizen;
     document.getElementById('f-rGoodCitizen2').checked = !!c.rGoodCitizen2;
     syncCondBtns();
-    if (c.rMgmtType) document.getElementById('f-rMgmtType').value = c.rMgmtType;
-    setVal('f-rMgmtBuilding', c.rMgmtBuilding || (c.rMgmtFee && !c.rMgmtBuilding ? c.rMgmtFee : ''));
-    setVal('f-rMgmtCar', c.rMgmtCar); setVal('f-rMgmtMoto', c.rMgmtMoto); setVal('f-rMgmtOther', c.rMgmtOther);
-    calcRMgmtTotal();
-    setVal('f-rStartDate',isoToROC(c.rStartDate)); setVal('f-rEndDate',isoToROC(c.rEndDate));
-    if (c.renewals && c.renewals.length) renderRRenewals();
-    if (c.rParking) { document.getElementById('f-rParking').value = c.rParking; toggleRParkingNo(); setVal('f-rParkingNo',c.rParkingNo); }
+    // rParking 現在由 rProperties 區塊處理
     // 成交客戶
     var closedOnly = hasType(c,'成交客戶') && !hasType(c,'經營買方');
     // 優先用新欄位，向下相容舊 cContacts[0] 或 c.name
@@ -5341,7 +5427,7 @@ function saveClient() {
         rSource:get('f-rSource'),
         rLandlordTypes:rLandlordTypes.slice(), rTenantTypes:rTenantTypes.slice(),
         rEquipment:getEquipData(),
-        rCommunity:get('f-rCommunity'),
+        rProperties: getRentalProperties(),
         rSubsidy:document.getElementById('f-rSubsidy').checked,
         rSocialHouse:document.getElementById('f-rSocialHouse').checked,
         rRegister:document.getElementById('f-rRegister').checked,
@@ -5356,12 +5442,23 @@ function saveClient() {
         rAltar2:document.getElementById('f-rAltar2').checked,
         rGoodCitizen:document.getElementById('f-rGoodCitizen').checked,
         rGoodCitizen2:document.getElementById('f-rGoodCitizen2').checked,
-        rAddr:get('f-rAddr'), rent:get('f-rent'), rRentPeriod:get('f-rRentPeriod'), rSz:get('f-rSz'),
-        rMgmtType:get('f-rMgmtType'), rMgmtBuilding:get('f-rMgmtBuilding'), rMgmtCar:get('f-rMgmtCar'), rMgmtMoto:get('f-rMgmtMoto'), rMgmtOther:get('f-rMgmtOther'),
-        rMgmtFee: String((parseFloat(get('f-rMgmtBuilding'))||0)+(parseFloat(get('f-rMgmtCar'))||0)+(parseFloat(get('f-rMgmtMoto'))||0)+(parseFloat(get('f-rMgmtOther'))||0) || ''),
-        rParking:get('f-rParking'), rParkingNo:get('f-rParkingNo'),
-        rStartDate:rocToISO(get('f-rStartDate')), rEndDate:rocToISO(get('f-rEndDate')),
-        renewals: (function(){ var existing = editId ? (DB.find(function(x){return x.id===editId;})||{}).renewals || [] : []; return existing.concat(pendingRenewals); })(),
+        // 向下相容：取第一組物件的值
+        rCommunity:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rCommunity:''; })(),
+        rAddr:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rAddr:''; })(),
+        rent:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rent:''; })(),
+        rRentPeriod:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rRentPeriod:''; })(),
+        rSz:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rSz:''; })(),
+        rMgmtType:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rMgmtType:''; })(),
+        rMgmtBuilding:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rMgmtBuilding:''; })(),
+        rMgmtCar:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rMgmtCar:''; })(),
+        rMgmtMoto:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rMgmtMoto:''; })(),
+        rMgmtOther:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rMgmtOther:''; })(),
+        rMgmtFee:(function(){ var rps=getRentalProperties(); if(!rps[0]) return ''; var rp=rps[0]; return String((parseFloat(rp.rMgmtBuilding)||0)+(parseFloat(rp.rMgmtCar)||0)+(parseFloat(rp.rMgmtMoto)||0)+(parseFloat(rp.rMgmtOther)||0)||''); })(),
+        rParking:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rParking:''; })(),
+        rParkingNo:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rParkingNo:''; })(),
+        rStartDate:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rStartDate:''; })(),
+        rEndDate:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rEndDate:''; })(),
+        renewals: (function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rpRenewals:[]; })(),
         // 成交
         cName:get('f-cName'), cPhone:get('f-cPhone'), cIdNo:get('f-cIdNo'), cOccupation:get('f-cOccupation'), cBirthday:rocToISO(get('f-cBirthday')), cAddrType:get('f-cAddrType'), cZip:get('f-cZip'), cAddr:get('f-cAddr'),
         cEmail:get('f-cEmail'), cSource:get('f-cSource'),
