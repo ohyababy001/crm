@@ -780,9 +780,9 @@
             <div class="type-sec" id="s-經營買方">
                 <div style="display:flex;align-items:center;gap:8px;margin:4px 0 10px">
                     <span style="font-size:14px;font-weight:700;color:var(--text)">客戶等級</span>
-                    <button type="button" class="grade-btn grade-a" onclick="pickGrade(this,'A')" data-grade="A">A級</button>
-                    <button type="button" class="grade-btn grade-b" onclick="pickGrade(this,'B')" data-grade="B">B級</button>
-                    <button type="button" class="grade-btn grade-c" onclick="pickGrade(this,'C')" data-grade="C">C級</button>
+                    <button type="button" class="grade-btn grade-a" onclick="pickGrade(this,'A','f-bGrade')" data-grade="A">A級</button>
+                    <button type="button" class="grade-btn grade-b" onclick="pickGrade(this,'B','f-bGrade')" data-grade="B">B級</button>
+                    <button type="button" class="grade-btn grade-c" onclick="pickGrade(this,'C','f-bGrade')" data-grade="C">C級</button>
                     <input type="hidden" id="f-bGrade" value="">
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px;margin-top:4px">
@@ -869,6 +869,13 @@
             <!-- 庫存屋主 -->
             <div class="type-sec" id="s-庫存屋主">
                 <!-- 屋主基本資料 -->
+                <div style="display:flex;align-items:center;gap:8px;margin:4px 0 10px">
+                    <span style="font-size:14px;font-weight:700;color:var(--text)">客戶等級</span>
+                    <button type="button" class="grade-btn grade-a" onclick="pickGrade(this,'A','f-sGrade')" data-grade="A">A級</button>
+                    <button type="button" class="grade-btn grade-b" onclick="pickGrade(this,'B','f-sGrade')" data-grade="B">B級</button>
+                    <button type="button" class="grade-btn grade-c" onclick="pickGrade(this,'C','f-sGrade')" data-grade="C">C級</button>
+                    <input type="hidden" id="f-sGrade" value="">
+                </div>
                 <div id="sellerBasicRow1" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'seller')">帶入</button></label><input id="f-sName" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-sPhone" placeholder="" onblur="autoPhone(this)"></div>
@@ -2424,6 +2431,7 @@ function renderCard(c) {
         const typeTags = displayTypes.map(t => {
             var tag = `<span class="tag t-${TC[t]||'buyer'}">${TYPE_DISPLAY[t]||t}</span>`;
             if (t === '經營買方' && c.bGrade) tag += `<span class="tag grade-tag-${c.bGrade.toLowerCase()}">${c.bGrade}級</span>`;
+            if (t === '庫存屋主' && c.sGrade) tag += `<span class="tag grade-tag-${c.sGrade.toLowerCase()}">${c.sGrade}級</span>`;
             return tag;
         }).join('');
         const statusTag = !cTypes.includes('經營買方') && c.status ? `<span class="tag s-${c.status}">${c.status}</span>` : '';
@@ -3931,10 +3939,13 @@ function clearBfGrade() {
     bfGrade = '';
     document.querySelectorAll('.bf-chip[onclick*="toggleBfGrade"]').forEach(function(b){ b.classList.remove('on'); });
 }
-function pickGrade(btn, grade) {
-    var input = document.getElementById('f-bGrade');
+function pickGrade(btn, grade, inputId) {
+    var targetId = inputId || 'f-bGrade';
+    var input = document.getElementById(targetId);
     var wasOn = btn.classList.contains('on');
-    document.querySelectorAll('.grade-btn').forEach(function(b){ b.classList.remove('on'); });
+    // 只清除同一組的按鈕
+    var container = btn.parentElement;
+    container.querySelectorAll('.grade-btn').forEach(function(b){ b.classList.remove('on'); });
     if (wasOn) {
         input.value = '';
     } else {
@@ -4139,6 +4150,11 @@ function openEdit(id, viewAs) {
     else if (c.bOther) addBAddrRow({type:'其他',addr:c.bOther});
     setVal('f-want',c.want); setVal('f-noWant',c.noWant);
     // 庫存屋主：優先用獨立欄位，向下相容舊資料（只有庫存時 name 就是屋主名字）
+    // 庫存等級
+    document.getElementById('f-sGrade').value = c.sGrade || '';
+    var sGradeBtns = document.getElementById('f-sGrade').parentElement.querySelectorAll('.grade-btn');
+    sGradeBtns.forEach(function(b){ b.classList.remove('on'); });
+    if (c.sGrade) { sGradeBtns.forEach(function(b){ if(b.getAttribute('data-grade')===c.sGrade) b.classList.add('on'); }); }
     var sellerOnly = hasType(c,'庫存屋主') && !hasType(c,'經營買方');
     setVal('f-sName', c.sName || (sellerOnly ? c.name : ''));
     setVal('f-sPhone', c.sPhone || (sellerOnly ? c.phone : ''));
@@ -4445,6 +4461,7 @@ function saveClient() {
         bOther: getBAddrs().map(function(a){ return (a.type?a.type+'：':'')+a.addr; }).join('、'),
         want:get('f-want'), noWant:get('f-noWant'),
         // 庫存屋主
+        sGrade:get('f-sGrade'),
         sName:get('f-sName'), sPhone:get('f-sPhone'), sEmail:get('f-sEmail'), sSource:get('f-sSource'),
         sIdNo:get('f-sIdNo'), sBirthday:rocToISO(get('f-sBirthday')), sAddrType:get('f-sAddrType'), sZip:get('f-sZip'), sOwnerAddr:get('f-sOwnerAddr'),
         sPersons:getPersonBlocks('sPersonList'),
