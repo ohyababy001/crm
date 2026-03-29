@@ -1840,17 +1840,16 @@ function openCal(btn) {
     popup.style.left = left + 'px';
     popup.style.top = top + 'px';
     popup.style.display = 'block';
-    // 點外面關閉日曆
+    // 點外面關閉日曆（用 capture 確保不被 stopPropagation 攔截）
     setTimeout(function() {
-        document.addEventListener('pointerdown', _calOutsideClose);
+        document.addEventListener('pointerdown', _calOutsideClose, true);
     }, 0);
 }
 function _calOutsideClose(e) {
     var popup = document.getElementById('calPopup');
-    if (popup.style.display !== 'block') return;
-    if (!popup.contains(e.target) && !e.target.classList.contains('cal-btn')) {
+    if (!popup || popup.style.display !== 'block') return;
+    if (!popup.contains(e.target) && !e.target.closest('.cal-btn')) {
         closeCal();
-        document.removeEventListener('pointerdown', _calOutsideClose);
     }
 }
 
@@ -1858,7 +1857,7 @@ function closeCal() {
     document.getElementById('calPopup').style.display = 'none';
     calTarget = null;
     yearPickerOpen = false;
-    document.removeEventListener('pointerdown', _calOutsideClose);
+    document.removeEventListener('pointerdown', _calOutsideClose, true);
     document.getElementById('calYearPicker').style.display = 'none';
     document.getElementById('calGrid').style.display = 'grid';
 }
