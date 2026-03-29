@@ -924,10 +924,11 @@
                     <button type="button" class="grade-btn grade-c" onclick="pickGrade(this,'C','f-sGrade')" data-grade="C">C級</button>
                     <input type="hidden" id="f-sGrade" value="">
                 </div>
-                <div id="sellerBasicRow1" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px">
+                <div id="sellerBasicRow1" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'seller')">帶入</button></label><input id="f-sName" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-sPhone" placeholder="" onblur="autoPhone(this)"></div>
                     <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-sIdNo" placeholder=""></div>
+                    <div class="fg" style="margin-bottom:0"><label>職業</label><input id="f-sOccupation" placeholder=""></div>
                 </div>
                 <div id="sellerBasicRow2" style="display:grid;grid-template-columns:2fr 5fr 2fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-sBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
@@ -1234,10 +1235,11 @@
 
             <!-- 成交 -->
             <div class="type-sec" id="s-成交客戶">
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px;margin-top:4px">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px;margin-top:4px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'closed')">帶入</button></label><input id="f-cName" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-cPhone" placeholder="" onblur="autoPhone(this)"></div>
                     <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-cIdNo" placeholder=""></div>
+                    <div class="fg" style="margin-bottom:0"><label>職業</label><input id="f-cOccupation" placeholder=""></div>
                 </div>
                 <div style="display:grid;grid-template-columns:2fr 5fr 2fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-cBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
@@ -1262,10 +1264,11 @@
 
             <!-- 商機募集 -->
             <div class="type-sec" id="s-商機募集">
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px;margin-top:4px">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px;margin-top:4px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'dev')">帶入</button></label><input id="f-dName" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-dPhone" placeholder="" onblur="autoPhone(this)"></div>
                     <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-dIdNo" placeholder=""></div>
+                    <div class="fg" style="margin-bottom:0"><label>職業</label><input id="f-dOccupation" placeholder=""></div>
                 </div>
                 <div style="display:grid;grid-template-columns:2fr 5fr 2fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-dBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
@@ -4225,10 +4228,10 @@ function getAreaDisplay() {
 const SIMPLE_FIELDS = ['fn','fp','f-idNo','fe','fs','flc','fso','fnotes',
     'f-bName','f-bPhone','f-bIdNo','f-bOccupation','f-bBirthday','f-bZip','f-bAddr','f-bEmail','f-bSource',
     'f-budgetMin','f-budgetMax','f-downPayment','f-want','f-noWant','f-roomOther','f-areaOther',
-    'f-sName','f-sPhone','f-sIdNo','f-sBirthday','f-sOwnerAddr','f-sEmail','f-sSource',
+    'f-sName','f-sPhone','f-sIdNo','f-sOccupation','f-sBirthday','f-sOwnerAddr','f-sEmail','f-sSource',
     'f-community','f-sAddr','f-sPrice','f-sFloorPrice','f-sServiceFee','f-sLandSz','f-sSz','f-layout','f-sMgmtBuilding','f-sMgmtCar','f-sMgmtMoto','f-sMgmtOther','f-parkingPrice','f-parkingNo','f-contractStart','f-contractEnd',
-    'f-cName','f-cPhone','f-cIdNo','f-cBirthday','f-cZip','f-cAddr','f-cEmail','f-cSource',
-    'f-dName','f-dPhone','f-dIdNo','f-dBirthday','f-dZip','f-dAddr','f-dEmail','f-dSource',
+    'f-cName','f-cPhone','f-cIdNo','f-cOccupation','f-cBirthday','f-cZip','f-cAddr','f-cEmail','f-cSource',
+    'f-dName','f-dPhone','f-dIdNo','f-dOccupation','f-dBirthday','f-dZip','f-dAddr','f-dEmail','f-dSource',
     'f-llName','f-llPhone','f-llIdNo','f-llOccupation','f-llBirthday','f-llEmail','f-llSource','f-llZip','f-llAddr',
     'f-ttName','f-ttPhone','f-ttIdNo','f-ttOccupation','f-ttBirthday','f-ttEmail','f-ttSource','f-ttZip','f-ttAddr',
     'f-rSource',
@@ -4381,7 +4384,7 @@ function openEdit(id, viewAs) {
     var sellerOnly = hasType(c,'庫存屋主') && !hasType(c,'經營買方');
     setVal('f-sName', c.sName || (sellerOnly ? c.name : ''));
     setVal('f-sPhone', c.sPhone || (sellerOnly ? c.phone : ''));
-    setVal('f-sIdNo',c.sIdNo); setVal('f-sBirthday',isoToROC(c.sBirthday));
+    setVal('f-sIdNo',c.sIdNo); setVal('f-sOccupation',c.sOccupation||''); setVal('f-sBirthday',isoToROC(c.sBirthday));
     loadAddrType('f-sAddrType', c.sAddrType);
     setVal('f-sZip', c.sZip || ''); setVal('f-sOwnerAddr',c.sOwnerAddr);
     setVal('f-sEmail', c.sEmail || (sellerOnly ? c.email : ''));
@@ -4482,6 +4485,7 @@ function openEdit(id, viewAs) {
     setVal('f-cName', c.cName || cFirst.name || (closedOnly ? c.name : ''));
     setVal('f-cPhone', c.cPhone || cFirst.phone || (closedOnly ? c.phone : ''));
     setVal('f-cIdNo', c.cIdNo || cFirst.idNo || '');
+    setVal('f-cOccupation', c.cOccupation || '');
     setVal('f-cBirthday', c.cBirthday ? isoToROC(c.cBirthday) : (cFirst.birthday ? isoToROC(cFirst.birthday) : ''));
     loadAddrType('f-cAddrType', c.cAddrType);
     setVal('f-cZip', c.cZip || ''); setVal('f-cAddr', c.cAddr || '');
@@ -4502,6 +4506,7 @@ function openEdit(id, viewAs) {
     setVal('f-dName', c.dName || dFirst.name || (devOnly ? c.name : ''));
     setVal('f-dPhone', c.dPhone || dFirst.phone || (devOnly ? c.phone : ''));
     setVal('f-dIdNo', c.dIdNo || dFirst.idNo || '');
+    setVal('f-dOccupation', c.dOccupation || '');
     setVal('f-dBirthday', c.dBirthday ? isoToROC(c.dBirthday) : '');
     loadAddrType('f-dAddrType', c.dAddrType);
     setVal('f-dZip', c.dZip || ''); setVal('f-dAddr', c.dAddr || '');
@@ -4732,7 +4737,7 @@ function saveClient() {
         want:get('f-want'), noWant:get('f-noWant'),
         // 庫存屋主
         sGrade:get('f-sGrade'),
-        sName:get('f-sName'), sPhone:get('f-sPhone'), sEmail:get('f-sEmail'), sSource:get('f-sSource'),
+        sName:get('f-sName'), sPhone:get('f-sPhone'), sOccupation:get('f-sOccupation'), sEmail:get('f-sEmail'), sSource:get('f-sSource'),
         sIdNo:get('f-sIdNo'), sBirthday:rocToISO(get('f-sBirthday')), sAddrType:get('f-sAddrType'), sZip:get('f-sZip'), sOwnerAddr:get('f-sOwnerAddr'),
         sPersons:getPersonBlocks('sPersonList'),
         sProperties:getSellerProperties(),
@@ -4775,13 +4780,13 @@ function saveClient() {
         rStartDate:rocToISO(get('f-rStartDate')), rEndDate:rocToISO(get('f-rEndDate')),
         renewals: (function(){ var existing = editId ? (DB.find(function(x){return x.id===editId;})||{}).renewals || [] : []; return existing.concat(pendingRenewals); })(),
         // 成交
-        cName:get('f-cName'), cPhone:get('f-cPhone'), cIdNo:get('f-cIdNo'), cBirthday:rocToISO(get('f-cBirthday')), cAddrType:get('f-cAddrType'), cZip:get('f-cZip'), cAddr:get('f-cAddr'),
+        cName:get('f-cName'), cPhone:get('f-cPhone'), cIdNo:get('f-cIdNo'), cOccupation:get('f-cOccupation'), cBirthday:rocToISO(get('f-cBirthday')), cAddrType:get('f-cAddrType'), cZip:get('f-cZip'), cAddr:get('f-cAddr'),
         cEmail:get('f-cEmail'), cSource:get('f-cSource'),
         cContacts: (function(){ var arr=[]; if(get('f-cName')||get('f-cPhone')) arr.push({name:get('f-cName'),phone:get('f-cPhone'),idNo:get('f-cIdNo'),birthday:rocToISO(get('f-cBirthday'))}); return arr.concat(isClosed?getCContacts():[]); })(),
         cAddrs: isClosed ? getCAddrs() : [],
         deals: getDeals(),
         // 商機募集
-        dName:get('f-dName'), dPhone:get('f-dPhone'), dIdNo:get('f-dIdNo'), dAddrType:get('f-dAddrType'), dZip:get('f-dZip'), dAddr:get('f-dAddr'),
+        dName:get('f-dName'), dPhone:get('f-dPhone'), dIdNo:get('f-dIdNo'), dOccupation:get('f-dOccupation'), dAddrType:get('f-dAddrType'), dZip:get('f-dZip'), dAddr:get('f-dAddr'),
         dBirthday:rocToISO(get('f-dBirthday')), dEmail:get('f-dEmail'), dSource:get('f-dSource'),
         dPersons: (function(){ var arr=[]; if(get('f-dName')||get('f-dPhone')) arr.push({name:get('f-dName'),phone:get('f-dPhone'),idNo:get('f-dIdNo')}); return arr.concat(getDPersons()); })(), dAddrs:getDAddrs(),
         devType: (function(){ var types=[]; getDAddrs().forEach(function(a){ if(a.devType&&types.indexOf(a.devType)<0) types.push(a.devType); }); return types.join('、'); })(),
