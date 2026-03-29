@@ -1370,7 +1370,7 @@ function autoZip(addrInput) {
     if (!addr) return;
     var row = addrInput.closest('[data-addr-row]') || addrInput.parentElement.parentElement;
     var zipInput = row.querySelector('[data-f="zip"]') || row.querySelector('input[placeholder="郵遞區號"]');
-    if (!zipInput || zipInput.value.trim()) return;
+    if (!zipInput) return;
     for (var dist in ZIP_MAP) {
         if (addr.includes(dist)) { zipInput.value = ZIP_MAP[dist]; return; }
     }
