@@ -964,34 +964,29 @@
                     <input type="hidden" id="f-contractType" value="">
                 </div>
                 <div id="sellerAddrRow" style="display:grid;grid-template-columns:1fr 3fr;gap:10px;margin-bottom:10px">
-                    <div class="fg" style="margin-bottom:0"><input id="f-community" placeholder="社區大樓"></div>
-                    <div class="fg" style="margin-bottom:0"><input id="f-sAddr" placeholder="物件地址"></div>
-                </div>
-                <div style="display:grid;grid-template-columns:2fr 2fr 3fr 2fr 2fr;gap:8px;margin-bottom:8px">
-                    <div class="fg" style="margin-bottom:0;grid-column:1/3"><div class="input-grp"><input id="f-sPrice" placeholder="開價" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>
-                    <div class="fg" style="margin-bottom:0;grid-column:3/5"><div class="input-grp"><input id="f-sFloorPrice" placeholder="底價" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>
-                    <div class="fg" style="margin-bottom:0;grid-column:5/6"><div class="input-grp"><input id="f-sServiceFee" placeholder="服務費" style="min-width:0;flex:1"><span class="input-sfx">%</span></div></div>
-                </div>
-                <div style="display:flex;gap:6px;margin-bottom:6px">
-                    <button type="button" class="btn-fill" onclick="showPriceHistory('sPrice')" id="btnPriceHist" style="display:none">開價歷程</button>
-                    <button type="button" class="btn-fill" onclick="showPriceHistory('sFloorPrice')" id="btnFloorHist" style="display:none">底價歷程</button>
-                    <button type="button" class="btn-fill" onclick="showPriceHistory('sServiceFee')" id="btnFeeHist" style="display:none">服務費歷程</button>
+                    <div class="fg" style="margin-bottom:0"><label>社區大樓</label><input id="f-community" placeholder=""></div>
+                    <div class="fg" style="margin-bottom:0"><label>物件地址</label><input id="f-sAddr" placeholder=""></div>
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
-                    <div class="fg" style="margin-bottom:0"><div class="input-grp"><input id="f-sBaseLand" placeholder="基地面積" style="min-width:0;flex:1" oninput="calcSellerSz()"><span class="input-sfx">坪</span></div></div>
-                    <div class="fg" style="margin-bottom:0"><div class="input-grp"><input id="f-sLandShare" placeholder="土地持分" style="min-width:0;flex:1" oninput="calcSellerSz()"><span class="input-sfx">坪</span></div></div>
+                    <div class="fg" style="margin-bottom:0"><label>開價 <button type="button" class="btn-fill" onclick="showPriceHistory('sPrice')" id="btnPriceHist" style="display:none">歷程</button></label><div class="input-grp"><input id="f-sPrice" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>
+                    <div class="fg" style="margin-bottom:0"><label>底價 <button type="button" class="btn-fill" onclick="showPriceHistory('sFloorPrice')" id="btnFloorHist" style="display:none">歷程</button></label><div class="input-grp"><input id="f-sFloorPrice" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>
+                    <div class="fg" style="margin-bottom:0"><label>服務費 <button type="button" class="btn-fill" onclick="showPriceHistory('sServiceFee')" id="btnFeeHist" style="display:none">歷程</button></label><div class="input-grp"><input id="f-sServiceFee" style="min-width:0;flex:1"><span class="input-sfx">%</span></div></div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+                    <div class="fg" style="margin-bottom:0"><label>基地面積</label><div class="input-grp"><input id="f-sBaseLand" style="min-width:0;flex:1" oninput="calcSellerSz()"><span class="input-sfx">坪</span></div></div>
+                    <div class="fg" style="margin-bottom:0"><label>土地持分</label><div class="input-grp"><input id="f-sLandShare" style="min-width:0;flex:1" oninput="calcSellerSz()"><span class="input-sfx">坪</span></div></div>
                     <div></div>
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
-                    <div class="fg" style="margin-bottom:0"><div class="input-grp"><input id="f-sMainBldg" placeholder="主建物" style="min-width:0;flex:1" oninput="calcSellerSz()"><span class="input-sfx">坪</span></div></div>
-                    <div class="fg" style="margin-bottom:0"><div class="input-grp"><input id="f-sAncBldg" placeholder="附屬建物" style="min-width:0;flex:1" oninput="calcSellerSz()"><span class="input-sfx">坪</span></div></div>
-                    <div class="fg" style="margin-bottom:0"><div class="input-grp"><input id="f-sCommon" placeholder="共有部分" style="min-width:0;flex:1" oninput="calcSellerSz()"><span class="input-sfx">坪</span></div></div>
+                    <div class="fg" style="margin-bottom:0"><label>主建物</label><div class="input-grp"><input id="f-sMainBldg" style="min-width:0;flex:1" oninput="calcSellerSz()"><span class="input-sfx">坪</span></div></div>
+                    <div class="fg" style="margin-bottom:0"><label>附屬建物</label><div class="input-grp"><input id="f-sAncBldg" style="min-width:0;flex:1" oninput="calcSellerSz()"><span class="input-sfx">坪</span></div></div>
+                    <div class="fg" style="margin-bottom:0"><label>共有部分</label><div class="input-grp"><input id="f-sCommon" style="min-width:0;flex:1" oninput="calcSellerSz()"><span class="input-sfx">坪</span></div></div>
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px">
-                    <div class="fg" style="margin-bottom:0"><div class="input-grp"><input id="f-sParkingSz" placeholder="車位坪數" style="min-width:0;flex:1" oninput="calcSellerSz()"><span class="input-sfx">坪</span></div></div>
-                    <div class="fg" style="margin-bottom:0">
+                    <div class="fg" style="margin-bottom:0"><label>車位坪數</label><div class="input-grp"><input id="f-sParkingSz" style="min-width:0;flex:1" oninput="calcSellerSz()"><span class="input-sfx">坪</span></div></div>
+                    <div class="fg" style="margin-bottom:0"><label>車位形態</label>
                         <select id="f-parking" onchange="toggleParkingPrice()" style="width:100%">
-                            <option value="">車位形態</option>
+                            <option value="">選擇</option>
                             <option>坡道平面</option>
                             <option>坡道機械</option>
                             <option>升降平面</option>
@@ -1000,8 +995,8 @@
                             <option>其他車位</option>
                         </select>
                     </div>
-                    <div class="fg" style="margin-bottom:0"><div class="input-grp" id="parkingPriceGroup" style="visibility:hidden"><input id="f-parkingPrice" placeholder="車位價格" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>
-                    <div class="fg" style="margin-bottom:0"><input id="f-parkingNo" placeholder="車位編號" style="display:none"></div>
+                    <div class="fg" style="margin-bottom:0"><label>車位價格</label><div class="input-grp" id="parkingPriceGroup" style="visibility:hidden"><input id="f-parkingPrice" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>
+                    <div class="fg" style="margin-bottom:0"><label>車位編號</label><input id="f-parkingNo" style="display:none"></div>
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
                     <div style="padding:8px 12px;border-radius:8px;font-size:14px;font-weight:700;background:#EFF6FF;color:#1D4ED8;text-align:center">登記面積 <span id="sRegSz">0</span> 坪</div>
@@ -1011,10 +1006,10 @@
                 <input type="hidden" id="f-sSz" value="">
                 <div style="font-size:12px;font-weight:600;color:var(--wood);margin-bottom:4px">管理費</div>
                 <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">
-                    <div style="flex:1;min-width:70px"><div class="input-grp"><input id="f-sMgmtBuilding" placeholder="建物" style="min-width:0;flex:1" oninput="calcMgmtTotal()"><span class="input-sfx">元</span></div></div>
-                    <div style="flex:1;min-width:70px"><div class="input-grp"><input id="f-sMgmtCar" placeholder="汽車" style="min-width:0;flex:1" oninput="calcMgmtTotal()"><span class="input-sfx">元</span></div></div>
-                    <div style="flex:1;min-width:70px"><div class="input-grp"><input id="f-sMgmtMoto" placeholder="機車" style="min-width:0;flex:1" oninput="calcMgmtTotal()"><span class="input-sfx">元</span></div></div>
-                    <div style="flex:1;min-width:70px"><div class="input-grp"><input id="f-sMgmtOther" placeholder="其他" style="min-width:0;flex:1" oninput="calcMgmtTotal()"><span class="input-sfx">元</span></div></div>
+                    <div style="flex:1;min-width:70px"><div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">建物</div><div class="input-grp"><input id="f-sMgmtBuilding" style="min-width:0;flex:1" oninput="calcMgmtTotal()"><span class="input-sfx">元</span></div></div>
+                    <div style="flex:1;min-width:70px"><div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">汽車</div><div class="input-grp"><input id="f-sMgmtCar" style="min-width:0;flex:1" oninput="calcMgmtTotal()"><span class="input-sfx">元</span></div></div>
+                    <div style="flex:1;min-width:70px"><div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">機車</div><div class="input-grp"><input id="f-sMgmtMoto" style="min-width:0;flex:1" oninput="calcMgmtTotal()"><span class="input-sfx">元</span></div></div>
+                    <div style="flex:1;min-width:70px"><div style="font-size:11px;color:var(--muted);margin-bottom:2px;padding-left:4px">其他</div><div class="input-grp"><input id="f-sMgmtOther" style="min-width:0;flex:1" oninput="calcMgmtTotal()"><span class="input-sfx">元</span></div></div>
                     <div style="flex:1;min-width:70px"><div style="padding:8px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE8E0;color:#5C4A32;text-align:center" id="sMgmtTotal">0 元</div></div>
                     <select id="f-sMgmtPeriod" style="flex:0 0 70px;padding:8px 4px;border:1px solid var(--border);border-radius:8px;font-size:14px">
                         <option value="">繳費</option>
@@ -1025,8 +1020,8 @@
                     </select>
                 </div>
                 <div id="sellerContractRow" style="display:grid;grid-template-columns:3fr 3fr 1fr;gap:8px;align-items:end;margin-bottom:10px">
-                    <div class="fg" style="margin-bottom:0"><div class="roc-date-wrap"><input id="f-contractStart" type="text" placeholder="立約日"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
-                    <div class="fg" style="margin-bottom:0"><div class="roc-date-wrap"><input id="f-contractEnd" type="text" placeholder="到期日"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
+                    <div class="fg" style="margin-bottom:0"><label>立約日</label><div class="roc-date-wrap"><input id="f-contractStart" type="text"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
+                    <div class="fg" style="margin-bottom:0"><label>到期日</label><div class="roc-date-wrap"><input id="f-contractEnd" type="text"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                     <button type="button" class="bf-chip" onclick="renewContract()" style="padding:10px 18px;font-size:15px;text-align:center;white-space:nowrap">續約</button>
                 </div>
                 <div class="form-row">
