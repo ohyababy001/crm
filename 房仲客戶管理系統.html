@@ -977,9 +977,10 @@
                     <button type="button" class="btn-fill" onclick="showPriceHistory('sFloorPrice')" id="btnFloorHist" style="display:none">底價歷程</button>
                     <button type="button" class="btn-fill" onclick="showPriceHistory('sServiceFee')" id="btnFeeHist" style="display:none">服務費歷程</button>
                 </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
                     <div class="fg" style="margin-bottom:0"><div class="input-grp"><input id="f-sBaseLand" placeholder="基地面積" style="min-width:0;flex:1" oninput="calcSellerSz()"><span class="input-sfx">坪</span></div></div>
                     <div class="fg" style="margin-bottom:0"><div class="input-grp"><input id="f-sLandShare" placeholder="土地持分" style="min-width:0;flex:1" oninput="calcSellerSz()"><span class="input-sfx">坪</span></div></div>
+                    <div></div>
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
                     <div class="fg" style="margin-bottom:0"><div class="input-grp"><input id="f-sMainBldg" placeholder="主建物" style="min-width:0;flex:1" oninput="calcSellerSz()"><span class="input-sfx">坪</span></div></div>
@@ -3071,9 +3072,10 @@ function addSellerProperty(data) {
             '<div class="fg" style="margin-bottom:0;grid-column:5/6"><div class="input-grp"><input data-f="serviceFee" value="'+esc(d.serviceFee||'')+'" placeholder="服務費" style="min-width:0;flex:1"><span class="input-sfx">%</span></div></div>' +
         '</div>' +
         // 坪數
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:6px">' +
             '<div class="fg" style="margin-bottom:0"><div class="input-grp"><input data-f="baseLand" value="'+esc(d.baseLand||'')+'" placeholder="基地面積" style="min-width:0;flex:1" oninput="calcSpSellerSz(this)"><span class="input-sfx">坪</span></div></div>' +
             '<div class="fg" style="margin-bottom:0"><div class="input-grp"><input data-f="landShare" value="'+esc(d.landShare||'')+'" placeholder="土地持分" style="min-width:0;flex:1" oninput="calcSpSellerSz(this)"><span class="input-sfx">坪</span></div></div>' +
+            '<div></div>' +
         '</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:6px">' +
             '<div class="fg" style="margin-bottom:0"><div class="input-grp"><input data-f="mainBldg" value="'+esc(d.mainBldg||'')+'" placeholder="主建物" style="min-width:0;flex:1" oninput="calcSpSellerSz(this)"><span class="input-sfx">坪</span></div></div>' +
