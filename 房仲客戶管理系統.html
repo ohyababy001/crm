@@ -379,6 +379,16 @@
             #namePhoneIdRow.hidden, #emailSourceRow.hidden { display: none !important; }
             #namePhoneIdRow > .fg:first-child { flex: 1 1 100% !important; min-width: 0 !important; }
             #namePhoneIdRow > .fg:nth-child(2), #namePhoneIdRow > .fg:nth-child(3) { flex: 1 1 calc(50% - 4px) !important; min-width: 0 !important; }
+            /* 買方手機版：基本資料重排 */
+            /* 姓名 電話 平均 */
+            #bRow1 { grid-template-columns: 1fr 1fr !important; }
+            /* 生日2/8 EMAIL6/8，來源獨立半寬 */
+            #bRow2 { grid-template-columns: 2fr 6fr !important; }
+            #bRow2 > .fg:nth-child(3) { grid-column: 1; }
+            /* 類型 郵遞區號 半寬均分，地址獨佔一行 */
+            #bRow3 { grid-template-columns: 1fr 1fr !important; gap: 6px !important; }
+            #bRow3 > .fg:nth-child(3) { grid-column: 1 / -1; }
+            #bRow3 > .btn-ic { grid-column: 2; justify-self: end; margin-top: -36px !important; }
 
             /* 標題列隱藏，改用 placeholder */
             .c-row:has(> span:first-child) { display: none !important; }
@@ -802,18 +812,18 @@
                     <button type="button" class="grade-btn grade-c" onclick="pickGrade(this,'C','f-bGrade')" data-grade="C">C級</button>
                     <input type="hidden" id="f-bGrade" value="">
                 </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px;margin-top:4px">
+                <div id="bRow1" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px;margin-top:4px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'buyer')">帶入</button></label><input id="f-bName" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-bPhone" placeholder="" onblur="autoPhone(this)"></div>
                     <div class="fg" style="margin-bottom:0"><label>身份證字號</label><input id="f-bIdNo" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>職業</label><input id="f-bOccupation" placeholder=""></div>
                 </div>
-                <div style="display:grid;grid-template-columns:2fr 5fr 2fr;gap:10px;margin-bottom:6px">
+                <div id="bRow2" style="display:grid;grid-template-columns:2fr 5fr 2fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-bBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                     <div class="fg" style="margin-bottom:0"><label>Email</label><input id="f-bEmail" type="email" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-bSource" placeholder=""></div>
                 </div>
-                <div data-addr-row style="display:grid;grid-template-columns:2fr 2fr 10fr auto;gap:6px;margin-bottom:6px;align-items:end">
+                <div id="bRow3" data-addr-row style="display:grid;grid-template-columns:2fr 2fr 10fr auto;gap:6px;margin-bottom:6px;align-items:end">
                     <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-bAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="自訂">自訂</option></select></div>
                     <div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input id="f-bZip" data-f="zip" placeholder="" style="min-width:0"></div>
                     <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-bAddr" placeholder="" onblur="autoZip(this)"></div>
