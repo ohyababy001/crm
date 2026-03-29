@@ -162,6 +162,9 @@
         .btn-ic:hover { background: var(--bg); }
         .btn-ic.del:hover { background: #FEE2E2; color: #EF4444; border-color: #EF4444; }
 
+        /* 地址列 */
+        [data-addr-row] select, [data-addr-row] input { width:100%;min-width:0;box-sizing:border-box; }
+
         /* 帶入按鈕 */
         .btn-fill { background:none;border:1px solid var(--border);border-radius:6px;padding:2px 8px;cursor:pointer;font-size:12px;color:var(--muted);transition:all 0.12s;white-space:nowrap; }
         .btn-fill:hover { background:#EFF6FF;color:#1D4ED8;border-color:#93C5FD; }
@@ -1389,7 +1392,7 @@ function onAddrTypeChange(sel) {
     if (sel.value === '自訂') {
         var inp = document.createElement('input');
         inp.type = 'text'; inp.placeholder = '自訂類型';
-        inp.style.cssText = sel.style.cssText;
+        inp.style.cssText = 'width:100%;min-width:0;box-sizing:border-box';
         if (sel.id) inp.id = sel.id;
         if (sel.getAttribute('data-f')) inp.setAttribute('data-f', sel.getAttribute('data-f'));
         inp.value = '';
