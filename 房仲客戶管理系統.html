@@ -1395,10 +1395,10 @@ var ZIP_BY_CITY = {};
 })();
 function autoZip(addrInput) {
     var addr = addrInput.value.trim();
-    if (!addr) return;
     var row = addrInput.closest('[data-addr-row]') || addrInput.parentElement.parentElement;
     var zipInput = row.querySelector('[data-f="zip"]') || row.querySelector('input[placeholder="郵遞區號"]');
     if (!zipInput) return;
+    if (!addr) { zipInput.value = ''; return; }
     // 正規化：臺→台
     var norm = addr.replace(/臺/g,'台');
     // 必須同時包含正確的縣市+區域才填入
