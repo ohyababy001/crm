@@ -583,7 +583,11 @@
                 <span class="cnt" id="ct-商機募集">0</span>
             </button>
         </div>
-        <button class="btn-export" onclick="exportCSV()">📊 匯出 Excel / CSV</button>
+        <button class="btn-export" onclick="exportCSV()">📊 匯出 CSV</button>
+        <div id="exportTime" style="text-align:center;font-size:10px;color:var(--muted);padding:0 10px"></div>
+        <button class="btn-export" onclick="document.getElementById('csvImportInput').click()">📥 匯入 CSV</button>
+        <input type="file" id="csvImportInput" accept=".csv" style="display:none" onchange="importCSV(this.files[0])">
+        <div id="importTime" style="text-align:center;font-size:10px;color:var(--muted);padding:0 10px"></div>
         <button class="btn-export" onclick="openTrash()">🗑️ 資源回收桶 <span id="trashCount" style="font-size:11px;color:var(--muted)"></span></button>
         <button class="btn-export" onclick="manualSync()">☁️ 手動同步</button>
         <button class="btn-export" onclick="cloudRestore()" id="btnRestore">📥 雲端還原</button>
@@ -3902,9 +3906,102 @@ function exportCSV() {
     a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
     a.download=`客戶資料_${localDateISO()}.csv`;
     a.click();
+    var now = new Date().toLocaleString('zh-TW');
+    document.getElementById('exportTime').textContent = '上次匯出：' + now;
+    localStorage.setItem('lastExportTime', now);
+}
+
+// ── 匯入 CSV ──
+function importCSV(file) {
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var text = e.target.result;
+        // 移除 BOM
+        if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+        var lines = parseCSVLines(text);
+        if (lines.length < 2) { alert('CSV 檔案沒有資料'); return; }
+        var headers = lines[0];
+        var nameIdx = headers.indexOf('姓名');
+        var phoneIdx = headers.indexOf('電話');
+        var emailIdx = headers.indexOf('Email');
+        var typeIdx = headers.indexOf('類型');
+        var sourceIdx = headers.indexOf('來源');
+        var notesIdx = headers.indexOf('備註');
+        if (nameIdx < 0) { alert('CSV 缺少「姓名」欄位'); return; }
+        if (phoneIdx < 0) { alert('CSV 缺少「電話」欄位'); return; }
+        var count = 0, skip = 0;
+        for (var i = 1; i < lines.length; i++) {
+            var row = lines[i];
+            var name = (row[nameIdx] || '').trim();
+            var phone = (row[phoneIdx] || '').trim();
+            if (!name && !phone) continue;
+            // 檢查是否重複（同名同電話）
+            var exists = DB.some(function(c) { return c.name === name && c.phone === phone; });
+            if (exists) { skip++; continue; }
+            var types = typeIdx >= 0 ? (row[typeIdx]||'').split('、').filter(Boolean) : ['經營買方'];
+            if (!types.length) types = ['經營買方'];
+            var data = {
+                id: uid(),
+                name: name,
+                phone: phone,
+                email: emailIdx >= 0 ? (row[emailIdx]||'').trim() : '',
+                type: types[0],
+                types: types,
+                source: sourceIdx >= 0 ? (row[sourceIdx]||'').trim() : '',
+                notes: notesIdx >= 0 ? (row[notesIdx]||'').trim() : '',
+                status: '',
+                lastContact: new Date().toISOString(),
+                created: new Date().toISOString(),
+                history: [{ type:'create', time: new Date().toISOString() }]
+            };
+            DB.unshift(data);
+            count++;
+        }
+        persist(); render();
+        var now = new Date().toLocaleString('zh-TW');
+        document.getElementById('importTime').textContent = '上次匯入：' + now;
+        localStorage.setItem('lastImportTime', now);
+        alert('匯入完成：新增 ' + count + ' 筆' + (skip ? '，跳過 ' + skip + ' 筆重複' : ''));
+    };
+    reader.readAsText(file, 'UTF-8');
+    // 清除 input 以便再次選同一檔案
+    document.getElementById('csvImportInput').value = '';
+}
+
+function parseCSVLines(text) {
+    var lines = [], row = [], cell = '', inQuote = false;
+    for (var i = 0; i < text.length; i++) {
+        var ch = text[i];
+        if (inQuote) {
+            if (ch === '"') {
+                if (text[i+1] === '"') { cell += '"'; i++; }
+                else inQuote = false;
+            } else { cell += ch; }
+        } else {
+            if (ch === '"') { inQuote = true; }
+            else if (ch === ',') { row.push(cell); cell = ''; }
+            else if (ch === '\n' || ch === '\r') {
+                if (ch === '\r' && text[i+1] === '\n') i++;
+                row.push(cell); cell = '';
+                if (row.some(function(c){return c.trim();})) lines.push(row);
+                row = [];
+            } else { cell += ch; }
+        }
+    }
+    row.push(cell);
+    if (row.some(function(c){return c.trim();})) lines.push(row);
+    return lines;
 }
 
 render();
+// 顯示上次匯出匯入時間
+(function(){
+    var et = localStorage.getItem('lastExportTime');
+    var it = localStorage.getItem('lastImportTime');
+    if (et) document.getElementById('exportTime').textContent = '上次匯出：' + et;
+    if (it) document.getElementById('importTime').textContent = '上次匯入：' + it;
+})();
 
 // ── 匯入通訊錄 ──
 var vcfContacts = [];
