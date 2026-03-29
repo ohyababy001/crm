@@ -3619,9 +3619,14 @@ function openEdit(id, viewAs) {
     if (c.bAddrs && c.bAddrs.length) c.bAddrs.forEach(function(a){ addBAddrRow(a); });
     else if (c.bOther) addBAddrRow({type:'其他',addr:c.bOther});
     setVal('f-want',c.want); setVal('f-noWant',c.noWant);
-    setVal('f-sName',c.name); setVal('f-sPhone',c.phone);
+    // 庫存屋主：優先用獨立欄位，向下相容舊資料（只有庫存時 name 就是屋主名字）
+    var sellerOnly = hasType(c,'庫存屋主') && !hasType(c,'經營買方');
+    setVal('f-sName', c.sName || (sellerOnly ? c.name : ''));
+    setVal('f-sPhone', c.sPhone || (sellerOnly ? c.phone : ''));
     setVal('f-sIdNo',c.sIdNo); setVal('f-sBirthday',isoToROC(c.sBirthday)); setVal('f-sOwnerAddr',c.sOwnerAddr);
-    setVal('f-sEmail',c.email); setVal('f-sSource',c.source); setVal('f-sServiceFee',c.sServiceFee);
+    setVal('f-sEmail', c.sEmail || (sellerOnly ? c.email : ''));
+    setVal('f-sSource', c.sSource || (sellerOnly ? c.source : ''));
+    setVal('f-sServiceFee',c.sServiceFee);
     setVal('f-community',c.community); setVal('f-sAddr',c.sAddr); setVal('f-sPrice',c.sPrice); setVal('f-sFloorPrice',c.sFloorPrice); setVal('f-sLandSz',c.sLandSz); setVal('f-sSz',c.sSz); setVal('f-layout',c.layout);
     setVal('f-sMgmtBuilding',c.sMgmtBuilding); setVal('f-sMgmtCar',c.sMgmtCar); setVal('f-sMgmtMoto',c.sMgmtMoto); setVal('f-sMgmtOther',c.sMgmtOther);
     if(c.sMgmtPeriod) document.getElementById('f-sMgmtPeriod').value=c.sMgmtPeriod;
@@ -3679,7 +3684,6 @@ function openEdit(id, viewAs) {
     if (c.rParking) { document.getElementById('f-rParking').value = c.rParking; toggleRParkingNo(); setVal('f-rParkingNo',c.rParkingNo); }
     // 成交客戶
     if (c.cContacts && c.cContacts.length) c.cContacts.forEach(function(ct){ addCContactRow(ct); });
-    else if (hasType(c,'成交客戶')) addCContactRow({name:c.name,phone:c.phone});
     if (c.cAddrs && c.cAddrs.length) c.cAddrs.forEach(function(a){ addCAddrRow(a); });
     if (c.deals && c.deals.length) {
         c.deals.forEach(function(d) { addDealRow(d); });
@@ -3865,6 +3869,7 @@ function saveClient() {
         bOther: getBAddrs().map(function(a){ return (a.type?a.type+'：':'')+a.addr; }).join('、'),
         want:get('f-want'), noWant:get('f-noWant'),
         // 庫存屋主
+        sName:get('f-sName'), sPhone:get('f-sPhone'), sEmail:get('f-sEmail'), sSource:get('f-sSource'),
         sIdNo:get('f-sIdNo'), sBirthday:rocToISO(get('f-sBirthday')), sOwnerAddr:get('f-sOwnerAddr'),
         contractType:get('f-contractType'),
         community:get('f-community'), sAddr:get('f-sAddr'), sPrice:get('f-sPrice'), sFloorPrice:get('f-sFloorPrice'), sServiceFee:get('f-sServiceFee'), sLandSz:get('f-sLandSz'), sSz:get('f-sSz'), layout:get('f-layout'),
