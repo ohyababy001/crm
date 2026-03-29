@@ -3599,10 +3599,11 @@ function addPersonBlock(listId, data) {
         : '<select data-f="addrType" onchange="onAddrTypeChange(this)"><option value="住家"'+(d.addrType==='住家'?' selected':'')+'>住家</option><option value="公司"'+(d.addrType==='公司'?' selected':'')+'>公司</option><option value="自訂"'+(d.addrType==='自訂'?' selected':'')+'>自訂</option></select>';
     var html = '<div class="person-block" id="pb-'+personBlockId+'" style="border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px;position:relative">' +
         '<button type="button" class="c-del" onclick="this.parentElement.remove()" style="position:absolute;top:6px;right:8px">✕</button>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px">' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:4px">' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">姓名</label><input data-f="name" value="'+esc(d.name||'')+'" placeholder=""></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">電話</label><input data-f="phone" value="'+esc(d.phone||'')+'" placeholder="" onblur="autoPhone(this)"></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">身份證字號</label><input data-f="idNo" value="'+esc(d.idNo||'')+'" placeholder=""></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">職業</label><input data-f="occupation" value="'+esc(d.occupation||'')+'" placeholder=""></div>' +
         '</div>' +
         '<div style="display:grid;grid-template-columns:2fr 5fr 2fr;gap:8px;margin-bottom:4px">' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">生日</label><div class="roc-date-wrap"><input data-f="birthday" type="text" value="'+esc(bdVal)+'" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
@@ -3636,7 +3637,7 @@ function getPersonBlocks(listId) {
             var rget = function(f){ var el=row.querySelector('[data-f="'+f+'"]'); return el?el.value.trim():''; };
             if (rget('addr')) extraAddrs.push({ type:rget('type'), zip:rget('zip'), addr:rget('addr') });
         });
-        if (name || phone) r.push({ name:name, phone:phone, idNo:get('idNo'), birthday:rocToISO(get('birthday')), addrType:get('addrType'), zip:get('zip'), addr:get('addr'), extraAddrs:extraAddrs, email:get('email'), source:get('source') });
+        if (name || phone) r.push({ name:name, phone:phone, idNo:get('idNo'), occupation:get('occupation'), birthday:rocToISO(get('birthday')), addrType:get('addrType'), zip:get('zip'), addr:get('addr'), extraAddrs:extraAddrs, email:get('email'), source:get('source') });
     });
     return r;
 }
