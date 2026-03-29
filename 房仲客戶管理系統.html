@@ -3943,16 +3943,16 @@ function addDealRow(data) {
     var i = dealCounter;
     var d = data || {};
     var localNum = document.querySelectorAll('#dealList .deal-box').length + 1;
-    var html = '<div class="deal-box" id="deal-'+i+'">' +
+    var html = '<div class="deal-box" id="deal-'+i+'" style="border:1px solid var(--border);border-left:4px solid #92400E;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9;position:relative">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:700;color:#92400E">成交物件 '+localNum+'</span><button type="button" class="c-del" onclick="removeDeal('+i+')">✕</button></div>' +
-        '<div class="deal-row">' +
-            '<div class="fg" style="flex:1"><label>買/賣方</label><select class="deal-role"><option value=""'+(d.role?'':' selected')+'>請選擇</option><option value="買方"'+(d.role==='買方'?' selected':'')+'>買方</option><option value="賣方"'+(d.role==='賣方'?' selected':'')+'>賣方</option></select></div>' +
-            '<div class="fg" style="flex:1"><label>成交日期</label><div class="roc-date-wrap"><input class="deal-date" type="text" placeholder="" value="'+esc(d.date?isoToROC(d.date):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
-            '<div class="fg" style="flex:1"><label>社區大樓</label><input class="deal-community" placeholder="" value="'+esc(d.community||'')+'"></div>' +
+        '<div style="display:flex;gap:6px;margin-bottom:4px;flex-wrap:wrap">' +
+            '<select class="deal-role" style="flex:0 0 80px"><option value=""'+(d.role?'':' selected')+'>買/賣方</option><option value="買方"'+(d.role==='買方'?' selected':'')+'>買方</option><option value="賣方"'+(d.role==='賣方'?' selected':'')+'>賣方</option></select>' +
+            '<input class="deal-community" style="flex:0 0 110px;min-width:0" placeholder="社區大樓" value="'+esc(d.community||'')+'">' +
+            '<input class="deal-addr" style="flex:1;min-width:0" placeholder="成交地址" value="'+esc(d.addr||'')+'">' +
         '</div>' +
-        '<div class="deal-row">' +
-            '<div class="fg" style="flex:1;min-width:0"><label>成交地址</label><input class="deal-addr" placeholder="" value="'+esc(d.addr||'')+'"></div>' +
-            '<div class="fg" style="width:110px;flex-shrink:0"><label>成交價格</label><div class="input-grp" style="width:100%"><input class="deal-price" style="min-width:0;flex:1" placeholder="" value="'+esc(d.price||'')+'"><span class="input-sfx">萬</span></div></div>' +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
+            '<div class="roc-date-wrap" style="width:160px;flex-shrink:0"><input class="deal-date" type="text" placeholder="成交日期" style="min-width:0;flex:1" value="'+esc(d.date?isoToROC(d.date):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>' +
+            '<div class="input-grp" style="width:120px;flex-shrink:0"><input class="deal-price" style="min-width:0;flex:1" placeholder="成交價格" value="'+esc(d.price||'')+'"><span class="input-sfx">萬</span></div>' +
         '</div>' +
         '</div>';
     document.getElementById('dealList').insertAdjacentHTML('beforeend', html);
