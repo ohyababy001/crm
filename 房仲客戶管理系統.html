@@ -977,18 +977,20 @@
                     <button type="button" class="btn-fill" onclick="showPriceHistory('sFloorPrice')" id="btnFloorHist" style="display:none">底價歷程</button>
                     <button type="button" class="btn-fill" onclick="showPriceHistory('sServiceFee')" id="btnFeeHist" style="display:none">服務費歷程</button>
                 </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
                     <div class="fg" style="margin-bottom:0"><div class="input-grp"><input id="f-sBaseLand" placeholder="基地面積" style="min-width:0;flex:1" oninput="calcSellerSz()"><span class="input-sfx">坪</span></div></div>
                     <div class="fg" style="margin-bottom:0"><div class="input-grp"><input id="f-sLandShare" placeholder="土地持分" style="min-width:0;flex:1" oninput="calcSellerSz()"><span class="input-sfx">坪</span></div></div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
                     <div class="fg" style="margin-bottom:0"><div class="input-grp"><input id="f-sMainBldg" placeholder="主建物" style="min-width:0;flex:1" oninput="calcSellerSz()"><span class="input-sfx">坪</span></div></div>
                     <div class="fg" style="margin-bottom:0"><div class="input-grp"><input id="f-sAncBldg" placeholder="附屬建物" style="min-width:0;flex:1" oninput="calcSellerSz()"><span class="input-sfx">坪</span></div></div>
-                    <div class="fg" style="margin-bottom:0"><div class="input-grp"><input id="f-sCommon" placeholder="公設" style="min-width:0;flex:1" oninput="calcSellerSz()"><span class="input-sfx">坪</span></div></div>
+                    <div class="fg" style="margin-bottom:0"><div class="input-grp"><input id="f-sCommon" placeholder="共有部分" style="min-width:0;flex:1" oninput="calcSellerSz()"><span class="input-sfx">坪</span></div></div>
                 </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px">
                     <div class="fg" style="margin-bottom:0"><div class="input-grp"><input id="f-sParkingSz" placeholder="車位坪數" style="min-width:0;flex:1" oninput="calcSellerSz()"><span class="input-sfx">坪</span></div></div>
                     <div class="fg" style="margin-bottom:0">
                         <select id="f-parking" onchange="toggleParkingPrice()" style="width:100%">
-                            <option value="">車位型式</option>
+                            <option value="">車位形態</option>
                             <option>坡道平面</option>
                             <option>坡道機械</option>
                             <option>升降平面</option>
@@ -997,13 +999,12 @@
                             <option>其他車位</option>
                         </select>
                     </div>
-                    <div class="fg" style="margin-bottom:0"><div class="input-grp" id="parkingPriceGroup" style="visibility:hidden"><input id="f-parkingPrice" placeholder="車價" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>
+                    <div class="fg" style="margin-bottom:0"><div class="input-grp" id="parkingPriceGroup" style="visibility:hidden"><input id="f-parkingPrice" placeholder="車位價格" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>
                     <div class="fg" style="margin-bottom:0"><input id="f-parkingNo" placeholder="車位編號" style="display:none"></div>
-                    <div></div>
                 </div>
-                <div style="display:flex;gap:12px;margin-bottom:8px;font-size:14px;font-weight:700;color:var(--deep)">
-                    <span>登記坪數 <span id="sRegSz" style="color:#6366F1">0</span> 坪</span>
-                    <span>公設比 <span id="sCommonRatio" style="color:#059669">0</span>%</span>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+                    <div style="padding:8px 12px;border-radius:8px;font-size:14px;font-weight:700;background:#EFF6FF;color:#1D4ED8;text-align:center">登記面積 <span id="sRegSz">0</span> 坪</div>
+                    <div style="padding:8px 12px;border-radius:8px;font-size:14px;font-weight:700;background:#F0FDF4;color:#059669;text-align:center">公設比 <span id="sCommonRatio">0</span>%</div>
                 </div>
                 <input type="hidden" id="f-sLandSz" value="">
                 <input type="hidden" id="f-sSz" value="">
@@ -3069,26 +3070,27 @@ function addSellerProperty(data) {
             '<div class="fg" style="margin-bottom:0;grid-column:3/5"><div class="input-grp"><input data-f="floorPrice" value="'+esc(d.floorPrice||'')+'" placeholder="底價" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>' +
             '<div class="fg" style="margin-bottom:0;grid-column:5/6"><div class="input-grp"><input data-f="serviceFee" value="'+esc(d.serviceFee||'')+'" placeholder="服務費" style="min-width:0;flex:1"><span class="input-sfx">%</span></div></div>' +
         '</div>' +
-        // 坪數5欄
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:8px;margin-bottom:6px">' +
+        // 坪數
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">' +
             '<div class="fg" style="margin-bottom:0"><div class="input-grp"><input data-f="baseLand" value="'+esc(d.baseLand||'')+'" placeholder="基地面積" style="min-width:0;flex:1" oninput="calcSpSellerSz(this)"><span class="input-sfx">坪</span></div></div>' +
             '<div class="fg" style="margin-bottom:0"><div class="input-grp"><input data-f="landShare" value="'+esc(d.landShare||'')+'" placeholder="土地持分" style="min-width:0;flex:1" oninput="calcSpSellerSz(this)"><span class="input-sfx">坪</span></div></div>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:6px">' +
             '<div class="fg" style="margin-bottom:0"><div class="input-grp"><input data-f="mainBldg" value="'+esc(d.mainBldg||'')+'" placeholder="主建物" style="min-width:0;flex:1" oninput="calcSpSellerSz(this)"><span class="input-sfx">坪</span></div></div>' +
             '<div class="fg" style="margin-bottom:0"><div class="input-grp"><input data-f="ancBldg" value="'+esc(d.ancBldg||'')+'" placeholder="附屬建物" style="min-width:0;flex:1" oninput="calcSpSellerSz(this)"><span class="input-sfx">坪</span></div></div>' +
-            '<div class="fg" style="margin-bottom:0"><div class="input-grp"><input data-f="common" value="'+esc(d.common||'')+'" placeholder="公設" style="min-width:0;flex:1" oninput="calcSpSellerSz(this)"><span class="input-sfx">坪</span></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><div class="input-grp"><input data-f="common" value="'+esc(d.common||'')+'" placeholder="共有部分" style="min-width:0;flex:1" oninput="calcSpSellerSz(this)"><span class="input-sfx">坪</span></div></div>' +
         '</div>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:8px;margin-bottom:6px">' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:6px">' +
             '<div class="fg" style="margin-bottom:0"><div class="input-grp"><input data-f="parkingSz" value="'+esc(d.parkingSz||'')+'" placeholder="車位坪數" style="min-width:0;flex:1" oninput="calcSpSellerSz(this)"><span class="input-sfx">坪</span></div></div>' +
             '<div class="fg" style="margin-bottom:0"><select data-f="parking" style="width:100%" onchange="var b=this.closest(\'.person-block\');var pg=b.querySelector(\'[data-f=parkingPrice]\').parentElement;var pn=b.querySelector(\'[data-f=parkingNo]\');if(this.value){pg.style.visibility=\'\';pn.style.display=\'\';}else{pg.style.visibility=\'hidden\';pn.style.display=\'none\';}">' +
-                '<option value="">車位型式</option><option value="坡道平面"'+(d.parking==='坡道平面'?' selected':'')+'>坡道平面</option><option value="坡道機械"'+(d.parking==='坡道機械'?' selected':'')+'>坡道機械</option><option value="升降平面"'+(d.parking==='升降平面'?' selected':'')+'>升降平面</option><option value="升降機械"'+(d.parking==='升降機械'?' selected':'')+'>升降機械</option><option value="塔式車位"'+(d.parking==='塔式車位'?' selected':'')+'>塔式車位</option><option value="其他車位"'+(d.parking==='其他車位'?' selected':'')+'>其他車位</option>' +
+                '<option value="">車位形態</option><option value="坡道平面"'+(d.parking==='坡道平面'?' selected':'')+'>坡道平面</option><option value="坡道機械"'+(d.parking==='坡道機械'?' selected':'')+'>坡道機械</option><option value="升降平面"'+(d.parking==='升降平面'?' selected':'')+'>升降平面</option><option value="升降機械"'+(d.parking==='升降機械'?' selected':'')+'>升降機械</option><option value="塔式車位"'+(d.parking==='塔式車位'?' selected':'')+'>塔式車位</option><option value="其他車位"'+(d.parking==='其他車位'?' selected':'')+'>其他車位</option>' +
             '</select></div>' +
-            '<div class="fg" style="margin-bottom:0"><div class="input-grp" style="'+(d.parking?'':'visibility:hidden')+'"><input data-f="parkingPrice" value="'+esc(d.parkingPrice||'')+'" placeholder="車價" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><div class="input-grp" style="'+(d.parking?'':'visibility:hidden')+'"><input data-f="parkingPrice" value="'+esc(d.parkingPrice||'')+'" placeholder="車位價格" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>' +
             '<div class="fg" style="margin-bottom:0"><input data-f="parkingNo" value="'+esc(d.parkingNo||'')+'" placeholder="車位編號" style="'+(d.parking?'':'display:none')+'"></div>' +
-            '<div></div>' +
         '</div>' +
-        '<div style="display:flex;gap:12px;margin-bottom:6px;font-size:13px;font-weight:700;color:var(--deep)">' +
-            '<span>登記坪數 <span data-f="regSz" style="color:#6366F1">0</span> 坪</span>' +
-            '<span>公設比 <span data-f="commonRatio" style="color:#059669">0</span>%</span>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">' +
+            '<div style="padding:8px 12px;border-radius:8px;font-size:13px;font-weight:700;background:#EFF6FF;color:#1D4ED8;text-align:center">登記面積 <span data-f="regSz">0</span> 坪</div>' +
+            '<div style="padding:8px 12px;border-radius:8px;font-size:13px;font-weight:700;background:#F0FDF4;color:#059669;text-align:center">公設比 <span data-f="commonRatio">0</span>%</div>' +
         '</div>' +
         // 管理費
         '<div style="font-size:12px;font-weight:600;color:var(--wood);margin-bottom:4px">管理費</div>' +
