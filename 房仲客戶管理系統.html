@@ -934,11 +934,13 @@
                     <div class="fg" style="margin-bottom:0"><label>Email</label><input id="f-sEmail" type="email" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-sSource" placeholder=""></div>
                 </div>
-                <div id="sellerBasicRow3" data-addr-row style="display:grid;grid-template-columns:2fr 2fr 10fr;gap:6px;margin-bottom:10px">
+                <div id="sellerBasicRow3" data-addr-row style="display:grid;grid-template-columns:2fr 2fr 10fr auto;gap:6px;margin-bottom:6px;align-items:end">
                     <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-sAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="自訂">自訂</option></select></div>
                     <div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input id="f-sZip" data-f="zip" placeholder="" style="min-width:0"></div>
                     <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-sOwnerAddr" placeholder="" onblur="autoZip(this)"></div>
+                    <button type="button" class="btn-ic" onclick="addBuyerAddrRow('sBasicAddrList')" title="新增地址" style="margin-bottom:2px;font-size:16px;padding:6px 8px">＋</button>
                 </div>
+                <div id="sBasicAddrList"></div>
                 <div id="sPersonList"></div>
                 <button type="button" class="add-row-btn" onclick="addPersonBlock('sPersonList')" style="margin-bottom:10px">＋ 新增聯絡人</button>
                 <!-- 約種選擇 -->
@@ -1084,11 +1086,13 @@
                     <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:6px">
                         <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-llBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                     </div>
-                    <div data-addr-row style="display:grid;grid-template-columns:2fr 2fr 10fr;gap:6px;margin-bottom:6px">
+                    <div data-addr-row style="display:grid;grid-template-columns:2fr 2fr 10fr auto;gap:6px;margin-bottom:6px;align-items:end">
                         <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-llAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="自訂">自訂</option></select></div>
                         <div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input id="f-llZip" data-f="zip" placeholder="" style="min-width:0"></div>
                         <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-llAddr" placeholder="" onblur="autoZip(this)"></div>
+                        <button type="button" class="btn-ic" onclick="addBuyerAddrRow('llBasicAddrList')" title="新增地址" style="margin-bottom:2px;font-size:16px;padding:6px 8px">＋</button>
                     </div>
+                    <div id="llBasicAddrList"></div>
                     <div id="rLandlordList"></div>
                     <div style="display:flex;gap:8px;align-items:center"><button type="button" class="add-row-btn" onclick="addRPersonRow('rLandlordList','房東')">＋ 新增聯絡人</button></div>
                 </div>
@@ -1129,11 +1133,13 @@
                     <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:6px">
                         <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-ttBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
                     </div>
-                    <div data-addr-row style="display:grid;grid-template-columns:2fr 2fr 10fr;gap:6px;margin-bottom:6px">
+                    <div data-addr-row style="display:grid;grid-template-columns:2fr 2fr 10fr auto;gap:6px;margin-bottom:6px;align-items:end">
                         <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-ttAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="自訂">自訂</option></select></div>
                         <div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input id="f-ttZip" data-f="zip" placeholder="" style="min-width:0"></div>
                         <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-ttAddr" placeholder="" onblur="autoZip(this)"></div>
+                        <button type="button" class="btn-ic" onclick="addBuyerAddrRow('ttBasicAddrList')" title="新增地址" style="margin-bottom:2px;font-size:16px;padding:6px 8px">＋</button>
                     </div>
+                    <div id="ttBasicAddrList"></div>
                     <div id="rTenantList"></div>
                     <div style="display:flex;gap:8px;align-items:center"><button type="button" class="add-row-btn" onclick="addRPersonRow('rTenantList','租客')">＋ 新增聯絡人</button></div>
                 </div>
@@ -1246,11 +1252,13 @@
                     <div class="fg" style="margin-bottom:0"><label>Email</label><input id="f-cEmail" type="email" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-cSource" placeholder=""></div>
                 </div>
-                <div data-addr-row style="display:grid;grid-template-columns:2fr 2fr 10fr;gap:6px;margin-bottom:10px">
+                <div data-addr-row style="display:grid;grid-template-columns:2fr 2fr 10fr auto;gap:6px;margin-bottom:6px;align-items:end">
                     <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-cAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="自訂">自訂</option></select></div>
                     <div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input id="f-cZip" data-f="zip" placeholder="" style="min-width:0"></div>
                     <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-cAddr" placeholder="" onblur="autoZip(this)"></div>
+                    <button type="button" class="btn-ic" onclick="addBuyerAddrRow('cBasicAddrList')" title="新增地址" style="margin-bottom:2px;font-size:16px;padding:6px 8px">＋</button>
                 </div>
+                <div id="cBasicAddrList"></div>
                 <div id="cContactList"></div>
                 <button type="button" class="add-row-btn" onclick="addCContactRow()" style="margin-bottom:6px">＋ 新增聯絡人</button>
                 <div id="cAddrList" style="display:none"></div>
@@ -1272,11 +1280,13 @@
                     <div class="fg" style="margin-bottom:0"><label>Email</label><input id="f-dEmail" type="email" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-dSource" placeholder=""></div>
                 </div>
-                <div data-addr-row style="display:grid;grid-template-columns:2fr 2fr 10fr;gap:6px;margin-bottom:10px">
+                <div data-addr-row style="display:grid;grid-template-columns:2fr 2fr 10fr auto;gap:6px;margin-bottom:6px;align-items:end">
                     <div class="fg" style="margin-bottom:0"><label>類型</label><select id="f-dAddrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="自訂">自訂</option></select></div>
                     <div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input id="f-dZip" data-f="zip" placeholder="" style="min-width:0"></div>
                     <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-dAddr" placeholder="" onblur="autoZip(this)"></div>
+                    <button type="button" class="btn-ic" onclick="addBuyerAddrRow('dBasicAddrList')" title="新增地址" style="margin-bottom:2px;font-size:16px;padding:6px 8px">＋</button>
                 </div>
+                <div id="dBasicAddrList"></div>
                 <div id="dPersonList"></div>
                 <button type="button" class="add-row-btn" onclick="addDPersonRow()" style="margin-bottom:6px">＋ 新增聯絡人</button>
                 <div class="c-row" style="margin-bottom:2px;margin-top:10px">
@@ -4296,6 +4306,7 @@ function resetForm() {
     document.getElementById('sourceGroup').style.display = '';
     clearBPersons();
     clearBuyerBasicAddrs();
+    ['sBasicAddrList','llBasicAddrList','ttBasicAddrList','cBasicAddrList','dBasicAddrList'].forEach(function(id){ var el=document.getElementById(id); if(el) el.innerHTML=''; });
     clearPersonBlocks('sPersonList');
     clearSellerProperties();
     _priceHistories = { sPrice:[], sFloorPrice:[], sServiceFee:[] };
