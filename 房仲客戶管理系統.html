@@ -3603,8 +3603,10 @@ function openEdit(id, viewAs) {
 
     // 基本欄位
     const setVal = (id, val) => { const el=document.getElementById(id); if(el) el.value=val||''; };
-    setVal('fn',c.name); setVal('fp',c.phone); setVal('f-idNo',c.idNo); setVal('fe',c.email);
-    setVal('fs',c.status||'待聯絡'); setVal('flc',isoToROC(c.lastContact)); setVal('fso',c.source); setVal('fnotes',c.notes);
+    // 買方欄位只在有買方標籤時才載入
+    var hasBuyer = hasType(c,'經營買方');
+    setVal('fn', hasBuyer ? c.name : ''); setVal('fp', hasBuyer ? c.phone : ''); setVal('f-idNo', hasBuyer ? c.idNo : ''); setVal('fe', hasBuyer ? c.email : '');
+    setVal('fs',c.status||'待聯絡'); setVal('flc',isoToROC(c.lastContact)); setVal('fso', hasBuyer ? c.source : ''); setVal('fnotes',c.notes);
     // 預算：支援新格式 budgetMin/Max 和舊格式 budget "1000-1500"
     if (c.budgetMin || c.budgetMax) {
         setVal('f-budgetMin',c.budgetMin); setVal('f-budgetMax',c.budgetMax);
