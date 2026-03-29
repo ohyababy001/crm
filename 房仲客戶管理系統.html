@@ -2947,24 +2947,10 @@ function clearRoleTypes() {
 // ── 租案：房東/租客多筆 ──
 var rpId = 0;
 function addRPersonRow(listId, label, data) {
-    rpId++;
-    var d = data || {};
-    var html = '<div class="c-row" id="rp-'+rpId+'" style="flex-wrap:wrap">' +
-        '<input type="text" style="flex:1;min-width:0" placeholder="姓名" value="'+esc(d.name||'')+'" onblur="lookupName(this)">' +
-        '<input type="text" style="flex:1;min-width:0" placeholder="電話" value="'+esc(d.phone||'')+'" onblur="autoPhone(this)">' +
-        '<input type="text" style="flex:1;min-width:0" placeholder="身份證字號" value="'+esc(d.idNo||'')+'">' +
-        '<input type="text" style="flex:1;min-width:0" placeholder="職業" value="'+esc(d.occupation||'')+'">' +
-        '<button type="button" class="c-del" onclick="this.parentElement.remove()">✕</button></div>';
-    document.getElementById(listId).insertAdjacentHTML('beforeend', html);
+    addPersonBlock(listId, data);
 }
 function getRPersons(listId) {
-    var r = [];
-    document.querySelectorAll('#'+listId+' .c-row').forEach(function(row) {
-        var inputs = row.querySelectorAll('input');
-        var name = inputs[0].value.trim(), phone = inputs[1].value.trim(), idNo = inputs[2] ? inputs[2].value.trim() : '', occ = inputs[3] ? inputs[3].value.trim() : '';
-        if (name || phone) r.push({ name:name, phone:phone, idNo:idNo, occupation:occ });
-    });
-    return r;
+    return getPersonBlocks(listId);
 }
 function clearRPersons() {
     document.getElementById('rLandlordList').innerHTML = '';
@@ -3043,51 +3029,52 @@ function buildTimeOptions(sel) {
     }
     return opts;
 }
-// ── 經營買方：額外人員 ──
-var bPersonId = 0;
-function addBPersonRow(data) {
-    bPersonId++;
+// ── 額外人員整組區塊（通用） ──
+var personBlockId = 0;
+function addPersonBlock(listId, data) {
+    personBlockId++;
     var d = data || {};
-    var html = '<div class="c-row" id="bp-'+bPersonId+'">' +
-        '<input type="text" style="flex:1;min-width:0" placeholder="姓名" value="'+esc(d.name||'')+'">' +
-        '<input type="text" style="flex:1;min-width:0" placeholder="電話" value="'+esc(d.phone||'')+'" onblur="autoPhone(this)">' +
-        '<input type="text" style="flex:1;min-width:0" placeholder="身份證字號" value="'+esc(d.idNo||'')+'">' +
-        '<button type="button" class="c-del" onclick="this.parentElement.remove()">✕</button></div>';
-    document.getElementById('bPersonList').insertAdjacentHTML('beforeend', html);
+    var bdVal = d.birthday ? (d.birthday.includes('-') ? isoToROC(d.birthday) : d.birthday) : '';
+    var html = '<div class="person-block" id="pb-'+personBlockId+'" style="border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px;position:relative">' +
+        '<button type="button" class="c-del" onclick="this.parentElement.remove()" style="position:absolute;top:6px;right:8px">✕</button>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px">' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">姓名</label><input data-f="name" value="'+esc(d.name||'')+'" placeholder=""></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">電話</label><input data-f="phone" value="'+esc(d.phone||'')+'" placeholder="" onblur="autoPhone(this)"></div>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px">' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">身份證字號</label><input data-f="idNo" value="'+esc(d.idNo||'')+'" placeholder=""></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">生日</label><div class="roc-date-wrap"><input data-f="birthday" type="text" value="'+esc(bdVal)+'" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:4px">' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">地址</label><input data-f="addr" value="'+esc(d.addr||'')+'" placeholder=""></div>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">Email</label><input data-f="email" type="email" value="'+esc(d.email||'')+'" placeholder=""></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">客戶來源</label><input data-f="source" value="'+esc(d.source||'')+'" placeholder=""></div>' +
+        '</div>' +
+    '</div>';
+    document.getElementById(listId).insertAdjacentHTML('beforeend', html);
 }
-function getBPersons() {
+function getPersonBlocks(listId) {
     var r = [];
-    document.querySelectorAll('#bPersonList .c-row').forEach(function(row) {
-        var inputs = row.querySelectorAll('input');
-        var name = inputs[0].value.trim(), phone = inputs[1].value.trim(), idNo = inputs[2].value.trim();
-        if (name || phone) r.push({ name:name, phone:phone, idNo:idNo });
+    document.querySelectorAll('#'+listId+' .person-block').forEach(function(block) {
+        var get = function(f) { var el = block.querySelector('[data-f="'+f+'"]'); return el ? el.value.trim() : ''; };
+        var name = get('name'), phone = get('phone');
+        if (name || phone) r.push({ name:name, phone:phone, idNo:get('idNo'), birthday:rocToISO(get('birthday')), addr:get('addr'), email:get('email'), source:get('source') });
     });
     return r;
 }
-function clearBPersons() { document.getElementById('bPersonList').innerHTML = ''; bPersonId = 0; }
+function clearPersonBlocks(listId) { document.getElementById(listId).innerHTML = ''; }
+// 向下相容的別名
+function addBPersonRow(d) { addPersonBlock('bPersonList', d); }
+function getBPersons() { return getPersonBlocks('bPersonList'); }
+function clearBPersons() { clearPersonBlocks('bPersonList'); }
 
 // ── 商機募集：屋主多筆 ──
 var dPersonId = 0;
-function addDPersonRow(data) {
-    dPersonId++;
-    var d = data || {};
-    var html = '<div class="c-row" id="dp-'+dPersonId+'">' +
-        '<input type="text" style="flex:1;min-width:0" placeholder="姓名" value="'+esc(d.name||'')+'" onblur="lookupName(this)">' +
-        '<input type="text" style="flex:1;min-width:0" placeholder="電話" value="'+esc(d.phone||'')+'" onblur="autoPhone(this)">' +
-        '<input type="text" style="flex:1;min-width:0" placeholder="身份證字號" value="'+esc(d.idNo||'')+'">' +
-        '<button type="button" class="c-del" onclick="this.parentElement.remove()">✕</button></div>';
-    document.getElementById('dPersonList').insertAdjacentHTML('beforeend', html);
-}
-function getDPersons() {
-    var r = [];
-    document.querySelectorAll('#dPersonList .c-row').forEach(function(row) {
-        var inputs = row.querySelectorAll('input');
-        var name = inputs[0].value.trim(), phone = inputs[1].value.trim(), idNo = inputs[2].value.trim();
-        if (name || phone) r.push({ name:name, phone:phone, idNo:idNo });
-    });
-    return r;
-}
-function clearDPersons() { document.getElementById('dPersonList').innerHTML = ''; dPersonId = 0; }
+function addDPersonRow(data) { addPersonBlock('dPersonList', data); }
+function getDPersons() { return getPersonBlocks('dPersonList'); }
+function clearDPersons() { clearPersonBlocks('dPersonList'); dPersonId = 0; }
 
 // ── 商機募集：社區/地址多筆 ──
 var dAddrId = 0;
@@ -3229,15 +3216,7 @@ function initCContactHeader() {
         '<span style="width:22px"></span></div>';
 }
 function addCContactRow(data) {
-    cRowId++;
-    var d = data || {};
-    var html = '<div class="c-row" id="cc-'+cRowId+'">' +
-        '<input type="text" style="flex:1;min-width:0" placeholder="姓名" value="'+esc(d.name||'')+'" onblur="lookupName(this)">' +
-        '<input type="text" style="flex:1;min-width:0" placeholder="電話" value="'+esc(d.phone||'')+'" onblur="autoPhone(this)">' +
-        '<input type="text" style="flex:1;min-width:0" placeholder="身份證字號" value="'+esc(d.idNo||'')+'">' +
-        '<div class="roc-date-wrap" style="flex:1;min-width:0"><input type="text" placeholder="生日" style="min-width:0;flex:1" value="'+esc(d.birthday?isoToROC(d.birthday):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>' +
-        '<button type="button" class="c-del" onclick="this.parentElement.remove()">✕</button></div>';
-    document.getElementById('cContactList').insertAdjacentHTML('beforeend', html);
+    addPersonBlock('cContactList', data);
 }
 function addCAddrRow(data) {
     cRowId++;
@@ -3249,17 +3228,7 @@ function addCAddrRow(data) {
         '<button type="button" class="c-del" onclick="this.parentElement.remove()">✕</button></div>';
     document.getElementById('cAddrList').insertAdjacentHTML('beforeend', html);
 }
-function getCContacts() {
-    var r=[];
-    document.querySelectorAll('#cContactList .c-row').forEach(function(row) {
-        var inputs = row.querySelectorAll('input');
-        var name = inputs[0].value.trim(), phone = inputs[1].value.trim(), idNo = inputs[2] ? inputs[2].value.trim() : '';
-        var bdayInput = row.querySelector('.roc-date-wrap input');
-        var birthday = bdayInput ? rocToISO(bdayInput.value) : '';
-        if (name || phone) r.push({ name:name, phone:phone, idNo:idNo, birthday:birthday });
-    });
-    return r;
-}
+function getCContacts() { return getPersonBlocks('cContactList'); }
 function getCAddrs() {
     var r=[];
     document.querySelectorAll('#cAddrList .c-row').forEach(function(row) {
