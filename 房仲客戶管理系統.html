@@ -77,8 +77,8 @@
         .card { background: white; border-radius: 14px; padding: 8px 18px; border: 1px solid var(--border); display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.2s; }
         .card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.08); border-color: #CBD5E1; transform: translateY(-1px); }
         .rental-group { border: 2px solid #A8A29E; border-radius: 16px; overflow: hidden; margin-bottom: 2px; }
-        .card.landlord-card { border-left: 4px solid #4A7A4A; border-radius: 0; margin-bottom: 0; border-bottom: none; padding-bottom: 5px; border-top: none; border-right: none; }
-        .card.tenant-card { border-left: 4px solid #7C3AED; border-radius: 0; margin-top: 0; padding-top: 5px; border-top: 1px dashed #D6D3D1; border-bottom: none; border-right: none; }
+        .card.landlord-card { border-left: 4px solid #0891B2; border-radius: 0; margin-bottom: 0; border-bottom: none; padding-bottom: 5px; border-top: none; border-right: none; }
+        .card.tenant-card { border-left: 4px solid #DB2777; border-radius: 0; margin-top: 0; padding-top: 5px; border-top: 1px dashed #D6D3D1; border-bottom: none; border-right: none; }
         .rental-group .card { border-radius: 0; }
         .card.archived { opacity: 0.5; background: #F8FAFC; }
         .card.archived:hover { opacity: 0.7; transform: none; }
@@ -671,12 +671,12 @@
                 <span><span class="cnt" id="ct-租案管理">0</span><span class="cnt-archived" id="ca-租案管理"></span></span>
             </button>
             <div id="rentalSub" style="padding-left:16px;margin:2px 6px 2px 18px">
-                <button class="filter-btn filter-sub" onclick="setFilter('租案_房東',this)" style="padding:10px 14px;font-size:17px;border-left:3px solid #4A7A4A;border-radius:0 10px 10px 0;margin-bottom:2px">
-                    <span class="filter-left"><span class="dot" style="background:#4A7A4A"></span>房東</span>
+                <button class="filter-btn filter-sub" onclick="setFilter('租案_房東',this)" style="padding:10px 14px;font-size:17px;border-left:3px solid #0891B2;border-radius:0 10px 10px 0;margin-bottom:2px">
+                    <span class="filter-left"><span class="dot" style="background:#0891B2"></span>房東</span>
                     <span class="cnt" id="ct-租案_房東">0</span>
                 </button>
-                <button class="filter-btn filter-sub" onclick="setFilter('租案_租客',this)" style="padding:10px 14px;font-size:17px;border-left:3px solid #7C3AED;border-radius:0 10px 10px 0">
-                    <span class="filter-left"><span class="dot" style="background:#7C3AED"></span>租客</span>
+                <button class="filter-btn filter-sub" onclick="setFilter('租案_租客',this)" style="padding:10px 14px;font-size:17px;border-left:3px solid #DB2777;border-radius:0 10px 10px 0">
+                    <span class="filter-left"><span class="dot" style="background:#DB2777"></span>租客</span>
                     <span class="cnt" id="ct-租案_租客">0</span>
                 </button>
             </div>
@@ -1006,8 +1006,8 @@
             <!-- 租案管理 -->
             <div class="type-sec" id="s-租案管理">
                 <div style="display:flex;gap:6px;margin:4px 0 10px">
-                    <button type="button" class="tp-btn tp-rental" style="flex:1;padding:8px;border-left:3px solid #4A7A4A" id="rTab-房東" onclick="switchRentalTab('房東')">房東</button>
-                    <button type="button" class="tp-btn tp-rental" style="flex:1;padding:8px;border-left:3px solid #7C3AED" id="rTab-租客" onclick="switchRentalTab('租客')">租客</button>
+                    <button type="button" class="tp-btn tp-rental" style="flex:1;padding:8px;border-left:3px solid #0891B2" id="rTab-房東" onclick="switchRentalTab('房東')">房東</button>
+                    <button type="button" class="tp-btn tp-rental" style="flex:1;padding:8px;border-left:3px solid #DB2777" id="rTab-租客" onclick="switchRentalTab('租客')">租客</button>
                 </div>
 
                 <!-- 房東頁面 -->
@@ -2610,13 +2610,13 @@ function renderCard(c) {
             cardName = ll.name || c.name;
             cardPhone = ll.phone || c.phone || '';
             cardClass = ' landlord-card';
-            nameSuffix = '<span style="font-size:13px;font-weight:600;color:#3B5E3B;margin-left:2px">房東</span>';
+            nameSuffix = '<span style="font-size:13px;font-weight:600;color:#0891B2;margin-left:2px">房東</span>';
         } else if (c._viewAs === 'tenant') {
             var tt = (c.rTenants && c.rTenants[0]) || {name:c.rTenant, phone:c.rTenantPhone};
             cardName = tt.name || c.name;
             cardPhone = tt.phone || c.phone || '';
             cardClass = ' tenant-card';
-            nameSuffix = '<span style="font-size:13px;font-weight:600;color:#4A3D5E;margin-left:2px">租客</span>';
+            nameSuffix = '<span style="font-size:13px;font-weight:600;color:#DB2777;margin-left:2px">租客</span>';
         }
 
         return `<div class="card${c.archived?' archived':''}${cardClass}" onclick="showDetByView('${c.id}','${c._viewAs||''}')">
@@ -2866,8 +2866,8 @@ function typeDetail(c) {
         }
         var rps = c.rProperties && c.rProperties.length ? c.rProperties : null;
         if (rps && rps.length > 1) {
-            var rpTabBtns = rps.map(function(rp,i){ return '<button type="button" onclick="switchBdTab(this,'+i+')" style="padding:4px 14px;border:1px solid var(--border);border-radius:6px;background:'+(i===0?'#4A7A4A':'white')+';color:'+(i===0?'white':'var(--text)')+';cursor:pointer;font-size:13px;font-weight:600">物件 '+(i+1)+'</button>'; }).join('');
-            rows.push('<div style="display:flex;gap:6px;margin-top:8px;margin-bottom:4px" data-bd-tabs data-active-color="#4A7A4A">'+rpTabBtns+'</div>');
+            var rpTabBtns = rps.map(function(rp,i){ return '<button type="button" onclick="switchBdTab(this,'+i+')" style="padding:4px 14px;border:1px solid var(--border);border-radius:6px;background:'+(i===0?'#5B21B6':'white')+';color:'+(i===0?'white':'var(--text)')+';cursor:pointer;font-size:13px;font-weight:600">物件 '+(i+1)+'</button>'; }).join('');
+            rows.push('<div style="display:flex;gap:6px;margin-top:8px;margin-bottom:4px" data-bd-tabs data-active-color="#5B21B6">'+rpTabBtns+'</div>');
             rps.forEach(function(rp, idx) { rows.push('<div class="bd-tab-panel" style="'+(idx===0?'':'display:none')+'">'+_renderRpBlock(rp)+'</div>'); });
         } else if (rps && rps.length === 1) {
             rows.push(_renderRpBlock(rps[0]));
@@ -3039,7 +3039,7 @@ function showDet(id, viewAs) {
             </div>
             <div style="display:flex;align-items:center;gap:12px;width:100%;padding:10px 0 0 30px">
                 <div>
-                    <div class="det-name">${esc(detName)}${detViewAs==='landlord'?'<span style="font-size:14px;color:#3B5E3B;margin-left:4px">房東</span>':''}${detViewAs==='tenant'?'<span style="font-size:14px;color:#4A3D5E;margin-left:4px">租客</span>':''}</div>
+                    <div class="det-name">${esc(detName)}${detViewAs==='landlord'?'<span style="font-size:14px;color:#0891B2;margin-left:4px">房東</span>':''}${detViewAs==='tenant'?'<span style="font-size:14px;color:#DB2777;margin-left:4px">租客</span>':''}</div>
                     <div class="det-phone">${esc(detPhone)}</div>
                 </div>
             </div>
@@ -4125,8 +4125,8 @@ function addRentalProperty(data) {
     var mgmtSel = function(v){ return '<option value="'+v+'"'+(d.rMgmtType===v?' selected':'')+'>'+v+'</option>'; };
     var periodSel = function(v,label){ return '<option value="'+v+'"'+(d.rRentPeriod===v?' selected':'')+'>'+(label||v)+'</option>'; };
 
-    var html = '<div class="person-block" id="'+pid+'" style="border:1px solid var(--border);border-left:4px solid #4A7A4A;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9;position:relative">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:700;color:#4A7A4A">物件資料 '+localNum+'</span><button type="button" class="c-del" onclick="this.parentElement.parentElement.remove()">✕</button></div>' +
+    var html = '<div class="person-block" id="'+pid+'" style="border:1px solid var(--border);border-left:4px solid #5B21B6;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9;position:relative">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:700;color:#5B21B6">物件資料 '+localNum+'</span><button type="button" class="c-del" onclick="this.parentElement.parentElement.remove()">✕</button></div>' +
         // 社區+地址
         '<div class="sp-addr-row" style="display:grid;grid-template-columns:1fr 3fr;gap:8px;margin-bottom:6px">' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">社區大樓</label><input data-f="community" value="'+esc(d.rCommunity||'')+'"></div>' +
@@ -4144,7 +4144,7 @@ function addRentalProperty(data) {
             '<div class="fg" style="margin-bottom:0;min-width:0;'+(d.rParking?'':'display:none')+'"><label style="font-size:12px">車位編號</label><input data-f="parkingNo" value="'+esc(d.rParkingNo||'')+'"></div>' +
         '</div>' +
         // 管理費
-        '<div style="font-size:12px;font-weight:700;color:#4A7A4A;margin-bottom:4px">管理費</div>' +
+        '<div style="font-size:12px;font-weight:700;color:#5B21B6;margin-bottom:4px">管理費</div>' +
         '<div class="rp-mgmt-row" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">' +
             '<div style="flex:0 0 70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">&nbsp;</label><select data-f="mgmtType" style="width:100%;padding:7px 4px;border:1px solid var(--border);border-radius:8px;font-size:13px"><option value="">選擇</option>'+mgmtSel('含管')+mgmtSel('不含管')+'</select></div>' +
             '<div style="flex:1;min-width:70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">建物</label><div class="input-grp"><input data-f="mgmtBuilding" value="'+esc(d.rMgmtBuilding||'')+'" style="min-width:0;flex:1" oninput="calcRpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
@@ -4158,7 +4158,7 @@ function addRentalProperty(data) {
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">起租日</label><div class="roc-date-wrap"><input data-f="startDate" type="text" value="'+esc(d.rStartDate?isoToROC(d.rStartDate):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">到期日</label><div class="roc-date-wrap"><input data-f="endDate" type="text" value="'+esc(d.rEndDate?isoToROC(d.rEndDate):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
             '<button type="button" class="bf-chip" onclick="renewRpContract(this)" style="padding:10px 14px;font-size:14px;text-align:center;white-space:nowrap">續約</button>' +
-            '<button type="button" class="bf-chip" onclick="showRpRenewalHistory(this)" style="padding:10px 14px;font-size:13px;background:#F5F0EB;color:#4A7A4A;border:1px solid #D6CFC7;white-space:nowrap">📋 歷程</button>' +
+            '<button type="button" class="bf-chip" onclick="showRpRenewalHistory(this)" style="padding:10px 14px;font-size:13px;background:#F5F0EB;color:#5B21B6;border:1px solid #D6CFC7;white-space:nowrap">📋 歷程</button>' +
         '</div>' +
         // 附屬設備
         '<div class="rp-equip-toggle equip-toggle" style="margin-top:8px" onclick="var b=this.nextElementSibling;b.classList.toggle(\'on\');this.querySelector(\'span:last-child\').textContent=b.classList.contains(\'on\')?\'▼\':\'▶\'">' +
