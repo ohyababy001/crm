@@ -1601,13 +1601,16 @@ function syncViaIframe(payload, status) {
     form.submit();
 }
 
-// ── 自動檢查雲端更新（每5分鐘）──
+// ── 自動雲端同步（頁面載入+每5分鐘）──
 var _checkTimer = null;
+var _lastSyncJSON = JSON.stringify(DB);
 function startAutoCheck() {
     if (_checkTimer) clearInterval(_checkTimer);
-    _checkTimer = setInterval(checkCloudUpdate, 5 * 60 * 1000); // 5分鐘
+    // 頁面載入3秒後自動拉雲端
+    setTimeout(autoFetchCloud, 3000);
+    _checkTimer = setInterval(autoFetchCloud, 5 * 60 * 1000);
 }
-function checkCloudUpdate() {
+function autoFetchCloud() {
     var cbName = 'checkCb_' + Date.now();
     var script = document.createElement('script');
     window[cbName] = function(data) {
@@ -1623,13 +1626,18 @@ function checkCloudUpdate() {
                     cloudData = JSON.parse(raw);
                 }
             }
-            if (!Array.isArray(cloudData)) return;
-            // 比對筆數，若雲端較多代表有其他裝置新增了資料
-            var localCount = DB.filter(function(c){ return !c._deleted; }).length;
-            var cloudCount = cloudData.filter(function(c){ return !c._deleted; }).length;
-            if (cloudCount > localCount) {
+            if (!Array.isArray(cloudData) || cloudData.length === 0) return;
+            var cloudJSON = JSON.stringify(cloudData);
+            var localJSON = JSON.stringify(DB);
+            // 資料不同才更新
+            if (cloudJSON !== localJSON) {
+                DB = cloudData;
+                DB.forEach(function(c) { if (!c.types) c.types = c.type ? [c.type] : []; });
+                _lastSyncJSON = JSON.stringify(DB);
+                localStorage.setItem('reCRM', _lastSyncJSON);
+                render();
                 var status = document.getElementById('cloudStatus');
-                if (status) status.innerHTML = '⚡ <a href="#" onclick="cloudRestore();return false;" style="color:#D97706;font-weight:700">發現新資料，點擊同步（雲端 ' + cloudCount + ' 筆 / 本機 ' + localCount + ' 筆）</a>';
+                if (status) status.textContent = '☁️ 已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + DB.length + '筆）';
             }
         } catch(e) {}
     };
