@@ -1532,20 +1532,7 @@ function autoSync() {
     var status = document.getElementById('cloudStatus');
     if (status) status.textContent = '☁️ 同步中…';
     var payload = JSON.stringify(DB);
-
-    // 用 fetch POST（application/x-www-form-urlencoded 確保 Google Apps Script 能解析）
-    if (window.fetch) {
-        fetch(CLOUD_URL, { method:'POST', body:'payload='+encodeURIComponent(payload), headers:{'Content-Type':'application/x-www-form-urlencoded'}, mode:'no-cors' })
-            .then(function() {
-                if (status) status.textContent = '☁️ 已同步 ' + new Date().toLocaleTimeString('zh-TW');
-            })
-            .catch(function() {
-                // fetch 失敗，fallback 到 iframe
-                syncViaIframe(payload, status);
-            });
-    } else {
-        syncViaIframe(payload, status);
-    }
+    syncViaIframe(payload, status);
     // Fallback timeout：超時視為失敗，不假裝成功
     setTimeout(function() {
         if (status && status.textContent === '☁️ 同步中…') {
@@ -1564,18 +1551,37 @@ function syncViaIframe(payload, status) {
     form.method = 'POST';
     form.action = CLOUD_URL;
     form.target = iframe.name;
-    var input = document.createElement('textarea');
+    form.enctype = 'application/x-www-form-urlencoded';
+    var input = document.createElement('input');
+    input.type = 'hidden';
     input.name = 'payload';
     input.value = payload;
-    input.style.display = 'none';
     form.appendChild(input);
     document.body.appendChild(form);
     function cleanup() {
-        try { document.body.removeChild(iframe); } catch(e){}
-        try { document.body.removeChild(form); } catch(e){}
+        setTimeout(function() {
+            try { document.body.removeChild(iframe); } catch(e){}
+            try { document.body.removeChild(form); } catch(e){}
+        }, 2000);
     }
     iframe.onload = function() {
-        if (status) status.textContent = '☁️ 已同步 ' + new Date().toLocaleTimeString('zh-TW');
+        // 驗證：用 JSONP 確認資料有存到
+        setTimeout(function() {
+            var vCb = 'verifyCb_' + Date.now();
+            var vScript = document.createElement('script');
+            window[vCb] = function(data) {
+                delete window[vCb];
+                if (vScript.parentNode) vScript.parentNode.removeChild(vScript);
+                if (Array.isArray(data) && data.length > 0) {
+                    if (status) status.textContent = '☁️ 已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + data.length + '筆）';
+                } else {
+                    if (status) status.textContent = '⚠️ 同步可能失敗，請重試';
+                }
+            };
+            vScript.src = CLOUD_URL + '?callback=' + vCb + '&t=' + Date.now();
+            vScript.onerror = function() { delete window[vCb]; if (vScript.parentNode) vScript.parentNode.removeChild(vScript); };
+            document.body.appendChild(vScript);
+        }, 3000);
         cleanup();
     };
     iframe.onerror = function() {
