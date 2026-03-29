@@ -5907,11 +5907,11 @@ function cloudRestore() {
                 alert('還原成功，共 ' + DB.length + ' 筆資料');
             } else {
                 if (statusEl) statusEl.textContent = '⚠️ 雲端沒有備份資料';
-                alert('雲端沒有備份資料');
+                alert('雲端沒有備份資料\n\n收到的資料類型：' + typeof data + '\n內容：' + JSON.stringify(data).substring(0, 200));
             }
         } catch(err) {
             if (statusEl) statusEl.textContent = '❌ 還原失敗：' + err.message;
-            alert('還原失敗：' + err.message);
+            alert('還原失敗：' + err.message + '\n\n收到的資料類型：' + typeof data + '\n內容：' + JSON.stringify(data).substring(0, 200));
         }
         if (btnEl) btnEl.disabled = false;
         delete window[cbName];
