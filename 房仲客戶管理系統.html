@@ -2396,6 +2396,20 @@ function getData() {
         });
         list = expanded;
     }
+    // 拆分後二次過濾：搜尋時每張卡片只比對自己角色的名字
+    if (q) {
+        list = list.filter(function(c) {
+            if (!c._viewAs) return true; // 非租案卡片已在前面過濾過
+            // 共用欄位已在前面過濾通過的保留
+            var common = (c.notes||'').toLowerCase().includes(q) ||
+                (c.rCommunity||'').toLowerCase().includes(q) ||
+                (c.rAddr||'').toLowerCase().includes(q);
+            if (common) return true;
+            if (c._viewAs === 'landlord') return (c.llName||'').toLowerCase().includes(q) || (c.llPhone||'').includes(q);
+            if (c._viewAs === 'tenant') return (c.ttName||'').toLowerCase().includes(q) || (c.ttPhone||'').includes(q);
+            return true;
+        });
+    }
     return list;
 }
 
