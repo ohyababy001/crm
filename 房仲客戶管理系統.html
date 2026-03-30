@@ -1067,7 +1067,7 @@
                     <div style="display:grid;grid-template-columns:3fr 2fr 6fr;gap:6px;margin-bottom:6px">
                         <div class="fg" style="margin-bottom:0"><label>銀行名稱</label><input id="f-llBank" placeholder="" onblur="autoBankCode(this)"></div>
                         <div class="fg" style="margin-bottom:0"><label>銀行代碼</label><input id="f-llBankCode" placeholder=""></div>
-                        <div class="fg" style="margin-bottom:0"><label>銀行帳號</label><input id="f-llBankAccount" placeholder=""></div>
+                        <div class="fg" style="margin-bottom:0"><label>銀行帳號</label><input id="f-llBankAccount" placeholder="" onblur="formatBankAccount(this)"></div>
                     </div>
                     </div>
                     <div id="rLandlordList"></div>
@@ -2107,6 +2107,13 @@ var BANK_MAP = [
     ['816','安泰商業銀行','安泰銀行','安泰'],
     ['822','中國信託商業銀行','中國信託','中信','中信銀行']
 ];
+function formatBankAccount(el) {
+    var v = el.value.replace(/[^0-9]/g, '');
+    if (!v) return;
+    var parts = [];
+    for (var i = 0; i < v.length; i += 4) parts.push(v.slice(i, i + 4));
+    el.value = parts.join('-');
+}
 function autoBankCode(el) {
     var name = el.value.trim();
     if (!name) return;
@@ -4571,7 +4578,7 @@ function addPersonBlock(listId, data) {
         '<div style="display:grid;grid-template-columns:3fr 2fr 6fr;gap:6px;margin-bottom:4px">' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">銀行名稱</label><input data-f="bank" value="'+esc(d.bank||'')+'" placeholder="" onblur="autoBankCode(this)"></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">銀行代碼</label><input data-f="bankCode" value="'+esc(d.bankCode||'')+'" placeholder=""></div>' +
-            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">銀行帳號</label><input data-f="bankAccount" value="'+esc(d.bankAccount||'')+'" placeholder=""></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">銀行帳號</label><input data-f="bankAccount" value="'+esc(d.bankAccount||'')+'" placeholder="" onblur="formatBankAccount(this)"></div>' +
         '</div>' +
     '</div>';
     document.getElementById(listId).insertAdjacentHTML('beforeend', html);
