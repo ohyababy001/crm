@@ -1770,6 +1770,37 @@ function rocToISO(rocStr) {
     var dd = String(parseInt(parts[2])).padStart(2,'0');
     return y + '-' + mm + '-' + dd;
 }
+// 日期自動格式化：支援西元/民國純數字輸入
+function autoFormatDate(el) {
+    var v = el.value.replace(/[\s]/g, '').trim();
+    if (!v) return;
+    // 已有分隔符的不處理
+    if (/[\/\-\.]/.test(v)) return;
+    // 純數字處理
+    var digits = v.replace(/[^0-9]/g, '');
+    if (!digits) return;
+    var y, m, d;
+    if (digits.length === 8 && parseInt(digits.slice(0,4)) > 1900) {
+        // 西元8碼：19850630 → 74/06/30
+        y = parseInt(digits.slice(0,4)) - 1911;
+        m = digits.slice(4,6);
+        d = digits.slice(6,8);
+    } else if (digits.length === 7 && parseInt(digits.slice(0,3)) > 100) {
+        // 民國7碼：1140630 → 114/06/30
+        y = parseInt(digits.slice(0,3));
+        m = digits.slice(3,5);
+        d = digits.slice(5,7);
+    } else if (digits.length === 6 && parseInt(digits.slice(0,2)) < 200) {
+        // 民國6碼：740630 → 74/06/30
+        y = parseInt(digits.slice(0,2));
+        m = digits.slice(2,4);
+        d = digits.slice(4,6);
+    } else {
+        return;
+    }
+    if (parseInt(m) < 1 || parseInt(m) > 12 || parseInt(d) < 1 || parseInt(d) > 31) return;
+    el.value = y + '/' + m + '/' + d;
+}
 // ── 自製日曆 ──
 var calTarget = null; // 目標 text input
 var calYear = new Date().getFullYear(), calMonth = new Date().getMonth();
@@ -6532,6 +6563,12 @@ var _mnavObs = new MutationObserver(function() {
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.overlay').forEach(function(o) {
         _mnavObs.observe(o, { attributes: true, attributeFilter: ['style'] });
+    });
+    // 所有日期欄位 blur 時自動格式化
+    document.addEventListener('focusout', function(e) {
+        if (e.target && e.target.tagName === 'INPUT' && e.target.closest('.roc-date-wrap')) {
+            autoFormatDate(e.target);
+        }
     });
 });
 </script>
