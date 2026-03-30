@@ -5453,13 +5453,14 @@ function fillSearchDB(val, target, overlay) {
         'closed': function(c) { return [{name:c.cName, phone:c.cPhone, idNo:c.cIdNo, occupation:c.cOccupation, birthday:c.cBirthday?isoToROC(c.cBirthday):'', email:c.cEmail, source:c.cSource, src:'成交'}]; },
         'dev': function(c) { return [{name:c.dName, phone:c.dPhone, idNo:c.dIdNo, occupation:c.dOccupation, birthday:c.dBirthday?isoToROC(c.dBirthday):'', email:c.dEmail, source:c.dSource, src:'商機'}]; }
     };
-    var getFn = fieldMap[target];
-    if (!getFn) return;
+    // 搜尋所有角色的資料
+    var allFns = Object.values(fieldMap);
     DB.forEach(function(c) {
         if (c._deleted || c.id === editId) return;
-        var items = getFn(c);
-        items.forEach(function(s) {
-            if (s.name && s.name.toLowerCase().includes(val)) matches.push(s);
+        allFns.forEach(function(fn) {
+            fn(c).forEach(function(s) {
+                if (s.name && s.name.toLowerCase().includes(val)) matches.push(s);
+            });
         });
     });
     // 去重
