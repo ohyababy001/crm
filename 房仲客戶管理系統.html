@@ -4611,6 +4611,7 @@ function clearSchedules() { document.getElementById('scheduleList').innerHTML = 
 
 function getRpDriveIcon(c) {
     var props = c.rProperties || [];
+    if (!props.length && (c.rAddr || c.rCommunity)) props = [{rpDriveUrl:''}];
     var hasUrl = props.some(function(p){ return p.rpDriveUrl; });
     return hasUrl ? '📂' : '<span style="opacity:0.3">📁</span>';
 }
@@ -4631,6 +4632,10 @@ function openDriveFolder(clientId) {
     var c = DB.find(function(x) { return x.id === clientId; });
     if (!c) return;
     var props = c.rProperties || [];
+    // 舊資料 fallback：如果沒有 rProperties 但有 rAddr/rCommunity，自動建一筆
+    if (!props.length && (c.rAddr || c.rCommunity)) {
+        props = [{ rAddr: c.rAddr || '', rCommunity: c.rCommunity || '', rStartDate: c.rStartDate || '', rpDriveUrl: '' }];
+    }
     if (!props.length) {
         alert('此客戶尚無物件資料，請先新增物件');
         return;
@@ -4674,7 +4679,16 @@ function openDriveFolder(clientId) {
 }
 function cardSetDriveFolder(clientId, propIdx) {
     var c = DB.find(function(x){ return x.id === clientId; });
-    if (!c || !c.rProperties || !c.rProperties[propIdx]) return;
+    if (!c) return;
+    // 舊資料 fallback：自動建立 rProperties
+    if (!c.rProperties || !c.rProperties.length) {
+        if (c.rAddr || c.rCommunity) {
+            c.rProperties = [{ rAddr: c.rAddr || '', rCommunity: c.rCommunity || '', rStartDate: c.rStartDate || '', rpDriveUrl: '' }];
+        } else {
+            return;
+        }
+    }
+    if (!c.rProperties[propIdx]) return;
     var prop = c.rProperties[propIdx];
     var clientName = c.llName || c.ttName || c.name || '';
     var folderName = rpBuildFolderNameFromData(prop, clientName);
