@@ -2195,6 +2195,18 @@ function getData() {
             return 0;
         });
     }
+    // 非租案頁面但有租案客戶：根據角色標籤決定 _viewAs
+    if (curFilter !== '租案管理' && curFilter !== '租案_房東' && curFilter !== '租案_租客') {
+        list.forEach(function(c) {
+            if (!hasType(c, '租案管理') || c._viewAs) return;
+            var filterType = curFilter;
+            if (filterType === 'all') return;
+            var llHas = c.rLandlordTypes && c.rLandlordTypes.includes(filterType);
+            var ttHas = c.rTenantTypes && c.rTenantTypes.includes(filterType);
+            if (llHas && !ttHas) c._viewAs = 'landlord';
+            else if (ttHas && !llHas) c._viewAs = 'tenant';
+        });
+    }
     // 租案管理：拆分房東/租客卡片
     if (curFilter === '租案管理' || curFilter === '租案_房東' || curFilter === '租案_租客' || (q && curFilter === 'all')) {
         var expanded = [];
