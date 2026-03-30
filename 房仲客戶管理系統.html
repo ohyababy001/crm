@@ -5425,7 +5425,7 @@ function showFillMenu(btn, target) {
     // 從其他客戶搜尋帶入
     if (target === 'landlord' || target === 'tenant' || target === 'buyer' || target === 'seller' || target === 'closed' || target === 'dev') {
         var searchDiv = document.createElement('div');
-        searchDiv.style.cssText = 'margin-top:8px;padding-top:8px;border-top:1px solid var(--border)';
+        searchDiv.style.cssText = 'margin-top:8px;padding-top:8px';
         searchDiv.innerHTML = '' +
             '<input id="fillSearchInput" type="text" placeholder="輸入姓名搜尋..." style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;box-sizing:border-box;text-align:center">' +
             '<div id="fillSearchResults" style="margin-top:4px"></div>';
