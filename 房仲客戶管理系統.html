@@ -188,7 +188,7 @@
         .btn-fill:hover { background:#EFF6FF;color:#1D4ED8;border-color:#93C5FD; }
         .fill-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.3);z-index:9999;display:flex;align-items:center;justify-content:center; }
         .fill-menu { background:white;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.15);min-width:240px;max-width:90vw;padding:8px 0;overflow:hidden; }
-        .fill-menu-title { padding:10px 16px;font-size:14px;font-weight:700;color:var(--text);border-bottom:1px solid var(--border); }
+        .fill-menu-title { padding:10px 16px;font-size:14px;font-weight:700;color:var(--text);border-bottom:1px solid var(--border);text-align:center; }
         .fill-menu-item { padding:12px 16px;cursor:pointer;font-size:15px;color:var(--text);display:flex;justify-content:space-between;align-items:center;gap:10px; }
         .fill-menu-item:active { background:var(--bg); }
         .fill-menu-item .fill-src { color:var(--muted);font-size:12px; }
@@ -5426,8 +5426,8 @@ function showFillMenu(btn, target) {
     if (target === 'landlord' || target === 'tenant' || target === 'buyer' || target === 'seller' || target === 'closed' || target === 'dev') {
         var searchDiv = document.createElement('div');
         searchDiv.style.cssText = 'margin-top:8px;padding-top:8px;border-top:1px solid var(--border)';
-        searchDiv.innerHTML = '<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px;text-align:right">從其他客戶搜尋</div>' +
-            '<input id="fillSearchInput" type="text" placeholder="輸入姓名搜尋..." style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;box-sizing:border-box">' +
+        searchDiv.innerHTML = '<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px;text-align:center">從其他客戶搜尋</div>' +
+            '<input id="fillSearchInput" type="text" placeholder="輸入姓名搜尋..." style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;box-sizing:border-box;text-align:center">' +
             '<div id="fillSearchResults" style="margin-top:4px"></div>';
         menu.appendChild(searchDiv);
         setTimeout(function() {
