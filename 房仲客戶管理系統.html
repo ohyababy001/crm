@@ -4890,6 +4890,20 @@ function pickTypeDown(t, btn) {
     _pickDidHold = false;
     _pickHoldTimer = setTimeout(function() {
         _pickDidHold = true;
+        // 租案管理加掛其他標籤：根據當前房東/租客頁面分開存
+        if (t !== '租案管理' && selectedTypes.includes('租案管理') && activeView === '租案管理') {
+            var roleArr = activeRentalTab === '租客' ? rTenantTypes : rLandlordTypes;
+            var roleIdx = roleArr.indexOf(t);
+            if (roleIdx >= 0) {
+                roleArr.splice(roleIdx, 1);
+            } else {
+                roleArr.push(t);
+            }
+            syncRentalTypes();
+            applyTypePicker();
+            if (navigator.vibrate) navigator.vibrate(50);
+            return;
+        }
         // 長按 = 選擇/取消類型
         if (selectedTypes.includes(t)) {
             selectedTypes = selectedTypes.filter(function(x){ return x !== t; });
