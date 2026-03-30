@@ -2425,14 +2425,25 @@ function getData() {
     // 拆分後二次過濾：搜尋時每張卡片只比對自己角色的名字（租案頁不過濾，保持綁在一起）
     if (q && !isRentalTab) {
         list = list.filter(function(c) {
-            if (!c._viewAs) return true; // 非租案卡片已在前面過濾過
-            // 共用欄位已在前面過濾通過的保留
+            if (!c._viewAs) return true;
             var common = (c.notes||'').toLowerCase().includes(q) ||
                 (c.rCommunity||'').toLowerCase().includes(q) ||
                 (c.rAddr||'').toLowerCase().includes(q);
             if (common) return true;
             if (c._viewAs === 'landlord') return (c.llName||'').toLowerCase().includes(q) || (c.llPhone||'').includes(q);
             if (c._viewAs === 'tenant') return (c.ttName||'').toLowerCase().includes(q) || (c.ttPhone||'').includes(q);
+            return true;
+        });
+        // 非租案頁搜尋：同房東去重，只保留第一筆
+        var seenLL = {};
+        list = list.filter(function(c) {
+            if (c._viewAs !== 'landlord') return true;
+            var llName = c.llName || (c.rLandlords && c.rLandlords[0] ? c.rLandlords[0].name : '') || c.rLandlord || '';
+            var llPhone = c.llPhone || (c.rLandlords && c.rLandlords[0] ? c.rLandlords[0].phone : '') || c.rLandlordPhone || '';
+            var key = (llName + '_' + llPhone).toLowerCase();
+            if (!key || key === '_') return true;
+            if (seenLL[key]) return false;
+            seenLL[key] = true;
             return true;
         });
     }
