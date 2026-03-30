@@ -4748,10 +4748,6 @@ function openDriveFolder(clientId) {
         return;
     }
     var withUrl = all.filter(function(a){ return a.url; });
-    if (all.length === 1 && withUrl.length === 1) {
-        window.open(withUrl[0].url, '_blank');
-        return;
-    }
     if (all.length === 1 && !withUrl.length) {
         cardSetDriveFolder(clientId, all[0].src, all[0].idx);
         return;
