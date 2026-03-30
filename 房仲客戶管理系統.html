@@ -472,6 +472,9 @@
             /* 庫存物件：立約日+到期日+續約+歷程 換行 */
             .sp-contract-row { grid-template-columns: 1fr 1fr !important; }
             .sp-contract-row > .bf-chip { padding: 8px 10px !important; font-size: 13px !important; }
+            /* 銀行帳戶：帳號全寬換行 */
+            #rPage-房東 > div > div[style*="3fr 1fr 7fr"] { grid-template-columns: 3fr 1fr !important; }
+            #rPage-房東 > div > div[style*="3fr 1fr 7fr"] > .fg:last-child { grid-column: 1 / -1; }
             /* 自訂設備項目名稱加寬 */
             .rp-equip-custom .equip-item input[type="text"]:first-of-type { width:120px !important; }
             /* 設備清單新增其他：手機版全寬 */
