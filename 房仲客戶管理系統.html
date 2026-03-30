@@ -4617,9 +4617,14 @@ function getRpDriveIcon(c) {
 }
 function rpBuildFolderNameFromData(prop, clientName) {
     var addr = prop.rAddr || '未填地址';
+    // 取第一次起租日：有續約歷程就用第一筆的 oldStart，否則用當前起租日
+    var firstDate = prop.rStartDate || '';
+    if (prop.rpRenewals && prop.rpRenewals.length) {
+        firstDate = prop.rpRenewals[0].oldStart || firstDate;
+    }
     var dateStr = '';
-    if (prop.rStartDate) {
-        var d = isoToROC(prop.rStartDate);
+    if (firstDate) {
+        var d = isoToROC(firstDate);
         dateStr = d.replace(/\//g, '');
     } else {
         var now = new Date();
