@@ -2403,8 +2403,8 @@ function getData() {
         });
         list = expanded;
     }
-    // 拆分後二次過濾：搜尋時每張卡片只比對自己角色的名字
-    if (q) {
+    // 拆分後二次過濾：搜尋時每張卡片只比對自己角色的名字（租案頁不過濾，保持綁在一起）
+    if (q && curFilter !== '租案管理' && curFilter !== '租案_房東' && curFilter !== '租案_租客') {
         list = list.filter(function(c) {
             if (!c._viewAs) return true; // 非租案卡片已在前面過濾過
             // 共用欄位已在前面過濾通過的保留
