@@ -2269,24 +2269,34 @@ function getData() {
         else list = activeDB.filter(c => hasType(c, curFilter));
         if (!showArchived) list = list.filter(c => !c.archived);
     }
-    if (q) list = list.filter(c =>
-        c.name.toLowerCase().includes(q) ||
-        (c.phone||'').includes(q) ||
-        (c.llName||'').toLowerCase().includes(q) ||
-        (c.ttName||'').toLowerCase().includes(q) ||
-        (c.llPhone||'').includes(q) ||
-        (c.ttPhone||'').includes(q) ||
-        (c.sName||'').toLowerCase().includes(q) ||
-        (c.bName||'').toLowerCase().includes(q) ||
-        (c.cName||'').toLowerCase().includes(q) ||
-        (c.dName||'').toLowerCase().includes(q) ||
-        (c.notes||'').toLowerCase().includes(q) ||
-        (c.areaDisplay||'').toLowerCase().includes(q) ||
-        (c.community||'').toLowerCase().includes(q) ||
-        (c.sAddr||'').toLowerCase().includes(q) ||
-        (c.rCommunity||'').toLowerCase().includes(q) ||
-        (c.rAddr||'').toLowerCase().includes(q)
-    );
+    if (q) list = list.filter(function(c) {
+        // 共用欄位
+        var common = (c.notes||'').toLowerCase().includes(q) ||
+            (c.areaDisplay||'').toLowerCase().includes(q) ||
+            (c.community||'').toLowerCase().includes(q) ||
+            (c.sAddr||'').toLowerCase().includes(q) ||
+            (c.rCommunity||'').toLowerCase().includes(q) ||
+            (c.rAddr||'').toLowerCase().includes(q);
+        if (common) return true;
+        // 根據頁籤限制搜尋欄位
+        if (curFilter === '租案_房東') {
+            return (c.llName||'').toLowerCase().includes(q) || (c.llPhone||'').includes(q);
+        }
+        if (curFilter === '租案_租客') {
+            return (c.ttName||'').toLowerCase().includes(q) || (c.ttPhone||'').includes(q);
+        }
+        // 其他頁籤搜全部
+        return c.name.toLowerCase().includes(q) ||
+            (c.phone||'').includes(q) ||
+            (c.llName||'').toLowerCase().includes(q) ||
+            (c.ttName||'').toLowerCase().includes(q) ||
+            (c.llPhone||'').includes(q) ||
+            (c.ttPhone||'').includes(q) ||
+            (c.sName||'').toLowerCase().includes(q) ||
+            (c.bName||'').toLowerCase().includes(q) ||
+            (c.cName||'').toLowerCase().includes(q) ||
+            (c.dName||'').toLowerCase().includes(q);
+    });
     // Buyer filters
     if (curFilter === '經營買方') {
         if (bfRooms.length) list = list.filter(function(c) {
