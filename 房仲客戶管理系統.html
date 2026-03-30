@@ -4458,6 +4458,11 @@ function addPersonBlock(listId, data) {
             '<button type="button" class="btn-ic" onclick="addPbAddrRow(this)" title="新增地址" style="margin-bottom:2px;font-size:16px;padding:6px 8px">＋</button>' +
         '</div>' +
         '<div class="pb-addr-list"></div>' +
+        '<div style="display:grid;grid-template-columns:3fr 2fr 6fr;gap:6px;margin-bottom:4px">' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">銀行名稱</label><input data-f="bank" value="'+esc(d.bank||'')+'" placeholder=""></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">銀行代碼</label><input data-f="bankCode" value="'+esc(d.bankCode||'')+'" placeholder=""></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">銀行帳號</label><input data-f="bankAccount" value="'+esc(d.bankAccount||'')+'" placeholder=""></div>' +
+        '</div>' +
     '</div>';
     document.getElementById(listId).insertAdjacentHTML('beforeend', html);
     // 載入額外地址
@@ -4478,7 +4483,7 @@ function getPersonBlocks(listId) {
             var rget = function(f){ var el=row.querySelector('[data-f="'+f+'"]'); return el?el.value.trim():''; };
             if (rget('addr')) extraAddrs.push({ type:rget('type'), zip:rget('zip'), addr:rget('addr') });
         });
-        if (name || phone) r.push({ name:name, phone:phone, idNo:get('idNo'), occupation:get('occupation'), birthday:rocToISO(get('birthday')), addrType:get('addrType'), zip:get('zip'), addr:get('addr'), extraAddrs:extraAddrs, email:get('email'), source:get('source') });
+        if (name || phone) r.push({ name:name, phone:phone, idNo:get('idNo'), occupation:get('occupation'), birthday:rocToISO(get('birthday')), addrType:get('addrType'), zip:get('zip'), addr:get('addr'), extraAddrs:extraAddrs, email:get('email'), source:get('source'), bank:get('bank'), bankCode:get('bankCode'), bankAccount:get('bankAccount') });
     });
     return r;
 }
