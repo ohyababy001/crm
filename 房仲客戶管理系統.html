@@ -4326,9 +4326,9 @@ function switchRentalTab(tab) {
     document.getElementById('rPage-租客').style.display = tab==='租客' ? '' : 'none';
     document.getElementById('rTab-房東').classList.toggle('selected', tab==='房東');
     document.getElementById('rTab-租客').classList.toggle('selected', tab==='租客');
-    // 更新類型按鈕高亮：顯示租案+當前角色的標籤
+    // 更新頂部類型按鈕高亮：顯示租案+當前角色的標籤（不影響房東/租客頁籤按鈕）
     var roleTypes = tab === '租客' ? rTenantTypes : rLandlordTypes;
-    document.querySelectorAll('.tp-btn').forEach(function(b) {
+    document.querySelectorAll('.type-picker .tp-btn').forEach(function(b) {
         var t = b.id.replace('tp-','');
         var isActive = t === '租案管理' || roleTypes.includes(t);
         b.classList.toggle('selected', isActive);
