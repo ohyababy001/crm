@@ -3347,7 +3347,7 @@ function showDet(id, viewAs) {
                 <button class="det-close" onclick="closeDet()" style="padding:6px 10px;font-size:28px">✕</button>
                 </div>
             </div>
-            <div style="width:100%;padding:4px 0 0">
+            <div style="width:100%;flex:1;display:flex;flex-direction:column;justify-content:center">
                 <div class="det-name">${esc(detName)}${detViewAs==='landlord'?'<span style="font-size:14px;color:#0891B2;margin-left:4px">房東</span>':''}${detViewAs==='tenant'?'<span style="font-size:14px;color:#DB2777;margin-left:4px">租客</span>':''}</div>
                 <div class="det-phone">${esc(detPhone)}</div>
             </div>
