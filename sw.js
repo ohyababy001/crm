@@ -1,4 +1,4 @@
-var CACHE_NAME = 'crm-v269';
+var CACHE_NAME = 'crm-v270';
 var URLS_TO_CACHE = [
   './',
   './房仲客戶管理系統.html'

@@ -4296,6 +4296,11 @@ function switchRentalTab(tab) {
     document.getElementById('rPage-租客').style.display = tab==='租客' ? '' : 'none';
     document.getElementById('rTab-房東').classList.toggle('selected', tab==='房東');
     document.getElementById('rTab-租客').classList.toggle('selected', tab==='租客');
+    // 更新類型按鈕高亮：只顯示當前角色的標籤
+    document.querySelectorAll('.tp-btn').forEach(function(b) { b.classList.remove('selected','active-view'); });
+    var roleTypes = tab === '租客' ? rTenantTypes : rLandlordTypes;
+    ['租案管理'].concat(roleTypes).forEach(function(t) { var b=document.getElementById('tp-'+t); if(b) b.classList.add('selected'); });
+    var avBtn = document.getElementById('tp-租案管理'); if(avBtn) avBtn.classList.add('active-view');
 }
 
 // ── 租案角色標籤 ──
@@ -5194,7 +5199,13 @@ function applyTypePicker() {
     document.querySelectorAll('.tp-btn').forEach(function(b) {
         b.classList.remove('selected','active-view');
     });
-    selectedTypes.forEach(function(t) { var b=document.getElementById('tp-'+t); if(b) b.classList.add('selected'); });
+    // 租案模式下只高亮當前角色的標籤
+    var visibleTypes = selectedTypes;
+    if (selectedTypes.includes('租案管理') && activeView === '租案管理') {
+        var roleTypes = activeRentalTab === '租客' ? rTenantTypes : rLandlordTypes;
+        visibleTypes = ['租案管理'].concat(roleTypes);
+    }
+    visibleTypes.forEach(function(t) { var b=document.getElementById('tp-'+t); if(b) b.classList.add('selected'); });
     if (activeView) { var b=document.getElementById('tp-'+activeView); if(b) b.classList.add('active-view'); }
     // 只顯示當前頁面的表單區段
     document.querySelectorAll('.type-sec').forEach(el => el.classList.remove('on'));
