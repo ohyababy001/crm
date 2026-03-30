@@ -2752,7 +2752,7 @@ function renderCard(c) {
                 if (_spG) tagLabel = _spG+'級庫存';
             }
             var tagClass = (t === '經營買方' && c.bGrade) ? 'grade-tag-'+c.bGrade.toLowerCase() : ((t === '庫存屋主' && _spG) ? 'grade-tag-'+_spG.toLowerCase() : 't-'+(TC[t]||'buyer'));
-            return `<span class="tag ${tagClass}" onclick="event.stopPropagation()" onpointerdown="tagArchDown('${c.id}','${t}',this)" onpointerup="tagArchUp()" onpointerleave="tagArchUp()">${tagLabel}</span>`;
+            return `<span class="tag ${tagClass}" style="touch-action:none;-webkit-user-select:none;user-select:none" onclick="event.stopPropagation()" ontouchstart="tagArchDown('${c.id}','${t}',this)" ontouchend="tagArchUp()" ontouchmove="tagArchUp()" onpointerdown="tagArchDown('${c.id}','${t}',this)" onpointerup="tagArchUp()" onpointerleave="tagArchUp()" oncontextmenu="event.preventDefault();event.stopPropagation()">${tagLabel}</span>`;
         }).join('');
         const statusTag = !cTypes.includes('經營買方') && c.status ? `<span class="tag s-${c.status}">${c.status}</span>` : '';
         const notesText = c.notes ? c.notes.replace(/[\r\n]+/g,' ').replace(/\s+/g,' ').trim() : '';
@@ -5126,9 +5126,13 @@ function cardDelDriveFolder(clientId, src, propIdx, urlKey) {
 // ── 同房東關聯 ──
 // ── 標籤長按封存 ──
 var _tagArchTimer = null;
+var _tagArchFired = false;
 function tagArchDown(clientId, type, el) {
+    if (_tagArchTimer) return; // 防止 touch+pointer 重複觸發
+    _tagArchFired = false;
     _tagArchTimer = setTimeout(function() {
         _tagArchTimer = null;
+        _tagArchFired = true;
         if (navigator.vibrate) navigator.vibrate(50);
         var typeName = TYPE_DISPLAY[type] || type;
         if (!confirm('封存「' + typeName + '」功能？\n此客戶在' + typeName + '頁面將不再顯示。')) return;
