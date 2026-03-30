@@ -4697,7 +4697,7 @@ function getRpDriveIcon(c) {
     var hasUrl = rProps.some(function(p){ return p.rpDriveUrl; }) || sProps.some(function(p){ return p.spDriveUrl; });
     return hasUrl ? '📂' : '<span style="opacity:0.3">📁</span>';
 }
-function buildDriveFolderName(type, prop, clientName) {
+function buildDriveFolderName(type, prop, client) {
     var addr = prop.rAddr || prop.addr || '未填地址';
     var firstDate = '';
     if (type === '租案') {
@@ -4715,7 +4715,18 @@ function buildDriveFolderName(type, prop, clientName) {
         var y = now.getFullYear() - 1911;
         dateStr = y + String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0');
     }
-    return '【' + type + '】' + dateStr + '-' + addr + '-' + (clientName || '未填姓名');
+    var namePart = '';
+    if (type === '租案' && typeof client === 'object') {
+        var llName = client.llName || (client.rLandlords && client.rLandlords[0] ? client.rLandlords[0].name : '') || client.rLandlord || '';
+        var ttName = client.ttName || (client.rTenants && client.rTenants[0] ? client.rTenants[0].name : '') || client.rTenant || '';
+        if (llName && ttName) namePart = '[房東]' + llName + '-[租客]' + ttName;
+        else if (llName) namePart = llName;
+        else if (ttName) namePart = ttName;
+        else namePart = '未填姓名';
+    } else {
+        namePart = (typeof client === 'object' ? (client.sName || client.name || '') : client) || '未填姓名';
+    }
+    return '【' + type + '】' + dateStr + '-' + addr + '-' + namePart;
 }
 function _getAllDriveProps(c) {
     var all = [];
@@ -4782,8 +4793,7 @@ function cardSetDriveFolder(clientId, src, propIdx) {
     var prop = propList[propIdx];
     var type = src === 'rProperties' ? '租案' : '庫存';
     var urlKey = src === 'rProperties' ? 'rpDriveUrl' : 'spDriveUrl';
-    var clientName = c.llName || c.ttName || c.sName || c.name || '';
-    var folderName = buildDriveFolderName(type, prop, clientName);
+    var folderName = buildDriveFolderName(type, prop, c);
     var oldOverlay = document.querySelector('.fill-overlay');
     if (oldOverlay) oldOverlay.remove();
     var overlay = document.createElement('div');
