@@ -6384,7 +6384,7 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
 function clearCache() {
-    if (!confirm('清除快取並重新載入？（客戶資料不受影響）')) return;
+    if (!confirm('清除快取並重新載入？')) return;
     if ('caches' in window) {
         caches.keys().then(function(names) {
             return Promise.all(names.map(function(n) { return caches.delete(n); }));
