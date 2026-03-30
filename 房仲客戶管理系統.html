@@ -5353,11 +5353,13 @@ function applyTypePicker() {
     document.querySelectorAll('.tp-btn').forEach(function(b) {
         b.classList.remove('selected','active-view');
     });
-    // 租案模式下只高亮當前角色的標籤
+    // 有選租案時，只高亮當前角色的標籤（不管當前在看哪個頁面）
     var visibleTypes = selectedTypes;
-    if (selectedTypes.includes('租案管理') && activeView === '租案管理') {
+    if (selectedTypes.includes('租案管理')) {
         var roleTypes = activeRentalTab === '租客' ? rTenantTypes : rLandlordTypes;
         visibleTypes = ['租案管理'].concat(roleTypes);
+        // 保留非租案角色的已選標籤（不在四大類裡的）
+        selectedTypes.forEach(function(t) { if (t !== '租案管理' && !['經營買方','庫存屋主','成交客戶','商機募集'].includes(t) && !visibleTypes.includes(t)) visibleTypes.push(t); });
     }
     visibleTypes.forEach(function(t) { var b=document.getElementById('tp-'+t); if(b) b.classList.add('selected'); });
     if (activeView) { var b=document.getElementById('tp-'+activeView); if(b) b.classList.add('active-view'); }
