@@ -201,9 +201,12 @@
         .equip-cat { font-size:12px;font-weight:700;color:var(--deep);margin:6px 0 3px;padding:3px 8px;background:var(--bg);border-radius:4px; }
         .equip-cat:first-child { margin-top:0; }
         .equip-grid { display:flex;flex-wrap:wrap;gap:2px 8px;padding:2px 0; }
-        .equip-item { display:flex;align-items:center;gap:2px;font-size:12px;white-space:nowrap; }
-        .equip-item input[type="checkbox"] { width:14px;height:14px;accent-color:var(--wood);cursor:pointer; }
-        .equip-item input[type="number"] { width:48px;min-width:48px;padding:6px 4px;border:1px solid var(--border);border-radius:6px;font-size:14px;text-align:center;flex-shrink:0; }
+        .equip-item { display:flex;align-items:center;gap:3px;font-size:13px;white-space:nowrap;padding:2px 6px;border-radius:6px;transition:background .15s; }
+        .equip-item.eq-checked { background:#F5F0E8;font-weight:600; }
+        .equip-item input[type="checkbox"] { width:15px;height:15px;accent-color:var(--wood);cursor:pointer; }
+        .equip-item input[type="number"] { width:36px;min-width:36px;padding:4px 2px;border:1px solid var(--border);border-radius:6px;font-size:13px;text-align:center;flex-shrink:0;-moz-appearance:textfield;appearance:textfield; }
+        .equip-item input[type="number"]::-webkit-outer-spin-button,
+        .equip-item input[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none;margin:0; }
 
         /* Empty */
         .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
@@ -463,10 +466,6 @@
             .sp-contract-row { grid-template-columns: 1fr 1fr !important; }
             .sp-contract-row > .bf-chip { padding: 8px 10px !important; font-size: 13px !important; }
             /* 設備清單新增其他：手機版全寬 */
-            .rp-equip-custom { width:100% !important; }
-            .rp-equip-custom > div:first-child:not(.c-row) { display:none !important; }
-            .rp-equip-custom .c-row { display:grid !important; grid-template-columns:auto 1fr 1fr 1fr auto; gap:4px !important; align-items:end !important; }
-            .rp-equip-custom .c-row .rp-eq-label { display:block !important; font-size:11px; color:var(--muted); margin-bottom:2px; }
             /* 商機物件：手機版重排 */
             .da-row1 { grid-template-columns: 1fr 1fr !important; }
             .da-addr { grid-column: 1 / -1; }
@@ -3965,6 +3964,10 @@ var EQUIP_DATA = {
     equipKeys: [['鑰匙','把'],['磁扣(卡)','個'],['信箱鑰匙','把'],['電視遙控器','支'],['冷氣遙控器','支'],['車道遙控器','副']]
 };
 var customEquipId = 0;
+function toggleEqHighlight(chk) {
+    var item = chk.closest('.equip-item'); if (!item) return;
+    item.classList.toggle('eq-checked', chk.checked);
+}
 function initEquipList() {
     Object.keys(EQUIP_DATA).forEach(function(gridId) {
         var el = document.getElementById(gridId);
@@ -3972,7 +3975,7 @@ function initEquipList() {
         el.innerHTML = EQUIP_DATA[gridId].map(function(item) {
             var name = item[0], unit = item[1];
             var id = 'eq_' + name.replace(/[^a-zA-Z\u4e00-\u9fff]/g,'');
-            return '<div class="equip-item"><input type="checkbox" id="'+id+'_chk"><span>'+esc(name)+'</span><input type="number" id="'+id+'_num" min="0" value="" placeholder="" style="width:28px"><span style="color:var(--muted);font-size:11px">'+esc(unit)+'</span></div>';
+            return '<div class="equip-item"><input type="checkbox" id="'+id+'_chk" onchange="toggleEqHighlight(this)"><span>'+esc(name)+'</span><input type="number" id="'+id+'_num" min="0" value="" placeholder="" style="width:28px"><span style="color:var(--muted);font-size:11px">'+esc(unit)+'</span></div>';
         }).join('');
     });
 }
@@ -3999,7 +4002,7 @@ function loadEquipData(data) {
             var id = 'eq_' + name.replace(/[^a-zA-Z\u4e00-\u9fff]/g,'');
             var chk = document.getElementById(id+'_chk');
             var num = document.getElementById(id+'_num');
-            if (chk && data[name] !== undefined) { chk.checked = true; num.value = data[name]; }
+            if (chk && data[name] !== undefined) { chk.checked = true; num.value = data[name]; chk.closest('.equip-item').classList.add('eq-checked'); }
         });
     });
     loadCustomEquips(data);
@@ -4011,7 +4014,7 @@ function clearEquipData() {
             var id = 'eq_' + name.replace(/[^a-zA-Z\u4e00-\u9fff]/g,'');
             var chk = document.getElementById(id+'_chk');
             var num = document.getElementById(id+'_num');
-            if (chk) chk.checked = false;
+            if (chk) { chk.checked = false; chk.closest('.equip-item').classList.remove('eq-checked'); }
             if (num) num.value = '';
         });
     });
@@ -4180,7 +4183,7 @@ function addRentalProperty(data) {
         '</div>' +
         '<div class="equip-body rp-equip-body">' +
             buildRpEquipHtml(d.rEquipment) +
-            '<div class="rp-equip-custom" style="margin-top:4px;width:calc(33.3% - 3px);display:flex;flex-direction:column;gap:4px"></div>' +
+            '<div class="equip-cat" style="margin-top:6px">自訂設備</div><div class="rp-equip-custom equip-grid"></div>' +
             '<button type="button" class="add-row-btn" onclick="addRpCustomEquip(this)" style="margin-top:4px">＋ 新增其他</button>' +
         '</div>' +
     '</div>';
@@ -4214,7 +4217,7 @@ function buildRpEquipHtml(equipData) {
         checked.concat(unchecked).forEach(function(item) {
             var name = item[0], unit = item[1];
             var isChecked = ed[name] !== undefined;
-            html += '<div class="equip-item"><input type="checkbox" data-eq-name="'+esc(name)+'"'+(isChecked?' checked':'')+' onchange="sortRpEquipCat(this)"><span>'+esc(name)+'</span><input type="number" min="0" value="'+(isChecked?ed[name]:'')+'" placeholder="" style="width:28px"><span style="color:var(--muted);font-size:11px">'+esc(unit)+'</span></div>';
+            html += '<div class="equip-item'+(isChecked?' eq-checked':'')+'"><input type="checkbox" data-eq-name="'+esc(name)+'"'+(isChecked?' checked':'')+' onchange="toggleEqHighlight(this);sortRpEquipCat(this)"><span>'+esc(name)+'</span><input type="number" min="0" value="'+(isChecked?ed[name]:'')+'" placeholder="" style="width:28px"><span style="color:var(--muted);font-size:11px">'+esc(unit)+'</span></div>';
         });
         html += '</div>';
     });
@@ -4230,39 +4233,29 @@ function sortRpEquipCat(chk) {
     });
     items.forEach(function(item) { grid.appendChild(item); });
 }
-function addRpCustomEquip(btn) {
+function addRpCustomEquip(btn, data) {
     var block = btn.closest('.person-block'); if (!block) return;
     var list = block.querySelector('.rp-equip-custom'); if (!list) return;
-    // 第一筆時加標題列
-    if (!list.querySelector('.c-row')) {
-        list.insertAdjacentHTML('beforeend', '<div style="display:flex;gap:4px;align-items:center;font-size:11px;color:var(--muted);padding:2px 0"><span style="width:13px;flex-shrink:0"></span><span style="flex:1;padding-left:6px">項目</span><span style="width:36px;text-align:center;flex-shrink:0">數量</span><span style="width:28px;text-align:center">量詞</span><span style="width:16px"></span></div>');
-    }
-    var html = '<div class="c-row">' +
-        '<input type="checkbox" style="width:13px;height:13px;accent-color:var(--wood);flex-shrink:0">' +
-        '<div><span class="rp-eq-label" style="display:none">項目</span><input type="text" style="width:100%;min-width:0;padding:3px 6px;font-size:12px;box-sizing:border-box" placeholder=""></div>' +
-        '<div><span class="rp-eq-label" style="display:none">數量</span><input type="number" min="0" value="" style="width:100%;min-width:0;padding:3px 2px;border:1px solid var(--border);border-radius:4px;font-size:11px;text-align:center;box-sizing:border-box"></div>' +
-        '<div><span class="rp-eq-label" style="display:none">量詞</span><input type="text" style="width:100%;min-width:0;padding:3px 4px;font-size:11px;box-sizing:border-box" placeholder=""></div>' +
-        '<button type="button" class="c-del" onclick="this.closest(\'.c-row\').remove()" style="font-size:11px">✕</button></div>';
+    var d = data || {};
+    var html = '<div class="equip-item'+(d.checked?' eq-checked':'')+'">' +
+        '<input type="checkbox" onchange="toggleEqHighlight(this)"'+(d.checked?' checked':'')+'>' +
+        '<input type="text" placeholder="項目名稱" value="'+esc(d.name||'')+'" style="width:80px;min-width:60px;padding:4px 6px;font-size:13px;border:1px solid var(--border);border-radius:6px">' +
+        '<input type="number" min="0" value="'+(d.qty||'')+'" style="width:36px;min-width:36px;padding:4px 2px;border:1px solid var(--border);border-radius:6px;font-size:13px;text-align:center;-moz-appearance:textfield;appearance:textfield">' +
+        '<input type="text" placeholder="單位" value="'+esc(d.unit||'')+'" style="width:40px;min-width:40px;padding:4px 4px;font-size:11px;color:var(--muted);border:1px solid var(--border);border-radius:6px;text-align:center">' +
+        '<button type="button" class="c-del" onclick="this.parentElement.remove()" style="font-size:11px;flex-shrink:0">✕</button></div>';
     list.insertAdjacentHTML('beforeend', html);
 }
 function loadRpCustomEquips(block, equipData) {
     if (!equipData) return;
     var presetNames = [];
     Object.keys(EQUIP_CATS).forEach(function(cat){ EQUIP_CATS[cat].forEach(function(item){ presetNames.push(item[0]); }); });
-    var list = block.querySelector('.rp-equip-custom'); if (!list) return;
-    var customItems = Object.keys(equipData).filter(function(name){ return !presetNames.includes(name); });
-    if (customItems.length) {
-        list.insertAdjacentHTML('beforeend', '<div style="display:flex;gap:4px;align-items:center;font-size:11px;color:var(--muted);padding:2px 0"><span style="width:13px;flex-shrink:0"></span><span style="flex:1;padding-left:6px">項目</span><span style="width:36px;text-align:center;flex-shrink:0">數量</span><span style="width:28px;text-align:center">量詞</span><span style="width:16px"></span></div>');
-        customItems.forEach(function(name) {
-            var html = '<div class="c-row">' +
-                '<input type="checkbox" style="width:13px;height:13px;accent-color:var(--wood);flex-shrink:0" checked>' +
-                '<div><span class="rp-eq-label" style="display:none">項目</span><input type="text" style="width:100%;min-width:0;padding:3px 6px;font-size:12px;box-sizing:border-box" value="'+esc(name)+'"></div>' +
-                '<div><span class="rp-eq-label" style="display:none">數量</span><input type="number" min="0" value="'+equipData[name]+'" style="width:100%;min-width:0;padding:3px 2px;border:1px solid var(--border);border-radius:4px;font-size:11px;text-align:center;box-sizing:border-box"></div>' +
-                '<div><span class="rp-eq-label" style="display:none">量詞</span><input type="text" style="width:100%;min-width:0;padding:3px 4px;font-size:11px;box-sizing:border-box" value=""></div>' +
-                '<button type="button" class="c-del" onclick="this.closest(\'.c-row\').remove()" style="font-size:11px">✕</button></div>';
-            list.insertAdjacentHTML('beforeend', html);
-        });
-    }
+    var btn = block.querySelector('.add-row-btn');
+    if (!btn) return;
+    Object.keys(equipData).forEach(function(name) {
+        if (!presetNames.includes(name)) {
+            addRpCustomEquip(btn, {name:name, qty:equipData[name], checked:true});
+        }
+    });
 }
 function getRpEquipData(block) {
     var result = {};
@@ -4273,11 +4266,11 @@ function getRpEquipData(block) {
         if (chk && chk.checked && name) result[name] = parseInt(num.value) || 1;
     });
     // 自訂設備
-    block.querySelectorAll('.rp-equip-custom .c-row').forEach(function(row) {
-        var chk = row.querySelector('input[type="checkbox"]');
-        var inputs = row.querySelectorAll('input[type="text"]');
-        var numInput = row.querySelector('input[type="number"]');
-        var name = inputs[0] ? inputs[0].value.trim() : '';
+    block.querySelectorAll('.rp-equip-custom .equip-item').forEach(function(item) {
+        var chk = item.querySelector('input[type="checkbox"]');
+        var nameInput = item.querySelector('input[type="text"]');
+        var numInput = item.querySelector('input[type="number"]');
+        var name = nameInput ? nameInput.value.trim() : '';
         if (chk && chk.checked && name) result[name] = parseInt(numInput.value) || 1;
     });
     return result;
