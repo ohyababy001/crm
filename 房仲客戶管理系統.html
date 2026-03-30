@@ -828,11 +828,11 @@
             <!-- 客戶類型 -->
             <div class="sec-title">客戶類型 <span class="req">*</span></div>
             <div class="type-picker">
-                <button type="button" class="tp-btn tp-buyer"    onpointerdown="pickTypeDown('經營買方',this)" onpointerup="pickTypeUp('經營買方')" onpointerleave="clearTimeout(_pickHoldTimer)"    id="tp-經營買方">買方</button>
-                <button type="button" class="tp-btn tp-seller"   onpointerdown="pickTypeDown('庫存屋主',this)" onpointerup="pickTypeUp('庫存屋主')" onpointerleave="clearTimeout(_pickHoldTimer)"    id="tp-庫存屋主">庫存</button>
-                <button type="button" class="tp-btn tp-rental"   onpointerdown="pickTypeDown('租案管理',this)" onpointerup="pickTypeUp('租案管理')" onpointerleave="clearTimeout(_pickHoldTimer)"    id="tp-租案管理">租案</button>
-                <button type="button" class="tp-btn tp-closed"   onpointerdown="pickTypeDown('成交客戶',this)" onpointerup="pickTypeUp('成交客戶')" onpointerleave="clearTimeout(_pickHoldTimer)" id="tp-成交客戶">成交</button>
-                <button type="button" class="tp-btn tp-potential" onpointerdown="pickTypeDown('商機募集',this)" onpointerup="pickTypeUp('商機募集')" onpointerleave="clearTimeout(_pickHoldTimer)" id="tp-商機募集">商機</button>
+                <button type="button" class="tp-btn tp-buyer"    ontouchstart="pickTypeDown('經營買方',this)" ontouchend="pickTypeUp('經營買方')" onpointerdown="pickTypeDown('經營買方',this)" onpointerup="pickTypeUp('經營買方')" oncontextmenu="event.preventDefault()" style="touch-action:none;-webkit-user-select:none;user-select:none" id="tp-經營買方">買方</button>
+                <button type="button" class="tp-btn tp-seller"   ontouchstart="pickTypeDown('庫存屋主',this)" ontouchend="pickTypeUp('庫存屋主')" onpointerdown="pickTypeDown('庫存屋主',this)" onpointerup="pickTypeUp('庫存屋主')" oncontextmenu="event.preventDefault()" style="touch-action:none;-webkit-user-select:none;user-select:none" id="tp-庫存屋主">庫存</button>
+                <button type="button" class="tp-btn tp-rental"   ontouchstart="pickTypeDown('租案管理',this)" ontouchend="pickTypeUp('租案管理')" onpointerdown="pickTypeDown('租案管理',this)" onpointerup="pickTypeUp('租案管理')" oncontextmenu="event.preventDefault()" style="touch-action:none;-webkit-user-select:none;user-select:none" id="tp-租案管理">租案</button>
+                <button type="button" class="tp-btn tp-closed"   ontouchstart="pickTypeDown('成交客戶',this)" ontouchend="pickTypeUp('成交客戶')" onpointerdown="pickTypeDown('成交客戶',this)" onpointerup="pickTypeUp('成交客戶')" oncontextmenu="event.preventDefault()" style="touch-action:none;-webkit-user-select:none;user-select:none" id="tp-成交客戶">成交</button>
+                <button type="button" class="tp-btn tp-potential" ontouchstart="pickTypeDown('商機募集',this)" ontouchend="pickTypeUp('商機募集')" onpointerdown="pickTypeDown('商機募集',this)" onpointerup="pickTypeUp('商機募集')" oncontextmenu="event.preventDefault()" style="touch-action:none;-webkit-user-select:none;user-select:none" id="tp-商機募集">商機</button>
             </div>
 
             <!-- 基本資料 -->
@@ -5375,6 +5375,7 @@ var activeView = '';
 var _pickHoldTimer = null;
 var _pickDidHold = false;
 function pickTypeDown(t, btn) {
+    if (_pickHoldTimer) return; // 防止 touch+pointer 重複觸發
     _pickDidHold = false;
     _pickHoldTimer = setTimeout(function() {
         _pickDidHold = true;
@@ -5420,12 +5421,13 @@ function pickTypeDown(t, btn) {
     }, 500);
 }
 function pickTypeUp(t) {
-    clearTimeout(_pickHoldTimer);
+    if (_pickHoldTimer) { clearTimeout(_pickHoldTimer); _pickHoldTimer = null; }
     if (!_pickDidHold) {
         // 單擊 = 只切換檢視
         activeView = t;
         applyTypePicker();
     }
+    _pickDidHold = false;
 }
 function pickType(t) { /* 保留向下相容 */ activeView = t; applyTypePicker(); }
 
