@@ -1533,6 +1533,18 @@ DB.forEach(function(c) {
 localStorage.setItem('reCRM', JSON.stringify(DB));
 
 function getTypes(c) { return c.types && c.types.length ? c.types : (c.type ? [c.type] : []); }
+function getDisplayTypesForRole(c, cTypes) {
+    if (c._viewAs === 'landlord') {
+        var llTypes = c.rLandlordTypes;
+        if (!llTypes && !c.rTenantTypes) llTypes = cTypes.filter(function(t){ return t !== '租案管理'; });
+        return ['租案管理'].concat(llTypes || []);
+    } else if (c._viewAs === 'tenant') {
+        var ttTypes = c.rTenantTypes;
+        if (!ttTypes && !c.rLandlordTypes) ttTypes = [];
+        return ['租案管理'].concat(ttTypes || []);
+    }
+    return cTypes.slice();
+}
 function hasType(c, t) { return getTypes(c).includes(t); }
 
 let curFilter = 'all';
@@ -2329,31 +2341,37 @@ function getData() {
         list = list.filter(function(c){ if(c.sProperties&&c.sProperties.length){ return c.sProperties.some(function(sp){ return sp.grade===bfSGrade; }); } return (c.sGrade||'')===bfSGrade; });
     }
     // 租案管理/庫存屋主：強制按到期日排序
-    if (curFilter === '租案管理' || curFilter === '租案_房東' || curFilter === '租案_租客' || curFilter === '庫存屋主') {
-        var endField = (curFilter === '租案管理' || curFilter === '租案_房東' || curFilter === '租案_租客') ? 'rEndDate' : 'contractEnd';
+    var isRentalTab = curFilter === '租案管理' || curFilter === '租案_房東' || curFilter === '租案_租客';
+    if (isRentalTab || curFilter === '庫存屋主') {
+        var endField = isRentalTab ? 'rEndDate' : 'contractEnd';
         list.sort(function(a,b) { return (a[endField]||'9999-12-31').localeCompare(b[endField]||'9999-12-31'); });
     // 成交客戶：強制按成交次數排序（多→少）
     } else if (curFilter === '成交客戶') {
         list.sort(function(a,b) { return (b.deals||[]).length - (a.deals||[]).length; });
     } else {
         const s = document.getElementById('sortSel').value;
+        if (s === 'nextSchedule') {
+            var _today = localDateISO();
+            list.forEach(function(c) {
+                var next = (c.schedules||[]).filter(function(x){return x.date>=_today;}).sort(function(x,y){return x.date.localeCompare(y.date);})[0];
+                c._nextSchedDate = next ? next.date : '9999-12-31';
+            });
+        }
         list.sort((a,b) => {
             if (s==='newest') return (b.created||'').localeCompare(a.created||'');
             if (s==='oldest') return (a.created||'').localeCompare(b.created||'');
             if (s==='name')   return a.name.localeCompare(b.name,'zh');
             if (s==='lastContact') return (b.lastContact||'').localeCompare(a.lastContact||'');
             if (s==='nextSchedule') {
-                var aNext = (a.schedules||[]).filter(function(x){return x.date>=localDateISO();}).sort(function(x,y){return x.date.localeCompare(y.date);})[0];
-                var bNext = (b.schedules||[]).filter(function(x){return x.date>=localDateISO();}).sort(function(x,y){return x.date.localeCompare(y.date);})[0];
-                var aDate = aNext ? aNext.date : '9999-12-31';
-                var bDate = bNext ? bNext.date : '9999-12-31';
+                var aDate = a._nextSchedDate || '9999-12-31';
+                var bDate = b._nextSchedDate || '9999-12-31';
                 return aDate.localeCompare(bDate);
             }
             return 0;
         });
     }
     // 非租案頁面的租案客戶：根據角色標籤決定 _viewAs
-    if (curFilter !== '租案管理' && curFilter !== '租案_房東' && curFilter !== '租案_租客') {
+    if (!isRentalTab) {
         var newList = [];
         list.forEach(function(c) {
             if (!hasType(c, '租案管理')) { newList.push(c); return; }
@@ -2383,7 +2401,7 @@ function getData() {
         list = newList;
     }
     // 租案管理：拆分房東/租客卡片（搜尋時任何頁籤都拆分）
-    if (curFilter === '租案管理' || curFilter === '租案_房東' || curFilter === '租案_租客' || q) {
+    if (isRentalTab || q) {
         var expanded = [];
         list.forEach(function(c) {
             if (!hasType(c, '租案管理')) { expanded.push(c); return; }
@@ -2404,7 +2422,7 @@ function getData() {
         list = expanded;
     }
     // 拆分後二次過濾：搜尋時每張卡片只比對自己角色的名字（租案頁不過濾，保持綁在一起）
-    if (q && curFilter !== '租案管理' && curFilter !== '租案_房東' && curFilter !== '租案_租客') {
+    if (q && !isRentalTab) {
         list = list.filter(function(c) {
             if (!c._viewAs) return true; // 非租案卡片已在前面過濾過
             // 共用欄位已在前面過濾通過的保留
@@ -2666,16 +2684,7 @@ function renderCard(c) {
         var primaryType = (curFilter !== 'all' && cTypes.includes(curFilter)) ? curFilter : cTypes[0];
         const tc = TC[primaryType]||'buyer';
         // 根據角色顯示對應標籤，當前功能排第一
-        var displayTypes = cTypes.slice();
-        if (c._viewAs === 'landlord') {
-            var llTypes = c.rLandlordTypes;
-            if (!llTypes && !c.rTenantTypes) llTypes = cTypes.filter(function(t){ return t !== '租案管理'; });
-            displayTypes = ['租案管理'].concat(llTypes || []);
-        } else if (c._viewAs === 'tenant') {
-            var ttTypes = c.rTenantTypes;
-            if (!ttTypes && !c.rLandlordTypes) ttTypes = [];
-            displayTypes = ['租案管理'].concat(ttTypes || []);
-        }
+        var displayTypes = getDisplayTypesForRole(c, cTypes);
         if (curFilter !== 'all' && displayTypes.includes(curFilter)) {
             displayTypes = [curFilter].concat(displayTypes.filter(function(t){ return t !== curFilter; }));
         }
@@ -3239,18 +3248,7 @@ function showDet(id, viewAs) {
         var tt = (c.rTenants && c.rTenants[0]) || {name:c.rTenant,phone:c.rTenantPhone};
         detName = tt.name || c.name; detPhone = tt.phone || c.phone || '';
     }
-    var detDisplayTypes;
-    if (detViewAs === 'landlord') {
-        var _llTypes = c.rLandlordTypes;
-        if (!_llTypes && !c.rTenantTypes) _llTypes = cTypes.filter(function(t){ return t !== '租案管理'; });
-        detDisplayTypes = ['租案管理'].concat(_llTypes || []);
-    } else if (detViewAs === 'tenant') {
-        var _ttTypes = c.rTenantTypes;
-        if (!_ttTypes && !c.rLandlordTypes) _ttTypes = [];
-        detDisplayTypes = ['租案管理'].concat(_ttTypes || []);
-    } else {
-        detDisplayTypes = cTypes;
-    }
+    var detDisplayTypes = getDisplayTypesForRole({_viewAs:detViewAs, rLandlordTypes:c.rLandlordTypes, rTenantTypes:c.rTenantTypes}, cTypes);
     var primaryType = detDisplayTypes[0] || cTypes[0];
     const tc = TC[primaryType]||'buyer';
     const statusTag = !cTypes.includes('經營買方') && c.status ? `<span class="tag s-${c.status}">${c.status}</span>` : '';
