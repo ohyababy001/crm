@@ -1565,6 +1565,75 @@ function getMergedLandlordTypes(c) {
     return Object.keys(merged);
 }
 
+// ── 角色獨立資料 ──
+var ROLE_TAG_MAP = {'經營買方':'buyer','庫存屋主':'seller','成交客戶':'closed','商機募集':'dev'};
+var _roleFormCache = { landlord:{}, tenant:{} };
+
+function extractTagFields(tagType) {
+    var get = function(id){ var el=document.getElementById(id); return el?el.value.trim():''; };
+    if (tagType === '經營買方') {
+        return { bGrade:get('f-bGrade'), bName:get('f-bName'), bPhone:get('f-bPhone'), bIdNo:get('f-bIdNo'), bOccupation:get('f-bOccupation'), bBirthday:rocToISO(get('f-bBirthday')), bEmail:get('f-bEmail'), bSource:get('f-bSource'), bAddrType:get('f-bAddrType'), bZip:get('f-bZip'), bAddr:get('f-bAddr'), bBasicAddrs:getBuyerBasicAddrs(), bPersons:getBPersons(), bDemands:getBuyerDemands(), bAddrs:getBAddrs() };
+    }
+    if (tagType === '庫存屋主') {
+        return { sGrade:get('f-sGrade'), sName:get('f-sName'), sPhone:get('f-sPhone'), sIdNo:get('f-sIdNo'), sOccupation:get('f-sOccupation'), sBirthday:rocToISO(get('f-sBirthday')), sEmail:get('f-sEmail'), sSource:get('f-sSource'), sAddrType:get('f-sAddrType'), sZip:get('f-sZip'), sOwnerAddr:get('f-sOwnerAddr'), sPersons:getPersonBlocks('sPersonList'), sProperties:getSellerProperties() };
+    }
+    if (tagType === '成交客戶') {
+        return { cName:get('f-cName'), cPhone:get('f-cPhone'), cIdNo:get('f-cIdNo'), cOccupation:get('f-cOccupation'), cBirthday:rocToISO(get('f-cBirthday')), cEmail:get('f-cEmail'), cSource:get('f-cSource'), cAddrType:get('f-cAddrType'), cZip:get('f-cZip'), cAddr:get('f-cAddr'), cContacts:getCContacts(), cAddrs:getCAddrs(), deals:getDeals() };
+    }
+    if (tagType === '商機募集') {
+        return { dName:get('f-dName'), dPhone:get('f-dPhone'), dIdNo:get('f-dIdNo'), dOccupation:get('f-dOccupation'), dBirthday:rocToISO(get('f-dBirthday')), dEmail:get('f-dEmail'), dSource:get('f-dSource'), dAddrType:get('f-dAddrType'), dZip:get('f-dZip'), dAddr:get('f-dAddr'), dPersons:getDPersons(), dAddrs:getDAddrs(), schedules:getSchedules() };
+    }
+    return {};
+}
+function loadTagFields(tagType, d) {
+    if (!d) return;
+    var sv = function(id, v){ var el=document.getElementById(id); if(el) el.value = v||''; };
+    if (tagType === '經營買方') {
+        sv('f-bGrade',d.bGrade); sv('f-bName',d.bName); sv('f-bPhone',d.bPhone); sv('f-bIdNo',d.bIdNo); sv('f-bOccupation',d.bOccupation); sv('f-bBirthday',d.bBirthday?isoToROC(d.bBirthday):''); sv('f-bEmail',d.bEmail); sv('f-bSource',d.bSource); sv('f-bZip',d.bZip); sv('f-bAddr',d.bAddr);
+        if (d.bAddrType) { var at=document.getElementById('f-bAddrType'); if(at) at.value=d.bAddrType; }
+        document.getElementById('bBasicAddrList').innerHTML='';
+        if (d.bBasicAddrs && d.bBasicAddrs.length) d.bBasicAddrs.forEach(function(a){ addBuyerAddrRow('bBasicAddrList',a); });
+        clearPersonBlocks('bPersonList');
+        if (d.bPersons && d.bPersons.length) d.bPersons.forEach(function(p){ addBPersonRow(p); });
+        clearBuyerDemands();
+        if (d.bDemands && d.bDemands.length) d.bDemands.forEach(function(bd){ addBuyerDemand(bd); });
+        else addBuyerDemand();
+        clearBAddrs();
+        if (d.bAddrs && d.bAddrs.length) d.bAddrs.forEach(function(a){ addBAddr(a); });
+        document.querySelectorAll('.grade-btn[onclick*="bGrade"]').forEach(function(b){ b.classList.toggle('on', b.textContent===d.bGrade); });
+    }
+    if (tagType === '庫存屋主') {
+        sv('f-sGrade',d.sGrade); sv('f-sName',d.sName); sv('f-sPhone',d.sPhone); sv('f-sIdNo',d.sIdNo); sv('f-sOccupation',d.sOccupation); sv('f-sBirthday',d.sBirthday?isoToROC(d.sBirthday):''); sv('f-sEmail',d.sEmail); sv('f-sSource',d.sSource); sv('f-sZip',d.sZip); sv('f-sOwnerAddr',d.sOwnerAddr);
+        if (d.sAddrType) { var at=document.getElementById('f-sAddrType'); if(at) at.value=d.sAddrType; }
+        clearPersonBlocks('sPersonList');
+        if (d.sPersons && d.sPersons.length) d.sPersons.forEach(function(p){ addPersonBlock('sPersonList',p); });
+        clearSellerProperties();
+        if (d.sProperties && d.sProperties.length) d.sProperties.forEach(function(sp){ addSellerProperty(sp); });
+    }
+    if (tagType === '成交客戶') {
+        sv('f-cName',d.cName); sv('f-cPhone',d.cPhone); sv('f-cIdNo',d.cIdNo); sv('f-cOccupation',d.cOccupation); sv('f-cBirthday',d.cBirthday?isoToROC(d.cBirthday):''); sv('f-cEmail',d.cEmail); sv('f-cSource',d.cSource); sv('f-cZip',d.cZip); sv('f-cAddr',d.cAddr);
+        if (d.cAddrType) { var at=document.getElementById('f-cAddrType'); if(at) at.value=d.cAddrType; }
+        clearCRows();
+        if (d.cContacts && d.cContacts.length) d.cContacts.forEach(function(p){ addCContactRow(p); });
+        if (d.cAddrs && d.cAddrs.length) d.cAddrs.forEach(function(a){ addCAddrRow(a); });
+        clearDeals();
+        if (d.deals && d.deals.length) d.deals.forEach(function(dl){ addDealRow(dl); });
+    }
+    if (tagType === '商機募集') {
+        sv('f-dName',d.dName); sv('f-dPhone',d.dPhone); sv('f-dIdNo',d.dIdNo); sv('f-dOccupation',d.dOccupation); sv('f-dBirthday',d.dBirthday?isoToROC(d.dBirthday):''); sv('f-dEmail',d.dEmail); sv('f-dSource',d.dSource); sv('f-dZip',d.dZip); sv('f-dAddr',d.dAddr);
+        if (d.dAddrType) { var at=document.getElementById('f-dAddrType'); if(at) at.value=d.dAddrType; }
+        clearDPersons();
+        if (d.dPersons && d.dPersons.length) d.dPersons.forEach(function(p){ addDPersonRow(p); });
+        clearDAddrs();
+        if (d.dAddrs && d.dAddrs.length) d.dAddrs.forEach(function(a){ addDAddrRow(a); });
+        clearSchedules();
+        if (d.schedules && d.schedules.length) d.schedules.forEach(function(s){ addScheduleRow(s); });
+    }
+}
+function clearTagFields(tagType) {
+    loadTagFields(tagType, {});
+}
+
 let curFilter = 'all';
 let editId = null;
 let selectedRooms = [];
@@ -2760,38 +2829,46 @@ function renderCard(c) {
 
         // 中間欄 type-specific info
         let meta = '';
-        // 租客卡片強制顯示租案資料
+        // 角色獨立資料解析：根據 _viewAs 從 roleData 讀取
+        var _cardData = c;
         var showType = c._viewAs === 'tenant' ? '租案管理' :
             ((curFilter !== 'all' && cTypes.includes(curFilter)) ? curFilter : cTypes[0]);
+        if (c._viewAs && c.roleData && c.roleData[c._viewAs]) {
+            var _tagKey = ROLE_TAG_MAP[showType];
+            if (_tagKey && c.roleData[c._viewAs][_tagKey]) {
+                _cardData = Object.assign({}, c, c.roleData[c._viewAs][_tagKey]);
+            }
+        }
+        var cc = _cardData; // cc = 角色解析後的資料（用於 meta 顯示）
         if (showType==='經營買方') {
             // 選擇要顯示的需求：有篩選時顯示符合的需求，否則顯示第一組
             var _bd = null;
-            if (c.bDemands && c.bDemands.length) {
+            if (cc.bDemands && cc.bDemands.length) {
                 if (bfRooms.length) {
-                    _bd = c.bDemands.find(function(bd){ var rs=(bd.roomTypes||'').split(','); return bfRooms.some(function(r){return rs.includes(r);}); });
+                    _bd = cc.bDemands.find(function(bd){ var rs=(bd.roomTypes||'').split(','); return bfRooms.some(function(r){return rs.includes(r);}); });
                 } else if (bfCity) {
-                    _bd = c.bDemands.find(function(bd){ var cities=bd.areaCities||[]; return cities.includes(bfCity) || (bfCity==='其他' && cities.includes('其他縣市')); });
+                    _bd = cc.bDemands.find(function(bd){ var cities=bd.areaCities||[]; return cities.includes(bfCity) || (bfCity==='其他' && cities.includes('其他縣市')); });
                 }
-                if (!_bd) _bd = c.bDemands[0];
+                if (!_bd) _bd = cc.bDemands[0];
             }
-            var _area = _bd ? _bd.areaDisplay : c.areaDisplay;
-            var _rooms = _bd ? _bd.roomTypes : c.roomTypes;
-            var _budget = _bd ? _bd.budget : c.budget;
+            var _area = _bd ? _bd.areaDisplay : cc.areaDisplay;
+            var _rooms = _bd ? _bd.roomTypes : cc.roomTypes;
+            var _budget = _bd ? _bd.budget : cc.budget;
             if (_area) meta += `<div class="cmeta-row"><span class="cmeta-k">區域</span><span class="cmeta-v" style="white-space:pre-line;overflow:visible">${esc(_area)}</span></div>`;
             if (_rooms)   meta += `<div class="cmeta-row"><span class="cmeta-k">房型</span><span class="cmeta-v">${esc(_rooms)}</span></div>`;
             if (_budget)      meta += `<div class="cmeta-row"><span class="cmeta-k">預算</span><span class="cmeta-v">${esc(_budget)}${_budget.includes('萬')?'':'萬'}</span></div>`;
         } else if (showType==='庫存屋主') {
             // 根據等級篩選或優先度選擇顯示的物件
             var sp0 = {};
-            var _spCount = (c.sProperties && c.sProperties.length) || 0;
-            if (c.sProperties && c.sProperties.length) {
+            var _spCount = (cc.sProperties && cc.sProperties.length) || 0;
+            if (cc.sProperties && cc.sProperties.length) {
                 if (bfSGrade) {
                     // 篩選特定等級時，顯示該等級的物件
-                    sp0 = c.sProperties.find(function(sp){ return sp.grade === bfSGrade; }) || c.sProperties[0];
+                    sp0 = cc.sProperties.find(function(sp){ return sp.grade === bfSGrade; }) || cc.sProperties[0];
                 } else {
                     // 未篩選時，優先顯示最高等級（A > B > C > 無）
                     var gradeOrder = {A:0, B:1, C:2};
-                    var sorted = c.sProperties.slice().sort(function(a,b){
+                    var sorted = cc.sProperties.slice().sort(function(a,b){
                         var ga = (a.grade && gradeOrder[a.grade] !== undefined) ? gradeOrder[a.grade] : 3;
                         var gb = (b.grade && gradeOrder[b.grade] !== undefined) ? gradeOrder[b.grade] : 3;
                         return ga - gb;
@@ -2800,11 +2877,11 @@ function renderCard(c) {
                 }
             }
             if (_spCount > 1) meta += `<div class="cmeta-row"><span class="cmeta-k">物件數</span><span class="cmeta-v" style="color:#8B7355;font-weight:700">${_spCount} 間物件</span></div>`;
-            var _ct = c.contractType || sp0.contractType || '';
-            var _comm = c.community || sp0.community || '';
-            var _sAddr = c.sAddr || sp0.addr || '';
-            var _sPrice = c.sPrice || sp0.price || '';
-            var _sFloorPrice = c.sFloorPrice || sp0.floorPrice || '';
+            var _ct = cc.contractType || sp0.contractType || '';
+            var _comm = cc.community || sp0.community || '';
+            var _sAddr = cc.sAddr || sp0.addr || '';
+            var _sPrice = cc.sPrice || sp0.price || '';
+            var _sFloorPrice = cc.sFloorPrice || sp0.floorPrice || '';
             if (_ct) meta += `<div class="cmeta-row"><span class="cmeta-k">約種</span><span class="cmeta-v">${esc(_ct)}</span></div>`;
             if (_comm) meta += `<div class="cmeta-row"><span class="cmeta-k">社區</span><span class="cmeta-v">${esc(_comm)}</span></div>`;
             if (_sAddr) meta += `<div class="cmeta-row"><span class="cmeta-k">地址</span><span class="cmeta-v full">${esc(_sAddr)}</span></div>`;
@@ -2813,13 +2890,13 @@ function renderCard(c) {
                 meta += `<div class="cmeta-row"><span class="cmeta-k">開價</span><span class="cmeta-v">${priceDisp}</span></div>`;
             }
             // 坪數（從新欄位計算，向下相容舊欄位和sProperties）
-            var mainB = parseFloat(c.sMainBldg||sp0.mainBldg)||0, ancB = parseFloat(c.sAncBldg||sp0.ancBldg)||0, comB = parseFloat(c.sCommon||sp0.common)||0, pkSz = parseFloat(c.sParkingSz||sp0.parkingSz)||0;
+            var mainB = parseFloat(cc.sMainBldg||sp0.mainBldg)||0, ancB = parseFloat(cc.sAncBldg||sp0.ancBldg)||0, comB = parseFloat(cc.sCommon||sp0.common)||0, pkSz = parseFloat(cc.sParkingSz||sp0.parkingSz)||0;
             var bldgSz = mainB+ancB+comB;
-            var oldSz = parseFloat(String(c.sSz||'').replace(/[坪,]/g,''))||0;
+            var oldSz = parseFloat(String(cc.sSz||'').replace(/[坪,]/g,''))||0;
             var displaySz = bldgSz || oldSz;
             if (displaySz) {
-                var _pk = c.parking || sp0.parking || '';
-                var _pkPrice = c.parkingPrice || sp0.parkingPrice || '';
+                var _pk = cc.parking || sp0.parking || '';
+                var _pkPrice = cc.parkingPrice || sp0.parkingPrice || '';
                 const priceNum = parseFloat(String(_sPrice||'').replace(/[萬,]/g,'')) || 0;
                 const pkPriceNum = parseFloat(String(_pkPrice||'').replace(/[萬,]/g,'')) || 0;
                 let szDisp = displaySz.toFixed(2) + '坪';
@@ -2832,10 +2909,10 @@ function renderCard(c) {
                 }
                 meta += `<div class="cmeta-row"><span class="cmeta-k">登記</span><span class="cmeta-v">${szDisp}</span></div>`;
             }
-            var mgmtTotal = (parseFloat(c.sMgmtBuilding||sp0.mgmtBuilding)||0)+(parseFloat(c.sMgmtCar||sp0.mgmtCar)||0)+(parseFloat(c.sMgmtMoto||sp0.mgmtMoto)||0)+(parseFloat(c.sMgmtOther||sp0.mgmtOther)||0);
-            var _mgmtPeriod = c.sMgmtPeriod || sp0.mgmtPeriod || '';
+            var mgmtTotal = (parseFloat(cc.sMgmtBuilding||sp0.mgmtBuilding)||0)+(parseFloat(cc.sMgmtCar||sp0.mgmtCar)||0)+(parseFloat(cc.sMgmtMoto||sp0.mgmtMoto)||0)+(parseFloat(cc.sMgmtOther||sp0.mgmtOther)||0);
+            var _mgmtPeriod = cc.sMgmtPeriod || sp0.mgmtPeriod || '';
             if (mgmtTotal) meta += `<div class="cmeta-row"><span class="cmeta-k">管理費</span><span class="cmeta-v">${mgmtTotal.toLocaleString()}元${_mgmtPeriod?'／'+esc(_mgmtPeriod):''}</span></div>`;
-            var _cEnd = c.contractEnd || sp0.contractEnd || '';
+            var _cEnd = cc.contractEnd || sp0.contractEnd || '';
             if (_cEnd) meta += `<div class="cmeta-row"><span class="cmeta-k">到期日</span><span class="cmeta-v" style="color:#D97706;font-weight:700">${esc(isoToROC(_cEnd))}</span></div>`;
         } else if (showType==='租案管理') {
             if (c.rCommunity) meta += `<div class="cmeta-row"><span class="cmeta-k">社區</span><span class="cmeta-v">${esc(c.rCommunity)}</span></div>`;
@@ -2854,8 +2931,8 @@ function renderCard(c) {
                 meta += `<div class="cmeta-row"><span class="cmeta-k">續約</span><span class="cmeta-v" style="color:#065F46">已續約 ${c.renewals.length} 次</span></div>`;
             }
         } else if (showType==='成交客戶') {
-            var deals = c.deals || [];
-            if (!deals.length && (c.cProp||c.cPrice||c.cDate)) deals = [{date:c.cDate,community:'',addr:c.cProp,price:c.cPrice}];
+            var deals = cc.deals || [];
+            if (!deals.length && (cc.cProp||cc.cPrice||cc.cDate)) deals = [{date:cc.cDate,community:'',addr:cc.cProp,price:cc.cPrice}];
             var d = deals.length ? deals[deals.length - 1] : null;
             if (d) {
                 if (d.role) meta += `<div class="cmeta-row"><span class="cmeta-k">身份</span><span class="cmeta-v">${esc(d.role)}</span></div>`;
@@ -2865,16 +2942,16 @@ function renderCard(c) {
                 if (d.price) meta += `<div class="cmeta-row"><span class="cmeta-k">價格</span><span class="cmeta-v">${esc(d.price)}${d.price.includes('萬')?'':'萬'}</span></div>`;
             }
         } else if (showType==='商機募集') {
-            if (c.dAddrs && c.dAddrs.length) {
-                c.dAddrs.forEach(function(a) {
+            if (cc.dAddrs && cc.dAddrs.length) {
+                cc.dAddrs.forEach(function(a) {
                     var label = a.devType || '物件';
                     if (a.community) label += ' ' + esc(a.community);
                     meta += `<div class="cmeta-row"><span class="cmeta-k">${label}</span><span class="cmeta-v full">${esc(a.addr||'')}</span></div>`;
                 });
             } else {
-                if (c.devType) meta += `<div class="cmeta-row"><span class="cmeta-k">類別</span><span class="cmeta-v">${esc(c.devType)}</span></div>`;
-                if (c.dCommunity) meta += `<div class="cmeta-row"><span class="cmeta-k">社區</span><span class="cmeta-v">${esc(c.dCommunity)}</span></div>`;
-                if (c.dAddr) meta += `<div class="cmeta-row"><span class="cmeta-k">地址</span><span class="cmeta-v full">${esc(c.dAddr)}</span></div>`;
+                if (cc.devType) meta += `<div class="cmeta-row"><span class="cmeta-k">類別</span><span class="cmeta-v">${esc(cc.devType)}</span></div>`;
+                if (cc.dCommunity) meta += `<div class="cmeta-row"><span class="cmeta-k">社區</span><span class="cmeta-v">${esc(cc.dCommunity)}</span></div>`;
+                if (cc.dAddr) meta += `<div class="cmeta-row"><span class="cmeta-k">地址</span><span class="cmeta-v full">${esc(cc.dAddr)}</span></div>`;
             }
             if (c.schedules && c.schedules.length) {
                 var todayISO = localDateISO();
@@ -2981,7 +3058,15 @@ function editNoteInline(id, el) {
 // ── Detail ──
 function dRow(k,v){ return v?`<div class="det-row"><span class="det-key">${k}</span><span class="det-val">${esc(v)}</span></div>`:''; }
 
-function typeDetail(c) {
+function typeDetail(origC, viewAs) {
+    // 角色獨立資料：根據 viewAs 從 roleData 取得對應資料
+    var c = origC;
+    if (viewAs && origC.roleData && origC.roleData[viewAs]) {
+        var tagKey = ROLE_TAG_MAP[origC.type];
+        if (tagKey && origC.roleData[viewAs][tagKey]) {
+            c = Object.assign({}, origC, origC.roleData[viewAs][tagKey]);
+        }
+    }
     if (c.type==='經營買方') {
         var rows = [
             (c.bGrade ? `<div class="det-row"><span class="det-key">客戶等級</span><span class="det-val"><span class="tag grade-tag-${c.bGrade.toLowerCase()}" style="font-size:14px;padding:3px 12px">${c.bGrade}級</span></span></div>` : '')
@@ -3308,7 +3393,7 @@ function showDet(id, viewAs) {
     var allTd = '';
     orderedTypes.forEach(function(t, idx) {
         var origType = c.type; c.type = t;
-        var td = typeDetail(c);
+        var td = typeDetail(c, detViewAs);
         c.type = origType;
         if (!td) return;
         var isPrimary = idx === 0;
@@ -4366,13 +4451,34 @@ initCContactHeader();
 // ── 租案子頁籤 ──
 var activeRentalTab = '房東';
 function switchRentalTab(tab) {
+    // 儲存舊角色的表單資料到快取
+    var oldRole = activeRentalTab === '租客' ? 'tenant' : 'landlord';
+    var oldRoleTypes = oldRole === 'tenant' ? rTenantTypes : rLandlordTypes;
+    oldRoleTypes.forEach(function(t) {
+        var key = ROLE_TAG_MAP[t];
+        if (key) _roleFormCache[oldRole][key] = extractTagFields(t);
+    });
+
     activeRentalTab = tab;
     document.getElementById('rPage-房東').style.display = tab==='房東' ? '' : 'none';
     document.getElementById('rPage-租客').style.display = tab==='租客' ? '' : 'none';
     document.getElementById('rTab-房東').classList.toggle('selected', tab==='房東');
     document.getElementById('rTab-租客').classList.toggle('selected', tab==='租客');
-    // 更新頂部類型按鈕高亮：只顯示已選中(selectedTypes)+當前角色的標籤（不影響房東/租客頁籤按鈕）
-    var roleTypes = tab === '租客' ? rTenantTypes : rLandlordTypes;
+
+    // 載入新角色的表單資料
+    var newRole = tab === '租客' ? 'tenant' : 'landlord';
+    var newRoleTypes = newRole === 'tenant' ? rTenantTypes : rLandlordTypes;
+    var allTags = ['經營買方','庫存屋主','成交客戶','商機募集'];
+    // 先清空所有非租案的表單
+    allTags.forEach(function(t) { clearTagFields(t); });
+    // 再載入新角色的資料
+    newRoleTypes.forEach(function(t) {
+        var key = ROLE_TAG_MAP[t];
+        if (key && _roleFormCache[newRole][key]) loadTagFields(t, _roleFormCache[newRole][key]);
+    });
+
+    // 更新頂部類型按鈕高亮
+    var roleTypes = newRoleTypes;
     var showSelected = ['租案管理'].concat(roleTypes);
     document.querySelectorAll('.type-picker .tp-btn').forEach(function(b) {
         var t = b.id.replace('tp-','');
@@ -5274,12 +5380,26 @@ function pickTypeDown(t, btn) {
         _pickDidHold = true;
         // 租案管理加掛其他標籤：根據當前房東/租客頁面分開存
         if (t !== '租案管理' && selectedTypes.includes('租案管理') && activeView === '租案管理') {
-            var roleArr = activeRentalTab === '租客' ? rTenantTypes : rLandlordTypes;
+            var curRole = activeRentalTab === '租客' ? 'tenant' : 'landlord';
+            var roleArr = curRole === 'tenant' ? rTenantTypes : rLandlordTypes;
             var roleIdx = roleArr.indexOf(t);
             if (roleIdx >= 0) {
                 roleArr.splice(roleIdx, 1);
             } else {
                 roleArr.push(t);
+                // 自動預填角色的姓名/電話到新加掛的功能
+                var key = ROLE_TAG_MAP[t];
+                if (key && !_roleFormCache[curRole][key]) {
+                    var nameMap = {buyer:'bName',seller:'sName',closed:'cName',dev:'dName'};
+                    var phoneMap = {buyer:'bPhone',seller:'sPhone',closed:'cPhone',dev:'dPhone'};
+                    var srcName = curRole === 'landlord' ? (document.getElementById('f-llName').value||'') : (document.getElementById('f-ttName').value||'');
+                    var srcPhone = curRole === 'landlord' ? (document.getElementById('f-llPhone').value||'') : (document.getElementById('f-ttPhone').value||'');
+                    var prefill = {};
+                    prefill[nameMap[key]] = srcName;
+                    prefill[phoneMap[key]] = srcPhone;
+                    _roleFormCache[curRole][key] = prefill;
+                    loadTagFields(t, prefill);
+                }
             }
             syncRentalTypes();
             applyTypePicker();
@@ -5706,6 +5826,7 @@ const SIMPLE_FIELDS = ['fn','fp','f-idNo','fe','fs','flc','fso','fnotes',
     ];
 
 function resetForm() {
+    _roleFormCache = { landlord:{}, tenant:{} };
     SIMPLE_FIELDS.forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
     document.getElementById('ft').value = '';
     document.getElementById('fs').value = '待聯絡';
@@ -5928,7 +6049,31 @@ function openEdit(id, viewAs) {
     var rentalOnly = hasType(c,'租案管理') && !hasType(c,'經營買方');
     setVal('f-rSource',c.rSource || (rentalOnly ? c.source : ''));
     // rEquipment 現在由 rProperties 區塊處理
-    if (hasType(c,'租案管理')) loadRoleTypes(c);
+    if (hasType(c,'租案管理')) {
+        loadRoleTypes(c);
+        // 初始化角色資料快取
+        _roleFormCache = { landlord:{}, tenant:{} };
+        if (c.roleData) {
+            if (c.roleData.landlord) Object.keys(c.roleData.landlord).forEach(function(k){ _roleFormCache.landlord[k] = c.roleData.landlord[k]; });
+            if (c.roleData.tenant) Object.keys(c.roleData.tenant).forEach(function(k){ _roleFormCache.tenant[k] = c.roleData.tenant[k]; });
+        } else {
+            // 舊資料遷移：沒有 roleData，把現有扁平資料歸到房東
+            rLandlordTypes.forEach(function(t) {
+                var key = ROLE_TAG_MAP[t];
+                if (!key) return;
+                _roleFormCache.landlord[key] = extractTagFields(t);
+            });
+        }
+        // 根據進入的角色載入對應資料
+        var initRole = _editViewAs === 'tenant' ? 'tenant' : 'landlord';
+        var initTab = initRole === 'tenant' ? '租客' : '房東';
+        activeRentalTab = initTab;
+        var initRoleTypes = initRole === 'tenant' ? rTenantTypes : rLandlordTypes;
+        initRoleTypes.forEach(function(t) {
+            var key = ROLE_TAG_MAP[t];
+            if (key && _roleFormCache[initRole][key]) loadTagFields(t, _roleFormCache[initRole][key]);
+        });
+    }
     // 租案物件資料區塊
     if (c.rProperties && c.rProperties.length) {
         c.rProperties.forEach(function(rp){ addRentalProperty(rp); });
@@ -6220,6 +6365,19 @@ function saveClient() {
         cDriveUrl: editId ? (DB.find(function(x){return x.id===editId;})||{}).cDriveUrl||'' : '',
         dDriveUrl: editId ? (DB.find(function(x){return x.id===editId;})||{}).dDriveUrl||'' : '',
     };
+    // 租案：儲存角色獨立資料
+    if (selectedTypes.includes('租案管理')) {
+        // 先儲存當前頁籤的表單到快取
+        var curRole = activeRentalTab === '租客' ? 'tenant' : 'landlord';
+        var curRoleTypes = curRole === 'tenant' ? rTenantTypes : rLandlordTypes;
+        curRoleTypes.forEach(function(t) {
+            var key = ROLE_TAG_MAP[t];
+            if (key) _roleFormCache[curRole][key] = extractTagFields(t);
+        });
+        data.roleData = { landlord:{}, tenant:{} };
+        rLandlordTypes.forEach(function(t) { var key=ROLE_TAG_MAP[t]; if(key && _roleFormCache.landlord[key]) data.roleData.landlord[key]=_roleFormCache.landlord[key]; });
+        rTenantTypes.forEach(function(t) { var key=ROLE_TAG_MAP[t]; if(key && _roleFormCache.tenant[key]) data.roleData.tenant[key]=_roleFormCache.tenant[key]; });
+    }
 
     if (editId) {
         const i=DB.findIndex(c=>c.id===editId);
