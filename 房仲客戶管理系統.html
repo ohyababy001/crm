@@ -4720,8 +4720,8 @@ function buildDriveFolderName(type, prop, client) {
         var llName = client.llName || (client.rLandlords && client.rLandlords[0] ? client.rLandlords[0].name : '') || client.rLandlord || '';
         var ttName = client.ttName || (client.rTenants && client.rTenants[0] ? client.rTenants[0].name : '') || client.rTenant || '';
         if (llName && ttName) namePart = '[房東]' + llName + '-[租客]' + ttName;
-        else if (llName) namePart = llName;
-        else if (ttName) namePart = ttName;
+        else if (llName) namePart = '[房東]' + llName;
+        else if (ttName) namePart = '[租客]' + ttName;
         else namePart = '未填姓名';
     } else {
         namePart = (typeof client === 'object' ? (client.sName || client.name || '') : client) || '未填姓名';
@@ -4768,6 +4768,7 @@ function openDriveFolder(clientId) {
             html += '<div style="display:flex;gap:6px;margin-bottom:6px">' +
                 '<button type="button" style="flex:1;text-align:left;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px" onclick="window.open(\''+esc(a.url)+'\',\'_blank\')">📂 '+tag+esc(a.label)+'</button>' +
                 '<button type="button" style="padding:10px 8px;border:1px solid var(--border);border-radius:8px;background:var(--bg);cursor:pointer;font-size:11px;color:var(--muted)" onclick="cardSetDriveFolder(\''+esc(clientId)+'\',\''+a.src+'\','+a.idx+')">重設</button>' +
+                '<button type="button" style="padding:10px 8px;border:1px solid var(--border);border-radius:8px;background:var(--bg);cursor:pointer;font-size:11px;color:#EF4444" onclick="cardDelDriveFolder(\''+esc(clientId)+'\',\''+a.src+'\','+a.idx+',\''+esc(a.urlKey)+'\')">刪除</button>' +
             '</div>';
         } else {
             html += '<button type="button" style="display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:6px;border:1px dashed var(--border);border-radius:8px;background:var(--bg);cursor:pointer;font-size:13px;color:var(--muted)" onclick="cardSetDriveFolder(\''+esc(clientId)+'\',\''+a.src+'\','+a.idx+')">📁 '+tag+esc(a.label)+' — 點擊設定</button>';
@@ -4834,7 +4835,15 @@ function cardSetDriveFolder(clientId, src, propIdx) {
         overlay.remove();
     };
 }
-
+function cardDelDriveFolder(clientId, src, propIdx, urlKey) {
+    if (!confirm('確定刪除此雲端資料夾連結？')) return;
+    var c = DB.find(function(x){ return x.id === clientId; });
+    if (!c || !c[src] || !c[src][propIdx]) return;
+    c[src][propIdx][urlKey] = '';
+    persist(); render();
+    var overlay = document.querySelector('.fill-overlay');
+    if (overlay) overlay.remove();
+}
 
 
 // ── 條件按鈕 ──
