@@ -5267,7 +5267,10 @@ function pickTypeDown(t, btn) {
 function pickTypeUp(t) {
     clearTimeout(_pickHoldTimer);
     if (!_pickDidHold) {
-        // 單擊 = 只切換檢視
+        // 單擊 = 切換檢視，若未選中則同時選中
+        if (!selectedTypes.includes(t)) {
+            selectedTypes.push(t);
+        }
         activeView = t;
         applyTypePicker();
     }
