@@ -1305,14 +1305,22 @@
 <div id="trashModal" class="overlay" style="display:none" onmousedown="if(event.target===this)closeTrash()">
     <div class="modal" style="max-width:600px" onclick="event.stopPropagation()">
         <div class="modal-head">
-            <div class="modal-title">🗑️ 資源回收桶</div>
+            <div class="modal-title" id="trashModalTitle">🗑️ 資源回收桶</div>
             <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
-                <button class="btn btn-cancel" onclick="emptyTrash()" style="font-size:12px;padding:5px 12px">清空回收桶</button>
+                <span id="trashEmptyBtn"><button class="btn btn-cancel" onclick="emptyTrash()" style="font-size:12px;padding:5px 12px">清空回收桶</button></span>
                 <button class="btn-x" onclick="closeTrash()">✕</button>
             </div>
         </div>
+        <div style="display:flex;border-bottom:1px solid var(--border)">
+            <button id="trashTab-trash" onclick="switchTrashTab('trash')" style="flex:1;padding:10px;border:none;background:var(--deep);color:white;cursor:pointer;font-size:14px;font-weight:600">🗑️ 已刪除</button>
+            <button id="trashTab-archived" onclick="switchTrashTab('archived')" style="flex:1;padding:10px;border:none;background:white;color:var(--text);cursor:pointer;font-size:14px;font-weight:600">📥 已封存</button>
+        </div>
+        <div id="trashSearchWrap" style="display:none;padding:8px 12px;border-bottom:1px solid var(--border)">
+            <input id="trashSearchInput" type="text" placeholder="搜尋封存客戶..." oninput="renderArchivedTypes()" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;box-sizing:border-box">
+        </div>
         <div class="modal-body" style="padding:0">
             <div id="trashList"></div>
+            <div id="archivedTypesList" style="display:none"></div>
         </div>
     </div>
 </div>
@@ -2305,6 +2313,10 @@ function getData() {
             return false;
         });
         if (!showArchived) list = list.filter(c => !c.archived);
+        // 排除標籤已封存的客戶（只在非總覽、非租案頁）
+        if (curFilter !== 'all' && curFilter !== '租案管理' && curFilter !== '租案_房東' && curFilter !== '租案_租客') {
+            list = list.filter(function(c) { return !(c.archivedTypes && c.archivedTypes.includes(curFilter)); });
+        }
     }
     if (q) list = list.filter(function(c) {
         // 共用欄位
@@ -2725,8 +2737,11 @@ function renderCard(c) {
         if (curFilter !== 'all' && displayTypes.includes(curFilter)) {
             displayTypes = [curFilter].concat(displayTypes.filter(function(t){ return t !== curFilter; }));
         }
+        var _archTypes = c.archivedTypes || [];
         const typeTags = displayTypes.map(t => {
-            if (t === '經營買方' && c.bGrade) return `<span class="tag grade-tag-${c.bGrade.toLowerCase()}">${c.bGrade}級買方</span>`;
+            if (_archTypes.includes(t)) return ''; // 已封存的標籤不顯示
+            var tagLabel = TYPE_DISPLAY[t]||t;
+            if (t === '經營買方' && c.bGrade) tagLabel = c.bGrade+'級買方';
             if (t === '庫存屋主') {
                 var _spG = '';
                 if (c.sProperties && c.sProperties.length) {
@@ -2734,9 +2749,10 @@ function renderCard(c) {
                     else { var _go = {A:0,B:1,C:2}; var _sorted = c.sProperties.slice().sort(function(a,b){ return ((_go[a.grade]!==undefined?_go[a.grade]:3))-((_go[b.grade]!==undefined?_go[b.grade]:3)); }); _spG = _sorted[0].grade || ''; }
                 }
                 if (!_spG) _spG = c.sGrade || '';
-                if (_spG) return `<span class="tag grade-tag-${_spG.toLowerCase()}">${_spG}級庫存</span>`;
+                if (_spG) tagLabel = _spG+'級庫存';
             }
-            return `<span class="tag t-${TC[t]||'buyer'}">${TYPE_DISPLAY[t]||t}</span>`;
+            var tagClass = (t === '經營買方' && c.bGrade) ? 'grade-tag-'+c.bGrade.toLowerCase() : ((t === '庫存屋主' && _spG) ? 'grade-tag-'+_spG.toLowerCase() : 't-'+(TC[t]||'buyer'));
+            return `<span class="tag ${tagClass}" onclick="event.stopPropagation()" onpointerdown="tagArchDown('${c.id}','${t}',this)" onpointerup="tagArchUp()" onpointerleave="tagArchUp()">${tagLabel}</span>`;
         }).join('');
         const statusTag = !cTypes.includes('經營買方') && c.status ? `<span class="tag s-${c.status}">${c.status}</span>` : '';
         const notesText = c.notes ? c.notes.replace(/[\r\n]+/g,' ').replace(/\s+/g,' ').trim() : '';
@@ -5108,6 +5124,25 @@ function cardDelDriveFolder(clientId, src, propIdx, urlKey) {
 }
 
 // ── 同房東關聯 ──
+// ── 標籤長按封存 ──
+var _tagArchTimer = null;
+function tagArchDown(clientId, type, el) {
+    _tagArchTimer = setTimeout(function() {
+        _tagArchTimer = null;
+        if (navigator.vibrate) navigator.vibrate(50);
+        var typeName = TYPE_DISPLAY[type] || type;
+        if (!confirm('封存「' + typeName + '」功能？\n此客戶在' + typeName + '頁面將不再顯示。')) return;
+        var c = DB.find(function(x){ return x.id === clientId; });
+        if (!c) return;
+        if (!c.archivedTypes) c.archivedTypes = [];
+        if (!c.archivedTypes.includes(type)) c.archivedTypes.push(type);
+        persist(); render();
+    }, 600);
+}
+function tagArchUp() {
+    if (_tagArchTimer) { clearTimeout(_tagArchTimer); _tagArchTimer = null; }
+}
+
 function showSameLandlord(llName, llPhone, currentId) {
     var llKey = (llName + '_' + llPhone).toLowerCase();
     var related = DB.filter(function(c) {
@@ -6207,6 +6242,7 @@ function saveClient() {
         bDriveUrl: editId ? (DB.find(function(x){return x.id===editId;})||{}).bDriveUrl||'' : '',
         cDriveUrl: editId ? (DB.find(function(x){return x.id===editId;})||{}).cDriveUrl||'' : '',
         dDriveUrl: editId ? (DB.find(function(x){return x.id===editId;})||{}).dDriveUrl||'' : '',
+        archivedTypes: editId ? (DB.find(function(x){return x.id===editId;})||{}).archivedTypes||[] : [],
     };
 
     if (editId) {
@@ -6503,13 +6539,60 @@ function deletePerfRecord(idx) {
     renderPerformance();
 }
 
+var _trashTab = 'trash';
 function openTrash() {
-    renderTrash();
+    switchTrashTab('trash');
     document.getElementById('trashModal').style.display = 'flex';
 }
 function closeTrash() {
     document.getElementById('trashModal').style.display = 'none';
     render();
+}
+function switchTrashTab(tab) {
+    _trashTab = tab;
+    document.getElementById('trashTab-trash').style.background = tab==='trash' ? 'var(--deep)' : 'white';
+    document.getElementById('trashTab-trash').style.color = tab==='trash' ? 'white' : 'var(--text)';
+    document.getElementById('trashTab-archived').style.background = tab==='archived' ? 'var(--deep)' : 'white';
+    document.getElementById('trashTab-archived').style.color = tab==='archived' ? 'white' : 'var(--text)';
+    document.getElementById('trashList').style.display = tab==='trash' ? '' : 'none';
+    document.getElementById('archivedTypesList').style.display = tab==='archived' ? '' : 'none';
+    document.getElementById('trashEmptyBtn').style.display = tab==='trash' ? '' : 'none';
+    document.getElementById('trashSearchWrap').style.display = tab==='archived' ? '' : 'none';
+    if (tab==='trash') renderTrash();
+    else renderArchivedTypes();
+}
+function renderArchivedTypes() {
+    var q = (document.getElementById('trashSearchInput').value || '').trim().toLowerCase();
+    var items = [];
+    DB.forEach(function(c) {
+        if (c._deleted || !c.archivedTypes || !c.archivedTypes.length) return;
+        c.archivedTypes.forEach(function(t) {
+            var name = c.name || c.llName || c.bName || c.sName || '';
+            var phone = c.phone || '';
+            if (q && !name.toLowerCase().includes(q) && !phone.includes(q)) return;
+            items.push({ id:c.id, name:name, phone:phone, type:t, typeName:TYPE_DISPLAY[t]||t });
+        });
+    });
+    var el = document.getElementById('archivedTypesList');
+    if (!items.length) {
+        el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">沒有封存的功能標籤</div>';
+        return;
+    }
+    el.innerHTML = items.map(function(item) {
+        return '<div style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--bg)">' +
+            '<div style="flex:1"><span style="font-weight:700;font-size:14px">'+esc(item.name)+'</span> <span style="color:var(--muted);font-size:12px">'+esc(item.phone)+'</span></div>' +
+            '<span class="tag t-'+(TC[item.type]||'buyer')+'" style="font-size:12px">'+esc(item.typeName)+'</span>' +
+            '<button onclick="unarchiveType(\''+esc(item.id)+'\',\''+esc(item.type)+'\')" style="padding:5px 12px;border:1px solid #059669;border-radius:6px;background:#ECFDF5;color:#059669;cursor:pointer;font-size:12px;font-weight:600">解封</button>' +
+        '</div>';
+    }).join('');
+}
+function unarchiveType(clientId, type) {
+    var c = DB.find(function(x){ return x.id === clientId; });
+    if (!c || !c.archivedTypes) return;
+    c.archivedTypes = c.archivedTypes.filter(function(t){ return t !== type; });
+    if (!c.archivedTypes.length) delete c.archivedTypes;
+    persist();
+    renderArchivedTypes();
 }
 function emptyTrash() {
     var trashCount = DB.filter(function(c){ return c._deleted; }).length;
