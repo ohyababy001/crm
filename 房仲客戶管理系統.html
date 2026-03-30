@@ -4226,16 +4226,12 @@ function addRentalProperty(data) {
             '<button type="button" class="add-row-btn" onclick="addRpCustomEquip(this)" style="margin-top:4px">＋ 新增其他</button>' +
         '</div>' +
         '<div class="rp-equip-summary" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"></div>' +
-        // 雲端資料夾
-        '<div style="display:flex;gap:6px;margin-top:8px;align-items:center">' +
-            '<button type="button" class="bf-chip" onclick="rpDriveFolder(this)" oncontextmenu="event.preventDefault();rpSetDriveFolder(this)" style="padding:8px 12px;font-size:13px;white-space:nowrap">'+(d.rpDriveUrl?'📂 開啟雲端資料夾':'📁 建立雲端資料夾')+'</button>' +
-            '<input type="hidden" data-f="driveUrl" value="'+esc(d.rpDriveUrl||'')+'">' +
-        '</div>' +
     '</div>';
     document.getElementById('rPropertyList').insertAdjacentHTML('beforeend', html);
     var block = document.getElementById(pid);
     if (block) {
         block._rpRenewals = d.rpRenewals || [];
+        block._rpDriveUrl = d.rpDriveUrl || '';
         calcRpMgmt(block.querySelector('[data-f="mgmtBuilding"]'));
         // 載入自訂設備
         if (d.rEquipment) loadRpCustomEquips(block, d.rEquipment);
@@ -4403,86 +4399,12 @@ function getRentalProperties() {
     document.querySelectorAll('#rPropertyList .person-block').forEach(function(block) {
         var get = function(f){ var el=block.querySelector('[data-f="'+f+'"]'); return el?el.value.trim():''; };
         if (get('community') || get('addr') || get('rent')) {
-            r.push({ rCommunity:get('community'), rAddr:get('addr'), rent:get('rent'), rRentPeriod:get('rentPeriod'), rSz:get('sz'), rParking:get('parking'), rParkingNo:get('parkingNo'), rMgmtType:get('mgmtType'), rMgmtBuilding:get('mgmtBuilding'), rMgmtCar:get('mgmtCar'), rMgmtMoto:get('mgmtMoto'), rMgmtOther:get('mgmtOther'), rStartDate:rocToISO(get('startDate')), rEndDate:rocToISO(get('endDate')), rpRenewals: block._rpRenewals || [], rEquipment: getRpEquipData(block), rpDriveUrl: get('driveUrl') });
+            r.push({ rCommunity:get('community'), rAddr:get('addr'), rent:get('rent'), rRentPeriod:get('rentPeriod'), rSz:get('sz'), rParking:get('parking'), rParkingNo:get('parkingNo'), rMgmtType:get('mgmtType'), rMgmtBuilding:get('mgmtBuilding'), rMgmtCar:get('mgmtCar'), rMgmtMoto:get('mgmtMoto'), rMgmtOther:get('mgmtOther'), rStartDate:rocToISO(get('startDate')), rEndDate:rocToISO(get('endDate')), rpRenewals: block._rpRenewals || [], rEquipment: getRpEquipData(block), rpDriveUrl: block._rpDriveUrl || '' });
         }
     });
     return r;
 }
 function clearRentalProperties() { document.getElementById('rPropertyList').innerHTML = ''; rPropId = 0; }
-
-// ── 租案物件雲端資料夾 ──
-function rpBuildFolderName(block) {
-    var get = function(f){ var el=block.querySelector('[data-f="'+f+'"]'); return el?el.value.trim():''; };
-    var addr = get('addr') || '未填地址';
-    var startDate = get('startDate');
-    var dateStr = '';
-    if (startDate) {
-        // ROC date format: 114/06/01 -> 1140601
-        dateStr = startDate.replace(/\//g, '');
-    } else {
-        // fallback to today
-        var now = new Date();
-        var y = now.getFullYear() - 1911;
-        var m = String(now.getMonth()+1).padStart(2,'0');
-        var dd = String(now.getDate()).padStart(2,'0');
-        dateStr = y + m + dd;
-    }
-    var name = (document.getElementById('f-llName').value || document.getElementById('f-ttName').value || '').trim() || '未填姓名';
-    return '【租案】' + dateStr + '-' + addr + '-' + name;
-}
-function rpDriveFolder(btn) {
-    var block = btn.closest('.person-block'); if (!block) return;
-    var urlInput = block.querySelector('[data-f="driveUrl"]');
-    var url = urlInput ? urlInput.value.trim() : '';
-    if (url) {
-        window.open(url, '_blank');
-    } else {
-        rpSetDriveFolder(btn);
-    }
-}
-function rpSetDriveFolder(btn) {
-    var block = btn.closest('.person-block'); if (!block) return;
-    var urlInput = block.querySelector('[data-f="driveUrl"]');
-    var folderName = rpBuildFolderName(block);
-    var overlay = document.createElement('div');
-    overlay.className = 'fill-overlay';
-    var box = document.createElement('div');
-    box.className = 'fill-menu';
-    box.style.padding = '16px'; box.style.maxWidth = '420px';
-    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">建立雲端資料夾</div>' +
-        '<div style="font-size:13px;color:var(--muted);margin-bottom:8px">步驟 1：複製建議名稱，到 Google Drive 新建資料夾</div>' +
-        '<div style="display:flex;gap:6px;margin-bottom:12px">' +
-            '<input id="rpFolderName" value="'+esc(folderName)+'" readonly style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)">' +
-            '<button type="button" id="rpCopyNameBtn" style="padding:8px 12px;border:none;border-radius:8px;background:#8B5CF6;color:white;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap">複製</button>' +
-        '</div>' +
-        '<div style="font-size:13px;color:var(--muted);margin-bottom:8px">步驟 2：將資料夾連結貼到下方</div>' +
-        '<input id="rpFolderUrl" placeholder="貼上 Google Drive 資料夾連結" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:12px" value="'+(urlInput?esc(urlInput.value):'')+'">' +
-        '<div style="display:flex;gap:8px;justify-content:flex-end">' +
-            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
-            '<button type="button" id="rpFolderSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#8B5CF6;color:white;cursor:pointer;font-size:14px;font-weight:600">儲存</button>' +
-        '</div>';
-    overlay.appendChild(box);
-    overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
-    document.body.appendChild(overlay);
-    document.getElementById('rpCopyNameBtn').onclick = function() {
-        var nameInput = document.getElementById('rpFolderName');
-        navigator.clipboard.writeText(nameInput.value).then(function() {
-            var b = document.getElementById('rpCopyNameBtn');
-            b.textContent = '已複製';
-            setTimeout(function(){ b.textContent = '複製'; }, 1500);
-        });
-    };
-    document.getElementById('rpFolderSaveBtn').onclick = function() {
-        var url = document.getElementById('rpFolderUrl').value.trim();
-        if (url && url.indexOf('drive.google.com') === -1 && url.indexOf('docs.google.com') === -1 && url.indexOf('onedrive') === -1 && url.indexOf('sharepoint') === -1) {
-            alert('請貼上有效的雲端資料夾連結');
-            return;
-        }
-        if (urlInput) urlInput.value = url;
-        btn.innerHTML = url ? '📂 開啟雲端資料夾' : '📁 建立雲端資料夾';
-        overlay.remove();
-    };
-}
 
 // renewLease 已由 renewRpContract 取代
 // renderRRenewals 已由 showRpRenewalHistory 取代
