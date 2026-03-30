@@ -5519,7 +5519,7 @@ function fillSearchDB(val, target, overlay) {
     if (!val) { results.innerHTML = ''; return; }
     var matches = [];
     var fieldMap = {
-        'landlord': function(c) { return [{name:c.llName, phone:c.llPhone, idNo:c.llIdNo, occupation:c.llOccupation, birthday:c.llBirthday?isoToROC(c.llBirthday):'', email:c.llEmail, source:c.llSource, addrType:c.llAddrType, zip:c.llZip, addr:c.llAddr, bank:c.llBank, bankCode:c.llBankCode, bankAccount:c.llBankAccount, src:'房東'}]; },
+        'landlord': function(c) { return [{name:c.llName, phone:c.llPhone, idNo:c.llIdNo, occupation:c.llOccupation, birthday:c.llBirthday?isoToROC(c.llBirthday):'', email:c.llEmail, source:c.llSource, addrType:c.llAddrType, zip:c.llZip, addr:c.llAddr, bank:c.llBank, bankCode:c.llBankCode, bankAccount:c.llBankAccount, src:'房東', _cid:c.id}]; },
         'tenant': function(c) { return [{name:c.ttName, phone:c.ttPhone, idNo:c.ttIdNo, occupation:c.ttOccupation, birthday:c.ttBirthday?isoToROC(c.ttBirthday):'', email:c.ttEmail, source:c.ttSource, addrType:c.ttAddrType, zip:c.ttZip, addr:c.ttAddr, src:'租客'}]; },
         'buyer': function(c) { return [{name:c.bName, phone:c.bPhone, idNo:c.bIdNo, occupation:c.bOccupation, birthday:c.bBirthday?isoToROC(c.bBirthday):'', email:c.bEmail, source:c.bSource, src:'買方'}]; },
         'seller': function(c) { return [{name:c.sName, phone:c.sPhone, idNo:c.sIdNo, occupation:c.sOccupation, birthday:c.sBirthday?isoToROC(c.sBirthday):'', email:c.sEmail, source:c.sSource, src:'庫存'}]; },
@@ -5605,6 +5605,18 @@ function applyFill(target, s) {
         if (atEl) {
             if (atEl.tagName === 'SELECT') atEl.value = s.addrType;
             else atEl.value = s.addrType;
+        }
+    }
+    // 銀行帳戶
+    if (s.bank) _sv('f-'+p+'Bank', s.bank);
+    if (s.bankCode) _sv('f-'+p+'BankCode', s.bankCode);
+    if (s.bankAccount) _sv('f-'+p+'BankAccount', s.bankAccount);
+    // 帶入額外聯絡人
+    if (s._cid && target === 'landlord') {
+        var srcClient = DB.find(function(x){ return x.id === s._cid; });
+        if (srcClient && srcClient.rLandlords && srcClient.rLandlords.length > 1) {
+            document.getElementById('rLandlordList').innerHTML = '';
+            srcClient.rLandlords.slice(1).forEach(function(p){ addRPersonRow('rLandlordList','房東',p); });
         }
     }
 }
