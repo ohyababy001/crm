@@ -2464,8 +2464,10 @@ function renderCard(c) {
         const tc = TC[primaryType]||'buyer';
         // 根據角色顯示對應標籤
         var displayTypes = cTypes.slice();
-        if (c._viewAs && displayTypes.includes('租案管理')) {
-            displayTypes = ['租案管理'].concat(displayTypes.filter(function(t){ return t !== '租案管理'; }));
+        if (c._viewAs === 'landlord') {
+            displayTypes = ['租案管理'].concat(c.rLandlordTypes || []);
+        } else if (c._viewAs === 'tenant') {
+            displayTypes = ['租案管理'].concat(c.rTenantTypes || []);
         } else if (curFilter !== 'all' && displayTypes.includes(curFilter)) {
             displayTypes = [curFilter].concat(displayTypes.filter(function(t){ return t !== curFilter; }));
         }
