@@ -818,7 +818,7 @@
                 <span id="editNavInfo" style="font-size:12px;color:var(--muted);white-space:nowrap"></span>
                 <button class="btn-ic" onclick="navEdit(1)" title="下一筆" id="btnNextEdit" style="font-size:16px;padding:4px 10px">▶</button>
             </div>
-            <button class="btn-x" onclick="closeForm()" style="margin-left:8px">✕</button>
+            <button class="btn-x" onclick="closeForm(true)" style="margin-left:8px">✕</button>
         </div>
         <div class="modal-body">
             <input type="hidden" id="eid">
@@ -1196,7 +1196,7 @@
             </div>
         </div>
         <div class="modal-foot">
-            <button class="btn btn-cancel" onclick="closeForm()">取消</button>
+            <button class="btn btn-cancel" onclick="closeForm(true)">取消</button>
             <button class="btn btn-save" onclick="saveClient()">儲存</button>
         </div>
     </div>
