@@ -630,12 +630,14 @@
         <input type="text" id="searchInput" placeholder="搜尋姓名、電話、備註…" oninput="render()">
     </div>
     <div class="mobile-cloud">
+        <button onclick="openPerformance()">📊 業績</button>
         <button onclick="cloudRestore()">📥 還原</button>
         <button onclick="clearCache()">🔄 更新</button>
         <button onclick="openTrash()" style="color:#EF4444">🗑️ 回收</button>
     </div>
     <button class="btn-add" onclick="openAdd()">＋ 新增客戶</button>
     <div class="header-tools" style="display:flex;gap:8px;align-items:center;margin-left:auto">
+        <button onclick="openPerformance()" style="background:white;border:1.5px solid #8B5CF6;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;font-weight:700;color:#6D28D9;white-space:nowrap">📊 業績儀表板</button>
         <button onclick="openTrash()" style="background:white;border:1.5px solid #EF4444;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;font-weight:700;color:#DC2626;white-space:nowrap">🗑️ 資源回收桶<span id="trashCount" style="font-size:11px;margin-left:2px"></span></button>
         <button onclick="cloudRestore()" id="btnRestore" style="background:white;border:1.5px solid #3B82F6;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;font-weight:700;color:#1D4ED8;white-space:nowrap">☁️ 雲端還原</button>
     </div>
@@ -1266,6 +1268,18 @@
         <div id="msgBody" style="font-size:14px;color:var(--text);line-height:1.6;white-space:pre-line;margin-bottom:16px"></div>
         <button class="btn btn-cancel" id="msgCancelBtn" onclick="cancelMsg()" style="min-width:80px;display:none">取消</button>
         <button class="btn btn-save" onclick="closeMsgModal()" style="min-width:100px">確定</button>
+    </div>
+</div>
+
+<!-- 業績儀表板 -->
+<div id="perfModal" class="overlay" style="display:none" onmousedown="if(event.target===this)closePerformance()">
+    <div class="modal" style="max-width:700px" onclick="event.stopPropagation()">
+        <div class="modal-head">
+            <div class="modal-title">📊 業績儀表板</div>
+            <div style="flex:1"></div>
+            <button class="btn-x" onclick="closePerformance()">✕</button>
+        </div>
+        <div class="modal-body" id="perfBody" style="padding:16px"></div>
     </div>
 </div>
 
@@ -5641,6 +5655,141 @@ function permanentDel(id) {
     DB = DB.filter(function(x){ return x.id !== id; });
     persist(); renderTrash();
 }
+// ── 業績儀表板 ──
+var _perfRecords = JSON.parse(localStorage.getItem('perfRecords') || '[]');
+function openPerformance() {
+    renderPerformance();
+    document.getElementById('perfModal').style.display = 'flex';
+}
+function closePerformance() { document.getElementById('perfModal').style.display = 'none'; }
+function renderPerformance() {
+    var now = new Date();
+    var thisYear = now.getFullYear();
+    var thisMonth = now.getMonth();
+    // 篩選按鈕
+    var html = '<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">' +
+        '<button type="button" class="perf-tab" data-range="month" onclick="setPerfRange(\'month\')" style="padding:6px 14px;border:1px solid var(--border);border-radius:8px;background:var(--deep);color:white;cursor:pointer;font-size:13px;font-weight:600">本月</button>' +
+        '<button type="button" class="perf-tab" data-range="quarter" onclick="setPerfRange(\'quarter\')" style="padding:6px 14px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;font-weight:600">本季</button>' +
+        '<button type="button" class="perf-tab" data-range="year" onclick="setPerfRange(\'year\')" style="padding:6px 14px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;font-weight:600">本年</button>' +
+        '<button type="button" class="perf-tab" data-range="all" onclick="setPerfRange(\'all\')" style="padding:6px 14px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;font-weight:600">全部</button>' +
+        '<div style="flex:1"></div>' +
+        '<button type="button" onclick="addPerfRecord()" style="padding:6px 14px;border:none;border-radius:8px;background:#8B5CF6;color:white;cursor:pointer;font-size:13px;font-weight:600">＋ 新增業績</button>' +
+    '</div>';
+    // 統計
+    var range = _perfRange || 'month';
+    var filtered = _perfRecords.filter(function(r) {
+        if (!r.date) return false;
+        var d = new Date(r.date + 'T00:00:00');
+        if (range === 'month') return d.getFullYear() === thisYear && d.getMonth() === thisMonth;
+        if (range === 'quarter') { var q = Math.floor(thisMonth / 3); return d.getFullYear() === thisYear && Math.floor(d.getMonth() / 3) === q; }
+        if (range === 'year') return d.getFullYear() === thisYear;
+        return true;
+    });
+    var totalAmount = 0, totalFee = 0;
+    filtered.forEach(function(r) { totalAmount += parseFloat(r.amount) || 0; totalFee += parseFloat(r.fee) || 0; });
+    var rangeLabel = { month:'本月', quarter:'本季', year:'本年', all:'全部' }[range];
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">' +
+        '<div style="background:#EDE9FE;border-radius:10px;padding:14px;text-align:center"><div style="font-size:12px;color:#6D28D9;margin-bottom:4px">'+rangeLabel+'成交筆數</div><div style="font-size:24px;font-weight:800;color:#5B21B6">'+filtered.length+'</div></div>' +
+        '<div style="background:#FEF3C7;border-radius:10px;padding:14px;text-align:center"><div style="font-size:12px;color:#92400E;margin-bottom:4px">'+rangeLabel+'成交金額</div><div style="font-size:24px;font-weight:800;color:#B45309">'+totalAmount.toLocaleString()+'<span style="font-size:13px">萬</span></div></div>' +
+        '<div style="background:#D1FAE5;border-radius:10px;padding:14px;text-align:center"><div style="font-size:12px;color:#065F46;margin-bottom:4px">'+rangeLabel+'服務費</div><div style="font-size:24px;font-weight:800;color:#047857">'+totalFee.toLocaleString()+'<span style="font-size:13px">元</span></div></div>' +
+    '</div>';
+    // 月度柱狀圖（簡易）
+    if (range !== 'month') {
+        var monthData = {};
+        filtered.forEach(function(r) {
+            var d = new Date(r.date + 'T00:00:00');
+            var key = d.getFullYear() + '/' + (d.getMonth()+1);
+            if (!monthData[key]) monthData[key] = { amount:0, count:0 };
+            monthData[key].amount += parseFloat(r.amount) || 0;
+            monthData[key].count++;
+        });
+        var months = Object.keys(monthData).sort();
+        if (months.length > 1) {
+            var maxAmt = Math.max.apply(null, months.map(function(k){ return monthData[k].amount; })) || 1;
+            html += '<div style="margin-bottom:16px"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px">月度成交金額</div>';
+            html += '<div style="display:flex;align-items:flex-end;gap:4px;height:120px">';
+            months.forEach(function(k) {
+                var pct = Math.round(monthData[k].amount / maxAmt * 100);
+                html += '<div style="flex:1;display:flex;flex-direction:column;align-items:center">' +
+                    '<div style="font-size:10px;color:var(--muted);margin-bottom:2px">'+monthData[k].amount.toLocaleString()+'萬</div>' +
+                    '<div style="width:100%;background:#8B5CF6;border-radius:4px 4px 0 0;height:'+Math.max(pct, 4)+'%"></div>' +
+                    '<div style="font-size:10px;color:var(--muted);margin-top:2px">'+k.split('/')[1]+'月</div>' +
+                '</div>';
+            });
+            html += '</div></div>';
+        }
+    }
+    // 紀錄列表
+    html += '<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px">業績紀錄</div>';
+    if (!filtered.length) {
+        html += '<div style="text-align:center;color:var(--muted);padding:20px;font-size:14px">尚無業績紀錄</div>';
+    } else {
+        filtered.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+        filtered.forEach(function(r) {
+            var idx = _perfRecords.indexOf(r);
+            html += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--bg);font-size:13px">' +
+                '<span style="color:var(--muted);min-width:75px">'+esc(isoToROC(r.date))+'</span>' +
+                '<span style="flex:1;font-weight:600">'+esc(r.client||'')+'</span>' +
+                '<span style="color:#B45309;font-weight:700;min-width:80px;text-align:right">'+(r.amount?r.amount+'萬':'')+'</span>' +
+                '<span style="color:#047857;min-width:70px;text-align:right">'+(r.fee?r.fee.toLocaleString()+'元':'')+'</span>' +
+                '<button type="button" onclick="deletePerfRecord('+idx+')" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:12px">✕</button>' +
+            '</div>';
+        });
+    }
+    document.getElementById('perfBody').innerHTML = html;
+}
+var _perfRange = 'month';
+function setPerfRange(range) {
+    _perfRange = range;
+    document.querySelectorAll('.perf-tab').forEach(function(b) {
+        b.style.background = b.getAttribute('data-range') === range ? 'var(--deep)' : 'white';
+        b.style.color = b.getAttribute('data-range') === range ? 'white' : 'var(--text)';
+    });
+    renderPerformance();
+}
+function addPerfRecord() {
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.padding = '16px'; box.style.minWidth = '320px';
+    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">新增業績</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">成交日期</label><div class="roc-date-wrap"><input id="perfDate" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">客戶/物件</label><input id="perfClient" placeholder=""></div>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">成交金額</label><div class="input-grp"><input id="perfAmount" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">服務費收入</label><div class="input-grp"><input id="perfFee" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
+        '</div>' +
+        '<div class="fg" style="margin-bottom:12px"><label style="font-size:12px">備註</label><input id="perfMemo" placeholder=""></div>' +
+        '<div style="display:flex;gap:8px;justify-content:flex-end">' +
+            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
+            '<button type="button" id="perfSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#8B5CF6;color:white;cursor:pointer;font-size:14px;font-weight:600">儲存</button>' +
+        '</div>';
+    overlay.appendChild(box);
+    overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+    document.body.appendChild(overlay);
+    document.getElementById('perfSaveBtn').onclick = function() {
+        var date = rocToISO(document.getElementById('perfDate').value);
+        var client = document.getElementById('perfClient').value.trim();
+        var amount = document.getElementById('perfAmount').value.trim();
+        var fee = document.getElementById('perfFee').value.trim();
+        var memo = document.getElementById('perfMemo').value.trim();
+        if (!date) { alert('請填寫成交日期'); return; }
+        _perfRecords.push({ date:date, client:client, amount:amount, fee:fee, memo:memo, created:new Date().toISOString() });
+        localStorage.setItem('perfRecords', JSON.stringify(_perfRecords));
+        overlay.remove();
+        renderPerformance();
+    };
+}
+function deletePerfRecord(idx) {
+    if (!confirm('確定刪除這筆業績紀錄？')) return;
+    _perfRecords.splice(idx, 1);
+    localStorage.setItem('perfRecords', JSON.stringify(_perfRecords));
+    renderPerformance();
+}
+
 function openTrash() {
     renderTrash();
     document.getElementById('trashModal').style.display = 'flex';
