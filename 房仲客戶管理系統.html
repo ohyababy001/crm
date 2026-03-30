@@ -2475,13 +2475,14 @@ function renderCard(c) {
         // 頭像顏色用當前篩選的類型
         var primaryType = (curFilter !== 'all' && cTypes.includes(curFilter)) ? curFilter : cTypes[0];
         const tc = TC[primaryType]||'buyer';
-        // 根據角色顯示對應標籤
+        // 根據角色顯示對應標籤，當前功能排第一
         var displayTypes = cTypes.slice();
         if (c._viewAs === 'landlord') {
             displayTypes = ['租案管理'].concat(c.rLandlordTypes || []);
         } else if (c._viewAs === 'tenant') {
             displayTypes = ['租案管理'].concat(c.rTenantTypes || []);
-        } else if (curFilter !== 'all' && displayTypes.includes(curFilter)) {
+        }
+        if (curFilter !== 'all' && displayTypes.includes(curFilter)) {
             displayTypes = [curFilter].concat(displayTypes.filter(function(t){ return t !== curFilter; }));
         }
         const typeTags = displayTypes.map(t => {
