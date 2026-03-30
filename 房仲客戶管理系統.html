@@ -2278,14 +2278,25 @@ function getData() {
             (c.rCommunity||'').toLowerCase().includes(q) ||
             (c.rAddr||'').toLowerCase().includes(q);
         if (common) return true;
-        // 根據頁籤限制搜尋欄位
+        // 租案房東/租客頁籤：只搜對應角色
         if (curFilter === '租案_房東') {
             return (c.llName||'').toLowerCase().includes(q) || (c.llPhone||'').includes(q);
         }
         if (curFilter === '租案_租客') {
             return (c.ttName||'').toLowerCase().includes(q) || (c.ttPhone||'').includes(q);
         }
-        // 其他頁籤搜全部
+        // 非租案的四大功能：租案客戶只搜對應角色的名字
+        if (curFilter !== 'all' && curFilter !== '租案管理' && hasType(c, '租案管理')) {
+            var llHas = c.rLandlordTypes && c.rLandlordTypes.includes(curFilter);
+            var ttHas = c.rTenantTypes && c.rTenantTypes.includes(curFilter);
+            // 舊資料fallback
+            if (!llHas && !ttHas) { llHas = true; }
+            var matched = false;
+            if (llHas) matched = matched || (c.llName||'').toLowerCase().includes(q) || (c.llPhone||'').includes(q);
+            if (ttHas) matched = matched || (c.ttName||'').toLowerCase().includes(q) || (c.ttPhone||'').includes(q);
+            return matched;
+        }
+        // 總覽或其他：搜全部
         return c.name.toLowerCase().includes(q) ||
             (c.phone||'').includes(q) ||
             (c.llName||'').toLowerCase().includes(q) ||
