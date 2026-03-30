@@ -1682,6 +1682,10 @@ function autoFetchCloud() {
                             }
                         });
                     }
+                    // 買方/成交/商機的雲端資料夾
+                    ['bDriveUrl','cDriveUrl','dDriveUrl'].forEach(function(k) {
+                        if (local[k] && !cc[k]) cc[k] = local[k];
+                    });
                 });
                 DB = cloudData;
                 DB.forEach(function(c) { if (!c.types) c.types = c.type ? [c.type] : []; });
@@ -4758,10 +4762,8 @@ function clearSchedules() { document.getElementById('scheduleList').innerHTML = 
 // ── 開啟雲端資料夾 ──
 
 function getRpDriveIcon(c) {
-    var rProps = c.rProperties || [];
-    var sProps = c.sProperties || [];
-    if (!rProps.length && (c.rAddr || c.rCommunity)) rProps = [{rpDriveUrl:''}];
-    var hasUrl = rProps.some(function(p){ return p.rpDriveUrl; }) || sProps.some(function(p){ return p.spDriveUrl; });
+    var all = _getAllDriveProps(c);
+    var hasUrl = all.some(function(a){ return a.url; });
     return hasUrl ? '📂' : '<span style="opacity:0.3">📁</span>';
 }
 function buildDriveFolderName(type, prop, client) {
@@ -4790,20 +4792,41 @@ function buildDriveFolderName(type, prop, client) {
         else if (llName) namePart = '[房東]' + llName;
         else if (ttName) namePart = '[租客]' + ttName;
         else namePart = '未填姓名';
+    } else if (typeof client === 'object') {
+        namePart = client.bName || client.sName || client.cName || client.dName || client.name || '未填姓名';
     } else {
-        namePart = (typeof client === 'object' ? (client.sName || client.name || '') : client) || '未填姓名';
+        namePart = client || '未填姓名';
     }
+    // 買方/成交/商機不一定有地址，組合不同格式
+    if (addr === '未填地址' && !dateStr) return '【' + type + '】' + namePart;
+    if (addr === '未填地址') return '【' + type + '】' + dateStr + '-' + namePart;
+    if (!dateStr) return '【' + type + '】' + addr + '-' + namePart;
     return '【' + type + '】' + dateStr + '-' + addr + '-' + namePart;
 }
 function _getAllDriveProps(c) {
     var all = [];
+    var cTypes = c.types || [];
+    // 租案
     var rProps = c.rProperties || [];
     if (!rProps.length && (c.rAddr || c.rCommunity)) {
         rProps = [{ rAddr: c.rAddr || '', rCommunity: c.rCommunity || '', rStartDate: c.rStartDate || '', rpDriveUrl: '', rpRenewals: c.renewals || [] }];
     }
     rProps.forEach(function(p, i){ all.push({ type:'租案', label: p.rAddr || p.rCommunity || '租案物件 '+(i+1), url: p.rpDriveUrl || '', urlKey:'rpDriveUrl', src:'rProperties', idx:i, prop:p }); });
+    // 庫存
     var sProps = c.sProperties || [];
     sProps.forEach(function(p, i){ all.push({ type:'庫存', label: p.addr || p.community || '庫存物件 '+(i+1), url: p.spDriveUrl || '', urlKey:'spDriveUrl', src:'sProperties', idx:i, prop:p }); });
+    // 買方
+    if (cTypes.includes('經營買方')) {
+        all.push({ type:'買方', label: c.bName || '買方', url: c.bDriveUrl || '', urlKey:'bDriveUrl', src:'_client', idx:0, prop:c });
+    }
+    // 成交
+    if (cTypes.includes('成交客戶')) {
+        all.push({ type:'成交', label: c.cName || '成交客戶', url: c.cDriveUrl || '', urlKey:'cDriveUrl', src:'_client', idx:0, prop:c });
+    }
+    // 商機
+    if (cTypes.includes('商機募集')) {
+        all.push({ type:'商機', label: c.dName || '商機', url: c.dDriveUrl || '', urlKey:'dDriveUrl', src:'_client', idx:0, prop:c });
+    }
     return all;
 }
 function openDriveFolder(clientId) {
@@ -4826,7 +4849,9 @@ function openDriveFolder(clientId) {
     box.style.padding = '16px'; box.style.minWidth = '300px';
     var html = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">雲端資料夾</div>';
     all.forEach(function(a) {
-        var tag = '<span style="font-size:10px;padding:1px 5px;border-radius:3px;background:'+(a.type==='租案'?'#EDE9FE':'#D1FAE5')+';color:'+(a.type==='租案'?'#5B21B6':'#065F46')+';margin-right:4px">'+a.type+'</span>';
+        var tagBgs = {'租案':'#EDE9FE','庫存':'#D1FAE5','買方':'#EDE8E0','成交':'#FEF3C7','商機':'#EAE3DE'};
+        var tagColors = {'租案':'#5B21B6','庫存':'#065F46','買方':'#5C4A32','成交':'#92400E','商機':'#5E4A3E'};
+        var tag = '<span style="font-size:10px;padding:1px 5px;border-radius:3px;background:'+(tagBgs[a.type]||'#F3F4F6')+';color:'+(tagColors[a.type]||'#374151')+';margin-right:4px">'+a.type+'</span>';
         if (a.url) {
             html += '<div style="display:flex;gap:6px;margin-bottom:6px">' +
                 '<button type="button" style="flex:1;text-align:left;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px" onclick="window.open(\''+esc(a.url)+'\',\'_blank\')">📂 '+tag+esc(a.label)+'</button>' +
@@ -4852,11 +4877,22 @@ function cardSetDriveFolder(clientId, src, propIdx) {
             c.rProperties = [{ rAddr: c.rAddr || '', rCommunity: c.rCommunity || '', rStartDate: c.rStartDate || '', rpDriveUrl: '' }];
         } else { return; }
     }
-    var propList = c[src];
-    if (!propList || !propList[propIdx]) return;
-    var prop = propList[propIdx];
-    var type = src === 'rProperties' ? '租案' : '庫存';
-    var urlKey = src === 'rProperties' ? 'rpDriveUrl' : 'spDriveUrl';
+    var prop, type, urlKey;
+    if (src === '_client') {
+        prop = c;
+        // 從 _getAllDriveProps 找出對應的 urlKey
+        var allProps = _getAllDriveProps(c);
+        var matched = allProps.find(function(a){ return a.src === '_client' && a.idx === propIdx; });
+        type = matched ? matched.type : '';
+        urlKey = matched ? matched.urlKey : '';
+        if (!urlKey) return;
+    } else {
+        var propList = c[src];
+        if (!propList || !propList[propIdx]) return;
+        prop = propList[propIdx];
+        type = src === 'rProperties' ? '租案' : '庫存';
+        urlKey = src === 'rProperties' ? 'rpDriveUrl' : 'spDriveUrl';
+    }
     var folderName = buildDriveFolderName(type, prop, c);
     var oldOverlay = document.querySelector('.fill-overlay');
     if (oldOverlay) oldOverlay.remove();
@@ -4901,8 +4937,13 @@ function cardSetDriveFolder(clientId, src, propIdx) {
 function cardDelDriveFolder(clientId, src, propIdx, urlKey) {
     if (!confirm('確定刪除此雲端資料夾連結？')) return;
     var c = DB.find(function(x){ return x.id === clientId; });
-    if (!c || !c[src] || !c[src][propIdx]) return;
-    c[src][propIdx][urlKey] = '';
+    if (!c) return;
+    if (src === '_client') {
+        c[urlKey] = '';
+    } else {
+        if (!c[src] || !c[src][propIdx]) return;
+        c[src][propIdx][urlKey] = '';
+    }
     persist(); render();
     var overlay = document.querySelector('.fill-overlay');
     if (overlay) overlay.remove();
@@ -5912,6 +5953,10 @@ function saveClient() {
         devType: (function(){ var types=[]; getDAddrs().forEach(function(a){ if(a.devType&&types.indexOf(a.devType)<0) types.push(a.devType); }); return types.join('、'); })(),
         dCommunity:(getDAddrs()[0]||{}).community||'', dAddr:(getDAddrs()[0]||{}).addr||'',
         schedules:getSchedules(),
+        // 保留雲端資料夾連結
+        bDriveUrl: editId ? (DB.find(function(x){return x.id===editId;})||{}).bDriveUrl||'' : '',
+        cDriveUrl: editId ? (DB.find(function(x){return x.id===editId;})||{}).cDriveUrl||'' : '',
+        dDriveUrl: editId ? (DB.find(function(x){return x.id===editId;})||{}).dDriveUrl||'' : '',
     };
 
     if (editId) {
