@@ -2196,16 +2196,17 @@ function getData() {
         });
     }
     // 非租案頁面但有租案客戶：根據角色標籤決定 _viewAs
-    if (curFilter !== '租案管理' && curFilter !== '租案_房東' && curFilter !== '租案_租客') {
+    if (curFilter !== '租案管理' && curFilter !== '租案_房東' && curFilter !== '租案_租客' && curFilter !== 'all') {
+        var newList = [];
         list.forEach(function(c) {
-            if (!hasType(c, '租案管理') || c._viewAs) return;
-            var filterType = curFilter;
-            if (filterType === 'all') return;
-            var llHas = c.rLandlordTypes && c.rLandlordTypes.includes(filterType);
-            var ttHas = c.rTenantTypes && c.rTenantTypes.includes(filterType);
-            if (llHas && !ttHas) c._viewAs = 'landlord';
-            else if (ttHas && !llHas) c._viewAs = 'tenant';
+            if (!hasType(c, '租案管理')) { newList.push(c); return; }
+            var llHas = c.rLandlordTypes && c.rLandlordTypes.includes(curFilter);
+            var ttHas = c.rTenantTypes && c.rTenantTypes.includes(curFilter);
+            if (llHas) newList.push(Object.assign({}, c, {_viewAs:'landlord'}));
+            if (ttHas) newList.push(Object.assign({}, c, {_viewAs:'tenant'}));
+            if (!llHas && !ttHas) newList.push(c);
         });
+        list = newList;
     }
     // 租案管理：拆分房東/租客卡片
     if (curFilter === '租案管理' || curFilter === '租案_房東' || curFilter === '租案_租客' || (q && curFilter === 'all')) {
