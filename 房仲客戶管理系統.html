@@ -2626,9 +2626,13 @@ function renderCard(c) {
         // 根據角色顯示對應標籤，當前功能排第一
         var displayTypes = cTypes.slice();
         if (c._viewAs === 'landlord') {
-            displayTypes = ['租案管理'].concat(c.rLandlordTypes || []);
+            var llTypes = c.rLandlordTypes;
+            if (!llTypes && !c.rTenantTypes) llTypes = cTypes.filter(function(t){ return t !== '租案管理'; });
+            displayTypes = ['租案管理'].concat(llTypes || []);
         } else if (c._viewAs === 'tenant') {
-            displayTypes = ['租案管理'].concat(c.rTenantTypes || []);
+            var ttTypes = c.rTenantTypes;
+            if (!ttTypes && !c.rLandlordTypes) ttTypes = [];
+            displayTypes = ['租案管理'].concat(ttTypes || []);
         }
         if (curFilter !== 'all' && displayTypes.includes(curFilter)) {
             displayTypes = [curFilter].concat(displayTypes.filter(function(t){ return t !== curFilter; }));
@@ -3194,9 +3198,17 @@ function showDet(id, viewAs) {
         detName = tt.name || c.name; detPhone = tt.phone || c.phone || '';
     }
     var detDisplayTypes;
-    if (detViewAs === 'tenant') detDisplayTypes = ['租案管理'].concat(c.rTenantTypes||[]);
-    else if (detViewAs === 'landlord') detDisplayTypes = ['租案管理'].concat(c.rLandlordTypes||[]);
-    else detDisplayTypes = cTypes;
+    if (detViewAs === 'landlord') {
+        var _llTypes = c.rLandlordTypes;
+        if (!_llTypes && !c.rTenantTypes) _llTypes = cTypes.filter(function(t){ return t !== '租案管理'; });
+        detDisplayTypes = ['租案管理'].concat(_llTypes || []);
+    } else if (detViewAs === 'tenant') {
+        var _ttTypes = c.rTenantTypes;
+        if (!_ttTypes && !c.rLandlordTypes) _ttTypes = [];
+        detDisplayTypes = ['租案管理'].concat(_ttTypes || []);
+    } else {
+        detDisplayTypes = cTypes;
+    }
     var primaryType = detDisplayTypes[0] || cTypes[0];
     const tc = TC[primaryType]||'buyer';
     const statusTag = !cTypes.includes('經營買方') && c.status ? `<span class="tag s-${c.status}">${c.status}</span>` : '';
