@@ -251,7 +251,7 @@
         .type-picker { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
         .tp-btn { flex: 1; min-width: 80px; padding: 10px 6px; border-radius: 10px; border: 2px solid var(--border); background: white; font-size: 13px; font-weight: 700; cursor: pointer; color: var(--muted); transition: all 0.15s; font-family: inherit; }
         .tp-btn:hover { border-color: #94A3B8; color: var(--text); }
-        .tp-btn.active-view { background: #F5F5F4; border-color: #78716C; color: var(--deep); border-bottom: 3px solid var(--deep); }
+        .tp-btn.active-view { border-bottom: 3px solid var(--deep); }
         .tp-btn.active-view.selected { border-bottom: 3px solid var(--deep); }
         .tp-buyer.selected   { background: #1D4ED8; border-color: #1D4ED8; color: white; font-weight: 800; }
         .tp-seller.selected  { background: #059669; border-color: #059669; color: white; font-weight: 800; }
@@ -5267,10 +5267,7 @@ function pickTypeDown(t, btn) {
 function pickTypeUp(t) {
     clearTimeout(_pickHoldTimer);
     if (!_pickDidHold) {
-        // 單擊 = 切換檢視，若未選中則同時選中
-        if (!selectedTypes.includes(t)) {
-            selectedTypes.push(t);
-        }
+        // 單擊 = 只切換檢視
         activeView = t;
         applyTypePicker();
     }
