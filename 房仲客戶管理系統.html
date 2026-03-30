@@ -2204,7 +2204,12 @@ function getData() {
             var ttHas = c.rTenantTypes && c.rTenantTypes.includes(curFilter);
             if (llHas) newList.push(Object.assign({}, c, {_viewAs:'landlord'}));
             if (ttHas) newList.push(Object.assign({}, c, {_viewAs:'tenant'}));
-            if (!llHas && !ttHas) newList.push(c);
+            if (!llHas && !ttHas) {
+                // 舊資料 fallback：標籤在全域types但未分角色，預設用房東
+                var hasLL = (c.rLandlords && c.rLandlords.length) || c.rLandlord || c.llName;
+                if (hasLL) newList.push(Object.assign({}, c, {_viewAs:'landlord'}));
+                else newList.push(c);
+            }
         });
         list = newList;
     }
