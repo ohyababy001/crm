@@ -2358,10 +2358,15 @@ function getData() {
         list.forEach(function(c) {
             if (!hasType(c, '租案管理')) { newList.push(c); return; }
             if (curFilter === 'all') {
-                // 總覽：有房東就顯示房東，否則顯示原始
-                var hasLL = (c.rLandlords && c.rLandlords.length) || c.rLandlord || c.llName;
-                if (hasLL) newList.push(Object.assign({}, c, {_viewAs:'landlord'}));
-                else newList.push(c);
+                // 總覽：搜尋時拆分讓二次過濾處理，非搜尋時顯示房東
+                if (q) {
+                    // 不設 _viewAs，讓後面的拆分邏輯處理
+                    newList.push(c);
+                } else {
+                    var hasLL = (c.rLandlords && c.rLandlords.length) || c.rLandlord || c.llName;
+                    if (hasLL) newList.push(Object.assign({}, c, {_viewAs:'landlord'}));
+                    else newList.push(c);
+                }
                 return;
             }
             var llHas = c.rLandlordTypes && c.rLandlordTypes.includes(curFilter);
@@ -2382,6 +2387,8 @@ function getData() {
         var expanded = [];
         list.forEach(function(c) {
             if (!hasType(c, '租案管理')) { expanded.push(c); return; }
+            // 已經有 _viewAs 的（非租案頁面已處理過）不再拆分
+            if (c._viewAs) { expanded.push(c); return; }
             var hasLL = (c.rLandlords && c.rLandlords.length) || c.rLandlord;
             var hasTT = (c.rTenants && c.rTenants.length) || c.rTenant;
             if (curFilter === '租案_租客') {
