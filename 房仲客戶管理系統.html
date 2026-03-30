@@ -2869,7 +2869,7 @@ function renderCard(c) {
                 var xll = (x.rLandlords && x.rLandlords[0]) || {name:x.rLandlord||x.llName, phone:x.rLandlordPhone||x.llPhone};
                 return ((xll.name||'') + '_' + (xll.phone||'')).toLowerCase() === llKey;
             }).length;
-            if (relatedCount > 0) sameLL = '<span style="font-size:11px;padding:2px 8px;border-radius:8px;background:#CFFAFE;color:#0E7490;font-weight:600;margin-left:4px;cursor:pointer;white-space:nowrap" onclick="event.stopPropagation();showSameLandlord(\''+esc(cardName)+'\',\''+esc(cardPhone)+'\',\''+c.id+'\')">同房東 '+(relatedCount+1)+'筆</span>';
+            if (relatedCount > 0) sameLL = '<span style="font-size:13px;padding:2px 8px;border-radius:8px;background:#CFFAFE;color:#0E7490;font-weight:600;margin-left:4px;cursor:pointer;white-space:nowrap" onclick="event.stopPropagation();showSameLandlord(\''+esc(cardName)+'\',\''+esc(cardPhone)+'\',\''+c.id+'\')">同房東 '+(relatedCount+1)+'筆</span>';
         } else if (c._viewAs === 'tenant') {
             var tt = (c.rTenants && c.rTenants[0]) || {name:c.rTenant, phone:c.rTenantPhone};
             cardName = tt.name || c.name;
