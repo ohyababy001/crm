@@ -2472,8 +2472,16 @@ function getData() {
     // 租案管理/庫存屋主：強制按到期日排序
     var isRentalTab = curFilter === '租案管理' || curFilter === '租案_房東' || curFilter === '租案_租客';
     if (isRentalTab || curFilter === '庫存屋主') {
-        var endField = isRentalTab ? 'rEndDate' : 'contractEnd';
-        list.sort(function(a,b) { return (a[endField]||'9999-12-31').localeCompare(b[endField]||'9999-12-31'); });
+        if (isRentalTab) {
+            list.sort(function(a,b) { return (a.rEndDate||'9999-12-31').localeCompare(b.rEndDate||'9999-12-31'); });
+        } else {
+            // 庫存：取最早的到期日（扁平欄位或 sProperties）
+            list.sort(function(a,b) {
+                var aEnd = a.contractEnd || (a.sProperties && a.sProperties.length ? a.sProperties.reduce(function(min,sp){ var d=sp.contractEnd||'9999-12-31'; return d<min?d:min; },'9999-12-31') : '9999-12-31');
+                var bEnd = b.contractEnd || (b.sProperties && b.sProperties.length ? b.sProperties.reduce(function(min,sp){ var d=sp.contractEnd||'9999-12-31'; return d<min?d:min; },'9999-12-31') : '9999-12-31');
+                return aEnd.localeCompare(bEnd);
+            });
+        }
     // 成交客戶：強制按成交次數排序（多→少）
     } else if (curFilter === '成交客戶') {
         list.sort(function(a,b) { return (b.deals||[]).length - (a.deals||[]).length; });
@@ -4540,6 +4548,14 @@ function switchRentalTab(tab) {
         loadTagFields(t, standaloneSaved[t]);
     });
 
+    // 切換角色時，如果當前頁面是另一個角色的標籤，切回租案管理
+    var otherRoleTypes = newRole === 'tenant' ? rLandlordTypes : rTenantTypes;
+    if (otherRoleTypes.includes(activeView)) {
+        activeView = '租案管理';
+        document.querySelectorAll('.type-sec').forEach(function(el){ el.classList.remove('on'); });
+        var sec = document.getElementById('s-租案管理'); if(sec) sec.classList.add('on');
+    }
+
     // 更新頂部類型按鈕高亮（當前角色標籤 + 獨立標籤）
     var allRoleTypes = rLandlordTypes.concat(rTenantTypes);
     var showSelected = ['租案管理'];
@@ -4548,7 +4564,7 @@ function switchRentalTab(tab) {
     document.querySelectorAll('.type-picker .tp-btn').forEach(function(b) {
         var t = b.id.replace('tp-','');
         b.classList.toggle('selected', showSelected.includes(t));
-        b.classList.toggle('active-view', t === '租案管理');
+        b.classList.toggle('active-view', t === activeView);
     });
 }
 
@@ -6277,7 +6293,9 @@ function openEdit(id, viewAs) {
     // 類型
     // 載入多類型，切到當前篩選的類型頁面
     selectedTypes = getTypes(c).slice();
-    if (_editViewAs && selectedTypes.includes('租案管理')) {
+    if (curFilter !== 'all' && curFilter !== '租案_房東' && curFilter !== '租案_租客' && (selectedTypes.includes(curFilter) || rLandlordTypes.includes(curFilter) || rTenantTypes.includes(curFilter))) {
+        activeView = curFilter;
+    } else if (_editViewAs && selectedTypes.includes('租案管理')) {
         activeView = '租案管理';
     } else if (curFilter !== 'all' && selectedTypes.includes(curFilter)) {
         activeView = curFilter;
@@ -6309,17 +6327,28 @@ function navEdit(dir) {
     if (idx < 0) return;
     var newIdx = idx + dir;
     if (newIdx < 0 || newIdx >= editListCache.length) return;
-    openEdit(editListCache[newIdx].id);
+    // 傳遞 viewAs：租案客戶在非租案頁面以房東身份開啟
+    var nc = editListCache[newIdx];
+    var viewAs = '';
+    if (hasType(nc, '租案管理') && curFilter !== '租案管理' && curFilter !== '租案_房東' && curFilter !== '租案_租客') {
+        viewAs = 'landlord';
+    }
+    openEdit(nc.id, viewAs);
 }
 function updateEditNav() {
     var nav = document.getElementById('editNavGroup');
     if (!editId) { nav.style.display = 'none'; return; }
-    // 根據 activeView 從 DB 直接篩選，不依賴 getData() 的 curFilter
+    // 根據 curFilter 篩選（含同房東合併標籤）
+    var _navFilter = curFilter;
     var list = DB.filter(function(c){ return !c._deleted && !c.archived; });
-    if (activeView) {
-        list = list.filter(function(c){ return hasType(c, activeView); });
-    } else if (curFilter !== 'all') {
-        list = list.filter(function(c){ return hasType(c, curFilter); });
+    if (_navFilter !== 'all') {
+        list = list.filter(function(c){
+            if (hasType(c, _navFilter)) return true;
+            if (hasType(c, '租案管理') && ['經營買方','庫存屋主','成交客戶','商機募集'].includes(_navFilter)) {
+                return getMergedLandlordTypes(c).includes(_navFilter);
+            }
+            return false;
+        });
     }
     // 排序：沿用 getData 的排序邏輯
     var sortType = activeView || curFilter;
@@ -6338,10 +6367,22 @@ function updateEditNav() {
             return 0;
         });
     }
-    // 去重
+    // 去重（ID + 同房東，但當前編輯的一定保留）
     var seen = {};
+    var seenLL2 = {};
     editListCache = [];
-    list.forEach(function(c) { if (!seen[c.id]) { seen[c.id] = true; editListCache.push(c); } });
+    list.forEach(function(c) {
+        if (seen[c.id]) return;
+        seen[c.id] = true;
+        // 同房東去重（當前編輯的不去重）
+        if (c.id !== editId && hasType(c, '租案管理') && _navFilter !== 'all' && _navFilter !== '租案管理' && _navFilter !== '租案_房東' && _navFilter !== '租案_租客') {
+            var _ll = (c.rLandlords && c.rLandlords[0]) || {name: c.rLandlord || c.llName, phone: c.rLandlordPhone || c.llPhone};
+            var _llk = ((_ll.name||'') + '_' + (_ll.phone||'')).toLowerCase();
+            if (_llk && _llk !== '_' && seenLL2[_llk]) return;
+            if (_llk && _llk !== '_') seenLL2[_llk] = true;
+        }
+        editListCache.push(c);
+    });
     var idx = editListCache.findIndex(function(c){ return c.id === editId; });
     if (idx < 0 || editListCache.length <= 1) { nav.style.display = 'none'; return; }
     nav.style.display = 'flex';
@@ -6511,18 +6552,14 @@ function saveClient() {
         cDriveUrl: editId ? (DB.find(function(x){return x.id===editId;})||{}).cDriveUrl||'' : '',
         dDriveUrl: editId ? (DB.find(function(x){return x.id===editId;})||{}).dDriveUrl||'' : '',
     };
-    // 租案：儲存角色獨立資料
+    // 租案：先儲存當前頁籤表單到快取（roleData 在歷程比較後再建）
     if (selectedTypes.includes('租案管理')) {
-        // 先儲存當前頁籤的表單到快取
         var curRole = activeRentalTab === '租客' ? 'tenant' : 'landlord';
         var curRoleTypes = curRole === 'tenant' ? rTenantTypes : rLandlordTypes;
         curRoleTypes.forEach(function(t) {
             var key = ROLE_TAG_MAP[t];
             if (key) _roleFormCache[curRole][key] = extractTagFields(t);
         });
-        data.roleData = { landlord:{}, tenant:{} };
-        rLandlordTypes.forEach(function(t) { var key=ROLE_TAG_MAP[t]; if(key && _roleFormCache.landlord[key]) data.roleData.landlord[key]=_roleFormCache.landlord[key]; });
-        rTenantTypes.forEach(function(t) { var key=ROLE_TAG_MAP[t]; if(key && _roleFormCache.tenant[key]) data.roleData.tenant[key]=_roleFormCache.tenant[key]; });
     }
 
     if (editId) {
@@ -6546,10 +6583,19 @@ function saveClient() {
             data.sFloorPriceHistory = ph.sFloorPriceHistory;
             data.sServiceFeeHistory = ph.sServiceFeeHistory;
             // 庫存物件開價/底價歷程
-            if (data.sProperties && old.sProperties) {
+            var _oldSProps = old.sProperties;
+            // 合併來源：自己沒有時從 roleData 或同房東取得舊資料
+            if ((!_oldSProps || !_oldSProps.length) && old.roleData && old.roleData.landlord && old.roleData.landlord.seller && old.roleData.landlord.seller.sProperties) {
+                _oldSProps = old.roleData.landlord.seller.sProperties;
+            }
+            if ((!_oldSProps || !_oldSProps.length) && hasType(old, '租案管理')) {
+                var _omd = getMergedLandlordData(old, '庫存屋主');
+                if (_omd && _omd.sProperties) _oldSProps = _omd.sProperties;
+            }
+            if (data.sProperties && _oldSProps) {
                 var now = new Date().toISOString();
                 data.sProperties.forEach(function(sp, idx) {
-                    var oldSp = old.sProperties[idx];
+                    var oldSp = _oldSProps[idx];
                     if (!oldSp) return;
                     if (oldSp.price && sp.price && oldSp.price !== sp.price) {
                         sp.spPriceHistory = (sp.spPriceHistory || []).slice();
@@ -6568,6 +6614,20 @@ function saveClient() {
         data.created=new Date().toISOString();
         data.history = [{ type:'create', time: new Date().toISOString() }];
         DB.unshift(data);
+    }
+    // 租案：在歷程比較後建 roleData（確保包含最新的開價歷程）
+    if (selectedTypes.includes('租案管理')) {
+        // 更新快取中的庫存資料（含歷程）
+        if (data.sProperties && data.sProperties.length && rLandlordTypes.includes('庫存屋主')) {
+            _roleFormCache.landlord.seller = _roleFormCache.landlord.seller || {};
+            _roleFormCache.landlord.seller.sProperties = data.sProperties;
+        }
+        data.roleData = { landlord:{}, tenant:{} };
+        rLandlordTypes.forEach(function(t) { var key=ROLE_TAG_MAP[t]; if(key && _roleFormCache.landlord[key]) data.roleData.landlord[key]=_roleFormCache.landlord[key]; });
+        rTenantTypes.forEach(function(t) { var key=ROLE_TAG_MAP[t]; if(key && _roleFormCache.tenant[key]) data.roleData.tenant[key]=_roleFormCache.tenant[key]; });
+        // 更新 DB 中的 roleData
+        var _savedC = DB.find(function(x){ return x.id === (editId || data.id); });
+        if (_savedC) _savedC.roleData = data.roleData;
     }
     // 同房東資料同步：把房東的標籤和資料複製到所有同房東的客戶
     if (data.types && data.types.includes('租案管理') && data.rLandlordTypes && data.rLandlordTypes.length) {
