@@ -647,7 +647,7 @@
     <div class="header-title">🏠 客戶管理</div>
     <div class="search-wrap">
         <span class="search-icon">🔍</span>
-        <input type="text" id="searchInput" placeholder="搜尋姓名、電話、備註…" oninput="render()">
+        <input type="text" id="searchInput" placeholder="搜尋姓名、電話、社區、地址、備註…" oninput="render()">
     </div>
     <div class="mobile-cloud">
         <button onclick="openPerformance()">📊 業績</button>
@@ -712,7 +712,6 @@
         <input type="file" id="csvImportInput2" accept=".csv" style="display:none" onchange="importCSV(this.files[0])">
         <div id="importTime" style="text-align:center;font-size:10px;color:var(--muted);padding:0 10px"></div>
         <div id="cloudStatus" style="text-align:center;font-size:11px;color:var(--muted);margin-top:4px;padding:0 10px">☁️ 自動同步中</div>
-        <button onclick="alert('總共:'+DB.length+'筆\n房東:'+DB.filter(function(c){return c.types&&c.types.includes('房東')}).length+'\n租客:'+DB.filter(function(c){return c.types&&c.types.includes('租客')}).length+'\n買方:'+DB.filter(function(c){return c.types&&c.types.includes('經營買方')}).length+'\n庫存:'+DB.filter(function(c){return c.types&&c.types.includes('庫存屋主')}).length+'\n成交:'+DB.filter(function(c){return c.types&&c.types.includes('成交客戶')}).length+'\n商機:'+DB.filter(function(c){return c.types&&c.types.includes('商機募集')}).length+'\n租案(舊):'+DB.filter(function(c){return c.types&&c.types.includes('租案管理')}).length)" style="margin:8px 10px;padding:6px;border:1px solid var(--border);border-radius:6px;background:#FEF3C7;cursor:pointer;font-size:11px;width:calc(100% - 20px)">🔍 檢查資料數量</button>
     </aside>
 
     <!-- Main -->
@@ -1074,6 +1073,11 @@
                 <div class="sec-title" style="margin-top:8px">租案物件</div>
                 <div id="rPropertyList"></div>
                 <button type="button" class="add-row-btn" onclick="addRentalProperty()" style="margin-bottom:10px">＋ 新增物件資料</button>
+                <!-- 連結租客資訊 -->
+                <div id="linkedTenantsBox" style="display:none;border:1px solid var(--border);border-left:4px solid #DB2777;border-radius:10px;padding:10px;margin-bottom:10px;background:#FDF2F8">
+                    <div style="font-size:12px;font-weight:700;color:#9D174D;margin-bottom:6px">連結租客</div>
+                    <div id="linkedTenantsList"></div>
+                </div>
             </div>
 
             <!-- 租客 -->
@@ -1297,13 +1301,14 @@
 
 <!-- 業績儀表板 -->
 <div id="perfModal" class="overlay" style="display:none" onmousedown="if(event.target===this)closePerformance()">
-    <div class="modal" style="max-width:700px" onclick="event.stopPropagation()">
+    <div class="modal" style="max-width:700px;display:flex;flex-direction:column" onclick="event.stopPropagation()">
         <div class="modal-head">
             <div class="modal-title">📊 業績儀表板</div>
             <div style="flex:1"></div>
             <button class="btn-x" onclick="closePerformance()">✕</button>
         </div>
-        <div class="modal-body" id="perfBody" style="padding:16px"></div>
+        <div id="perfFixed" style="padding:16px 16px 0;flex-shrink:0"></div>
+        <div id="perfBody" style="padding:0 16px 16px;flex:1;overflow-y:auto"></div>
     </div>
 </div>
 
@@ -2531,6 +2536,29 @@ function getData() {
             (c.rCommunity||'').toLowerCase().includes(q) ||
             (c.rAddr||'').toLowerCase().includes(q);
         if (common) return true;
+        // 庫存物件的社區和地址
+        if (c.sProperties && c.sProperties.length) {
+            if (c.sProperties.some(function(sp){ return (sp.community||'').toLowerCase().includes(q) || (sp.addr||'').toLowerCase().includes(q); })) return true;
+        }
+        // 房東物件的社區和地址
+        if (c.rProperties && c.rProperties.length) {
+            if (c.rProperties.some(function(rp){ return (rp.rCommunity||'').toLowerCase().includes(q) || (rp.rAddr||'').toLowerCase().includes(q); })) return true;
+        }
+        // 租客連結的房東物件
+        if (c.linkedLandlordId) {
+            var _llS = DB.find(function(x){ return x.id === c.linkedLandlordId && !x._deleted; });
+            if (_llS && _llS.rProperties && _llS.rProperties.length) {
+                if (_llS.rProperties.some(function(rp){ return (rp.rCommunity||'').toLowerCase().includes(q) || (rp.rAddr||'').toLowerCase().includes(q); })) return true;
+            }
+        }
+        // 成交物件的社區和地址
+        if (c.deals && c.deals.length) {
+            if (c.deals.some(function(d){ return (d.community||'').toLowerCase().includes(q) || (d.addr||'').toLowerCase().includes(q); })) return true;
+        }
+        // 商機物件的社區和地址
+        if (c.dAddrs && c.dAddrs.length) {
+            if (c.dAddrs.some(function(da){ return (da.community||'').toLowerCase().includes(q) || (da.addr||'').toLowerCase().includes(q); })) return true;
+        }
         // 租案房東/租客頁籤：只搜對應角色
         if (curFilter === '租案_房東') {
             return (c.llName||'').toLowerCase().includes(q) || (c.llPhone||'').includes(q);
@@ -3429,17 +3457,57 @@ function typeDetail(origC, viewAs) {
         var rps = c.rProperties && c.rProperties.length ? c.rProperties : null;
         if (rps) {
             rps.forEach(function(rp, idx) {
-                if (idx > 0) rows.push('<div style="border-top:1px solid var(--bg);margin:8px 0"></div>');
+                if (idx > 0 || rps.length > 1) rows.push('<div style="border-top:1px solid var(--bg);margin:8px 0"></div>');
+                if (rps.length > 1) rows.push('<div style="font-weight:700;font-size:12px;color:#8B7355;margin-bottom:4px">物件 '+(idx+1)+'</div>');
                 rows.push(dRow('社區大樓',rp.rCommunity||''));
                 rows.push(dRow('物件地址',rp.rAddr||''));
-                rows.push(dRow('租金',rp.rent?(rp.rent+(rp.rent.includes('元')?'':'元')):''));
+                // 租金 + 含管/不含管
+                if (rp.rent) {
+                    var rentDisp = rp.rent + (rp.rent.includes('元')?'':'元');
+                    var mgmtSum = (parseFloat(rp.rMgmtBuilding)||0)+(parseFloat(rp.rMgmtCar)||0)+(parseFloat(rp.rMgmtMoto)||0)+(parseFloat(rp.rMgmtOther)||0);
+                    if (rp.rMgmtType === '含管' || rp.rMgmtType === '內含') {
+                        rentDisp += ' 含管' + (mgmtSum ? ' ' + mgmtSum.toLocaleString() + '元' : '');
+                    } else if (mgmtSum) {
+                        rentDisp += ' 不含管 ' + mgmtSum.toLocaleString() + '元';
+                    } else {
+                        rentDisp += ' 不含管';
+                    }
+                    rows.push(dRow('租金', rentDisp));
+                }
+                // 坪數 + 車位
+                var szParts = [];
+                if (rp.rSz) szParts.push(rp.rSz + '坪');
+                if (rp.rParking) szParts.push(rp.rParking + (rp.rParkingNo ? '（' + rp.rParkingNo + '）' : ''));
+                if (szParts.length) rows.push(dRow('坪數/車位', szParts.join(' / ')));
                 rows.push(dRow('起租日',isoToROC(rp.rStartDate||'')));
                 rows.push(dRow('到期日',isoToROC(rp.rEndDate||'')));
+                // 該物件連結的租客
+                var rpTenants = DB.filter(function(t) { return !t._deleted && t.linkedLandlordId === c.id && (t.linkedPropertyIdx||0) === idx; });
+                if (rpTenants.length) {
+                    rpTenants.forEach(function(t) {
+                        var tName = t.ttName || t.name || '';
+                        var tPhone = t.ttPhone || t.phone || '';
+                        var tIdNo = t.ttIdNo || '';
+                        var tOccupation = t.ttOccupation || '';
+                        var tInfo = [tName, tPhone, tIdNo, tOccupation].filter(Boolean).join('　');
+                        var tCond = [t.rSubsidy2?'租補':'',t.rSocialHouse2?'社宅':'',t.rRegister2?'設籍':'',t.rTax2?'報稅':'',t.rPet2?'寵物':'',t.rAltar2?'神桌':'',t.rGoodCitizen2?'良民':''].filter(Boolean).join('、');
+                        rows.push('<div class="det-row"><span class="det-key" style="color:#BE185D">租客</span><span class="det-val" style="color:#9D174D;font-weight:600">' + esc(tInfo) + '</span></div>');
+                        if (tCond) rows.push('<div class="det-row"><span class="det-key" style="color:#BE185D">租客條件</span><span class="det-val">' + esc(tCond) + '</span></div>');
+                    });
+                }
             });
         }
-        if (c.linkedTenantIds && c.linkedTenantIds.length) {
-            var ttNames = c.linkedTenantIds.map(function(tid) { var t=DB.find(function(x){return x.id===tid&&!x._deleted;}); return t?(t.ttName||t.name):''; }).filter(Boolean);
-            if (ttNames.length) rows.push(dRow('連結租客', ttNames.join('、')));
+        // 未連結到特定物件的租客
+        var unlinkedTenants = DB.filter(function(t) { return !t._deleted && t.linkedLandlordId === c.id && (!rps || !rps[t.linkedPropertyIdx||0]); });
+        if (!rps && c.linkedTenantIds && c.linkedTenantIds.length) {
+            unlinkedTenants = c.linkedTenantIds.map(function(tid) { return DB.find(function(x){return x.id===tid&&!x._deleted;}); }).filter(Boolean);
+        }
+        if (unlinkedTenants.length) {
+            rows.push('<div style="border-top:1px solid var(--bg);margin:8px 0"></div>');
+            unlinkedTenants.forEach(function(t) {
+                var tInfo = [t.ttName||t.name, t.ttPhone||t.phone].filter(Boolean).join('　');
+                rows.push('<div class="det-row"><span class="det-key" style="color:#BE185D">租客</span><span class="det-val" style="color:#9D174D;font-weight:600">' + esc(tInfo) + '</span></div>');
+            });
         }
         return rows.join('');
     }
@@ -6176,6 +6244,7 @@ function resetForm() {
     document.querySelectorAll('.type-sec').forEach(el=>el.classList.remove('on'));
     document.querySelectorAll('.tp-btn').forEach(b=>b.classList.remove('selected'));
     clearLinkedLandlord();
+    showLinkedTenants(null);
     document.querySelectorAll('.rm-btn').forEach(b=>b.classList.remove('on'));
     document.querySelectorAll('.city-btn').forEach(b=>b.classList.remove('on'));
     document.querySelectorAll('.dist-btn').forEach(b=>b.classList.remove('on'));
@@ -6328,6 +6397,51 @@ function selectLandlord(id, propIdx) {
     document.getElementById('linkedLandlordInfo').innerHTML = info;
     var _ov = document.querySelector('.fill-overlay');
     if (_ov) _ov.remove();
+}
+function showLinkedTenants(landlordId) {
+    var box = document.getElementById('linkedTenantsBox');
+    var list = document.getElementById('linkedTenantsList');
+    if (!box || !list) return;
+    if (!landlordId) { box.style.display = 'none'; list.innerHTML = ''; return; }
+    var tenants = DB.filter(function(c) { return !c._deleted && c.linkedLandlordId === landlordId; });
+    // 也從 linkedTenantIds 找
+    var rec = DB.find(function(c) { return c.id === landlordId; });
+    if (rec && rec.linkedTenantIds) {
+        rec.linkedTenantIds.forEach(function(tid) {
+            if (!tenants.some(function(t) { return t.id === tid; })) {
+                var t = DB.find(function(x) { return x.id === tid && !x._deleted; });
+                if (t) tenants.push(t);
+            }
+        });
+    }
+    if (!tenants.length) { box.style.display = 'none'; list.innerHTML = ''; return; }
+    box.style.display = '';
+    var html = '';
+    tenants.forEach(function(t) {
+        var name = t.ttName || t.name || '未填姓名';
+        var phone = t.ttPhone || t.phone || '';
+        var idNo = t.ttIdNo || '';
+        var occupation = t.ttOccupation || '';
+        // 找連結的物件
+        var propInfo = '';
+        if (rec && rec.rProperties && rec.rProperties.length) {
+            var pIdx = t.linkedPropertyIdx || 0;
+            var p = rec.rProperties[pIdx];
+            if (p) propInfo = p.rAddr || p.rCommunity || '';
+        }
+        html += '<div style="display:flex;align-items:center;gap:8px;padding:8px;margin-bottom:4px;background:white;border-radius:8px;border:1px solid var(--border)">';
+        html += '<div style="flex:1">';
+        html += '<div style="font-weight:700;font-size:13px">' + esc(name) + ' <span style="color:var(--muted);font-weight:400">' + esc(phone) + '</span></div>';
+        var details = [];
+        if (idNo) details.push(esc(idNo));
+        if (occupation) details.push(esc(occupation));
+        if (propInfo) details.push('物件：' + esc(propInfo));
+        if (details.length) html += '<div style="font-size:12px;color:var(--muted)">' + details.join(' / ') + '</div>';
+        html += '</div>';
+        html += '<button type="button" onclick="openEdit(\'' + t.id + '\')" class="btn-ic" title="編輯租客" style="font-size:14px;padding:4px 8px">✏️</button>';
+        html += '</div>';
+    });
+    list.innerHTML = html;
 }
 function clearLinkedLandlord() {
     document.getElementById('f-linkedLandlordId').value = '';
@@ -6485,6 +6599,8 @@ function openEdit(id, viewAs) {
     // 租客額外人員（跳過第一筆）
     if (c.rTenants && c.rTenants.length > 1) c.rTenants.slice(1).forEach(function(p){ addRPersonRow('rTenantList','租客',p); });
     if (c.tenantPersons && c.tenantPersons.length) c.tenantPersons.forEach(function(p){ addRPersonRow('rTenantList','租客',p); });
+    // 載入連結租客（房東頁面）
+    showLinkedTenants(editId);
     // 載入連結房東
     clearLinkedLandlord();
     if (c.linkedLandlordId) {
@@ -6589,7 +6705,7 @@ function openEdit(id, viewAs) {
     setVal('f-dOccupation', c.dOccupation || '');
     setVal('f-dBirthday', c.dBirthday ? isoToROC(c.dBirthday) : '');
     loadAddrType('f-dAddrType', c.dAddrType);
-    setVal('f-dZip', c.dZip || ''); setVal('f-dAddr', c.dAddr || '');
+    setVal('f-dZip', c.dZip || ''); setVal('f-dAddr', c.dPersonAddr || '');
     setVal('f-dEmail', c.dEmail || '');
     setVal('f-dSource', c.dSource || (devOnly ? c.source : ''));
     // 額外屋主（跳過第一筆，已載入固定欄位）
@@ -6862,7 +6978,7 @@ function saveClient() {
         cAddrs: isClosed ? getCAddrs() : [],
         deals: getDeals(),
         // 商機募集
-        dName:get('f-dName'), dPhone:get('f-dPhone'), dIdNo:get('f-dIdNo'), dOccupation:get('f-dOccupation'), dAddrType:get('f-dAddrType'), dZip:get('f-dZip'), dAddr:get('f-dAddr'),
+        dName:get('f-dName'), dPhone:get('f-dPhone'), dIdNo:get('f-dIdNo'), dOccupation:get('f-dOccupation'), dAddrType:get('f-dAddrType'), dZip:get('f-dZip'), dPersonAddr:get('f-dAddr'),
         dBirthday:rocToISO(get('f-dBirthday')), dEmail:get('f-dEmail'), dSource:get('f-dSource'),
         dPersons: (function(){ var arr=[]; if(get('f-dName')||get('f-dPhone')) arr.push({name:get('f-dName'),phone:get('f-dPhone'),idNo:get('f-dIdNo')}); return arr.concat(getDPersons()); })(), dAddrs:getDAddrs(),
         devType: (function(){ var types=[]; getDAddrs().forEach(function(a){ if(a.devType&&types.indexOf(a.devType)<0) types.push(a.devType); }); return types.join('、'); })(),
@@ -7067,40 +7183,32 @@ function renderPerformance() {
         }
         return true;
     });
-    var totalAmount = 0, totalFee = 0;
-    filtered.forEach(function(r) { totalAmount += parseFloat(r.amount) || 0; totalFee += parseFloat(r.fee) || 0; });
+    var buyCount = 0, rentCount = 0, buyFeeTax = 0, buyFeeNoTax = 0, rentFeeTax = 0, rentFeeNoTax = 0;
+    filtered.forEach(function(r) {
+        var ft = parseFloat(r.feeTax) || 0;
+        var fnt = parseFloat(r.feeNoTax) || 0;
+        // 向下相容舊資料
+        if (!r.caseType && !ft && !fnt && r.fee) { ft = parseFloat(r.fee) || 0; }
+        var isBuy = r.caseType === '買賣案' || (!r.caseType && (r.category === '賣方' || r.category === '買方' || r.category === '庫存'));
+        if (isBuy) { buyCount++; buyFeeTax += ft; buyFeeNoTax += fnt; }
+        else { rentCount++; rentFeeTax += ft; rentFeeNoTax += fnt; }
+    });
     var rangeLabel = range === 'history' ? (_perfHistYear-1911)+'年'+(_perfHistMonth==='all'?'':'('+((parseInt(_perfHistMonth)||0)+1)+'月)') : { month:'本月', quarter:'本季', year:'本年', all:'全部' }[range];
-    html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">' +
-        '<div style="background:#EDE9FE;border-radius:10px;padding:14px;text-align:center"><div style="font-size:12px;color:#6D28D9;margin-bottom:4px">'+rangeLabel+'成交筆數</div><div style="font-size:24px;font-weight:800;color:#5B21B6">'+filtered.length+'</div></div>' +
-        '<div style="background:#FEF3C7;border-radius:10px;padding:14px;text-align:center"><div style="font-size:12px;color:#92400E;margin-bottom:4px">'+rangeLabel+'成交金額</div><div style="font-size:24px;font-weight:800;color:#B45309">'+totalAmount.toLocaleString()+'<span style="font-size:13px">萬</span></div></div>' +
-        '<div style="background:#D1FAE5;border-radius:10px;padding:14px;text-align:center"><div style="font-size:12px;color:#065F46;margin-bottom:4px">'+rangeLabel+'服務費</div><div style="font-size:24px;font-weight:800;color:#047857">'+totalFee.toLocaleString()+'<span style="font-size:13px">元</span></div></div>' +
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
+        '<div style="background:#FEF3C7;border-radius:10px;padding:14px">' +
+            '<div style="font-size:12px;color:#92400E;margin-bottom:8px;font-weight:600;text-align:center">'+rangeLabel+'買賣案 <span style="font-size:22px;font-weight:800;color:#B45309">'+buyCount+'</span> 筆</div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:12px;color:#92400E">業績</span><span style="font-size:18px;font-weight:800;color:#B45309">'+buyFeeTax.toLocaleString()+'<span style="font-size:11px">元</span></span></div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:12px;color:#92400E">實收</span><span style="font-size:18px;font-weight:800;color:#B45309">'+buyFeeNoTax.toLocaleString()+'<span style="font-size:11px">元</span></span></div>' +
+        '</div>' +
+        '<div style="background:#EDE9FE;border-radius:10px;padding:14px">' +
+            '<div style="font-size:12px;color:#6D28D9;margin-bottom:8px;font-weight:600;text-align:center">'+rangeLabel+'租賃案 <span style="font-size:22px;font-weight:800;color:#5B21B6">'+rentCount+'</span> 筆</div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:12px;color:#6D28D9">業績</span><span style="font-size:18px;font-weight:800;color:#5B21B6">'+rentFeeTax.toLocaleString()+'<span style="font-size:11px">元</span></span></div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:12px;color:#6D28D9">實收</span><span style="font-size:18px;font-weight:800;color:#5B21B6">'+rentFeeNoTax.toLocaleString()+'<span style="font-size:11px">元</span></span></div>' +
+        '</div>' +
     '</div>';
-    // 月度柱狀圖（簡易）
-    if (range !== 'month') {
-        var monthData = {};
-        filtered.forEach(function(r) {
-            var d = new Date(r.date + 'T00:00:00');
-            var key = d.getFullYear() + '/' + (d.getMonth()+1);
-            if (!monthData[key]) monthData[key] = { amount:0, count:0 };
-            monthData[key].amount += parseFloat(r.amount) || 0;
-            monthData[key].count++;
-        });
-        var months = Object.keys(monthData).sort();
-        if (months.length > 1) {
-            var maxAmt = Math.max.apply(null, months.map(function(k){ return monthData[k].amount; })) || 1;
-            html += '<div style="margin-bottom:16px"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px">月度成交金額</div>';
-            html += '<div style="display:flex;align-items:flex-end;gap:4px;height:120px">';
-            months.forEach(function(k) {
-                var pct = Math.round(monthData[k].amount / maxAmt * 100);
-                html += '<div style="flex:1;display:flex;flex-direction:column;align-items:center">' +
-                    '<div style="font-size:10px;color:var(--muted);margin-bottom:2px">'+monthData[k].amount.toLocaleString()+'萬</div>' +
-                    '<div style="width:100%;background:#8B5CF6;border-radius:4px 4px 0 0;height:'+Math.max(pct, 4)+'%"></div>' +
-                    '<div style="font-size:10px;color:var(--muted);margin-top:2px">'+k.split('/')[1]+'月</div>' +
-                '</div>';
-            });
-            html += '</div></div>';
-        }
-    }
+    // 固定區域結束，以下為可捲動區域
+    document.getElementById('perfFixed').innerHTML = html;
+    html = '';
     // 紀錄列表
     html += '<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px">業績紀錄</div>';
     if (!filtered.length) {
@@ -7109,17 +7217,31 @@ function renderPerformance() {
         filtered.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
         filtered.forEach(function(r) {
             var idx = _perfRecords.indexOf(r);
-            var catColors = {'賣方':'#065F46','買方':'#1E40AF','租案':'#5B21B6'};
-            var catBgs = {'賣方':'#D1FAE5','買方':'#DBEAFE','租案':'#EDE9FE'};
-            var catColor = catColors[r.category] || '#92400E';
-            var catBg = catBgs[r.category] || '#FEF3C7';
-            html += '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bg);font-size:13px">' +
-                '<span style="color:var(--muted);min-width:75px">'+esc(isoToROC(r.date))+'</span>' +
-                '<span style="padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;background:'+catBg+';color:'+catColor+'">'+esc(r.category||'')+'</span>' +
-                (r.clientId ? '<span style="flex:1;font-weight:600;color:#6D28D9;cursor:pointer;text-decoration:underline" onclick="event.stopPropagation();perfGoClient(\''+esc(r.clientId)+'\')">'+esc(r.client||'')+'</span>' : '<span style="flex:1;font-weight:600">'+esc(r.client||'')+'</span>') +
-                '<span style="color:#B45309;font-weight:700;min-width:80px;text-align:right">'+(r.amount?r.amount+'萬':'')+'</span>' +
-                '<span style="color:#047857;min-width:70px;text-align:right">'+(r.fee?r.fee.toLocaleString()+'元':'')+'</span>' +
-                '<button type="button" onclick="deletePerfRecord('+idx+')" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:12px">✕</button>' +
+            var caseType = r.caseType || (r.category === '賣方' || r.category === '買方' || r.category === '庫存' ? '買賣案' : '租賃案');
+            var caseColor = caseType === '買賣案' ? '#92400E' : '#5B21B6';
+            var caseBg = caseType === '買賣案' ? '#FEF3C7' : '#EDE9FE';
+            var catColors = {'買方':'#1E40AF','庫存':'#065F46','房東':'#0E7490','租客':'#BE185D','賣方':'#065F46','中人':'#7C3AED'};
+            var catBgs = {'買方':'#DBEAFE','庫存':'#D1FAE5','房東':'#CFFAFE','租客':'#FCE7F3','賣方':'#D1FAE5','中人':'#EDE9FE'};
+            var catColor = catColors[r.category] || '#374151';
+            var catBg = catBgs[r.category] || '#F3F4F6';
+            var ft = parseFloat(r.feeTax)||0, fnt = parseFloat(r.feeNoTax)||0;
+            var totalFeeR = ft + fnt + ((!r.feeTax && !r.feeNoTax) ? (parseFloat(r.fee)||0) : 0);
+            var feeDetail = '';
+            if (ft && fnt) feeDetail = '績'+ft.toLocaleString()+'/收'+fnt.toLocaleString();
+            else if (ft) feeDetail = '業績 '+ft.toLocaleString();
+            else if (fnt) feeDetail = '實收 '+fnt.toLocaleString();
+            else if (r.fee) feeDetail = parseFloat(r.fee).toLocaleString();
+            html += '<div style="display:flex;align-items:center;gap:6px;padding:8px 0;border-bottom:1px solid var(--bg);font-size:13px">' +
+                '<span style="color:var(--muted);min-width:70px">'+esc(isoToROC(r.date))+'</span>' +
+                '<span style="padding:2px 6px;border-radius:4px;font-size:13px;font-weight:600;background:'+caseBg+';color:'+caseColor+'">'+esc(caseType)+'</span>' +
+                '<span style="padding:2px 6px;border-radius:4px;font-size:13px;font-weight:600;background:'+catBg+';color:'+catColor+'">'+esc(r.category||'')+'</span>' +
+                '<span style="flex:1">' +
+                    (r.clientId ? '<span style="font-weight:600;color:#6D28D9;cursor:pointer;text-decoration:underline" onclick="event.stopPropagation();perfGoClient(\''+esc(r.clientId)+'\')">'+esc(r.client||'')+'</span>' : '<span style="font-weight:600">'+esc(r.client||'')+'</span>') +
+                    (r.memo ? ' <span style="color:var(--muted)">'+esc(r.memo)+'</span>' : '') +
+                '</span>' +
+                '<span style="color:#047857;min-width:100px;text-align:right">'+(feeDetail?feeDetail+'元':'')+'</span>' +
+                '<button type="button" onclick="editPerfRecord('+idx+')" style="background:none;border:none;cursor:pointer;color:#8B5CF6;font-size:13px" title="修改">✏️</button>' +
+                '<button type="button" onclick="deletePerfRecord('+idx+')" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px" title="刪除">✕</button>' +
             '</div>';
         });
     }
@@ -7198,17 +7320,28 @@ function addPerfRecord() {
     overlay.className = 'fill-overlay';
     var box = document.createElement('div');
     box.className = 'fill-menu';
-    box.style.padding = '16px'; box.style.minWidth = '320px';
-    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">新增紀錄</div>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">' +
-            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">項目</label><select id="perfCategory" style="width:100%" onchange="var o=document.getElementById(\'perfCategoryOther\');o.style.display=this.value===\'其他\'?\'\':\'none\';"><option value="賣方">賣方</option><option value="買方">買方</option><option value="租案">租案</option><option value="其他">其他</option></select></div>' +
-            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">成交日期</label><div class="roc-date-wrap"><input id="perfDate" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
-            '<div class="fg" style="margin-bottom:0;position:relative"><label style="font-size:12px">客戶/物件</label><input id="perfClient" placeholder="" autocomplete="off" oninput="perfClientSearch(this.value)" onblur="perfCloseSuggest()" onfocus="perfClientSearch(this.value)"><input type="hidden" id="perfClientId"><div id="perfClientSuggest" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:100000;background:white;border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.15);max-height:180px;overflow-y:auto"></div></div>' +
-        '</div>' +
-        '<div id="perfCategoryOther" style="display:none;margin-bottom:8px"><div class="fg" style="margin-bottom:0;width:calc(33.3% - 4px)"><label style="font-size:12px">自訂項目</label><input id="perfCategoryCustom" placeholder=""></div></div>' +
+    box.style.padding = '16px'; box.style.minWidth = '360px';
+    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">新增業績紀錄</div>' +
+        // 案件類型選擇
+        '<div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">案件類型</label>' +
+            '<div style="display:flex;gap:6px">' +
+                '<button type="button" id="perfCase-買賣案" onclick="setPerfCase(\'買賣案\')" style="flex:1;padding:8px;border:2px solid #D97706;border-radius:8px;background:#FEF3C7;color:#92400E;cursor:pointer;font-size:13px;font-weight:700">買賣案</button>' +
+                '<button type="button" id="perfCase-租賃案" onclick="setPerfCase(\'租賃案\')" style="flex:1;padding:8px;border:2px solid var(--border);border-radius:8px;background:white;color:var(--text);cursor:pointer;font-size:13px;font-weight:600">租賃案</button>' +
+            '</div></div>' +
+        // 項目選擇
+        '<div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">項目</label>' +
+            '<div id="perfCatBtns" style="display:flex;gap:6px">' +
+                '<button type="button" id="perfCat-買方" onclick="setPerfCat(\'買方\')" style="flex:1;padding:8px;border:2px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;font-weight:600">買方</button>' +
+                '<button type="button" id="perfCat-庫存" onclick="setPerfCat(\'庫存\')" style="flex:1;padding:8px;border:2px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;font-weight:600">庫存</button>' +
+                '<button type="button" id="perfCat-中人" onclick="setPerfCat(\'中人\')" style="flex:1;padding:8px;border:2px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;font-weight:600">中人</button>' +
+            '</div></div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
-            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">成交金額</label><div class="input-grp"><input id="perfAmount" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>' +
-            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">服務費收入</label><div class="input-grp"><input id="perfFee" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">成交日期</label><div class="roc-date-wrap"><input id="perfDate" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
+            '<div class="fg" style="margin-bottom:0;position:relative"><label style="font-size:12px">客戶/物件</label><input id="perfClient" placeholder="搜尋姓名" autocomplete="off" oninput="perfClientSearch(this.value)" onblur="perfCloseSuggest()" onfocus="perfClientSearch(this.value)"><input type="hidden" id="perfClientId"><div id="perfClientSuggest" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:100000;background:white;border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.15);max-height:180px;overflow-y:auto"></div></div>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">業績（報稅）</label><div class="input-grp"><input id="perfFeeTax" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">實收（不報稅）</label><div class="input-grp"><input id="perfFeeNoTax" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
         '</div>' +
         '<div class="fg" style="margin-bottom:12px"><label style="font-size:12px">備註</label><input id="perfMemo" placeholder=""></div>' +
         '<div style="display:flex;gap:8px;justify-content:flex-end">' +
@@ -7218,27 +7351,143 @@ function addPerfRecord() {
     overlay.appendChild(box);
     overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
     document.body.appendChild(overlay);
+    _perfSelectedCase = '買賣案';
+    _perfSelectedCat = '';
     document.getElementById('perfSaveBtn').onclick = function() {
-        var category = document.getElementById('perfCategory').value;
-        if (category === '其他') { var custom = document.getElementById('perfCategoryCustom').value.trim(); if (custom) category = custom; }
+        if (!_perfSelectedCat) { alert('請選擇項目'); return; }
         var date = rocToISO(document.getElementById('perfDate').value);
+        if (!date) { alert('請填寫成交日期'); return; }
         var client = document.getElementById('perfClient').value.trim();
         var clientId = document.getElementById('perfClientId').value || '';
-        var amount = document.getElementById('perfAmount').value.trim();
-        var fee = document.getElementById('perfFee').value.trim();
+        var feeTax = document.getElementById('perfFeeTax').value.trim();
+        var feeNoTax = document.getElementById('perfFeeNoTax').value.trim();
         var memo = document.getElementById('perfMemo').value.trim();
-        if (!date) { alert('請填寫成交日期'); return; }
-        _perfRecords.push({ category:category, date:date, client:client, clientId:clientId, amount:amount, fee:fee, memo:memo, created:new Date().toISOString() });
+        var fee = (parseFloat(feeTax)||0) + (parseFloat(feeNoTax)||0);
+        _perfRecords.push({ caseType:_perfSelectedCase, category:_perfSelectedCat, date:date, client:client, clientId:clientId, feeTax:feeTax, feeNoTax:feeNoTax, fee:String(fee||''), memo:memo, created:new Date().toISOString() });
         localStorage.setItem('perfRecords', JSON.stringify(_perfRecords));
         overlay.remove();
         renderPerformance();
     };
 }
+var _perfSelectedCase = '買賣案', _perfSelectedCat = '';
+function setPerfCase(caseType) {
+    _perfSelectedCase = caseType;
+    ['買賣案','租賃案'].forEach(function(t) {
+        var btn = document.getElementById('perfCase-'+t);
+        if (btn) { btn.style.borderColor = t===caseType?'#D97706':'var(--border)'; btn.style.background = t===caseType?'#FEF3C7':'white'; btn.style.color = t===caseType?'#92400E':'var(--text)'; btn.style.fontWeight = t===caseType?'700':'600'; }
+    });
+    var cats = caseType === '買賣案' ? ['買方','庫存','中人'] : ['房東','租客','中人'];
+    var html = cats.map(function(c) { return '<button type="button" id="perfCat-'+c+'" onclick="setPerfCat(\''+c+'\')" style="flex:1;padding:8px;border:2px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;font-weight:600">'+c+'</button>'; }).join('');
+    document.getElementById('perfCatBtns').innerHTML = html;
+    _perfSelectedCat = '';
+}
+function setPerfCat(cat) {
+    _perfSelectedCat = cat;
+    document.querySelectorAll('#perfCatBtns button').forEach(function(btn) {
+        var isSel = btn.textContent === cat;
+        btn.style.borderColor = isSel ? '#8B5CF6' : 'var(--border)';
+        btn.style.background = isSel ? '#EDE9FE' : 'white';
+        btn.style.color = isSel ? '#5B21B6' : 'var(--text)';
+        btn.style.fontWeight = isSel ? '700' : '600';
+    });
+}
 function deletePerfRecord(idx) {
-    if (!confirm('確定刪除這筆紀錄？')) return;
-    _perfRecords.splice(idx, 1);
-    localStorage.setItem('perfRecords', JSON.stringify(_perfRecords));
-    renderPerformance();
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.padding = '20px'; box.style.textAlign = 'center'; box.style.minWidth = '280px';
+    box.innerHTML = '<div style="font-size:15px;font-weight:700;margin-bottom:16px">確定刪除這筆紀錄？</div>' +
+        '<div style="display:flex;gap:8px;justify-content:center">' +
+            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 20px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
+            '<button type="button" id="_perfDelBtn" style="padding:8px 20px;border:none;border-radius:8px;background:#EF4444;color:white;cursor:pointer;font-size:14px;font-weight:600">刪除</button>' +
+        '</div>';
+    overlay.appendChild(box);
+    overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+    document.body.appendChild(overlay);
+    document.getElementById('_perfDelBtn').onclick = function() {
+        _perfRecords.splice(idx, 1);
+        localStorage.setItem('perfRecords', JSON.stringify(_perfRecords));
+        overlay.remove();
+        renderPerformance();
+    };
+}
+function editPerfRecord(idx) {
+    var r = _perfRecords[idx];
+    if (!r) return;
+    var caseType = r.caseType || '買賣案';
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.padding = '16px'; box.style.minWidth = '360px';
+    var cats = caseType === '買賣案' ? ['買方','庫存','中人'] : ['房東','租客','中人'];
+    var catBtnsHtml = cats.map(function(c) {
+        var isSel = c === r.category;
+        return '<button type="button" class="epCatBtn" data-cat="'+c+'" style="flex:1;padding:8px;border:2px solid '+(isSel?'#8B5CF6':'var(--border)')+';border-radius:8px;background:'+(isSel?'#EDE9FE':'white')+';color:'+(isSel?'#5B21B6':'var(--text)')+';cursor:pointer;font-size:13px;font-weight:'+(isSel?'700':'600')+'">'+c+'</button>';
+    }).join('');
+    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">修改業績紀錄</div>' +
+        '<div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">案件類型</label>' +
+            '<div style="display:flex;gap:6px">' +
+                '<button type="button" class="epCaseBtn" data-case="買賣案" style="flex:1;padding:8px;border:2px solid '+(caseType==='買賣案'?'#D97706':'var(--border)')+';border-radius:8px;background:'+(caseType==='買賣案'?'#FEF3C7':'white')+';color:'+(caseType==='買賣案'?'#92400E':'var(--text)')+';cursor:pointer;font-size:13px;font-weight:'+(caseType==='買賣案'?'700':'600')+'">買賣案</button>' +
+                '<button type="button" class="epCaseBtn" data-case="租賃案" style="flex:1;padding:8px;border:2px solid '+(caseType==='租賃案'?'#D97706':'var(--border)')+';border-radius:8px;background:'+(caseType==='租賃案'?'#FEF3C7':'white')+';color:'+(caseType==='租賃案'?'#92400E':'var(--text)')+';cursor:pointer;font-size:13px;font-weight:'+(caseType==='租賃案'?'700':'600')+'">租賃案</button>' +
+            '</div></div>' +
+        '<div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">項目</label><div id="epCatBtns" style="display:flex;gap:6px">'+catBtnsHtml+'</div></div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">成交日期</label><div class="roc-date-wrap"><input id="epDate" type="text" value="'+esc(r.date?isoToROC(r.date):'')+'" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">客戶/物件</label><input id="epClient" value="'+esc(r.client||'')+'" placeholder=""></div>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">業績（報稅）</label><div class="input-grp"><input id="epFeeTax" value="'+esc(r.feeTax||'')+'" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">實收（不報稅）</label><div class="input-grp"><input id="epFeeNoTax" value="'+esc(r.feeNoTax||'')+'" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
+        '</div>' +
+        '<div class="fg" style="margin-bottom:12px"><label style="font-size:12px">備註</label><input id="epMemo" value="'+esc(r.memo||'')+'" placeholder=""></div>' +
+        '<div style="display:flex;gap:8px;justify-content:flex-end">' +
+            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
+            '<button type="button" id="epSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#8B5CF6;color:white;cursor:pointer;font-size:14px;font-weight:600">儲存</button>' +
+        '</div>';
+    overlay.appendChild(box);
+    overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+    document.body.appendChild(overlay);
+    function bindCatBtns() {
+        document.querySelectorAll('.epCatBtn').forEach(function(b) {
+            b.onclick = function() {
+                document.querySelectorAll('.epCatBtn').forEach(function(x){ x.style.borderColor='var(--border)'; x.style.background='white'; x.style.color='var(--text)'; x.style.fontWeight='600'; });
+                this.style.borderColor='#8B5CF6'; this.style.background='#EDE9FE'; this.style.color='#5B21B6'; this.style.fontWeight='700';
+            };
+        });
+    }
+    bindCatBtns();
+    document.querySelectorAll('.epCaseBtn').forEach(function(btn) {
+        btn.onclick = function() {
+            var ct = this.getAttribute('data-case');
+            document.querySelectorAll('.epCaseBtn').forEach(function(b){ b.style.borderColor='var(--border)'; b.style.background='white'; b.style.color='var(--text)'; b.style.fontWeight='600'; });
+            this.style.borderColor='#D97706'; this.style.background='#FEF3C7'; this.style.color='#92400E'; this.style.fontWeight='700';
+            var cs = ct === '買賣案' ? ['買方','庫存','中人'] : ['房東','租客','中人'];
+            document.getElementById('epCatBtns').innerHTML = cs.map(function(c){ return '<button type="button" class="epCatBtn" data-cat="'+c+'" style="flex:1;padding:8px;border:2px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;font-weight:600">'+c+'</button>'; }).join('');
+            bindCatBtns();
+        };
+    });
+    document.getElementById('epSaveBtn').onclick = function() {
+        var selCase = '買賣案';
+        document.querySelectorAll('.epCaseBtn').forEach(function(b){ if(b.style.fontWeight==='700') selCase = b.getAttribute('data-case'); });
+        var selCat = '';
+        document.querySelectorAll('.epCatBtn').forEach(function(b){ if(b.style.fontWeight==='700') selCat = b.getAttribute('data-cat'); });
+        if (!selCat) { alert('請選擇項目'); return; }
+        var date = rocToISO(document.getElementById('epDate').value);
+        if (!date) { alert('請填寫成交日期'); return; }
+        r.caseType = selCase;
+        r.category = selCat;
+        r.date = date;
+        r.client = document.getElementById('epClient').value.trim();
+        r.feeTax = document.getElementById('epFeeTax').value.trim();
+        r.feeNoTax = document.getElementById('epFeeNoTax').value.trim();
+        r.fee = String((parseFloat(r.feeTax)||0) + (parseFloat(r.feeNoTax)||0) || '');
+        r.memo = document.getElementById('epMemo').value.trim();
+        localStorage.setItem('perfRecords', JSON.stringify(_perfRecords));
+        overlay.remove();
+        renderPerformance();
+    };
 }
 
 function openTrash() {
