@@ -5468,7 +5468,7 @@ function fillSearchDB(val, target, overlay) {
     if (matches.length > 10) matches = matches.slice(0, 10);
     results.innerHTML = matches.map(function(s) {
         return '<div class="fill-menu-item" style="cursor:pointer" onclick="applyFill(\''+target+'\',JSON.parse(this.getAttribute(\'data-s\')));this.closest(\'.fill-overlay\').remove()" data-s=\''+esc(JSON.stringify(s))+'\'>' +
-            '<span>' + esc(s.name) + (s.phone ? ' ' + esc(s.phone) : '') + '</span><span class="fill-src">其他客戶・' + esc(s.src) + '</span></div>';
+            '<span>' + esc(s.name) + (s.phone ? ' ' + esc(s.phone) : '') + '</span><span class="fill-src">' + esc(s.src) + '</span></div>';
     }).join('') || '<div style="padding:8px;color:var(--muted);font-size:12px">找不到符合的客戶</div>';
 }
 
