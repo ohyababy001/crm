@@ -3277,6 +3277,7 @@ function addSellerProperty(data) {
         calcSpSellerSz(block.querySelector('[data-f="mainBldg"]'));
         // 初始化續約歷程
         block._spRenewals = d.spRenewals || [];
+        block._spDriveUrl = d.spDriveUrl || '';
         // 初始化開價/底價歷程
         block._spPriceHistory = d.spPriceHistory || [];
         block._spFloorPriceHistory = d.spFloorPriceHistory || [];
@@ -3515,7 +3516,7 @@ function getSellerProperties() {
     document.querySelectorAll('#sPropertyList .person-block').forEach(function(block) {
         var get = function(f) { var el = block.querySelector('[data-f="'+f+'"]'); return el ? el.value.trim() : ''; };
         if (get('community') || get('addr') || get('price')) {
-            r.push({ grade:get('grade'), contractType:get('contractType'), community:get('community'), addr:get('addr'), price:get('price'), floorPrice:get('floorPrice'), serviceFee:get('serviceFee'), baseLand:get('baseLand'), landShare:get('landShare'), mainBldg:get('mainBldg'), ancBldg:get('ancBldg'), common:get('common'), parkingSz:get('parkingSz'), parking:get('parking'), parkingPrice:get('parkingPrice'), parkingNo:get('parkingNo'), mgmtBuilding:get('mgmtBuilding'), mgmtCar:get('mgmtCar'), mgmtMoto:get('mgmtMoto'), mgmtOther:get('mgmtOther'), mgmtPeriod:get('mgmtPeriod'), contractStart:rocToISO(get('contractStart')), contractEnd:rocToISO(get('contractEnd')), spRenewals: block._spRenewals || [], spPriceHistory: block._spPriceHistory || [], spFloorPriceHistory: block._spFloorPriceHistory || [] });
+            r.push({ grade:get('grade'), contractType:get('contractType'), community:get('community'), addr:get('addr'), price:get('price'), floorPrice:get('floorPrice'), serviceFee:get('serviceFee'), baseLand:get('baseLand'), landShare:get('landShare'), mainBldg:get('mainBldg'), ancBldg:get('ancBldg'), common:get('common'), parkingSz:get('parkingSz'), parking:get('parking'), parkingPrice:get('parkingPrice'), parkingNo:get('parkingNo'), mgmtBuilding:get('mgmtBuilding'), mgmtCar:get('mgmtCar'), mgmtMoto:get('mgmtMoto'), mgmtOther:get('mgmtOther'), mgmtPeriod:get('mgmtPeriod'), contractStart:rocToISO(get('contractStart')), contractEnd:rocToISO(get('contractEnd')), spRenewals: block._spRenewals || [], spPriceHistory: block._spPriceHistory || [], spFloorPriceHistory: block._spFloorPriceHistory || [], spDriveUrl: block._spDriveUrl || '' });
         }
     });
     return r;
@@ -4610,70 +4611,75 @@ function clearSchedules() { document.getElementById('scheduleList').innerHTML = 
 // ── 開啟雲端資料夾 ──
 
 function getRpDriveIcon(c) {
-    var props = c.rProperties || [];
-    if (!props.length && (c.rAddr || c.rCommunity)) props = [{rpDriveUrl:''}];
-    var hasUrl = props.some(function(p){ return p.rpDriveUrl; });
+    var rProps = c.rProperties || [];
+    var sProps = c.sProperties || [];
+    if (!rProps.length && (c.rAddr || c.rCommunity)) rProps = [{rpDriveUrl:''}];
+    var hasUrl = rProps.some(function(p){ return p.rpDriveUrl; }) || sProps.some(function(p){ return p.spDriveUrl; });
     return hasUrl ? '📂' : '<span style="opacity:0.3">📁</span>';
 }
-function rpBuildFolderNameFromData(prop, clientName) {
-    var addr = prop.rAddr || '未填地址';
-    // 取第一次起租日：有續約歷程就用第一筆的 oldStart，否則用當前起租日
-    var firstDate = prop.rStartDate || '';
-    if (prop.rpRenewals && prop.rpRenewals.length) {
-        firstDate = prop.rpRenewals[0].oldStart || firstDate;
+function buildDriveFolderName(type, prop, clientName) {
+    var addr = prop.rAddr || prop.addr || '未填地址';
+    var firstDate = '';
+    if (type === '租案') {
+        firstDate = prop.rStartDate || '';
+        if (prop.rpRenewals && prop.rpRenewals.length) firstDate = prop.rpRenewals[0].oldStart || firstDate;
+    } else if (type === '庫存') {
+        firstDate = prop.contractStart || '';
+        if (prop.spRenewals && prop.spRenewals.length) firstDate = prop.spRenewals[0].oldStart || firstDate;
     }
     var dateStr = '';
     if (firstDate) {
-        var d = isoToROC(firstDate);
-        dateStr = d.replace(/\//g, '');
+        dateStr = isoToROC(firstDate).replace(/\//g, '');
     } else {
         var now = new Date();
         var y = now.getFullYear() - 1911;
         dateStr = y + String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0');
     }
-    return '【租案】' + dateStr + '-' + addr + '-' + (clientName || '未填姓名');
+    return '【' + type + '】' + dateStr + '-' + addr + '-' + (clientName || '未填姓名');
+}
+function _getAllDriveProps(c) {
+    var all = [];
+    var rProps = c.rProperties || [];
+    if (!rProps.length && (c.rAddr || c.rCommunity)) {
+        rProps = [{ rAddr: c.rAddr || '', rCommunity: c.rCommunity || '', rStartDate: c.rStartDate || '', rpDriveUrl: '', rpRenewals: c.renewals || [] }];
+    }
+    rProps.forEach(function(p, i){ all.push({ type:'租案', label: p.rAddr || p.rCommunity || '租案物件 '+(i+1), url: p.rpDriveUrl || '', urlKey:'rpDriveUrl', src:'rProperties', idx:i, prop:p }); });
+    var sProps = c.sProperties || [];
+    sProps.forEach(function(p, i){ all.push({ type:'庫存', label: p.addr || p.community || '庫存物件 '+(i+1), url: p.spDriveUrl || '', urlKey:'spDriveUrl', src:'sProperties', idx:i, prop:p }); });
+    return all;
 }
 function openDriveFolder(clientId) {
     var c = DB.find(function(x) { return x.id === clientId; });
     if (!c) return;
-    var props = c.rProperties || [];
-    // 舊資料 fallback：如果沒有 rProperties 但有 rAddr/rCommunity，自動建一筆
-    if (!props.length && (c.rAddr || c.rCommunity)) {
-        props = [{ rAddr: c.rAddr || '', rCommunity: c.rCommunity || '', rStartDate: c.rStartDate || '', rpDriveUrl: '' }];
-    }
-    if (!props.length) {
+    var all = _getAllDriveProps(c);
+    if (!all.length) {
         alert('此客戶尚無物件資料，請先新增物件');
         return;
     }
-    var withUrl = props.filter(function(p){ return p.rpDriveUrl; });
-    var withoutUrl = props.filter(function(p){ return !p.rpDriveUrl; });
-    // 只有一個物件且已有連結：直接開啟
-    if (props.length === 1 && withUrl.length === 1) {
-        window.open(withUrl[0].rpDriveUrl, '_blank');
+    var withUrl = all.filter(function(a){ return a.url; });
+    if (all.length === 1 && withUrl.length === 1) {
+        window.open(withUrl[0].url, '_blank');
         return;
     }
-    // 只有一個物件但沒連結：直接進設定
-    if (props.length === 1 && withUrl.length === 0) {
-        cardSetDriveFolder(clientId, 0);
+    if (all.length === 1 && !withUrl.length) {
+        cardSetDriveFolder(clientId, all[0].src, all[0].idx);
         return;
     }
-    // 彈出物件清單（可開啟或設定）
-    var clientName = c.llName || c.ttName || c.name || '';
     var overlay = document.createElement('div');
     overlay.className = 'fill-overlay';
     var box = document.createElement('div');
     box.className = 'fill-menu';
     box.style.padding = '16px'; box.style.minWidth = '300px';
     var html = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">雲端資料夾</div>';
-    props.forEach(function(p, i) {
-        var label = p.rAddr || p.rCommunity || '物件 '+(i+1);
-        if (p.rpDriveUrl) {
+    all.forEach(function(a) {
+        var tag = '<span style="font-size:10px;padding:1px 5px;border-radius:3px;background:'+(a.type==='租案'?'#EDE9FE':'#D1FAE5')+';color:'+(a.type==='租案'?'#5B21B6':'#065F46')+';margin-right:4px">'+a.type+'</span>';
+        if (a.url) {
             html += '<div style="display:flex;gap:6px;margin-bottom:6px">' +
-                '<button type="button" style="flex:1;text-align:left;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px" onclick="window.open(\''+esc(p.rpDriveUrl)+'\',\'_blank\')">📂 '+esc(label)+'</button>' +
-                '<button type="button" style="padding:10px 8px;border:1px solid var(--border);border-radius:8px;background:var(--bg);cursor:pointer;font-size:11px;color:var(--muted)" onclick="cardSetDriveFolder(\''+esc(clientId)+'\','+i+')">重設</button>' +
+                '<button type="button" style="flex:1;text-align:left;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px" onclick="window.open(\''+esc(a.url)+'\',\'_blank\')">📂 '+tag+esc(a.label)+'</button>' +
+                '<button type="button" style="padding:10px 8px;border:1px solid var(--border);border-radius:8px;background:var(--bg);cursor:pointer;font-size:11px;color:var(--muted)" onclick="cardSetDriveFolder(\''+esc(clientId)+'\',\''+a.src+'\','+a.idx+')">重設</button>' +
             '</div>';
         } else {
-            html += '<button type="button" style="display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:6px;border:1px dashed var(--border);border-radius:8px;background:var(--bg);cursor:pointer;font-size:13px;color:var(--muted)" onclick="cardSetDriveFolder(\''+esc(clientId)+'\','+i+')">📁 '+esc(label)+' — 點擊設定</button>';
+            html += '<button type="button" style="display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:6px;border:1px dashed var(--border);border-radius:8px;background:var(--bg);cursor:pointer;font-size:13px;color:var(--muted)" onclick="cardSetDriveFolder(\''+esc(clientId)+'\',\''+a.src+'\','+a.idx+')">📁 '+tag+esc(a.label)+' — 點擊設定</button>';
         }
     });
     html += '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="display:block;width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;margin-top:4px">關閉</button>';
@@ -4682,22 +4688,22 @@ function openDriveFolder(clientId) {
     overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
     document.body.appendChild(overlay);
 }
-function cardSetDriveFolder(clientId, propIdx) {
+function cardSetDriveFolder(clientId, src, propIdx) {
     var c = DB.find(function(x){ return x.id === clientId; });
     if (!c) return;
-    // 舊資料 fallback：自動建立 rProperties
-    if (!c.rProperties || !c.rProperties.length) {
+    // 舊資料 fallback
+    if (src === 'rProperties' && (!c.rProperties || !c.rProperties.length)) {
         if (c.rAddr || c.rCommunity) {
             c.rProperties = [{ rAddr: c.rAddr || '', rCommunity: c.rCommunity || '', rStartDate: c.rStartDate || '', rpDriveUrl: '' }];
-        } else {
-            return;
-        }
+        } else { return; }
     }
-    if (!c.rProperties[propIdx]) return;
-    var prop = c.rProperties[propIdx];
-    var clientName = c.llName || c.ttName || c.name || '';
-    var folderName = rpBuildFolderNameFromData(prop, clientName);
-    // 關閉上一層 overlay
+    var propList = c[src];
+    if (!propList || !propList[propIdx]) return;
+    var prop = propList[propIdx];
+    var type = src === 'rProperties' ? '租案' : '庫存';
+    var urlKey = src === 'rProperties' ? 'rpDriveUrl' : 'spDriveUrl';
+    var clientName = c.llName || c.ttName || c.sName || c.name || '';
+    var folderName = buildDriveFolderName(type, prop, clientName);
     var oldOverlay = document.querySelector('.fill-overlay');
     if (oldOverlay) oldOverlay.remove();
     var overlay = document.createElement('div');
@@ -4712,7 +4718,7 @@ function cardSetDriveFolder(clientId, propIdx) {
             '<button type="button" id="cardCopyNameBtn" style="padding:8px 12px;border:none;border-radius:8px;background:#8B5CF6;color:white;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap">複製</button>' +
         '</div>' +
         '<div style="font-size:13px;color:var(--muted);margin-bottom:8px">步驟 2：將資料夾連結貼到下方</div>' +
-        '<input id="cardFolderUrl" placeholder="貼上 Google Drive 資料夾連結" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:12px" value="'+esc(prop.rpDriveUrl||'')+'">' +
+        '<input id="cardFolderUrl" placeholder="貼上雲端資料夾連結" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:12px" value="'+esc(prop[urlKey]||'')+'">' +
         '<div style="display:flex;gap:8px;justify-content:flex-end">' +
             '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
             '<button type="button" id="cardFolderSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#8B5CF6;color:white;cursor:pointer;font-size:14px;font-weight:600">儲存</button>' +
@@ -4733,7 +4739,7 @@ function cardSetDriveFolder(clientId, propIdx) {
             alert('請貼上有效的雲端資料夾連結');
             return;
         }
-        prop.rpDriveUrl = url;
+        prop[urlKey] = url;
         persist(); render();
         overlay.remove();
     };
