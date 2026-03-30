@@ -2195,19 +2195,26 @@ function getData() {
             return 0;
         });
     }
-    // 非租案頁面但有租案客戶：根據角色標籤決定 _viewAs
-    if (curFilter !== '租案管理' && curFilter !== '租案_房東' && curFilter !== '租案_租客' && curFilter !== 'all') {
+    // 非租案頁面的租案客戶：根據角色標籤決定 _viewAs
+    if (curFilter !== '租案管理' && curFilter !== '租案_房東' && curFilter !== '租案_租客') {
         var newList = [];
         list.forEach(function(c) {
             if (!hasType(c, '租案管理')) { newList.push(c); return; }
+            if (curFilter === 'all') {
+                // 總覽：有房東就顯示房東，否則顯示原始
+                var hasLL = (c.rLandlords && c.rLandlords.length) || c.rLandlord || c.llName;
+                if (hasLL) newList.push(Object.assign({}, c, {_viewAs:'landlord'}));
+                else newList.push(c);
+                return;
+            }
             var llHas = c.rLandlordTypes && c.rLandlordTypes.includes(curFilter);
             var ttHas = c.rTenantTypes && c.rTenantTypes.includes(curFilter);
             if (llHas) newList.push(Object.assign({}, c, {_viewAs:'landlord'}));
             if (ttHas) newList.push(Object.assign({}, c, {_viewAs:'tenant'}));
             if (!llHas && !ttHas) {
                 // 舊資料 fallback：標籤在全域types但未分角色，預設用房東
-                var hasLL = (c.rLandlords && c.rLandlords.length) || c.rLandlord || c.llName;
-                if (hasLL) newList.push(Object.assign({}, c, {_viewAs:'landlord'}));
+                var hasLL2 = (c.rLandlords && c.rLandlords.length) || c.rLandlord || c.llName;
+                if (hasLL2) newList.push(Object.assign({}, c, {_viewAs:'landlord'}));
                 else newList.push(c);
             }
         });
