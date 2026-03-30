@@ -1662,6 +1662,27 @@ function autoFetchCloud() {
             var localJSON = JSON.stringify(DB);
             // 資料不同才更新
             if (cloudJSON !== localJSON) {
+                // 合併：保留本機的 rpDriveUrl/spDriveUrl 不被雲端覆蓋
+                cloudData.forEach(function(cc) {
+                    var local = DB.find(function(x){ return x.id === cc.id; });
+                    if (!local) return;
+                    if (local.rProperties && local.rProperties.length) {
+                        if (!cc.rProperties) cc.rProperties = [];
+                        local.rProperties.forEach(function(lp, i) {
+                            if (lp.rpDriveUrl && cc.rProperties[i] && !cc.rProperties[i].rpDriveUrl) {
+                                cc.rProperties[i].rpDriveUrl = lp.rpDriveUrl;
+                            }
+                        });
+                    }
+                    if (local.sProperties && local.sProperties.length) {
+                        if (!cc.sProperties) cc.sProperties = [];
+                        local.sProperties.forEach(function(lp, i) {
+                            if (lp.spDriveUrl && cc.sProperties[i] && !cc.sProperties[i].spDriveUrl) {
+                                cc.sProperties[i].spDriveUrl = lp.spDriveUrl;
+                            }
+                        });
+                    }
+                });
                 DB = cloudData;
                 DB.forEach(function(c) { if (!c.types) c.types = c.type ? [c.type] : []; });
                 _lastSyncJSON = JSON.stringify(DB);
