@@ -2356,8 +2356,8 @@ function getData() {
         });
         list = newList;
     }
-    // 租案管理：拆分房東/租客卡片
-    if (curFilter === '租案管理' || curFilter === '租案_房東' || curFilter === '租案_租客' || (q && curFilter === 'all')) {
+    // 租案管理：拆分房東/租客卡片（搜尋時任何頁籤都拆分）
+    if (curFilter === '租案管理' || curFilter === '租案_房東' || curFilter === '租案_租客' || q) {
         var expanded = [];
         list.forEach(function(c) {
             if (!hasType(c, '租案管理')) { expanded.push(c); return; }
