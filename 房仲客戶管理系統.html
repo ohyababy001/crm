@@ -5405,15 +5405,16 @@ function showFillMenu(btn, target) {
     // 關閉其他選單
     document.querySelectorAll('.fill-overlay').forEach(function(m){ m.remove(); });
     var sources = collectPersonSources(target);
-    if (!sources.length) { alert('其他類型沒有可帶入的資料'); return; }
     var overlay = document.createElement('div');
     overlay.className = 'fill-overlay';
     var menu = document.createElement('div');
     menu.className = 'fill-menu';
+    menu.style.maxHeight = '70vh'; menu.style.overflowY = 'auto';
     var title = document.createElement('div');
     title.className = 'fill-menu-title';
     title.textContent = '選擇要帶入的資料';
     menu.appendChild(title);
+    // 同客戶的其他類型
     sources.forEach(function(s) {
         var item = document.createElement('div');
         item.className = 'fill-menu-item';
@@ -5421,9 +5422,54 @@ function showFillMenu(btn, target) {
         item.onclick = function(e) { e.stopPropagation(); applyFill(target, s); overlay.remove(); };
         menu.appendChild(item);
     });
+    // 從其他客戶搜尋帶入
+    if (target === 'landlord' || target === 'tenant' || target === 'buyer' || target === 'seller' || target === 'closed' || target === 'dev') {
+        var searchDiv = document.createElement('div');
+        searchDiv.style.cssText = 'margin-top:8px;padding-top:8px;border-top:1px solid var(--border)';
+        searchDiv.innerHTML = '<div style="font-size:12px;color:var(--muted);margin-bottom:4px">從其他客戶搜尋</div>' +
+            '<input id="fillSearchInput" type="text" placeholder="輸入姓名搜尋..." style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;box-sizing:border-box">' +
+            '<div id="fillSearchResults" style="margin-top:4px"></div>';
+        menu.appendChild(searchDiv);
+        setTimeout(function() {
+            var input = document.getElementById('fillSearchInput');
+            if (input) input.oninput = function() { fillSearchDB(this.value, target, overlay); };
+        }, 50);
+    }
     overlay.appendChild(menu);
     overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
     document.body.appendChild(overlay);
+}
+function fillSearchDB(val, target, overlay) {
+    var results = document.getElementById('fillSearchResults');
+    if (!results) return;
+    val = val.trim().toLowerCase();
+    if (!val) { results.innerHTML = ''; return; }
+    var matches = [];
+    var fieldMap = {
+        'landlord': function(c) { return [{name:c.llName, phone:c.llPhone, idNo:c.llIdNo, occupation:c.llOccupation, birthday:c.llBirthday?isoToROC(c.llBirthday):'', email:c.llEmail, source:c.llSource, addrType:c.llAddrType, zip:c.llZip, addr:c.llAddr, bank:c.llBank, bankCode:c.llBankCode, bankAccount:c.llBankAccount, src:'房東'}]; },
+        'tenant': function(c) { return [{name:c.ttName, phone:c.ttPhone, idNo:c.ttIdNo, occupation:c.ttOccupation, birthday:c.ttBirthday?isoToROC(c.ttBirthday):'', email:c.ttEmail, source:c.ttSource, addrType:c.ttAddrType, zip:c.ttZip, addr:c.ttAddr, src:'租客'}]; },
+        'buyer': function(c) { return [{name:c.bName, phone:c.bPhone, idNo:c.bIdNo, occupation:c.bOccupation, birthday:c.bBirthday?isoToROC(c.bBirthday):'', email:c.bEmail, source:c.bSource, src:'買方'}]; },
+        'seller': function(c) { return [{name:c.sName, phone:c.sPhone, idNo:c.sIdNo, occupation:c.sOccupation, birthday:c.sBirthday?isoToROC(c.sBirthday):'', email:c.sEmail, source:c.sSource, src:'庫存'}]; },
+        'closed': function(c) { return [{name:c.cName, phone:c.cPhone, idNo:c.cIdNo, occupation:c.cOccupation, birthday:c.cBirthday?isoToROC(c.cBirthday):'', email:c.cEmail, source:c.cSource, src:'成交'}]; },
+        'dev': function(c) { return [{name:c.dName, phone:c.dPhone, idNo:c.dIdNo, occupation:c.dOccupation, birthday:c.dBirthday?isoToROC(c.dBirthday):'', email:c.dEmail, source:c.dSource, src:'商機'}]; }
+    };
+    var getFn = fieldMap[target];
+    if (!getFn) return;
+    DB.forEach(function(c) {
+        if (c._deleted || c.id === editId) return;
+        var items = getFn(c);
+        items.forEach(function(s) {
+            if (s.name && s.name.toLowerCase().includes(val)) matches.push(s);
+        });
+    });
+    // 去重
+    var seen = {};
+    matches = matches.filter(function(m) { var k = m.name+'_'+m.phone; if(seen[k]) return false; seen[k]=true; return true; });
+    if (matches.length > 10) matches = matches.slice(0, 10);
+    results.innerHTML = matches.map(function(s) {
+        return '<div class="fill-menu-item" style="cursor:pointer" onclick="applyFill(\''+target+'\',JSON.parse(this.getAttribute(\'data-s\')));this.closest(\'.fill-overlay\').remove()" data-s=\''+esc(JSON.stringify(s))+'\'>' +
+            '<span>' + esc(s.name) + (s.phone ? ' ' + esc(s.phone) : '') + '</span><span class="fill-src">其他客戶・' + esc(s.src) + '</span></div>';
+    }).join('') || '<div style="padding:8px;color:var(--muted);font-size:12px">找不到符合的客戶</div>';
 }
 
 // ── 新增聯絡人的帶入 ──
