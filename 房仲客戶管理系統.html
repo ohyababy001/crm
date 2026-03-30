@@ -5677,7 +5677,7 @@ function openEdit(id, viewAs) {
   } catch(e) { alert('編輯錯誤: ' + e.message + '\n' + e.stack); }
 }
 
-function closeForm(){ document.getElementById('fModal').style.display='none'; }
+function closeForm(skipConfirm){ if(!skipConfirm && !confirm('確定關閉？未儲存的資料將會遺失')) return; document.getElementById('fModal').style.display='none'; }
 
 // ── 編輯頁左右切換 ──
 var editListCache = [];
@@ -5912,7 +5912,7 @@ function saveClient() {
         data.history = [{ type:'create', time: new Date().toISOString() }];
         DB.unshift(data);
     }
-    persist(); closeForm(); render();
+    persist(); closeForm(true); render();
 }
 
 function del(id) {
