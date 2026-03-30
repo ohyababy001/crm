@@ -2880,7 +2880,7 @@ function renderCard(c) {
 
         return `<div class="card${c.archived?' archived':''}${cardClass}" onclick="showDetByView('${c.id}','${c._viewAs||''}')">
             <div class="card-main">
-                <div class="card-name">${esc(cardName)}${nameSuffix}${sameLL}${c._viewAs!=='tenant'&&cTypes.includes('成交客戶')&&c.deals&&c.deals.length?`<span class="deal-count">${c.deals.length}</span>`:''}</div>
+                <div class="card-name">${esc(cardName)}${cTypes.includes('成交客戶')&&c.deals&&c.deals.length?`<span class="deal-count">${c.deals.length}</span>`:''}${nameSuffix}${sameLL}</div>
                 <div class="card-phone">${esc(cardPhone)}</div>
                 <div class="tags">
                     ${typeTags}
