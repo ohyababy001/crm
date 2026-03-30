@@ -1686,6 +1686,20 @@ function autoFetchCloud() {
                     ['bDriveUrl','cDriveUrl','dDriveUrl'].forEach(function(k) {
                         if (local[k] && !cc[k]) cc[k] = local[k];
                     });
+                    // 成交物件的雲端資料夾
+                    if (local.deals && local.deals.length) {
+                        if (!cc.deals) cc.deals = [];
+                        local.deals.forEach(function(ld, i) {
+                            if (ld.dealDriveUrl && cc.deals[i] && !cc.deals[i].dealDriveUrl) cc.deals[i].dealDriveUrl = ld.dealDriveUrl;
+                        });
+                    }
+                    // 商機物件的雲端資料夾
+                    if (local.dAddrs && local.dAddrs.length) {
+                        if (!cc.dAddrs) cc.dAddrs = [];
+                        local.dAddrs.forEach(function(ld, i) {
+                            if (ld.dAddrDriveUrl && cc.dAddrs[i] && !cc.dAddrs[i].dAddrDriveUrl) cc.dAddrs[i].dAddrDriveUrl = ld.dAddrDriveUrl;
+                        });
+                    }
                 });
                 DB = cloudData;
                 DB.forEach(function(c) { if (!c.types) c.types = c.type ? [c.type] : []; });
@@ -4718,13 +4732,15 @@ function addDAddrRow(data) {
         '</div>' +
     '</div>';
     document.getElementById('dAddrList').insertAdjacentHTML('beforeend', html);
+    var block = document.getElementById('da-'+dAddrId);
+    if (block) block._dAddrDriveUrl = d.dAddrDriveUrl || '';
 }
 function getDAddrs() {
     var r = [];
     document.querySelectorAll('#dAddrList .person-block').forEach(function(row) {
         var get = function(f){ var el=row.querySelector('[data-f="'+f+'"]'); return el?el.value.trim():''; };
         var devType = get('devType'), community = get('community'), addr = get('addr');
-        if (devType || community || addr) r.push({ devType:devType, community:community, addr:addr, houseType:get('houseType'), landSz:get('landSz'), bldgSz:get('bldgSz'), hasParking:get('hasParking'), parking:get('parking') });
+        if (devType || community || addr) r.push({ devType:devType, community:community, addr:addr, houseType:get('houseType'), landSz:get('landSz'), bldgSz:get('bldgSz'), hasParking:get('hasParking'), parking:get('parking'), dAddrDriveUrl: row._dAddrDriveUrl || '' });
     });
     return r;
 }
@@ -4792,12 +4808,25 @@ function buildDriveFolderName(type, prop, client) {
         else if (llName) namePart = '[房東]' + llName;
         else if (ttName) namePart = '[租客]' + ttName;
         else namePart = '未填姓名';
+    } else if (type === '成交') {
+        // 【成交】成交日期-買/賣方-成交地址-姓名
+        var dealDate = '';
+        if (prop.date) dealDate = isoToROC(prop.date).replace(/\//g, '');
+        var role = prop.role || '';
+        var dealAddr = prop.addr || prop.community || '';
+        var cName = typeof client === 'object' ? (client.cName || client.name || '') : (client || '');
+        var parts = ['【成交】'];
+        if (dealDate) parts.push(dealDate);
+        if (role) parts.push(role);
+        if (dealAddr) parts.push(dealAddr);
+        parts.push(cName || '未填姓名');
+        return parts[0] + parts.slice(1).join('-');
     } else if (typeof client === 'object') {
-        namePart = client.bName || client.sName || client.cName || client.dName || client.name || '未填姓名';
+        namePart = client.bName || client.sName || client.dName || client.name || '未填姓名';
     } else {
         namePart = client || '未填姓名';
     }
-    // 買方/成交/商機不一定有地址，組合不同格式
+    // 組合格式
     if (addr === '未填地址' && !dateStr) return '【' + type + '】' + namePart;
     if (addr === '未填地址') return '【' + type + '】' + dateStr + '-' + namePart;
     if (!dateStr) return '【' + type + '】' + addr + '-' + namePart;
@@ -4819,12 +4848,24 @@ function _getAllDriveProps(c) {
     if (cTypes.includes('經營買方')) {
         all.push({ type:'買方', label: c.bName || '買方', url: c.bDriveUrl || '', urlKey:'bDriveUrl', src:'_client', idx:0, prop:c });
     }
-    // 成交
-    if (cTypes.includes('成交客戶')) {
+    // 成交（每筆成交物件各一個）
+    var deals = c.deals || [];
+    deals.forEach(function(d, i) {
+        var label = (d.role||'') + ' ' + (d.addr || d.community || '成交物件 '+(i+1));
+        all.push({ type:'成交', label: label, url: d.dealDriveUrl || '', urlKey:'dealDriveUrl', src:'deals', idx:i, prop:d });
+    });
+    // 成交通用（無成交物件時或額外）
+    if (!deals.length && cTypes.includes('成交客戶')) {
         all.push({ type:'成交', label: c.cName || '成交客戶', url: c.cDriveUrl || '', urlKey:'cDriveUrl', src:'_client', idx:0, prop:c });
     }
-    // 商機
-    if (cTypes.includes('商機募集')) {
+    // 商機（每筆物件各一個）
+    var dAddrs = c.dAddrs || [];
+    dAddrs.forEach(function(d, i) {
+        var label = (d.addr || d.community || '商機物件 '+(i+1));
+        all.push({ type:'商機', label: label, url: d.dAddrDriveUrl || '', urlKey:'dAddrDriveUrl', src:'dAddrs', idx:i, prop:d });
+    });
+    // 商機通用（無物件時）
+    if (!dAddrs.length && cTypes.includes('商機募集')) {
         all.push({ type:'商機', label: c.dName || '商機', url: c.dDriveUrl || '', urlKey:'dDriveUrl', src:'_client', idx:0, prop:c });
     }
     return all;
@@ -4890,8 +4931,10 @@ function cardSetDriveFolder(clientId, src, propIdx) {
         var propList = c[src];
         if (!propList || !propList[propIdx]) return;
         prop = propList[propIdx];
-        type = src === 'rProperties' ? '租案' : '庫存';
-        urlKey = src === 'rProperties' ? 'rpDriveUrl' : 'spDriveUrl';
+        var srcMap = {'rProperties':['租案','rpDriveUrl'],'sProperties':['庫存','spDriveUrl'],'deals':['成交','dealDriveUrl'],'dAddrs':['商機','dAddrDriveUrl']};
+        var m = srcMap[src] || ['',''];
+        type = m[0]; urlKey = m[1];
+        if (!urlKey) return;
     }
     var folderName = buildDriveFolderName(type, prop, c);
     var oldOverlay = document.querySelector('.fill-overlay');
@@ -5045,6 +5088,8 @@ function addDealRow(data) {
         '</div>' +
         '</div>';
     document.getElementById('dealList').insertAdjacentHTML('beforeend', html);
+    var block = document.getElementById('deal-'+i);
+    if (block) block._dealDriveUrl = d.dealDriveUrl || '';
 }
 function removeDeal(i) {
     var el = document.getElementById('deal-'+i);
@@ -5058,7 +5103,7 @@ function getDeals() {
         var community = row.querySelector('.deal-community').value.trim();
         var addr = row.querySelector('.deal-addr').value.trim();
         var price = row.querySelector('.deal-price').value.trim();
-        if (date || community || addr || price) deals.push({ role:role, date:date, community:community, addr:addr, price:price });
+        if (date || community || addr || price) deals.push({ role:role, date:date, community:community, addr:addr, price:price, dealDriveUrl: row._dealDriveUrl || '' });
     });
     return deals;
 }
