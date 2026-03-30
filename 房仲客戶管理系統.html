@@ -1536,7 +1536,7 @@ localStorage.setItem('reCRM', JSON.stringify(DB));
 function getTypes(c) { return c.types && c.types.length ? c.types : (c.type ? [c.type] : []); }
 function getDisplayTypesForRole(c, cTypes) {
     if (c._viewAs === 'landlord') {
-        var llTypes = c.rLandlordTypes;
+        var llTypes = c._mergedLandlordTypes || c.rLandlordTypes;
         if (!llTypes && !c.rTenantTypes) llTypes = cTypes.filter(function(t){ return t !== '租案管理'; });
         return ['租案管理'].concat(llTypes || []);
     } else if (c._viewAs === 'tenant') {
@@ -1547,6 +1547,23 @@ function getDisplayTypesForRole(c, cTypes) {
     return cTypes.slice();
 }
 function hasType(c, t) { return getTypes(c).includes(t); }
+function getMergedLandlordTypes(c) {
+    var ll = (c.rLandlords && c.rLandlords[0]) || {name: c.rLandlord || c.llName, phone: c.rLandlordPhone || c.llPhone};
+    var llName = (ll.name || '').trim();
+    var llPhone = (ll.phone || '').trim();
+    if (!llName && !llPhone) return (c.rLandlordTypes || []).slice();
+    var llKey = (llName + '_' + llPhone).toLowerCase();
+    var merged = {};
+    (c.rLandlordTypes || []).forEach(function(t) { merged[t] = true; });
+    DB.forEach(function(x) {
+        if (x._deleted || x.id === c.id || !hasType(x, '租案管理')) return;
+        var xll = (x.rLandlords && x.rLandlords[0]) || {name: x.rLandlord || x.llName, phone: x.rLandlordPhone || x.llPhone};
+        if (((xll.name||'') + '_' + (xll.phone||'')).toLowerCase() === llKey) {
+            (x.rLandlordTypes || []).forEach(function(t) { merged[t] = true; });
+        }
+    });
+    return Object.keys(merged);
+}
 
 let curFilter = 'all';
 let editId = null;
@@ -2279,7 +2296,14 @@ function getData() {
         if (curFilter === 'all') list = [...activeDB];
         else if (curFilter === '租案_房東') list = activeDB.filter(function(c){ return hasType(c,'租案管理') && ((c.rLandlords && c.rLandlords.length) || c.rLandlord || c.llName); });
         else if (curFilter === '租案_租客') list = activeDB.filter(function(c){ return hasType(c,'租案管理') && ((c.rTenants && c.rTenants.length) || c.rTenant || c.ttName); });
-        else list = activeDB.filter(c => hasType(c, curFilter));
+        else list = activeDB.filter(function(c) {
+            if (hasType(c, curFilter)) return true;
+            // 同房東共享標籤：租案記錄的合併標籤包含當前篩選類型
+            if (hasType(c, '租案管理') && ['經營買方','庫存屋主','成交客戶','商機募集'].includes(curFilter)) {
+                return getMergedLandlordTypes(c).includes(curFilter);
+            }
+            return false;
+        });
         if (!showArchived) list = list.filter(c => !c.archived);
     }
     if (q) list = list.filter(function(c) {
@@ -2300,7 +2324,7 @@ function getData() {
         }
         // 非租案的四大功能：租案客戶只搜對應角色的名字
         if (curFilter !== 'all' && curFilter !== '租案管理' && hasType(c, '租案管理')) {
-            var llHas = c.rLandlordTypes && c.rLandlordTypes.includes(curFilter);
+            var llHas = getMergedLandlordTypes(c).includes(curFilter);
             var ttHas = c.rTenantTypes && c.rTenantTypes.includes(curFilter);
             // 舊資料fallback
             if (!llHas && !ttHas) { llHas = true; }
@@ -2388,7 +2412,7 @@ function getData() {
                 }
                 return;
             }
-            var llHas = c.rLandlordTypes && c.rLandlordTypes.includes(curFilter);
+            var llHas = getMergedLandlordTypes(c).includes(curFilter);
             var ttHas = c.rTenantTypes && c.rTenantTypes.includes(curFilter);
             if (llHas) newList.push(Object.assign({}, c, {_viewAs:'landlord'}));
             if (ttHas) newList.push(Object.assign({}, c, {_viewAs:'tenant'}));
@@ -2696,6 +2720,7 @@ function renderCard(c) {
         var primaryType = (curFilter !== 'all' && cTypes.includes(curFilter)) ? curFilter : cTypes[0];
         const tc = TC[primaryType]||'buyer';
         // 根據角色顯示對應標籤，當前功能排第一
+        if (c._viewAs === 'landlord' && hasType(c, '租案管理')) c._mergedLandlordTypes = getMergedLandlordTypes(c);
         var displayTypes = getDisplayTypesForRole(c, cTypes);
         if (curFilter !== 'all' && displayTypes.includes(curFilter)) {
             displayTypes = [curFilter].concat(displayTypes.filter(function(t){ return t !== curFilter; }));
@@ -3269,7 +3294,8 @@ function showDet(id, viewAs) {
         var tt = (c.rTenants && c.rTenants[0]) || {name:c.rTenant,phone:c.rTenantPhone};
         detName = tt.name || c.name; detPhone = tt.phone || c.phone || '';
     }
-    var detDisplayTypes = getDisplayTypesForRole({_viewAs:detViewAs, rLandlordTypes:c.rLandlordTypes, rTenantTypes:c.rTenantTypes}, cTypes);
+    var mergedLL = detViewAs === 'landlord' ? getMergedLandlordTypes(c) : c.rLandlordTypes;
+    var detDisplayTypes = getDisplayTypesForRole({_viewAs:detViewAs, _mergedLandlordTypes:mergedLL, rLandlordTypes:mergedLL, rTenantTypes:c.rTenantTypes}, cTypes);
     var primaryType = detDisplayTypes[0] || cTypes[0];
     const tc = TC[primaryType]||'buyer';
     const statusTag = !cTypes.includes('經營買方') && c.status ? `<span class="tag s-${c.status}">${c.status}</span>` : '';
@@ -4957,7 +4983,7 @@ function openDriveFolder(clientId, viewAs) {
     var all = _getAllDriveProps(c);
     // 根據 viewAs 過濾：房東/租客只看租案（共用）+自己角色的標籤對應類別
     if (viewAs === 'landlord' || viewAs === 'tenant') {
-        var roleTypes = viewAs === 'landlord' ? (c.rLandlordTypes || []) : (c.rTenantTypes || []);
+        var roleTypes = viewAs === 'landlord' ? getMergedLandlordTypes(c) : (c.rTenantTypes || []);
         var typeMap = {'經營買方':'買方','庫存屋主':'庫存','成交客戶':'成交','商機募集':'商機'};
         var allowTypes = ['租案'];
         roleTypes.forEach(function(t){ if(typeMap[t]) allowTypes.push(typeMap[t]); });
