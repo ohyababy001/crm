@@ -2836,7 +2836,7 @@ function renderCard(c) {
             </div>
             <div class="card-bottom-right">
                 <div style="display:flex;gap:6px">
-                    <button class="btn-ic" onclick="event.stopPropagation();openDriveFolder('${c.id}')" title="雲端資料夾">${getRpDriveIcon(c)}</button>
+                    <button class="btn-ic" onclick="event.stopPropagation();openDriveFolder('${c.id}','${c._viewAs||''}')" title="雲端資料夾">${getRpDriveIcon(c)}</button>
                     <button class="btn-ic" onclick="event.stopPropagation();openEdit('${c.id}','${c._viewAs||''}')" title="編輯">✏️</button>
                     ${archBtn}
                     <button class="btn-ic del" onclick="event.stopPropagation();del('${c.id}')" title="刪除">🗑️</button>
@@ -4870,10 +4870,18 @@ function _getAllDriveProps(c) {
     }
     return all;
 }
-function openDriveFolder(clientId) {
+function openDriveFolder(clientId, viewAs) {
     var c = DB.find(function(x) { return x.id === clientId; });
     if (!c) return;
     var all = _getAllDriveProps(c);
+    // 根據 viewAs 過濾：房東/租客只看租案（共用）+自己角色的標籤對應類別
+    if (viewAs === 'landlord' || viewAs === 'tenant') {
+        var roleTypes = viewAs === 'landlord' ? (c.rLandlordTypes || []) : (c.rTenantTypes || []);
+        var typeMap = {'經營買方':'買方','庫存屋主':'庫存','成交客戶':'成交','商機募集':'商機'};
+        var allowTypes = ['租案'];
+        roleTypes.forEach(function(t){ if(typeMap[t]) allowTypes.push(typeMap[t]); });
+        all = all.filter(function(a){ return allowTypes.includes(a.type); });
+    }
     if (!all.length) {
         alert('此客戶尚無物件資料，請先新增物件');
         return;
