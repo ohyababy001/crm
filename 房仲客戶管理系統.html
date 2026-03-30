@@ -2855,12 +2855,21 @@ function renderCard(c) {
 
         // 租案卡片：根據 _viewAs 顯示不同名字和標籤
         var cardName = c.name, cardPhone = c.phone || '', cardClass = '', nameSuffix = '';
+        var sameLL = '';
         if (c._viewAs === 'landlord') {
             var ll = (c.rLandlords && c.rLandlords[0]) || {name:c.rLandlord, phone:c.rLandlordPhone};
             cardName = ll.name || c.name;
             cardPhone = ll.phone || c.phone || '';
             cardClass = ' landlord-card';
             nameSuffix = '<span style="font-size:13px;font-weight:600;color:#0891B2;margin-left:2px">房東</span>';
+            // 同房東關聯
+            var llKey = (cardName + '_' + cardPhone).toLowerCase();
+            var relatedCount = DB.filter(function(x) {
+                if (x._deleted || x.id === c.id || !hasType(x,'租案管理')) return false;
+                var xll = (x.rLandlords && x.rLandlords[0]) || {name:x.rLandlord||x.llName, phone:x.rLandlordPhone||x.llPhone};
+                return ((xll.name||'') + '_' + (xll.phone||'')).toLowerCase() === llKey;
+            }).length;
+            if (relatedCount > 0) sameLL = '<span style="font-size:10px;padding:1px 6px;border-radius:8px;background:#CFFAFE;color:#0E7490;font-weight:600;margin-left:4px;cursor:pointer" onclick="event.stopPropagation();showSameLandlord(\''+esc(cardName)+'\',\''+esc(cardPhone)+'\',\''+c.id+'\')">同房東 '+(relatedCount+1)+'筆</span>';
         } else if (c._viewAs === 'tenant') {
             var tt = (c.rTenants && c.rTenants[0]) || {name:c.rTenant, phone:c.rTenantPhone};
             cardName = tt.name || c.name;
@@ -2871,7 +2880,7 @@ function renderCard(c) {
 
         return `<div class="card${c.archived?' archived':''}${cardClass}" onclick="showDetByView('${c.id}','${c._viewAs||''}')">
             <div class="card-main">
-                <div class="card-name">${esc(cardName)}${nameSuffix}${c._viewAs!=='tenant'&&cTypes.includes('成交客戶')&&c.deals&&c.deals.length?`<span class="deal-count">${c.deals.length}</span>`:''}</div>
+                <div class="card-name">${esc(cardName)}${nameSuffix}${sameLL}${c._viewAs!=='tenant'&&cTypes.includes('成交客戶')&&c.deals&&c.deals.length?`<span class="deal-count">${c.deals.length}</span>`:''}</div>
                 <div class="card-phone">${esc(cardPhone)}</div>
                 <div class="tags">
                     ${typeTags}
@@ -5058,6 +5067,43 @@ function cardDelDriveFolder(clientId, src, propIdx, urlKey) {
     persist(); render();
     var overlay = document.querySelector('.fill-overlay');
     if (overlay) overlay.remove();
+}
+
+// ── 同房東關聯 ──
+function showSameLandlord(llName, llPhone, currentId) {
+    var llKey = (llName + '_' + llPhone).toLowerCase();
+    var related = DB.filter(function(c) {
+        if (c._deleted || !hasType(c,'租案管理')) return false;
+        var xll = (c.rLandlords && c.rLandlords[0]) || {name:c.rLandlord||c.llName, phone:c.rLandlordPhone||c.llPhone};
+        return ((xll.name||'') + '_' + (xll.phone||'')).toLowerCase() === llKey;
+    });
+    if (!related.length) return;
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.padding = '16px'; box.style.minWidth = '300px';
+    var html = '<div style="font-weight:700;font-size:15px;margin-bottom:4px">同房東：'+esc(llName)+'</div>' +
+        '<div style="font-size:12px;color:var(--muted);margin-bottom:12px">共 '+related.length+' 筆租案</div>';
+    related.forEach(function(c) {
+        var ttName = c.ttName || (c.rTenants && c.rTenants[0] ? c.rTenants[0].name : '') || c.rTenant || '未設租客';
+        var addr = '';
+        if (c.rProperties && c.rProperties.length) addr = c.rProperties[0].rAddr || c.rProperties[0].rCommunity || '';
+        if (!addr) addr = c.rAddr || c.rCommunity || '';
+        var isCurrent = c.id === currentId;
+        html += '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;margin-bottom:6px;border:1px solid '+(isCurrent?'#0891B2':'var(--border)')+';border-radius:8px;background:'+(isCurrent?'#ECFEFF':'white')+';cursor:pointer;font-size:13px" onclick="this.closest(\'.fill-overlay\').remove();showDetByView(\''+c.id+'\',\'landlord\')">' +
+            '<div style="flex:1">' +
+                '<div style="font-weight:600">'+esc(ttName)+' <span style="color:#DB2777;font-size:11px">租客</span>'+(isCurrent?' <span style="color:#0891B2;font-size:11px">（目前）</span>':'')+'</div>' +
+                (addr?'<div style="color:var(--muted);font-size:12px;margin-top:2px">'+esc(addr)+'</div>':'') +
+            '</div>' +
+            (c.rent?'<span style="color:#B45309;font-weight:600;font-size:12px">'+esc(c.rent)+'元</span>':'') +
+        '</div>';
+    });
+    html += '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="display:block;width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;margin-top:4px">關閉</button>';
+    box.innerHTML = html;
+    overlay.appendChild(box);
+    overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+    document.body.appendChild(overlay);
 }
 
 
