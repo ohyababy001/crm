@@ -2611,26 +2611,28 @@ function getData() {
         if (c.dAddrs && c.dAddrs.length) {
             if (c.dAddrs.some(function(da){ return (da.community||'').toLowerCase().includes(q) || (da.addr||'').toLowerCase().includes(q); })) return true;
         }
-        // 租案房東/租客頁籤：只搜對應角色
+        // 租案房東/租客頁籤：只搜對應角色（含額外聯絡人）
         if (curFilter === '租案_房東') {
-            return (c.llName||'').toLowerCase().includes(q) || (c.llPhone||'').includes(q);
+            if ((c.llName||'').toLowerCase().includes(q) || (c.llPhone||'').includes(q)) return true;
+            return (c.rLandlords||[]).slice(1).some(function(p){ return (p.name||'').toLowerCase().includes(q) || (p.phone||'').includes(q); });
         }
         if (curFilter === '租案_租客') {
-            return (c.ttName||'').toLowerCase().includes(q) || (c.ttPhone||'').includes(q);
+            if ((c.ttName||'').toLowerCase().includes(q) || (c.ttPhone||'').includes(q)) return true;
+            return (c.rTenants||[]).slice(1).some(function(p){ return (p.name||'').toLowerCase().includes(q) || (p.phone||'').includes(q); });
         }
-        // 非租案的四大功能：租案客戶只搜對應角色的名字
+        // 非租案的四大功能：租案客戶只搜對應角色的名字（含額外聯絡人）
         if (curFilter !== 'all' && curFilter !== '租案管理' && hasType(c, '租案管理')) {
             var llHas = getMergedLandlordTypes(c).includes(curFilter);
             var ttHas = c.rTenantTypes && c.rTenantTypes.includes(curFilter);
             // 舊資料fallback
             if (!llHas && !ttHas) { llHas = true; }
             var matched = false;
-            if (llHas) matched = matched || (c.llName||'').toLowerCase().includes(q) || (c.llPhone||'').includes(q);
-            if (ttHas) matched = matched || (c.ttName||'').toLowerCase().includes(q) || (c.ttPhone||'').includes(q);
+            if (llHas) { matched = matched || (c.llName||'').toLowerCase().includes(q) || (c.llPhone||'').includes(q) || (c.rLandlords||[]).slice(1).some(function(p){ return (p.name||'').toLowerCase().includes(q) || (p.phone||'').includes(q); }); }
+            if (ttHas) { matched = matched || (c.ttName||'').toLowerCase().includes(q) || (c.ttPhone||'').includes(q) || (c.rTenants||[]).slice(1).some(function(p){ return (p.name||'').toLowerCase().includes(q) || (p.phone||'').includes(q); }); }
             return matched;
         }
-        // 總覽或其他：搜全部
-        return c.name.toLowerCase().includes(q) ||
+        // 總覽或其他：搜全部（含新增聯絡人）
+        if (c.name.toLowerCase().includes(q) ||
             (c.phone||'').includes(q) ||
             (c.llName||'').toLowerCase().includes(q) ||
             (c.ttName||'').toLowerCase().includes(q) ||
@@ -2639,7 +2641,10 @@ function getData() {
             (c.sName||'').toLowerCase().includes(q) ||
             (c.bName||'').toLowerCase().includes(q) ||
             (c.cName||'').toLowerCase().includes(q) ||
-            (c.dName||'').toLowerCase().includes(q);
+            (c.dName||'').toLowerCase().includes(q)) return true;
+        // 搜尋新增聯絡人的姓名和電話
+        var _persons = [].concat(c.bPersons||[], c.sPersons||[], c.cContacts||[], c.dPersons||[], (c.rLandlords||[]).slice(1), (c.rTenants||[]).slice(1));
+        return _persons.some(function(p){ return (p.name||'').toLowerCase().includes(q) || (p.phone||'').includes(q); });
     });
     // Buyer filters
     if (curFilter === '經營買方') {
@@ -2751,8 +2756,8 @@ function getData() {
                 (c.rCommunity||'').toLowerCase().includes(q) ||
                 (c.rAddr||'').toLowerCase().includes(q);
             if (common) return true;
-            if (c._viewAs === 'landlord') return (c.llName||'').toLowerCase().includes(q) || (c.llPhone||'').includes(q);
-            if (c._viewAs === 'tenant') return (c.ttName||'').toLowerCase().includes(q) || (c.ttPhone||'').includes(q);
+            if (c._viewAs === 'landlord') return (c.llName||'').toLowerCase().includes(q) || (c.llPhone||'').includes(q) || (c.rLandlords||[]).slice(1).some(function(p){ return (p.name||'').toLowerCase().includes(q) || (p.phone||'').includes(q); });
+            if (c._viewAs === 'tenant') return (c.ttName||'').toLowerCase().includes(q) || (c.ttPhone||'').includes(q) || (c.rTenants||[]).slice(1).some(function(p){ return (p.name||'').toLowerCase().includes(q) || (p.phone||'').includes(q); });
             return true;
         });
     }
@@ -8260,7 +8265,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260401c';
+var APP_VERSION = '20260401d';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
