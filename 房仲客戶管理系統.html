@@ -7229,15 +7229,13 @@ function renderPerformance() {
             for (var mi=0; mi<12; mi++) { html += '<option value="'+mi+'"'+(_perfHistMonth===String(mi)?' selected':'')+'>'+(mi+1)+' 月</option>'; }
             html += '</select></div>';
         } else {
-            html += '<div style="background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:12px">' +
-                '<div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">' +
+            html += '<div style="background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:12px">' +
+                '<div style="display:flex;gap:8px;align-items:flex-end">' +
                     '<div style="flex:1"><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">起始日</label><div class="roc-date-wrap"><input id="perfHistStart" type="text" value="'+esc(_perfHistStart?isoToROC(_perfHistStart):'')+'" placeholder="114/01/01" style="width:100%;font-size:14px"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
-                    '<span style="font-size:16px;color:var(--muted);margin-top:16px">～</span>' +
+                    '<span style="font-size:16px;color:var(--muted);padding-bottom:4px">～</span>' +
                     '<div style="flex:1"><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">結束日</label><div class="roc-date-wrap"><input id="perfHistEnd" type="text" value="'+esc(_perfHistEnd?isoToROC(_perfHistEnd):'')+'" placeholder="115/12/31" style="width:100%;font-size:14px"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
-                '</div>' +
-                '<div style="display:flex;gap:8px;justify-content:flex-end">' +
-                    '<button type="button" onclick="_perfHistStart=\'\';_perfHistEnd=\'\';renderPerformance()" style="padding:6px 16px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:13px;color:var(--text)">清除</button>' +
-                    '<button type="button" onclick="_perfHistStart=rocToISO(document.getElementById(\'perfHistStart\').value);_perfHistEnd=rocToISO(document.getElementById(\'perfHistEnd\').value);renderPerformance()" style="padding:6px 16px;border:none;border-radius:6px;background:#8B5CF6;color:white;cursor:pointer;font-size:13px;font-weight:600">查詢</button>' +
+                    '<button type="button" onclick="_perfHistStart=\'\';_perfHistEnd=\'\';renderPerformance()" style="padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:13px;color:var(--text);white-space:nowrap">清除</button>' +
+                    '<button type="button" onclick="_perfHistStart=rocToISO(document.getElementById(\'perfHistStart\').value);_perfHistEnd=rocToISO(document.getElementById(\'perfHistEnd\').value);renderPerformance()" style="padding:6px 12px;border:none;border-radius:6px;background:#8B5CF6;color:white;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap">查詢</button>' +
                 '</div>' +
             '</div>';
         }
@@ -7285,30 +7283,25 @@ function renderPerformance() {
     } else {
         rangeLabel = { month:'本月', quarter:'本季', year:'本年', all:'全部' }[range];
     }
-    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
-        '<div style="background:#FEF3C7;border-radius:10px;padding:14px">' +
-            '<div style="font-size:12px;color:#92400E;margin-bottom:8px;font-weight:600;text-align:center">'+rangeLabel+'買賣案 <span style="font-size:22px;font-weight:800;color:#B45309">'+buyCount+'</span> 筆</div>' +
-            '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:12px;color:#92400E">業績</span><span style="font-size:18px;font-weight:800;color:#B45309">'+buyFeeTax.toLocaleString()+'<span style="font-size:11px">元</span></span></div>' +
-            '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:12px;color:#92400E">實收</span><span style="font-size:18px;font-weight:800;color:#B45309">'+buyFeeNoTax.toLocaleString()+'<span style="font-size:11px">元</span></span></div>' +
-        '</div>' +
-        '<div style="background:#EDE9FE;border-radius:10px;padding:14px">' +
-            '<div style="font-size:12px;color:#6D28D9;margin-bottom:8px;font-weight:600;text-align:center">'+rangeLabel+'租賃案 <span style="font-size:22px;font-weight:800;color:#5B21B6">'+rentCount+'</span> 筆</div>' +
-            '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:12px;color:#6D28D9">業績</span><span style="font-size:18px;font-weight:800;color:#5B21B6">'+rentFeeTax.toLocaleString()+'<span style="font-size:11px">元</span></span></div>' +
-            '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:12px;color:#6D28D9">實收</span><span style="font-size:18px;font-weight:800;color:#5B21B6">'+rentFeeNoTax.toLocaleString()+'<span style="font-size:11px">元</span></span></div>' +
-        '</div>' +
-    '</div>';
-    // 總業績、總實收、總收入
     var _totalFeeTax = buyFeeTax + rentFeeTax;
     var _totalFeeNoTax = buyFeeNoTax + rentFeeNoTax;
     var _rate = 0.63;
     var _totalIncome = Math.round(_totalFeeTax * _rate + _totalFeeNoTax);
-    html += '<div style="background:#F0FDF4;border-radius:10px;padding:12px 14px;margin-bottom:12px">' +
-        '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px"><span style="font-size:13px;font-weight:700;color:#065F46">總業績</span><span style="font-size:18px;font-weight:800;color:#047857">'+_totalFeeTax.toLocaleString()+'<span style="font-size:11px">元</span></span></div>' +
-        '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px"><span style="font-size:13px;font-weight:700;color:#065F46">總實收</span><span style="font-size:18px;font-weight:800;color:#047857">'+_totalFeeNoTax.toLocaleString()+'<span style="font-size:11px">元</span></span></div>' +
-        '<div style="border-top:1px solid #BBF7D0;padding-top:8px;display:flex;justify-content:space-between;align-items:baseline">' +
-            '<div><span style="font-size:13px;font-weight:700;color:#065F46">總收入</span><span style="font-size:11px;color:#6B7280;margin-left:6px">業績×'+_rate+' + 實收</span></div>' +
-            '<span style="font-size:22px;font-weight:800;color:#047857">'+_totalIncome.toLocaleString()+'<span style="font-size:12px">元</span></span>' +
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">' +
+        '<div style="background:#FEF3C7;border-radius:8px;padding:6px 8px">' +
+            '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px"><span style="font-size:11px;color:#92400E;font-weight:600">'+rangeLabel+'買賣案</span><span style="font-size:14px;font-weight:800;color:#B45309">'+buyCount+'<span style="font-size:10px;font-weight:600"> 筆</span></span></div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:#92400E">業績</span><span style="font-size:13px;font-weight:800;color:#B45309">'+buyFeeTax.toLocaleString()+'</span></div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:#92400E">實收</span><span style="font-size:13px;font-weight:800;color:#B45309">'+buyFeeNoTax.toLocaleString()+'</span></div>' +
         '</div>' +
+        '<div style="background:#EDE9FE;border-radius:8px;padding:6px 8px">' +
+            '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px"><span style="font-size:11px;color:#6D28D9;font-weight:600">'+rangeLabel+'租賃案</span><span style="font-size:14px;font-weight:800;color:#5B21B6">'+rentCount+'<span style="font-size:10px;font-weight:600"> 筆</span></span></div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:#6D28D9">業績</span><span style="font-size:13px;font-weight:800;color:#5B21B6">'+rentFeeTax.toLocaleString()+'</span></div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:#6D28D9">實收</span><span style="font-size:13px;font-weight:800;color:#5B21B6">'+rentFeeNoTax.toLocaleString()+'</span></div>' +
+        '</div>' +
+    '</div>' +
+    '<div style="background:#F0FDF4;border-radius:8px;padding:6px 10px;margin-bottom:6px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px"><span style="font-size:11px;font-weight:600;color:#065F46">總業績 '+_totalFeeTax.toLocaleString()+' ｜ 總實收 '+_totalFeeNoTax.toLocaleString()+'</span></div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:11px;font-weight:700;color:#065F46">總收入 <span style="font-size:10px;color:#6B7280;font-weight:400">業績×'+_rate+'+實收</span></span><span style="font-size:16px;font-weight:800;color:#047857">'+_totalIncome.toLocaleString()+'<span style="font-size:10px">元</span></span></div>' +
     '</div>';
     // 搜尋列（固定區域）
     html += '<div id="perfSearchWrap" style="display:flex;align-items:center;gap:8px;margin-bottom:10px">' +
@@ -7401,8 +7394,8 @@ function renderPerfList(filtered) {
                 '</div>' +
                 '<div style="padding-left:76px;margin-top:2px">' +
                     (r.clientId ? '<span style="font-weight:600;color:#6D28D9;cursor:pointer;text-decoration:underline" onclick="event.stopPropagation();perfGoClient(\''+esc(r.clientId)+'\')">'+esc(r.client||'')+'</span>' : '<span style="font-weight:600">'+esc(r.client||'')+'</span>') +
-                    (r.memo ? ' <span style="color:var(--muted)">'+esc(r.memo)+'</span>' : '') +
                 '</div>' +
+                (r.memo ? '<div style="padding-left:76px;margin-top:2px;color:var(--muted);font-size:12px">'+esc(r.memo)+'</div>' : '') +
             '</div>';
         });
     }
@@ -7423,12 +7416,17 @@ function setPerfRange(range) {
     });
     renderPerformance();
 }
-var _perfJustSelected = false;
+var _perfJustSelected = 0;
+var _perfSelectedName = '';
 function perfClientSearch(val) {
     var suggest = document.getElementById('perfClientSuggest');
     var hiddenId = document.getElementById('perfClientId');
     if (!suggest) return;
-    if (_perfJustSelected) { _perfJustSelected = false; suggest.style.display = 'none'; return; }
+    if (_perfJustSelected && Date.now() - _perfJustSelected < 300) { suggest.style.display = 'none'; return; }
+    _perfJustSelected = 0;
+    // 如果已選客戶且輸入值以「客戶名/」開頭，表示在補物件資訊，不清除連結
+    if (_perfSelectedName && val.indexOf(_perfSelectedName + '/') === 0) { suggest.style.display = 'none'; return; }
+    _perfSelectedName = '';
     hiddenId.value = '';
     val = val.trim();
     if (!val) { suggest.style.display = 'none'; return; }
@@ -7472,7 +7470,8 @@ function perfCloseSuggest() {
     setTimeout(function(){ var s=document.getElementById('perfClientSuggest'); if(s) s.style.display='none'; }, 200);
 }
 function perfSelectClient(id, name) {
-    _perfJustSelected = true;
+    _perfJustSelected = Date.now();
+    _perfSelectedName = name;
     var input = document.getElementById('perfClient');
     input.value = name + '/';
     document.getElementById('perfClientId').value = id;
@@ -7483,7 +7482,8 @@ function perfSelectClient(id, name) {
 function epClientSearch(val) {
     var suggest = document.getElementById('epClientSuggest');
     if (!suggest) return;
-    if (_epJustSelected) { _epJustSelected = false; suggest.style.display = 'none'; return; }
+    if (_epJustSelected && Date.now() - _epJustSelected < 300) { suggest.style.display = 'none'; return; }
+    _epJustSelected = 0;
     val = val.trim();
     if (!val) { suggest.style.display = 'none'; return; }
     var matches = [];
@@ -7523,9 +7523,9 @@ function epClientSearch(val) {
 function epCloseSuggest() {
     setTimeout(function(){ var s=document.getElementById('epClientSuggest'); if(s) s.style.display='none'; }, 200);
 }
-var _epJustSelected = false;
+var _epJustSelected = 0;
 function epSelectClient(id, name) {
-    _epJustSelected = true;
+    _epJustSelected = Date.now();
     var input = document.getElementById('epClient');
     input.value = name + '/';
     document.getElementById('epClientId').value = id;
