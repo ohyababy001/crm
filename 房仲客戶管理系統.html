@@ -7261,11 +7261,15 @@ function renderPerformance() {
             '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:12px;color:#6D28D9">實收</span><span style="font-size:18px;font-weight:800;color:#5B21B6">'+rentFeeNoTax.toLocaleString()+'<span style="font-size:11px">元</span></span></div>' +
         '</div>' +
     '</div>';
-    // 總收入
+    // 總業績、總實收、總收入
+    var _totalFeeTax = buyFeeTax + rentFeeTax;
+    var _totalFeeNoTax = buyFeeNoTax + rentFeeNoTax;
     var _rate = 0.63;
-    var _totalIncome = Math.round(buyFeeTax * _rate + buyFeeNoTax + rentFeeTax * _rate + rentFeeNoTax);
+    var _totalIncome = Math.round(_totalFeeTax * _rate + _totalFeeNoTax);
     html += '<div style="background:#F0FDF4;border-radius:10px;padding:12px 14px;margin-bottom:12px">' +
-        '<div style="display:flex;justify-content:space-between;align-items:baseline">' +
+        '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px"><span style="font-size:13px;font-weight:700;color:#065F46">總業績</span><span style="font-size:18px;font-weight:800;color:#047857">'+_totalFeeTax.toLocaleString()+'<span style="font-size:11px">元</span></span></div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px"><span style="font-size:13px;font-weight:700;color:#065F46">總實收</span><span style="font-size:18px;font-weight:800;color:#047857">'+_totalFeeNoTax.toLocaleString()+'<span style="font-size:11px">元</span></span></div>' +
+        '<div style="border-top:1px solid #BBF7D0;padding-top:8px;display:flex;justify-content:space-between;align-items:baseline">' +
             '<div><span style="font-size:13px;font-weight:700;color:#065F46">總收入</span><span style="font-size:11px;color:#6B7280;margin-left:6px">業績×'+_rate+' + 實收</span></div>' +
             '<span style="font-size:22px;font-weight:800;color:#047857">'+_totalIncome.toLocaleString()+'<span style="font-size:12px">元</span></span>' +
         '</div>' +
