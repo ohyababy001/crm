@@ -786,7 +786,7 @@
 
             <div class="dash-sections">
                 <div class="dash-section">
-                    <div class="dash-sec-title">⚠ 庫存合約即將到期（30天內）</div>
+                    <div class="dash-sec-title">⚠ 庫存合約即將到期（15天內）</div>
                     <div class="dash-list" id="dashExpiringSeller"></div>
                 </div>
                 <div class="dash-section">
@@ -2813,14 +2813,10 @@ function subline(c) {
     return '';
 }
 
-// 租案到期提醒：到期月的前一個月1號開始提醒
+// 租案到期提醒：到期日前45天
 function isRentalExpiring(endDateStr) {
     if (!endDateStr) return false;
-    var end = new Date(endDateStr + 'T00:00:00');
-    var now = new Date(); now.setHours(0,0,0,0);
-    // 提醒起始日 = 到期月份的前一個月1號
-    var remindStart = new Date(end.getFullYear(), end.getMonth() - 1, 1);
-    return now >= remindStart;
+    return daysUntilExpire(endDateStr) <= 45;
 }
 
 function daysUntilExpire(dateStr) {
@@ -2861,7 +2857,7 @@ function renderDashboard() {
 
     // 庫存合約即將到期（30天內）
     var expSeller = DB.filter(function(c) {
-        return !c.archived && hasType(c,'庫存屋主') && c.contractEnd && daysUntilExpire(c.contractEnd)<=30;
+        return !c.archived && hasType(c,'庫存屋主') && c.contractEnd && daysUntilExpire(c.contractEnd)<=15;
     }).sort(function(a,b) { return (a.contractEnd||'').localeCompare(b.contractEnd||''); });
     document.getElementById('dashExpiringSeller').innerHTML = expSeller.length ? expSeller.map(function(c) {
         var d = daysUntilExpire(c.contractEnd);
@@ -2983,7 +2979,7 @@ function render() {
     var expiring = [];
     if (curFilter === '庫存屋主') {
         expiring = DB.filter(function(c) {
-            return !c.archived && hasType(c,'庫存屋主') && c.contractEnd && daysUntilExpire(c.contractEnd)<=30;
+            return !c.archived && hasType(c,'庫存屋主') && c.contractEnd && daysUntilExpire(c.contractEnd)<=15;
         });
     } else if (curFilter === '房東') {
         expiring = DB.filter(function(c) {
@@ -3079,7 +3075,7 @@ function renderCard(c) {
 
         // 到期提醒標籤（只在對應分類頁面顯示）
         let expireTag = '';
-        if ((curFilter==='庫存屋主'||curFilter==='all') && (cTypes.includes('庫存屋主') || displayTypes.includes('庫存屋主')) && (cc.contractEnd || c.contractEnd) && daysUntilExpire(cc.contractEnd || c.contractEnd)<=30) {
+        if ((curFilter==='庫存屋主'||curFilter==='all') && (cTypes.includes('庫存屋主') || displayTypes.includes('庫存屋主')) && (cc.contractEnd || c.contractEnd) && daysUntilExpire(cc.contractEnd || c.contractEnd)<=15) {
             const dLeft = daysUntilExpire(cc.contractEnd || c.contractEnd);
             if (dLeft < 0) expireTag = `<span class="tag tag-expired">已過期${Math.abs(dLeft)}天</span>`;
             else if (dLeft === 0) expireTag = `<span class="tag tag-expiring">今天到期</span>`;
@@ -8288,7 +8284,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260401g';
+var APP_VERSION = '20260401h';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
