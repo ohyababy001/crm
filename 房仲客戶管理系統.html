@@ -7234,13 +7234,14 @@ function renderPerformance() {
             '<button type="button" onclick="_perfHistMode=\'yearMonth\';renderPerformance()" style="padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;background:'+(_perfHistMode==='yearMonth'?'var(--deep)':'white')+';color:'+(_perfHistMode==='yearMonth'?'white':'var(--text)')+'">年月</button>' +
             '<button type="button" onclick="_perfHistMode=\'range\';renderPerformance()" style="padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;background:'+(_perfHistMode==='range'?'var(--deep)':'white')+';color:'+(_perfHistMode==='range'?'white':'var(--text)')+'">區間</button>' +
         '</div>';
+        html += '<div style="min-height:52px;margin-bottom:12px">';
         if (_perfHistMode === 'yearMonth') {
             var years = [];
             _perfRecords.forEach(function(r) { if (r.date) { var y = parseInt(r.date.substring(0,4)); if (years.indexOf(y) < 0) years.push(y); } });
             years.sort(function(a,b){return b-a;});
             if (!years.length) years = [thisYear];
             if (!_perfHistYear) _perfHistYear = thisYear;
-            html += '<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">' +
+            html += '<div style="display:flex;gap:8px;align-items:center">' +
                 '<select id="perfHistYear" onchange="_perfHistYear=parseInt(this.value);renderPerformance()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px">';
             years.forEach(function(y) { html += '<option value="'+y+'"'+(_perfHistYear===y?' selected':'')+'>'+(y-1911)+' 年（'+y+'）</option>'; });
             html += '</select>' +
@@ -7249,7 +7250,7 @@ function renderPerformance() {
             for (var mi=0; mi<12; mi++) { html += '<option value="'+mi+'"'+(_perfHistMonth===String(mi)?' selected':'')+'>'+(mi+1)+' 月</option>'; }
             html += '</select></div>';
         } else {
-            html += '<div style="background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:12px">' +
+            html += '<div style="background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:10px 14px">' +
                 '<div style="display:flex;gap:8px;align-items:center">' +
                     '<div style="flex:1"><div class="roc-date-wrap"><input id="perfHistStart" type="text" value="'+esc(_perfHistStart?isoToROC(_perfHistStart):'')+'" placeholder="起始日" style="width:100%;font-size:14px"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
                     '<span style="font-size:16px;color:var(--muted)">～</span>' +
@@ -7259,6 +7260,7 @@ function renderPerformance() {
                 '</div>' +
             '</div>';
         }
+        html += '</div>';
     }
     // 統計
     var filtered = _perfRecords.filter(function(r) {
@@ -8226,7 +8228,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260331a';
+var APP_VERSION = '20260331b';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
