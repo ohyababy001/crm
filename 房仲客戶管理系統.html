@@ -7274,15 +7274,15 @@ function renderPerformance() {
             '<span style="font-size:22px;font-weight:800;color:#047857">'+_totalIncome.toLocaleString()+'<span style="font-size:12px">元</span></span>' +
         '</div>' +
     '</div>';
-    // 固定區域結束，以下為可捲動區域
-    document.getElementById('perfFixed').innerHTML = html;
-    html = '';
-    // 搜尋列
+    // 搜尋列（固定區域）
     html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">' +
         '<div style="font-size:13px;font-weight:700;color:var(--text)">業績紀錄</div>' +
         '<div style="flex:1;position:relative"><input id="perfSearchInput" type="text" placeholder="搜尋名字/物件" value="'+esc(_perfSearch)+'" oncompositionstart="_perfComposing=true" oncompositionend="_perfComposing=false;_perfSearch=this.value;renderPerformance()" oninput="if(!_perfComposing){_perfSearch=this.value;renderPerformance()}" style="width:100%;padding:5px 28px 5px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;box-sizing:border-box">' +
         (_perfSearch ? '<button type="button" onclick="_perfSearch=\'\';renderPerformance()" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;line-height:1">✕</button>' : '') +
         '</div></div>';
+    // 固定區域結束，以下為可捲動區域
+    document.getElementById('perfFixed').innerHTML = html;
+    html = '';
     // 搜尋過濾
     if (_perfSearch) {
         var _sq = _perfSearch.toLowerCase();
