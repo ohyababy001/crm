@@ -2596,11 +2596,12 @@ function getData() {
         if (c.rProperties && c.rProperties.length) {
             if (c.rProperties.some(function(rp){ return (rp.rCommunity||'').toLowerCase().includes(q) || (rp.rAddr||'').toLowerCase().includes(q); })) return true;
         }
-        // 租客連結的房東物件
+        // 租客連結的房東物件（只搜對應的那間）
         if (c.linkedLandlordId) {
             var _llS = DB.find(function(x){ return x.id === c.linkedLandlordId && !x._deleted; });
             if (_llS && _llS.rProperties && _llS.rProperties.length) {
-                if (_llS.rProperties.some(function(rp){ return (rp.rCommunity||'').toLowerCase().includes(q) || (rp.rAddr||'').toLowerCase().includes(q); })) return true;
+                var _lpS = _llS.rProperties[c.linkedPropertyIdx||0];
+                if (_lpS && (((_lpS.rCommunity||'').toLowerCase().includes(q)) || ((_lpS.rAddr||'').toLowerCase().includes(q)))) return true;
             }
         }
         // 成交物件的社區和地址
@@ -2789,7 +2790,7 @@ function subline(c) {
     }
     if (t.includes('庫存屋主')) return [c.sAddr,c.sPrice].filter(Boolean).join(' · ');
     if (t.includes('房東')) { var _rp=(c.rProperties&&c.rProperties[0])||{}; return [_rp.rCommunity||c.rCommunity,_rp.rAddr||c.rAddr,_rp.rent||c.rent].filter(Boolean).join(' · '); }
-    if (t.includes('租客')) { var _llR2=c.linkedLandlordId?DB.find(function(x){return x.id===c.linkedLandlordId&&!x._deleted;}):null; if(_llR2&&_llR2.rProperties&&_llR2.rProperties[0]) return [_llR2.rProperties[0].rAddr].filter(Boolean).join(' · '); return ''; }
+    if (t.includes('租客')) { var _llR2=c.linkedLandlordId?DB.find(function(x){return x.id===c.linkedLandlordId&&!x._deleted;}):null; if(_llR2&&_llR2.rProperties&&_llR2.rProperties.length){ var _lpR2=_llR2.rProperties[c.linkedPropertyIdx||0]||_llR2.rProperties[0]; return [_lpR2.rCommunity,_lpR2.rAddr,_lpR2.rent].filter(Boolean).join(' · '); } return ''; }
     if (t.includes('租案管理')) return [c.rCommunity,c.rAddr,c.rent].filter(Boolean).join(' · ');
     if (t.includes('成交客戶')) {
         var d0 = (c.deals && c.deals[0]) || {};
@@ -3206,7 +3207,7 @@ function renderCard(c) {
             if (c.linkedLandlordId) {
                 var _llC = DB.find(function(x){ return x.id === c.linkedLandlordId && !x._deleted; });
                 if (_llC) {
-                    var _llRp = (_llC.rProperties && _llC.rProperties.length) ? _llC.rProperties[0] : {};
+                    var _llRp = (_llC.rProperties && _llC.rProperties.length) ? (_llC.rProperties[c.linkedPropertyIdx||0] || _llC.rProperties[0]) : {};
                     var _ttEnd = _llRp.rEndDate || _llC.rEndDate || '';
                     if (_ttEnd) meta += `<div class="cmeta-row"><span class="cmeta-k">到期日</span><span class="cmeta-v" style="color:#D97706;font-weight:700">${esc(isoToROC(_ttEnd))}</span></div>`;
                     meta += `<div class="cmeta-row"><span class="cmeta-k">房東</span><span class="cmeta-v">${esc(_llC.llName||_llC.name)}</span></div>`;
@@ -3604,8 +3605,9 @@ function typeDetail(origC, viewAs) {
             if (_ll) {
                 rows.push(dRow('連結房東', (_ll.llName||_ll.name)+(_ll.llPhone?' '+_ll.llPhone:'')));
                 if (_ll.rProperties && _ll.rProperties.length) {
-                    rows.push(dRow('物件地址', _ll.rProperties[0].rAddr||''));
-                    rows.push(dRow('租金', _ll.rProperties[0].rent?(_ll.rProperties[0].rent+(_ll.rProperties[0].rent.includes('元')?'':'元')):''));
+                    var _llProp = _ll.rProperties[c.linkedPropertyIdx||0] || _ll.rProperties[0];
+                    rows.push(dRow('物件地址', _llProp.rAddr||''));
+                    rows.push(dRow('租金', _llProp.rent?(_llProp.rent+(_llProp.rent.includes('元')?'':'元')):''));
                 }
             }
         }
@@ -8265,7 +8267,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260401d';
+var APP_VERSION = '20260401e';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
