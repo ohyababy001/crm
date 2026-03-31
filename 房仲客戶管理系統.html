@@ -7417,10 +7417,12 @@ function setPerfRange(range) {
     });
     renderPerformance();
 }
+var _perfJustSelected = false;
 function perfClientSearch(val) {
     var suggest = document.getElementById('perfClientSuggest');
     var hiddenId = document.getElementById('perfClientId');
     if (!suggest) return;
+    if (_perfJustSelected) { _perfJustSelected = false; suggest.style.display = 'none'; return; }
     hiddenId.value = '';
     val = val.trim();
     if (!val) { suggest.style.display = 'none'; return; }
@@ -7464,13 +7466,18 @@ function perfCloseSuggest() {
     setTimeout(function(){ var s=document.getElementById('perfClientSuggest'); if(s) s.style.display='none'; }, 200);
 }
 function perfSelectClient(id, name) {
-    document.getElementById('perfClient').value = name;
+    _perfJustSelected = true;
+    var input = document.getElementById('perfClient');
+    input.value = name + '/';
     document.getElementById('perfClientId').value = id;
     document.getElementById('perfClientSuggest').style.display = 'none';
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
 }
 function epClientSearch(val) {
     var suggest = document.getElementById('epClientSuggest');
     if (!suggest) return;
+    if (_epJustSelected) { _epJustSelected = false; suggest.style.display = 'none'; return; }
     val = val.trim();
     if (!val) { suggest.style.display = 'none'; return; }
     var matches = [];
@@ -7510,10 +7517,15 @@ function epClientSearch(val) {
 function epCloseSuggest() {
     setTimeout(function(){ var s=document.getElementById('epClientSuggest'); if(s) s.style.display='none'; }, 200);
 }
+var _epJustSelected = false;
 function epSelectClient(id, name) {
-    document.getElementById('epClient').value = name;
+    _epJustSelected = true;
+    var input = document.getElementById('epClient');
+    input.value = name + '/';
     document.getElementById('epClientId').value = id;
     document.getElementById('epClientSuggest').style.display = 'none';
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
 }
 function perfGoClient(id) {
     var c = DB.find(function(x){ return x.id === id; });
