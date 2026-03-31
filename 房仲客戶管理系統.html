@@ -7263,17 +7263,20 @@ function renderPerformance() {
             else if (ft) feeDetail = '業績 '+ft.toLocaleString();
             else if (fnt) feeDetail = '實收 '+fnt.toLocaleString();
             else if (r.fee) feeDetail = parseFloat(r.fee).toLocaleString();
-            html += '<div style="display:flex;align-items:center;gap:6px;padding:8px 0;border-bottom:1px solid var(--bg);font-size:13px">' +
-                '<span style="color:var(--muted);min-width:70px">'+esc(isoToROC(r.date))+'</span>' +
-                '<span style="padding:2px 6px;border-radius:4px;font-size:13px;font-weight:600;background:'+caseBg+';color:'+caseColor+'">'+esc(caseType)+'</span>' +
-                '<span style="padding:2px 6px;border-radius:4px;font-size:13px;font-weight:600;background:'+catBg+';color:'+catColor+'">'+esc(r.category||'')+'</span>' +
-                '<span style="flex:1">' +
+            html += '<div style="padding:8px 0;border-bottom:1px solid var(--bg);font-size:13px">' +
+                '<div style="display:flex;align-items:center;gap:6px">' +
+                    '<span style="color:var(--muted);min-width:70px">'+esc(isoToROC(r.date))+'</span>' +
+                    '<span style="padding:2px 6px;border-radius:4px;font-size:13px;font-weight:600;background:'+caseBg+';color:'+caseColor+'">'+esc(caseType)+'</span>' +
+                    '<span style="padding:2px 6px;border-radius:4px;font-size:13px;font-weight:600;background:'+catBg+';color:'+catColor+'">'+esc(r.category||'')+'</span>' +
+                    '<span style="flex:1"></span>' +
+                    '<span style="color:#047857;text-align:right">'+(feeDetail?feeDetail+'元':'')+'</span>' +
+                    '<button type="button" onclick="editPerfRecord('+idx+')" style="background:none;border:none;cursor:pointer;color:#8B5CF6;font-size:13px" title="修改">✏️</button>' +
+                    '<button type="button" onclick="deletePerfRecord('+idx+')" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px" title="刪除">✕</button>' +
+                '</div>' +
+                '<div style="padding-left:76px;margin-top:2px">' +
                     (r.clientId ? '<span style="font-weight:600;color:#6D28D9;cursor:pointer;text-decoration:underline" onclick="event.stopPropagation();perfGoClient(\''+esc(r.clientId)+'\')">'+esc(r.client||'')+'</span>' : '<span style="font-weight:600">'+esc(r.client||'')+'</span>') +
                     (r.memo ? ' <span style="color:var(--muted)">'+esc(r.memo)+'</span>' : '') +
-                '</span>' +
-                '<span style="color:#047857;min-width:100px;text-align:right">'+(feeDetail?feeDetail+'元':'')+'</span>' +
-                '<button type="button" onclick="editPerfRecord('+idx+')" style="background:none;border:none;cursor:pointer;color:#8B5CF6;font-size:13px" title="修改">✏️</button>' +
-                '<button type="button" onclick="deletePerfRecord('+idx+')" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px" title="刪除">✕</button>' +
+                '</div>' +
             '</div>';
         });
     }
