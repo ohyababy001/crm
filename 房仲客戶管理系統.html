@@ -2684,7 +2684,15 @@ function getData() {
     list.sort(function(a,b) {
         if (s==='expireDate') {
             if (isRentalTab) {
-                return (a.rEndDate||'9999-12-31').localeCompare(b.rEndDate||'9999-12-31');
+                function _getRentalEnd(c) {
+                    if (c.rEndDate) return c.rEndDate;
+                    // 房東：從物件取最早到期日
+                    if (c.rProperties && c.rProperties.length) return c.rProperties.reduce(function(min,rp){ var d=rp.rEndDate||'9999-12-31'; return d<min?d:min; },'9999-12-31');
+                    // 租客：從連結的房東物件取
+                    if (c.linkedLandlordId) { var _ll=DB.find(function(x){return x.id===c.linkedLandlordId&&!x._deleted;}); if(_ll&&_ll.rProperties&&_ll.rProperties.length){ var _rp=_ll.rProperties[c.linkedPropertyIdx||0]; if(_rp&&_rp.rEndDate) return _rp.rEndDate; } }
+                    return '9999-12-31';
+                }
+                return _getRentalEnd(a).localeCompare(_getRentalEnd(b));
             } else {
                 var aEnd = a.contractEnd || (a.sProperties && a.sProperties.length ? a.sProperties.reduce(function(min,sp){ var d=sp.contractEnd||'9999-12-31'; return d<min?d:min; },'9999-12-31') : '9999-12-31');
                 var bEnd = b.contractEnd || (b.sProperties && b.sProperties.length ? b.sProperties.reduce(function(min,sp){ var d=sp.contractEnd||'9999-12-31'; return d<min?d:min; },'9999-12-31') : '9999-12-31');
@@ -6900,7 +6908,15 @@ function updateEditNav() {
     var s2 = document.getElementById('sortSel').value;
     list.sort(function(a,b) {
         if (s2==='expireDate') {
-            if (_isRental2) return (a.rEndDate||'9999-12-31').localeCompare(b.rEndDate||'9999-12-31');
+            if (_isRental2) {
+                function _getRentalEnd2(c) {
+                    if (c.rEndDate) return c.rEndDate;
+                    if (c.rProperties && c.rProperties.length) return c.rProperties.reduce(function(min,rp){ var d=rp.rEndDate||'9999-12-31'; return d<min?d:min; },'9999-12-31');
+                    if (c.linkedLandlordId) { var _ll=DB.find(function(x){return x.id===c.linkedLandlordId&&!x._deleted;}); if(_ll&&_ll.rProperties&&_ll.rProperties.length){ var _rp=_ll.rProperties[c.linkedPropertyIdx||0]; if(_rp&&_rp.rEndDate) return _rp.rEndDate; } }
+                    return '9999-12-31';
+                }
+                return _getRentalEnd2(a).localeCompare(_getRentalEnd2(b));
+            }
             var aEnd = a.contractEnd || (a.sProperties && a.sProperties.length ? a.sProperties.reduce(function(min,sp){ var d=sp.contractEnd||'9999-12-31'; return d<min?d:min; },'9999-12-31') : '9999-12-31');
             var bEnd = b.contractEnd || (b.sProperties && b.sProperties.length ? b.sProperties.reduce(function(min,sp){ var d=sp.contractEnd||'9999-12-31'; return d<min?d:min; },'9999-12-31') : '9999-12-31');
             return aEnd.localeCompare(bEnd);
@@ -8272,7 +8288,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260401f';
+var APP_VERSION = '20260401g';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
