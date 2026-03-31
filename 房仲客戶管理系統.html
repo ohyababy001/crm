@@ -7594,7 +7594,7 @@ function setPerfCase(caseType) {
         var btn = document.getElementById('perfCase-'+t);
         if (btn) { btn.style.borderColor = t===caseType?'#D97706':'var(--border)'; btn.style.background = t===caseType?'#FEF3C7':'white'; btn.style.color = t===caseType?'#92400E':'var(--text)'; btn.style.fontWeight = t===caseType?'700':'600'; }
     });
-    var cats = caseType === '買賣案' ? ['買方','庫存','中人'] : ['房東','租客','中人'];
+    var cats = caseType === '買賣案' ? ['買方','庫存','中人'] : ['租客','房東','中人'];
     var html = cats.map(function(c) { return '<button type="button" id="perfCat-'+c+'" onclick="setPerfCat(\''+c+'\')" style="flex:1;padding:8px;border:2px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;font-weight:600">'+c+'</button>'; }).join('');
     document.getElementById('perfCatBtns').innerHTML = html;
     _perfSelectedCat = '';
@@ -7639,7 +7639,7 @@ function editPerfRecord(idx) {
     var box = document.createElement('div');
     box.className = 'fill-menu';
     box.style.padding = '16px'; box.style.minWidth = '360px';
-    var cats = caseType === '買賣案' ? ['買方','庫存','中人'] : ['房東','租客','中人'];
+    var cats = caseType === '買賣案' ? ['買方','庫存','中人'] : ['租客','房東','中人'];
     var catBtnsHtml = cats.map(function(c) {
         var isSel = c === r.category;
         return '<button type="button" class="epCatBtn" data-cat="'+c+'" style="flex:1;padding:8px;border:2px solid '+(isSel?'#8B5CF6':'var(--border)')+';border-radius:8px;background:'+(isSel?'#EDE9FE':'white')+';color:'+(isSel?'#5B21B6':'var(--text)')+';cursor:pointer;font-size:13px;font-weight:'+(isSel?'700':'600')+'">'+c+'</button>';
@@ -7681,7 +7681,7 @@ function editPerfRecord(idx) {
             var ct = this.getAttribute('data-case');
             document.querySelectorAll('.epCaseBtn').forEach(function(b){ b.style.borderColor='var(--border)'; b.style.background='white'; b.style.color='var(--text)'; b.style.fontWeight='600'; });
             this.style.borderColor='#D97706'; this.style.background='#FEF3C7'; this.style.color='#92400E'; this.style.fontWeight='700';
-            var cs = ct === '買賣案' ? ['買方','庫存','中人'] : ['房東','租客','中人'];
+            var cs = ct === '買賣案' ? ['買方','庫存','中人'] : ['租客','房東','中人'];
             document.getElementById('epCatBtns').innerHTML = cs.map(function(c){ return '<button type="button" class="epCatBtn" data-cat="'+c+'" style="flex:1;padding:8px;border:2px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;font-weight:600">'+c+'</button>'; }).join('');
             bindCatBtns();
         };
