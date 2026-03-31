@@ -735,40 +735,33 @@
 
         <!-- 經營買方過濾列 -->
         <div class="buyer-filter" id="buyerFilter">
-            <div style="display:flex;gap:6px;align-items:flex-start">
-                <button class="bf-chip on" onclick="clearBfRoom();clearBfGrade();updateBfAllBtn();render()" style="flex-shrink:0;align-self:flex-start">全部</button>
-                <div style="flex:1;min-width:0">
-                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">
-                        <span style="flex-shrink:0;font-size:14px;font-weight:600;color:white;background:#1D4ED8;padding:6px 16px;border-radius:20px;border:1.5px solid #1D4ED8">房型</span>
-                        <button class="bf-chip" onclick="toggleBfRoom(this,'套房')">套房</button>
-                        <button class="bf-chip" onclick="toggleBfRoom(this,'二房')">二房</button>
-                        <button class="bf-chip" onclick="toggleBfRoom(this,'三房')">三房</button>
-                        <button class="bf-chip" onclick="toggleBfRoom(this,'四房')">四房</button>
-                        <button class="bf-chip" onclick="toggleBfRoom(this,'公寓')">公寓</button>
-                        <button class="bf-chip" onclick="toggleBfRoom(this,'透天')">透天</button>
-                        <button class="bf-chip" onclick="toggleBfRoom(this,'店面辦公')">店面辦公</button>
-                    </div>
-                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-                        <span style="flex-shrink:0;font-size:14px;font-weight:600;color:white;background:#9333EA;padding:6px 16px;border-radius:20px;border:1.5px solid #9333EA">等級</span>
-                        <button class="bf-chip bf-grade-a" onclick="toggleBfGrade(this,'A')">A級</button>
-                        <button class="bf-chip bf-grade-b" onclick="toggleBfGrade(this,'B')">B級</button>
-                        <button class="bf-chip bf-grade-c" onclick="toggleBfGrade(this,'C')">C級</button>
-                    </div>
-                </div>
+            <div style="display:grid;grid-template-columns:auto auto repeat(7,auto);gap:6px;align-items:center;width:fit-content">
+                <button class="bf-chip on" onclick="clearBfRoom();clearBfGrade();updateBfAllBtn();render()">全部</button>
+                <span style="font-size:14px;font-weight:600;color:white;background:#9333EA;padding:6px 16px;border-radius:20px;border:1.5px solid #9333EA;text-align:center">等級</span>
+                <button class="bf-chip bf-grade-a" onclick="toggleBfGrade(this,'A')">A級</button>
+                <button class="bf-chip bf-grade-b" onclick="toggleBfGrade(this,'B')">B級</button>
+                <button class="bf-chip bf-grade-c" onclick="toggleBfGrade(this,'C')">C級</button>
+                <div></div><div></div><div></div><div></div>
+                <div></div>
+                <span style="font-size:14px;font-weight:600;color:white;background:#1D4ED8;padding:6px 16px;border-radius:20px;border:1.5px solid #1D4ED8;text-align:center">房型</span>
+                <button class="bf-chip" onclick="toggleBfRoom(this,'套房')">套房</button>
+                <button class="bf-chip" onclick="toggleBfRoom(this,'二房')">二房</button>
+                <button class="bf-chip" onclick="toggleBfRoom(this,'三房')">三房</button>
+                <button class="bf-chip" onclick="toggleBfRoom(this,'四房')">四房</button>
+                <button class="bf-chip" onclick="toggleBfRoom(this,'公寓')">公寓</button>
+                <button class="bf-chip" onclick="toggleBfRoom(this,'透天')">透天</button>
+                <button class="bf-chip" onclick="toggleBfRoom(this,'店面辦公')">店面辦公</button>
             </div>
         </div>
 
         <!-- 庫存屋主過濾列 -->
         <div class="buyer-filter" id="sellerFilter">
-            <div style="display:flex;align-items:flex-start">
-                <div style="display:flex;gap:6px;flex-wrap:wrap;flex:1">
-                    <button class="bf-chip on" onclick="clearBfSGrade()">全部</button>
-                    <span style="flex-shrink:0;font-size:14px;font-weight:600;color:white;background:#9333EA;padding:6px 16px;border-radius:20px;border:1.5px solid #9333EA;margin-left:8px">等級</span>
-                    <button class="bf-chip bf-grade-a" onclick="toggleBfSGrade(this,'A')">A級</button>
-                    <button class="bf-chip bf-grade-b" onclick="toggleBfSGrade(this,'B')">B級</button>
-                    <button class="bf-chip bf-grade-c" onclick="toggleBfSGrade(this,'C')">C級</button>
-                </div>
-                <span class="bf-clear" onclick="clearBfSGrade()" style="flex-shrink:0">清除</span>
+            <div style="display:flex;gap:6px;align-items:center;width:fit-content">
+                <button class="bf-chip on" onclick="clearBfSGrade()">全部</button>
+                <span style="font-size:14px;font-weight:600;color:white;background:#9333EA;padding:6px 16px;border-radius:20px;border:1.5px solid #9333EA">等級</span>
+                <button class="bf-chip bf-grade-a" onclick="toggleBfSGrade(this,'A')">A級</button>
+                <button class="bf-chip bf-grade-b" onclick="toggleBfSGrade(this,'B')">B級</button>
+                <button class="bf-chip bf-grade-c" onclick="toggleBfSGrade(this,'C')">C級</button>
             </div>
         </div>
 
@@ -1303,7 +1296,7 @@
 
 <!-- 業績儀表板 -->
 <div id="perfModal" class="overlay" style="display:none" onmousedown="if(event.target===this)closePerformance()">
-    <div class="modal" style="max-width:700px;display:flex;flex-direction:column" onclick="event.stopPropagation()">
+    <div class="modal" style="max-width:700px;height:90vh;display:flex;flex-direction:column" onclick="event.stopPropagation()">
         <div class="modal-head">
             <div class="modal-title">📊 業績儀表板</div>
             <div style="flex:1"></div>
@@ -3113,13 +3106,11 @@ function renderCard(c) {
             var _sAddr = cc.sAddr || sp0.addr || '';
             var _sPrice = cc.sPrice || sp0.price || '';
             var _sFloorPrice = cc.sFloorPrice || sp0.floorPrice || '';
+            var _cEnd = cc.contractEnd || sp0.contractEnd || '';
+            if (_cEnd) meta += `<div class="cmeta-row"><span class="cmeta-k">到期日</span><span class="cmeta-v" style="color:#D97706;font-weight:700">${esc(isoToROC(_cEnd))}</span></div>`;
             if (_ct) meta += `<div class="cmeta-row"><span class="cmeta-k">約種</span><span class="cmeta-v">${esc(_ct)}</span></div>`;
             if (_comm) meta += `<div class="cmeta-row"><span class="cmeta-k">社區</span><span class="cmeta-v">${esc(_comm)}</span></div>`;
             if (_sAddr) meta += `<div class="cmeta-row"><span class="cmeta-k">地址</span><span class="cmeta-v full">${esc(_sAddr)}</span></div>`;
-            if (_sPrice) {
-                let priceDisp = esc(_sPrice) + (_sPrice&&!_sPrice.includes('萬')?'萬':'');
-                meta += `<div class="cmeta-row"><span class="cmeta-k">開價</span><span class="cmeta-v">${priceDisp}</span></div>`;
-            }
             // 坪數（從新欄位計算，向下相容舊欄位和sProperties）
             var mainB = parseFloat(cc.sMainBldg||sp0.mainBldg)||0, ancB = parseFloat(cc.sAncBldg||sp0.ancBldg)||0, comB = parseFloat(cc.sCommon||sp0.common)||0, pkSz = parseFloat(cc.sParkingSz||sp0.parkingSz)||0;
             var bldgSz = mainB+ancB+comB;
@@ -3140,11 +3131,13 @@ function renderCard(c) {
                 }
                 meta += `<div class="cmeta-row"><span class="cmeta-k">登記</span><span class="cmeta-v">${szDisp}</span></div>`;
             }
+            if (_sPrice) {
+                let priceDisp = esc(_sPrice) + (_sPrice&&!_sPrice.includes('萬')?'萬':'');
+                meta += `<div class="cmeta-row"><span class="cmeta-k">開價</span><span class="cmeta-v">${priceDisp}</span></div>`;
+            }
             var mgmtTotal = (parseFloat(cc.sMgmtBuilding||sp0.mgmtBuilding)||0)+(parseFloat(cc.sMgmtCar||sp0.mgmtCar)||0)+(parseFloat(cc.sMgmtMoto||sp0.mgmtMoto)||0)+(parseFloat(cc.sMgmtOther||sp0.mgmtOther)||0);
             var _mgmtPeriod = cc.sMgmtPeriod || sp0.mgmtPeriod || '';
             if (mgmtTotal) meta += `<div class="cmeta-row"><span class="cmeta-k">管理費</span><span class="cmeta-v">${mgmtTotal.toLocaleString()}元${_mgmtPeriod?'／'+esc(_mgmtPeriod):''}</span></div>`;
-            var _cEnd = cc.contractEnd || sp0.contractEnd || '';
-            if (_cEnd) meta += `<div class="cmeta-row"><span class="cmeta-k">到期日</span><span class="cmeta-v" style="color:#D97706;font-weight:700">${esc(isoToROC(_cEnd))}</span></div>`;
         } else if (showType==='房東') {
             // 找最早到期的物件
             var _rp0 = (c.rProperties && c.rProperties[0]) || {};
@@ -3161,8 +3154,15 @@ function renderCard(c) {
             var _rEnd = _rp0.rEndDate || c.rEndDate || '';
             var _rSz = _rp0.rSz || c.rSz || '';
             var _rParking = _rp0.rParking || c.rParking || '';
+            if (_rEnd) meta += `<div class="cmeta-row"><span class="cmeta-k">到期日</span><span class="cmeta-v" style="color:#D97706;font-weight:700">${esc(isoToROC(_rEnd))}</span></div>`;
             if (_rComm) meta += `<div class="cmeta-row"><span class="cmeta-k">社區</span><span class="cmeta-v">${esc(_rComm)}</span></div>`;
             if (_rAddr) meta += `<div class="cmeta-row"><span class="cmeta-k">地址</span><span class="cmeta-v full">${esc(_rAddr)}</span></div>`;
+            if (_rSz || _rParking) {
+                var _szParts = [];
+                if (_rSz) _szParts.push(esc(_rSz) + '坪');
+                if (_rParking) _szParts.push(esc(_rParking));
+                meta += `<div class="cmeta-row"><span class="cmeta-k">${_rSz?'坪數':'車位'}</span><span class="cmeta-v">${_szParts.join(' / ')}</span></div>`;
+            }
             if (_rRent) {
                 var _rentDisp = esc(_rRent) + (_rRent.includes('元')?'':'元');
                 var _rMgmt = (parseFloat(_rp0.rMgmtBuilding)||0)+(parseFloat(_rp0.rMgmtCar)||0)+(parseFloat(_rp0.rMgmtMoto)||0)+(parseFloat(_rp0.rMgmtOther)||0);
@@ -3175,13 +3175,6 @@ function renderCard(c) {
                 }
                 meta += `<div class="cmeta-row"><span class="cmeta-k">租金</span><span class="cmeta-v">${_rentDisp}</span></div>`;
             }
-            if (_rSz || _rParking) {
-                var _szParts = [];
-                if (_rSz) _szParts.push(esc(_rSz) + '坪');
-                if (_rParking) _szParts.push(esc(_rParking));
-                meta += `<div class="cmeta-row"><span class="cmeta-k">${_rSz?'坪數':'車位'}</span><span class="cmeta-v">${_szParts.join(' / ')}</span></div>`;
-            }
-            if (_rEnd) meta += `<div class="cmeta-row"><span class="cmeta-k">到期日</span><span class="cmeta-v" style="color:#D97706;font-weight:700">${esc(isoToROC(_rEnd))}</span></div>`;
             if (c.linkedTenantIds && c.linkedTenantIds.length) {
                 var _ttNames = c.linkedTenantIds.map(function(tid){ var _t=DB.find(function(x){return x.id===tid&&!x._deleted;}); return _t?(_t.ttName||_t.name||''):''; }).filter(Boolean);
                 if (_ttNames.length) meta += `<div class="cmeta-row"><span class="cmeta-k">租客</span><span class="cmeta-v">${esc(_ttNames.join('、'))}</span></div>`;
@@ -3190,24 +3183,41 @@ function renderCard(c) {
             if (c.linkedLandlordId) {
                 var _llC = DB.find(function(x){ return x.id === c.linkedLandlordId && !x._deleted; });
                 if (_llC) {
+                    var _llRp = (_llC.rProperties && _llC.rProperties.length) ? _llC.rProperties[0] : {};
+                    var _ttEnd = _llRp.rEndDate || _llC.rEndDate || '';
+                    if (_ttEnd) meta += `<div class="cmeta-row"><span class="cmeta-k">到期日</span><span class="cmeta-v" style="color:#D97706;font-weight:700">${esc(isoToROC(_ttEnd))}</span></div>`;
                     meta += `<div class="cmeta-row"><span class="cmeta-k">房東</span><span class="cmeta-v">${esc(_llC.llName||_llC.name)}</span></div>`;
-                    if (_llC.rProperties && _llC.rProperties.length) {
-                        if (_llC.rProperties[0].rAddr) meta += `<div class="cmeta-row"><span class="cmeta-k">地址</span><span class="cmeta-v full">${esc(_llC.rProperties[0].rAddr)}</span></div>`;
+                    if (_llRp.rCommunity || _llC.rCommunity) meta += `<div class="cmeta-row"><span class="cmeta-k">社區</span><span class="cmeta-v">${esc(_llRp.rCommunity||_llC.rCommunity)}</span></div>`;
+                    if (_llRp.rAddr || _llC.rAddr) meta += `<div class="cmeta-row"><span class="cmeta-k">地址</span><span class="cmeta-v full">${esc(_llRp.rAddr||_llC.rAddr)}</span></div>`;
+                    var _ttRent = _llRp.rent || _llC.rent || '';
+                    if (_ttRent) {
+                        var _ttRentDisp = esc(_ttRent) + (_ttRent.includes('元')?'':'元');
+                        var _ttMgmt = (parseFloat(_llRp.rMgmtBuilding||_llC.rMgmtBuilding)||0)+(parseFloat(_llRp.rMgmtCar||_llC.rMgmtCar)||0)+(parseFloat(_llRp.rMgmtMoto||_llC.rMgmtMoto)||0)+(parseFloat(_llRp.rMgmtOther||_llC.rMgmtOther)||0);
+                        var _ttMgmtType = _llRp.rMgmtType || _llC.rMgmtType || '';
+                        if (_ttMgmtType === '含管' || _ttMgmtType === '內含') {
+                            _ttRentDisp += ' <span style="color:#64748B">含管' + (_ttMgmt ? ' ' + _ttMgmt.toLocaleString() + '元' : '') + '</span>';
+                        } else if (_ttMgmt) {
+                            _ttRentDisp += ' <span style="color:#64748B">不含管 ' + _ttMgmt.toLocaleString() + '元</span>';
+                        } else {
+                            _ttRentDisp += ' <span style="color:#64748B">不含管</span>';
+                        }
+                        meta += `<div class="cmeta-row"><span class="cmeta-k">租金</span><span class="cmeta-v">${_ttRentDisp}</span></div>`;
                     }
                 }
             }
         } else if (showType==='租案管理') {
+            if (c.rEndDate) {
+                meta += `<div class="cmeta-row"><span class="cmeta-k">到期日</span><span class="cmeta-v" style="color:#D97706;font-weight:700">${esc(isoToROC(c.rEndDate))}</span></div>`;
+            }
             if (c.rCommunity) meta += `<div class="cmeta-row"><span class="cmeta-k">社區</span><span class="cmeta-v">${esc(c.rCommunity)}</span></div>`;
             if (c.rAddr) meta += `<div class="cmeta-row"><span class="cmeta-k">地址</span><span class="cmeta-v full">${esc(c.rAddr)}</span></div>`;
+            if (c.rSz) meta += `<div class="cmeta-row"><span class="cmeta-k">坪數</span><span class="cmeta-v">${esc(c.rSz)}坪${c.rParking?' / '+esc(c.rParking):''}</span></div>`;
             if (c.rent) {
                 let rentDisp = esc(c.rent) + (c.rent&&!c.rent.includes('元')?'元':'') + (c.rRentPeriod&&c.rRentPeriod!=='月繳'?'／'+esc(c.rRentPeriod):'');
                 var rMgmtSum = (parseFloat(c.rMgmtBuilding)||0)+(parseFloat(c.rMgmtCar)||0)+(parseFloat(c.rMgmtMoto)||0)+(parseFloat(c.rMgmtOther)||0);
                 if (!rMgmtSum && c.rMgmtFee) rMgmtSum = parseFloat(c.rMgmtFee)||0;
                 if (c.rMgmtType || rMgmtSum) rentDisp += ` <span style="color:#64748B">${esc(c.rMgmtType||'')}${rMgmtSum?' '+rMgmtSum.toLocaleString()+'元':''}</span>`;
                 meta += `<div class="cmeta-row"><span class="cmeta-k">租金</span><span class="cmeta-v">${rentDisp}</span></div>`;
-            }
-            if (c.rEndDate) {
-                meta += `<div class="cmeta-row"><span class="cmeta-k">到期日</span><span class="cmeta-v" style="color:#D97706;font-weight:700">${esc(isoToROC(c.rEndDate))}</span></div>`;
             }
             if (c.renewals && c.renewals.length) {
                 meta += `<div class="cmeta-row"><span class="cmeta-k">續約</span><span class="cmeta-v" style="color:#065F46">已續約 ${c.renewals.length} 次</span></div>`;
@@ -3226,9 +3236,12 @@ function renderCard(c) {
         } else if (showType==='商機募集') {
             if (cc.dAddrs && cc.dAddrs.length) {
                 cc.dAddrs.forEach(function(a) {
-                    var label = a.devType || '物件';
-                    if (a.community) label += ' ' + esc(a.community);
-                    meta += `<div class="cmeta-row"><span class="cmeta-k">${label}</span><span class="cmeta-v full">${esc(a.addr||'')}</span></div>`;
+                    if (a.devType) meta += `<div class="cmeta-row"><span class="cmeta-k">類別</span><span class="cmeta-v">${esc(a.devType)}</span></div>`;
+                    if (a.community || a.addr) meta += `<div class="cmeta-row"><span class="cmeta-k">${a.community?'社區':'地址'}</span><span class="cmeta-v full">${a.community?esc(a.community)+' ':''}${esc(a.addr||'')}</span></div>`;
+                    var _szParts = [];
+                    if (a.bldgSz) _szParts.push(esc(a.bldgSz) + '坪');
+                    if (a.parking && a.parking !== '無車位') _szParts.push(esc(a.parking));
+                    if (_szParts.length) meta += `<div class="cmeta-row"><span class="cmeta-k">${a.bldgSz?'坪數':'車位'}</span><span class="cmeta-v">${_szParts.join(' / ')}</span></div>`;
                 });
             } else {
                 if (cc.devType) meta += `<div class="cmeta-row"><span class="cmeta-k">類別</span><span class="cmeta-v">${esc(cc.devType)}</span></div>`;
@@ -7024,12 +7037,14 @@ function saveClient() {
         rStartDate:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rStartDate:''; })(),
         rEndDate:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rEndDate:''; })(),
         renewals: (function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rpRenewals:[]; })(),
-        // 成交
-        cName:get('f-cName'), cPhone:get('f-cPhone'), cIdNo:get('f-cIdNo'), cOccupation:get('f-cOccupation'), cBirthday:rocToISO(get('f-cBirthday')), cAddrType:get('f-cAddrType'), cZip:get('f-cZip'), cAddr:get('f-cAddr'),
+        // 成交（租案管理時從快取還原非當前頁籤的資料）
+        cName: (function(){ var v=get('f-cName'); if(v) return v; if(selectedTypes.includes('租案管理')){ var or=activeRentalTab==='租客'?'landlord':'tenant'; var c=_roleFormCache[or]&&_roleFormCache[or].closed; if(c) return c.cName||''; } return ''; })(),
+        cPhone: (function(){ var v=get('f-cPhone'); if(v) return v; if(selectedTypes.includes('租案管理')){ var or=activeRentalTab==='租客'?'landlord':'tenant'; var c=_roleFormCache[or]&&_roleFormCache[or].closed; if(c) return c.cPhone||''; } return ''; })(),
+        cIdNo:get('f-cIdNo'), cOccupation:get('f-cOccupation'), cBirthday:rocToISO(get('f-cBirthday')), cAddrType:get('f-cAddrType'), cZip:get('f-cZip'), cAddr:get('f-cAddr'),
         cEmail:get('f-cEmail'), cSource:get('f-cSource'),
-        cContacts: (function(){ var arr=[]; if(get('f-cName')||get('f-cPhone')) arr.push({name:get('f-cName'),phone:get('f-cPhone'),idNo:get('f-cIdNo'),birthday:rocToISO(get('f-cBirthday'))}); return arr.concat(isClosed?getCContacts():[]); })(),
-        cAddrs: isClosed ? getCAddrs() : [],
-        deals: getDeals(),
+        cContacts: (function(){ var arr=[]; var cn=get('f-cName'),cp=get('f-cPhone'); if(cn||cp) { arr.push({name:cn,phone:cp,idNo:get('f-cIdNo'),birthday:rocToISO(get('f-cBirthday'))}); return arr.concat(isClosed?getCContacts():[]); } if(selectedTypes.includes('租案管理')){ var or=activeRentalTab==='租客'?'landlord':'tenant'; var c=_roleFormCache[or]&&_roleFormCache[or].closed; if(c&&c.cContacts) return c.cContacts; } return arr; })(),
+        cAddrs: (function(){ if(isClosed){ var a=getCAddrs(); if(a.length) return a; } if(selectedTypes.includes('租案管理')){ var or=activeRentalTab==='租客'?'landlord':'tenant'; var c=_roleFormCache[or]&&_roleFormCache[or].closed; if(c&&c.cAddrs) return c.cAddrs; } return []; })(),
+        deals: (function(){ var d=getDeals(); if(d.length) return d; if(selectedTypes.includes('租案管理')){ var or=activeRentalTab==='租客'?'landlord':'tenant'; var c=_roleFormCache[or]&&_roleFormCache[or].closed; if(c&&c.deals&&c.deals.length) return c.deals; } return d; })(),
         // 商機募集
         dName:get('f-dName'), dPhone:get('f-dPhone'), dIdNo:get('f-dIdNo'), dOccupation:get('f-dOccupation'), dAddrType:get('f-dAddrType'), dZip:get('f-dZip'), dPersonAddr:get('f-dAddr'),
         dBirthday:rocToISO(get('f-dBirthday')), dEmail:get('f-dEmail'), dSource:get('f-dSource'),
