@@ -3142,6 +3142,8 @@ function renderCard(c) {
             if (_cEnd) meta += `<div class="cmeta-row"><span class="cmeta-k">到期日</span><span class="cmeta-v" style="color:#D97706;font-weight:700">${esc(isoToROC(_cEnd))}</span></div>`;
         } else if (showType==='房東') {
             var _rpCount = (c.rProperties && c.rProperties.length) || 0;
+            var _ttCount = (c.linkedTenantIds && c.linkedTenantIds.length) || 0;
+            var _objCount = Math.max(_rpCount, _ttCount);
             var _rp0 = (c.rProperties && c.rProperties[0]) || {};
             var _rComm = _rp0.rCommunity || c.rCommunity || '';
             var _rAddr = _rp0.rAddr || c.rAddr || '';
@@ -3149,7 +3151,7 @@ function renderCard(c) {
             var _rEnd = _rp0.rEndDate || c.rEndDate || '';
             var _rSz = _rp0.rSz || c.rSz || '';
             var _rParking = _rp0.rParking || c.rParking || '';
-            if (_rpCount > 1) meta += `<div class="cmeta-row"><span class="cmeta-k">物件數</span><span class="cmeta-v" style="color:#0E7490;font-weight:700">${_rpCount} 間物件</span></div>`;
+            if (_objCount > 1) meta += `<div class="cmeta-row"><span class="cmeta-k">物件數</span><span class="cmeta-v" style="color:#0E7490;font-weight:700">${_objCount} 間物件</span></div>`;
             if (_rComm) meta += `<div class="cmeta-row"><span class="cmeta-k">社區</span><span class="cmeta-v">${esc(_rComm)}</span></div>`;
             if (_rAddr) meta += `<div class="cmeta-row"><span class="cmeta-k">地址</span><span class="cmeta-v full">${esc(_rAddr)}</span></div>`;
             if (_rRent) {
