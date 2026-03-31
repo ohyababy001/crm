@@ -1032,6 +1032,7 @@
                         <input type="checkbox" id="f-rPet" style="display:none">
                         <input type="checkbox" id="f-rAltar" style="display:none">
                         <input type="checkbox" id="f-rGoodCitizen" style="display:none">
+                        <input type="checkbox" id="f-rNotarize" style="display:none">
                         <div style="display:flex;gap:4px;flex-wrap:wrap">
                             <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rSubsidy')" style="padding:4px 12px;font-size:13px">租補</button>
                             <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rSocialHouse')" style="padding:4px 12px;font-size:13px">社宅</button>
@@ -1040,6 +1041,7 @@
                             <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rPet')" style="padding:4px 12px;font-size:13px">寵物</button>
                             <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rAltar')" style="padding:4px 12px;font-size:13px">神桌</button>
                             <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rGoodCitizen')" style="padding:4px 12px;font-size:13px">良民</button>
+                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rNotarize')" style="padding:4px 12px;font-size:13px">公證</button>
                         </div>
                     </div>
                     <div class="basic-contact-box" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9"><div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px">基本聯絡人</div>
@@ -1091,6 +1093,7 @@
                         <input type="checkbox" id="f-rPet2" style="display:none">
                         <input type="checkbox" id="f-rAltar2" style="display:none">
                         <input type="checkbox" id="f-rGoodCitizen2" style="display:none">
+                        <input type="checkbox" id="f-rNotarize2" style="display:none">
                         <div style="display:flex;gap:4px;flex-wrap:wrap">
                             <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rSubsidy2')" style="padding:4px 12px;font-size:13px">租補</button>
                             <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rSocialHouse2')" style="padding:4px 12px;font-size:13px">社宅</button>
@@ -1099,6 +1102,7 @@
                             <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rPet2')" style="padding:4px 12px;font-size:13px">寵物</button>
                             <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rAltar2')" style="padding:4px 12px;font-size:13px">神桌</button>
                             <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rGoodCitizen2')" style="padding:4px 12px;font-size:13px">良民</button>
+                            <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rNotarize2')" style="padding:4px 12px;font-size:13px">公證</button>
                         </div>
                     </div>
                     <div class="basic-contact-box" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9"><div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px">基本聯絡人</div>
@@ -1594,7 +1598,7 @@ function _doMigrateRental() {
                 ttBirthday:c.ttBirthday||'', ttEmail:c.ttEmail||'', ttSource:c.ttSource||'',
                 ttAddrType:c.ttAddrType||'', ttZip:c.ttZip||'', ttAddr:c.ttAddr||'',
                 rSubsidy2:c.rSubsidy2, rSocialHouse2:c.rSocialHouse2, rRegister2:c.rRegister2,
-                rTax2:c.rTax2, rPet2:c.rPet2, rAltar2:c.rAltar2, rGoodCitizen2:c.rGoodCitizen2,
+                rTax2:c.rTax2, rPet2:c.rPet2, rAltar2:c.rAltar2, rGoodCitizen2:c.rGoodCitizen2, rNotarize2:c.rNotarize2,
                 tenantPersons:(c.rTenants&&c.rTenants.length>1)?c.rTenants.slice(1):[],
                 linkedLandlordId:landlordId, notes:'', created:c.created, lastContact:c.lastContact, history:[] };
             // 從 roleData.tenant 複製加掛標籤的資料
@@ -1614,7 +1618,7 @@ function _doMigrateRental() {
             llBank:c.llBank||'', llBankCode:c.llBankCode||'', llBankAccount:c.llBankAccount||'',
             landlordPersons:(c.rLandlords&&c.rLandlords.length>1)?c.rLandlords.slice(1):[],
             rProperties:allRProps, rSubsidy:c.rSubsidy, rSocialHouse:c.rSocialHouse, rRegister:c.rRegister,
-            rTax:c.rTax, rPet:c.rPet, rAltar:c.rAltar, rGoodCitizen:c.rGoodCitizen,
+            rTax:c.rTax, rPet:c.rPet, rAltar:c.rAltar, rGoodCitizen:c.rGoodCitizen, rNotarize:c.rNotarize,
             rSource:c.rSource||'', linkedTenantIds:tenantIds, notes:c.notes||'',
             created:c.created, lastContact:c.lastContact, history:c.history||[],
             bDriveUrl:c.bDriveUrl||'', cDriveUrl:c.cDriveUrl||'', dDriveUrl:c.dDriveUrl||'',
@@ -3484,7 +3488,7 @@ function typeDetail(origC, viewAs) {
     }
     if (c.type==='房東') {
         var rows = [];
-        rows.push(dRow('房東條件', [c.rSubsidy?'租補':'',c.rSocialHouse?'社宅':'',c.rRegister?'設籍':'',c.rTax?'報稅':'',c.rPet?'寵物':'',c.rAltar?'神桌':'',c.rGoodCitizen?'良民':''].filter(Boolean).join('、')));
+        rows.push(dRow('房東條件', [c.rSubsidy?'租補':'',c.rSocialHouse?'社宅':'',c.rRegister?'設籍':'',c.rTax?'報稅':'',c.rPet?'寵物':'',c.rAltar?'神桌':'',c.rGoodCitizen?'良民':'',c.rNotarize?'公證':''].filter(Boolean).join('、')));
         rows.push(dRow('銀行', [c.llBank,c.llBankCode,c.llBankAccount].filter(Boolean).join(' ')));
         var rps = c.rProperties && c.rProperties.length ? c.rProperties : null;
         if (rps) {
@@ -3522,7 +3526,7 @@ function typeDetail(origC, viewAs) {
                         var tIdNo = t.ttIdNo || '';
                         var tOccupation = t.ttOccupation || '';
                         var tInfo = [tName, tPhone, tIdNo, tOccupation].filter(Boolean).join('　');
-                        var tCond = [t.rSubsidy2?'租補':'',t.rSocialHouse2?'社宅':'',t.rRegister2?'設籍':'',t.rTax2?'報稅':'',t.rPet2?'寵物':'',t.rAltar2?'神桌':'',t.rGoodCitizen2?'良民':''].filter(Boolean).join('、');
+                        var tCond = [t.rSubsidy2?'租補':'',t.rSocialHouse2?'社宅':'',t.rRegister2?'設籍':'',t.rTax2?'報稅':'',t.rPet2?'寵物':'',t.rAltar2?'神桌':'',t.rGoodCitizen2?'良民':'',t.rNotarize2?'公證':''].filter(Boolean).join('、');
                         rows.push('<div class="det-row"><span class="det-key" style="color:#BE185D">租客</span><span class="det-val" style="color:#9D174D;font-weight:600">' + esc(tInfo) + '</span></div>');
                         if (tCond) rows.push('<div class="det-row"><span class="det-key" style="color:#BE185D">租客條件</span><span class="det-val">' + esc(tCond) + '</span></div>');
                     });
@@ -3545,7 +3549,7 @@ function typeDetail(origC, viewAs) {
     }
     if (c.type==='租客') {
         var rows = [];
-        rows.push(dRow('租客條件', [c.rSubsidy2?'租補':'',c.rSocialHouse2?'社宅':'',c.rRegister2?'設籍':'',c.rTax2?'報稅':'',c.rPet2?'寵物':'',c.rAltar2?'神桌':'',c.rGoodCitizen2?'良民':''].filter(Boolean).join('、')));
+        rows.push(dRow('租客條件', [c.rSubsidy2?'租補':'',c.rSocialHouse2?'社宅':'',c.rRegister2?'設籍':'',c.rTax2?'報稅':'',c.rPet2?'寵物':'',c.rAltar2?'神桌':'',c.rGoodCitizen2?'良民':'',c.rNotarize2?'公證':''].filter(Boolean).join('、')));
         if (c.linkedLandlordId) {
             var _ll = DB.find(function(x){return x.id===c.linkedLandlordId&&!x._deleted;});
             if (_ll) {
@@ -3565,8 +3569,8 @@ function typeDetail(origC, viewAs) {
         lls.forEach(function(p){ rows.push(dRow('房東', (p.name||'')+(p.phone?'　'+p.phone:'')+(p.idNo?'　'+p.idNo:'')+(p.occupation?'　'+p.occupation:''))); });
         tts.forEach(function(p){ rows.push(dRow('租客', (p.name||'')+(p.phone?'　'+p.phone:'')+(p.idNo?'　'+p.idNo:'')+(p.occupation?'　'+p.occupation:''))); });
         rows.push(dRow('來源',c.rSource));
-        rows.push(dRow('房東條件', [c.rSubsidy?'租補':'',c.rSocialHouse?'社宅':'',c.rRegister?'設籍':'',c.rTax?'報稅':'',c.rPet?'寵物':'',c.rAltar?'神桌':'',c.rGoodCitizen?'良民':''].filter(Boolean).join('、')));
-        rows.push(dRow('租客條件', [c.rSubsidy2?'租補':'',c.rSocialHouse2?'社宅':'',c.rRegister2?'設籍':'',c.rTax2?'報稅':'',c.rPet2?'寵物':'',c.rAltar2?'神桌':'',c.rGoodCitizen2?'良民':''].filter(Boolean).join('、')));
+        rows.push(dRow('房東條件', [c.rSubsidy?'租補':'',c.rSocialHouse?'社宅':'',c.rRegister?'設籍':'',c.rTax?'報稅':'',c.rPet?'寵物':'',c.rAltar?'神桌':'',c.rGoodCitizen?'良民':'',c.rNotarize?'公證':''].filter(Boolean).join('、')));
+        rows.push(dRow('租客條件', [c.rSubsidy2?'租補':'',c.rSocialHouse2?'社宅':'',c.rRegister2?'設籍':'',c.rTax2?'報稅':'',c.rPet2?'寵物':'',c.rAltar2?'神桌':'',c.rGoodCitizen2?'良民':'',c.rNotarize2?'公證':''].filter(Boolean).join('、')));
         // 物件資料區塊（附屬設備在各物件內顯示）
         function _renderRpBlock(rp) {
             var h = '';
@@ -6288,7 +6292,7 @@ function resetForm() {
     document.getElementById('parkingPriceGroup').style.visibility = 'hidden';
     document.getElementById('f-parkingNo').style.display = 'none';
     // f-rParking, rParkingNoGroup, f-rRentPeriod 已移至租案物件區塊
-    ['f-rSubsidy','f-rSocialHouse','f-rRegister','f-rTax','f-rPet','f-rAltar','f-rGoodCitizen','f-rSubsidy2','f-rSocialHouse2','f-rRegister2','f-rTax2','f-rPet2','f-rAltar2','f-rGoodCitizen2'].forEach(function(id){ var el=document.getElementById(id); if(el) el.checked=false; });
+    ['f-rSubsidy','f-rSocialHouse','f-rRegister','f-rTax','f-rPet','f-rAltar','f-rGoodCitizen','f-rNotarize','f-rSubsidy2','f-rSocialHouse2','f-rRegister2','f-rTax2','f-rPet2','f-rAltar2','f-rGoodCitizen2','f-rNotarize2'].forEach(function(id){ var el=document.getElementById(id); if(el) el.checked=false; });
     syncCondBtns();
     activeRentalTab = '房東';
     // rRenewalHistory 已由租案物件區塊處理
@@ -6704,6 +6708,8 @@ function openEdit(id, viewAs) {
     document.getElementById('f-rAltar2').checked = !!c.rAltar2;
     document.getElementById('f-rGoodCitizen').checked = !!c.rGoodCitizen;
     document.getElementById('f-rGoodCitizen2').checked = !!c.rGoodCitizen2;
+    document.getElementById('f-rNotarize').checked = !!c.rNotarize;
+    document.getElementById('f-rNotarize2').checked = !!c.rNotarize2;
     syncCondBtns();
     // rParking 現在由 rProperties 區塊處理
     // 成交客戶
@@ -6986,6 +6992,8 @@ function saveClient() {
         rAltar2:document.getElementById('f-rAltar2').checked,
         rGoodCitizen:document.getElementById('f-rGoodCitizen').checked,
         rGoodCitizen2:document.getElementById('f-rGoodCitizen2').checked,
+        rNotarize:document.getElementById('f-rNotarize').checked,
+        rNotarize2:document.getElementById('f-rNotarize2').checked,
         // 向下相容：取第一組物件的值
         rCommunity:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rCommunity:''; })(),
         rAddr:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rAddr:''; })(),
