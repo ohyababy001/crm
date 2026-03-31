@@ -66,6 +66,8 @@
         .bf-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
         .bf-row:last-child { margin-bottom: 0; }
         .bf-label { font-size: 14px; font-weight: 700; color: var(--muted); white-space: nowrap; width: 52px; }
+        .bf-grid-wrap { display:inline-grid; grid-template-columns:auto auto repeat(7,auto); gap:6px; align-items:center; }
+        .bf-label { font-size:14px; font-weight:600; color:white; padding:6px 16px; border-radius:20px; border:1.5px solid; box-sizing:border-box; text-align:center; justify-self:stretch; display:flex; align-items:center; justify-content:center; }
         .bf-chip { padding: 6px 16px; border-radius: 20px; border: 1.5px solid var(--border); background: white; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--muted); transition: all 0.12s; }
         .bf-chip:hover { border-color: #94A3B8; color: var(--text); }
         .bf-chip.on { background: #EDE8E0; border-color: #8B7355; color: #5C4A32; }
@@ -101,7 +103,7 @@
         .deal-box .deal-del { position:absolute;top:4px;right:6px;background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted); }
         .deal-box .deal-del:hover { color:#EF4444; }
         .roc-date-wrap { display: flex; gap: 4px; align-items: center; min-width: 0; }
-        .roc-date-wrap input[type="text"] { flex: 1; min-width: 0; }
+        .roc-date-wrap input[type="text"] { flex: 1; min-width: 0; padding: 8px 11px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; font-family: inherit; background: white; box-sizing: border-box; }
         .roc-date-wrap .cal-btn { padding: 8px; border: 1px solid var(--border); border-radius: 8px; background: white; cursor: pointer; font-size: 14px; line-height: 1; flex-shrink: 0; }
         .roc-date-wrap .cal-btn:hover { background: var(--bg); border-color: #94A3B8; }
 
@@ -394,6 +396,11 @@
             #namePhoneIdRow.hidden, #emailSourceRow.hidden { display: none !important; }
             #namePhoneIdRow > .fg:first-child { flex: 1 1 100% !important; min-width: 0 !important; }
             #namePhoneIdRow > .fg:nth-child(2), #namePhoneIdRow > .fg:nth-child(3) { flex: 1 1 calc(50% - 4px) !important; min-width: 0 !important; }
+            /* 買方篩選列手機版縮小 */
+            .bf-grid-wrap { display:flex; flex-wrap:wrap; gap:4px; }
+            .bf-grid-wrap > span:empty { display:none; }
+            .bf-label { font-size:11px; padding:4px 10px; }
+            .bf-chip { font-size:11px; padding:4px 10px; }
             /* 買方手機版：基本資料重排 */
             /* 所有功能手機版基本資料統一重排 */
             /* 第一行(3或4欄)→2欄 */
@@ -735,22 +742,22 @@
 
         <!-- 經營買方過濾列 -->
         <div class="buyer-filter" id="buyerFilter">
-            <div style="display:grid;grid-template-columns:auto auto repeat(7,auto);gap:6px;align-items:center;width:fit-content">
+            <div class="bf-grid-wrap">
                 <button class="bf-chip on" onclick="clearBfRoom();clearBfGrade();updateBfAllBtn();render()">全部</button>
-                <span style="font-size:14px;font-weight:600;color:white;background:#9333EA;padding:6px 16px;border-radius:20px;border:1.5px solid #9333EA;text-align:center">等級</span>
+                <span class="bf-label" style="background:#9333EA;border-color:#9333EA">等級</span>
                 <button class="bf-chip bf-grade-a" onclick="toggleBfGrade(this,'A')">A級</button>
                 <button class="bf-chip bf-grade-b" onclick="toggleBfGrade(this,'B')">B級</button>
                 <button class="bf-chip bf-grade-c" onclick="toggleBfGrade(this,'C')">C級</button>
-                <div></div><div></div><div></div><div></div>
-                <div></div>
-                <span style="font-size:14px;font-weight:600;color:white;background:#1D4ED8;padding:6px 16px;border-radius:20px;border:1.5px solid #1D4ED8;text-align:center">房型</span>
+                <span></span><span></span><span></span><span></span>
+                <span></span>
+                <span class="bf-label" style="background:#1D4ED8;border-color:#1D4ED8">房型</span>
                 <button class="bf-chip" onclick="toggleBfRoom(this,'套房')">套房</button>
                 <button class="bf-chip" onclick="toggleBfRoom(this,'二房')">二房</button>
                 <button class="bf-chip" onclick="toggleBfRoom(this,'三房')">三房</button>
                 <button class="bf-chip" onclick="toggleBfRoom(this,'四房')">四房</button>
                 <button class="bf-chip" onclick="toggleBfRoom(this,'公寓')">公寓</button>
                 <button class="bf-chip" onclick="toggleBfRoom(this,'透天')">透天</button>
-                <button class="bf-chip" onclick="toggleBfRoom(this,'店面辦公')">店面辦公</button>
+                <button class="bf-chip" onclick="toggleBfRoom(this,'店面辦公')">店辦</button>
             </div>
         </div>
 
@@ -7243,10 +7250,10 @@ function renderPerformance() {
             html += '</select></div>';
         } else {
             html += '<div style="background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:12px">' +
-                '<div style="display:flex;gap:8px;align-items:flex-end">' +
-                    '<div style="flex:1"><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">起始日</label><div class="roc-date-wrap"><input id="perfHistStart" type="text" value="'+esc(_perfHistStart?isoToROC(_perfHistStart):'')+'" placeholder="114/01/01" style="width:100%;font-size:14px"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
-                    '<span style="font-size:16px;color:var(--muted);padding-bottom:4px">～</span>' +
-                    '<div style="flex:1"><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">結束日</label><div class="roc-date-wrap"><input id="perfHistEnd" type="text" value="'+esc(_perfHistEnd?isoToROC(_perfHistEnd):'')+'" placeholder="115/12/31" style="width:100%;font-size:14px"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
+                '<div style="display:flex;gap:8px;align-items:center">' +
+                    '<div style="flex:1"><div class="roc-date-wrap"><input id="perfHistStart" type="text" value="'+esc(_perfHistStart?isoToROC(_perfHistStart):'')+'" placeholder="起始日" style="width:100%;font-size:14px"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
+                    '<span style="font-size:16px;color:var(--muted)">～</span>' +
+                    '<div style="flex:1"><div class="roc-date-wrap"><input id="perfHistEnd" type="text" value="'+esc(_perfHistEnd?isoToROC(_perfHistEnd):'')+'" placeholder="結束日" style="width:100%;font-size:14px"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
                     '<button type="button" onclick="_perfHistStart=\'\';_perfHistEnd=\'\';renderPerformance()" style="padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:13px;color:var(--text);white-space:nowrap">清除</button>' +
                     '<button type="button" onclick="_perfHistStart=rocToISO(document.getElementById(\'perfHistStart\').value);_perfHistEnd=rocToISO(document.getElementById(\'perfHistEnd\').value);renderPerformance()" style="padding:6px 12px;border:none;border-radius:6px;background:#8B5CF6;color:white;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap">查詢</button>' +
                 '</div>' +
