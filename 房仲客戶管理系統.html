@@ -7275,14 +7275,34 @@ function renderPerformance() {
         '</div>' +
     '</div>';
     // 搜尋列（固定區域）
-    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">' +
+    html += '<div id="perfSearchWrap" style="display:flex;align-items:center;gap:8px;margin-bottom:10px">' +
         '<div style="font-size:13px;font-weight:700;color:var(--text)">業績紀錄</div>' +
-        '<div style="flex:1;position:relative"><input id="perfSearchInput" type="text" placeholder="搜尋名字/物件" value="'+esc(_perfSearch)+'" oncompositionstart="_perfComposing=true" oncompositionend="_perfComposing=false;_perfSearch=this.value;renderPerformance()" oninput="if(!_perfComposing){_perfSearch=this.value;renderPerformance()}" style="width:100%;padding:5px 28px 5px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;box-sizing:border-box">' +
-        (_perfSearch ? '<button type="button" onclick="_perfSearch=\'\';renderPerformance()" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;line-height:1">✕</button>' : '') +
+        '<div style="flex:1;position:relative"><input id="perfSearchInput" type="text" placeholder="搜尋名字/物件" value="'+esc(_perfSearch)+'" oninput="_perfSearch=this.value;renderPerfList()" style="width:100%;padding:5px 28px 5px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;box-sizing:border-box">' +
+        (_perfSearch ? '<button type="button" onclick="_perfSearch=\'\';var si=document.getElementById(\'perfSearchInput\');if(si)si.value=\'\';renderPerfList()" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;line-height:1">✕</button>' : '') +
         '</div></div>';
     // 固定區域結束，以下為可捲動區域
     document.getElementById('perfFixed').innerHTML = html;
-    html = '';
+    renderPerfList(filtered);
+}
+function renderPerfList(filtered) {
+    if (!filtered) {
+        // 從 renderPerformance 重新計算 filtered
+        var now = new Date(), thisYear = now.getFullYear(), thisMonth = now.getMonth();
+        var range = _perfRange || 'month';
+        filtered = _perfRecords.filter(function(r) {
+            if (!r.date) return false;
+            var d = new Date(r.date + 'T00:00:00');
+            if (range === 'month') return d.getFullYear() === thisYear && d.getMonth() === thisMonth;
+            if (range === 'quarter') { var q = Math.floor(thisMonth / 3); return d.getFullYear() === thisYear && Math.floor(d.getMonth() / 3) === q; }
+            if (range === 'year') return d.getFullYear() === thisYear;
+            if (range === 'history') {
+                if (d.getFullYear() !== _perfHistYear) return false;
+                if (_perfHistMonth !== 'all' && d.getMonth() !== parseInt(_perfHistMonth)) return false;
+                return true;
+            }
+            return true;
+        });
+    }
     // 搜尋過濾
     if (_perfSearch) {
         var _sq = _perfSearch.toLowerCase();
@@ -7290,6 +7310,23 @@ function renderPerformance() {
             return (r.client||'').toLowerCase().indexOf(_sq) >= 0 || (r.memo||'').toLowerCase().indexOf(_sq) >= 0;
         });
     }
+    // 更新清除按鈕
+    var wrap = document.getElementById('perfSearchWrap');
+    if (wrap) {
+        var si = wrap.querySelector('#perfSearchInput');
+        var clearBtn = wrap.querySelector('button');
+        if (_perfSearch && !clearBtn) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.onclick = function(){ _perfSearch=''; si.value=''; renderPerfList(); };
+            btn.style.cssText = 'position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;line-height:1';
+            btn.textContent = '✕';
+            si.parentNode.appendChild(btn);
+        } else if (!_perfSearch && clearBtn) {
+            clearBtn.remove();
+        }
+    }
+    var html = '';
     // 紀錄列表
     if (!filtered.length) {
         html += '<div style="text-align:center;color:var(--muted);padding:20px;font-size:14px">尚無紀錄</div>';
@@ -7329,15 +7366,11 @@ function renderPerformance() {
         });
     }
     document.getElementById('perfBody').innerHTML = html;
-    // 搜尋框保持焦點
-    var si = document.getElementById('perfSearchInput');
-    if (si && _perfSearch) { si.focus(); si.setSelectionRange(si.value.length, si.value.length); }
 }
 var _perfRange = 'month';
 var _perfHistYear = new Date().getFullYear();
 var _perfHistMonth = 'all';
 var _perfSearch = '';
-var _perfComposing = false;
 function setPerfRange(range) {
     _perfRange = range;
     document.querySelectorAll('.perf-tab').forEach(function(b) {
