@@ -735,22 +735,26 @@
 
         <!-- 經營買方過濾列 -->
         <div class="buyer-filter" id="buyerFilter">
-            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-                <button class="bf-chip on" onclick="clearBfRoom();clearBfGrade();updateBfAllBtn();render()" style="flex-shrink:0">全部</button>
-                <span style="flex-shrink:0;font-size:14px;font-weight:600;color:white;background:#1D4ED8;padding:6px 16px;border-radius:20px;border:1.5px solid #1D4ED8">房型</span>
-                <button class="bf-chip" onclick="toggleBfRoom(this,'套房')">套房</button>
-                <button class="bf-chip" onclick="toggleBfRoom(this,'二房')">二房</button>
-                <button class="bf-chip" onclick="toggleBfRoom(this,'三房')">三房</button>
-                <button class="bf-chip" onclick="toggleBfRoom(this,'四房')">四房</button>
-                <button class="bf-chip" onclick="toggleBfRoom(this,'公寓')">公寓</button>
-                <button class="bf-chip" onclick="toggleBfRoom(this,'豪宅')">豪宅</button>
-                <button class="bf-chip" onclick="toggleBfRoom(this,'店面')">店面</button>
-                <button class="bf-chip" onclick="toggleBfRoom(this,'辦公')">辦公</button>
-                <button class="bf-chip" onclick="toggleBfRoom(this,'透天')">透天</button>
-                <span style="flex-shrink:0;font-size:14px;font-weight:600;color:white;background:#9333EA;padding:6px 16px;border-radius:20px;border:1.5px solid #9333EA">等級</span>
-                <button class="bf-chip bf-grade-a" onclick="toggleBfGrade(this,'A')">A級</button>
-                <button class="bf-chip bf-grade-b" onclick="toggleBfGrade(this,'B')">B級</button>
-                <button class="bf-chip bf-grade-c" onclick="toggleBfGrade(this,'C')">C級</button>
+            <div style="display:flex;gap:6px;align-items:flex-start">
+                <button class="bf-chip on" onclick="clearBfRoom();clearBfGrade();updateBfAllBtn();render()" style="flex-shrink:0;align-self:flex-start">全部</button>
+                <div style="flex:1;min-width:0">
+                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap">
+                        <span style="flex-shrink:0;font-size:14px;font-weight:600;color:white;background:#1D4ED8;padding:6px 16px;border-radius:20px;border:1.5px solid #1D4ED8">房型</span>
+                        <button class="bf-chip" onclick="toggleBfRoom(this,'套房')">套房</button>
+                        <button class="bf-chip" onclick="toggleBfRoom(this,'二房')">二房</button>
+                        <button class="bf-chip" onclick="toggleBfRoom(this,'三房')">三房</button>
+                        <button class="bf-chip" onclick="toggleBfRoom(this,'四房')">四房</button>
+                        <button class="bf-chip" onclick="toggleBfRoom(this,'公寓')">公寓</button>
+                        <button class="bf-chip" onclick="toggleBfRoom(this,'透天')">透天</button>
+                        <button class="bf-chip" onclick="toggleBfRoom(this,'店面辦公')">店面辦公</button>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                        <span style="flex-shrink:0;font-size:14px;font-weight:600;color:white;background:#9333EA;padding:6px 16px;border-radius:20px;border:1.5px solid #9333EA">等級</span>
+                        <button class="bf-chip bf-grade-a" onclick="toggleBfGrade(this,'A')">A級</button>
+                        <button class="bf-chip bf-grade-b" onclick="toggleBfGrade(this,'B')">B級</button>
+                        <button class="bf-chip bf-grade-c" onclick="toggleBfGrade(this,'C')">C級</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -2507,7 +2511,7 @@ function updateBfAllBtn() {
 function toggleBfRoom(btn, room) {
     var wasOn = btn.classList.contains('on');
     document.querySelectorAll('#buyerFilter .bf-chip[onclick*="toggleBfRoom"]').forEach(function(b){ b.classList.remove('on'); });
-    if (wasOn) { bfRooms = []; } else { bfRooms = [room]; btn.classList.add('on'); }
+    if (wasOn) { bfRooms = []; } else { bfRooms = room==='店面辦公'?['店面','辦公','店面辦公']:[room]; btn.classList.add('on'); }
     updateBfAllBtn();
     render();
 }
