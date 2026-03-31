@@ -8002,7 +8002,21 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
 function clearCache() {
-    if (!confirm('清除快取並重新載入？')) return;
+    var ov = document.createElement('div');
+    ov.className = 'fill-overlay';
+    var bx = document.createElement('div');
+    bx.className = 'fill-menu';
+    bx.style.cssText = 'padding:24px 28px;text-align:center;min-width:240px';
+    bx.innerHTML = '<div style="font-size:16px;font-weight:700;margin-bottom:20px">清除快取並重新載入？</div>' +
+        '<div style="display:flex;gap:10px;justify-content:center">' +
+            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 24px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
+            '<button type="button" onclick="doClearCache()" style="padding:8px 24px;border:none;border-radius:8px;background:var(--deep);color:white;cursor:pointer;font-size:14px;font-weight:600">確定</button>' +
+        '</div>';
+    ov.appendChild(bx);
+    ov.onclick = function(e){ if(e.target===ov) ov.remove(); };
+    document.body.appendChild(ov);
+}
+function doClearCache() {
     if ('caches' in window) {
         caches.keys().then(function(names) {
             return Promise.all(names.map(function(n) { return caches.delete(n); }));
