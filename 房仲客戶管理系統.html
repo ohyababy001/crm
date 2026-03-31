@@ -7208,21 +7208,33 @@ function renderPerformance() {
     html += '<div style="flex:1"></div>' +
         '<button type="button" onclick="addPerfRecord()" style="padding:6px 14px;border:none;border-radius:8px;background:#8B5CF6;color:white;cursor:pointer;font-size:13px;font-weight:600">＋ 新增紀錄</button>' +
     '</div>';
-    // 歷史查詢：年月選擇器
+    // 歷史查詢：年月 / 區間選擇器
     if (range === 'history') {
-        var years = [];
-        _perfRecords.forEach(function(r) { if (r.date) { var y = parseInt(r.date.substring(0,4)); if (years.indexOf(y) < 0) years.push(y); } });
-        years.sort(function(a,b){return b-a;});
-        if (!years.length) years = [thisYear];
-        if (!_perfHistYear) _perfHistYear = thisYear;
-        html += '<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">' +
-            '<select id="perfHistYear" onchange="_perfHistYear=parseInt(this.value);renderPerformance()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px">';
-        years.forEach(function(y) { html += '<option value="'+y+'"'+(_perfHistYear===y?' selected':'')+'>'+(y-1911)+' 年（'+y+'）</option>'; });
-        html += '</select>' +
-            '<select id="perfHistMonth" onchange="_perfHistMonth=this.value;renderPerformance()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px">' +
-            '<option value="all"'+(_perfHistMonth==='all'?' selected':'')+'>全年</option>';
-        for (var mi=0; mi<12; mi++) { html += '<option value="'+mi+'"'+(_perfHistMonth===String(mi)?' selected':'')+'>'+(mi+1)+' 月</option>'; }
-        html += '</select></div>';
+        html += '<div style="display:flex;gap:6px;margin-bottom:8px">' +
+            '<button type="button" onclick="_perfHistMode=\'yearMonth\';renderPerformance()" style="padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;background:'+(_perfHistMode==='yearMonth'?'var(--deep)':'white')+';color:'+(_perfHistMode==='yearMonth'?'white':'var(--text)')+'">年月</button>' +
+            '<button type="button" onclick="_perfHistMode=\'range\';renderPerformance()" style="padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;background:'+(_perfHistMode==='range'?'var(--deep)':'white')+';color:'+(_perfHistMode==='range'?'white':'var(--text)')+'">區間</button>' +
+        '</div>';
+        if (_perfHistMode === 'yearMonth') {
+            var years = [];
+            _perfRecords.forEach(function(r) { if (r.date) { var y = parseInt(r.date.substring(0,4)); if (years.indexOf(y) < 0) years.push(y); } });
+            years.sort(function(a,b){return b-a;});
+            if (!years.length) years = [thisYear];
+            if (!_perfHistYear) _perfHistYear = thisYear;
+            html += '<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">' +
+                '<select id="perfHistYear" onchange="_perfHistYear=parseInt(this.value);renderPerformance()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px">';
+            years.forEach(function(y) { html += '<option value="'+y+'"'+(_perfHistYear===y?' selected':'')+'>'+(y-1911)+' 年（'+y+'）</option>'; });
+            html += '</select>' +
+                '<select id="perfHistMonth" onchange="_perfHistMonth=this.value;renderPerformance()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px">' +
+                '<option value="all"'+(_perfHistMonth==='all'?' selected':'')+'>全年</option>';
+            for (var mi=0; mi<12; mi++) { html += '<option value="'+mi+'"'+(_perfHistMonth===String(mi)?' selected':'')+'>'+(mi+1)+' 月</option>'; }
+            html += '</select></div>';
+        } else {
+            html += '<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">' +
+                '<div class="roc-date-wrap"><input id="perfHistStart" type="text" value="'+esc(_perfHistStart?isoToROC(_perfHistStart):'')+'" placeholder="起始日" style="width:100px;font-size:13px" onchange="_perfHistStart=rocToISO(this.value);renderPerformance()"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>' +
+                '<span style="font-size:13px;color:var(--muted)">～</span>' +
+                '<div class="roc-date-wrap"><input id="perfHistEnd" type="text" value="'+esc(_perfHistEnd?isoToROC(_perfHistEnd):'')+'" placeholder="結束日" style="width:100px;font-size:13px" onchange="_perfHistEnd=rocToISO(this.value);renderPerformance()"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>' +
+            '</div>';
+        }
     }
     // 統計
     var filtered = _perfRecords.filter(function(r) {
@@ -7232,6 +7244,11 @@ function renderPerformance() {
         if (range === 'quarter') { var q = Math.floor(thisMonth / 3); return d.getFullYear() === thisYear && Math.floor(d.getMonth() / 3) === q; }
         if (range === 'year') return d.getFullYear() === thisYear;
         if (range === 'history') {
+            if (_perfHistMode === 'range') {
+                if (_perfHistStart && r.date < _perfHistStart) return false;
+                if (_perfHistEnd && r.date > _perfHistEnd) return false;
+                return true;
+            }
             if (d.getFullYear() !== _perfHistYear) return false;
             if (_perfHistMonth !== 'all' && d.getMonth() !== parseInt(_perfHistMonth)) return false;
             return true;
@@ -7248,7 +7265,20 @@ function renderPerformance() {
         if (isBuy) { buyCount++; buyFeeTax += ft; buyFeeNoTax += fnt; }
         else { rentCount++; rentFeeTax += ft; rentFeeNoTax += fnt; }
     });
-    var rangeLabel = range === 'history' ? (_perfHistYear-1911)+'年'+(_perfHistMonth==='all'?'':'('+((parseInt(_perfHistMonth)||0)+1)+'月)') : { month:'本月', quarter:'本季', year:'本年', all:'全部' }[range];
+    var rangeLabel;
+    if (range === 'history') {
+        if (_perfHistMode === 'range') {
+            var _rl = '';
+            if (_perfHistStart) _rl += isoToROC(_perfHistStart);
+            _rl += '～';
+            if (_perfHistEnd) _rl += isoToROC(_perfHistEnd);
+            rangeLabel = _rl + ' ';
+        } else {
+            rangeLabel = (_perfHistYear-1911)+'年'+(_perfHistMonth==='all'?'':'('+((parseInt(_perfHistMonth)||0)+1)+'月)');
+        }
+    } else {
+        rangeLabel = { month:'本月', quarter:'本季', year:'本年', all:'全部' }[range];
+    }
     html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
         '<div style="background:#FEF3C7;border-radius:10px;padding:14px">' +
             '<div style="font-size:12px;color:#92400E;margin-bottom:8px;font-weight:600;text-align:center">'+rangeLabel+'買賣案 <span style="font-size:22px;font-weight:800;color:#B45309">'+buyCount+'</span> 筆</div>' +
@@ -7296,6 +7326,11 @@ function renderPerfList(filtered) {
             if (range === 'quarter') { var q = Math.floor(thisMonth / 3); return d.getFullYear() === thisYear && Math.floor(d.getMonth() / 3) === q; }
             if (range === 'year') return d.getFullYear() === thisYear;
             if (range === 'history') {
+                if (_perfHistMode === 'range') {
+                    if (_perfHistStart && r.date < _perfHistStart) return false;
+                    if (_perfHistEnd && r.date > _perfHistEnd) return false;
+                    return true;
+                }
                 if (d.getFullYear() !== _perfHistYear) return false;
                 if (_perfHistMonth !== 'all' && d.getMonth() !== parseInt(_perfHistMonth)) return false;
                 return true;
@@ -7371,6 +7406,9 @@ var _perfRange = 'month';
 var _perfHistYear = new Date().getFullYear();
 var _perfHistMonth = 'all';
 var _perfSearch = '';
+var _perfHistMode = 'yearMonth';
+var _perfHistStart = '';
+var _perfHistEnd = '';
 function setPerfRange(range) {
     _perfRange = range;
     document.querySelectorAll('.perf-tab').forEach(function(b) {
