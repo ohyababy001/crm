@@ -7229,10 +7229,16 @@ function renderPerformance() {
             for (var mi=0; mi<12; mi++) { html += '<option value="'+mi+'"'+(_perfHistMonth===String(mi)?' selected':'')+'>'+(mi+1)+' 月</option>'; }
             html += '</select></div>';
         } else {
-            html += '<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">' +
-                '<div class="roc-date-wrap"><input id="perfHistStart" type="text" value="'+esc(_perfHistStart?isoToROC(_perfHistStart):'')+'" placeholder="起始日" style="width:100px;font-size:13px" onchange="_perfHistStart=rocToISO(this.value);renderPerformance()"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>' +
-                '<span style="font-size:13px;color:var(--muted)">～</span>' +
-                '<div class="roc-date-wrap"><input id="perfHistEnd" type="text" value="'+esc(_perfHistEnd?isoToROC(_perfHistEnd):'')+'" placeholder="結束日" style="width:100px;font-size:13px" onchange="_perfHistEnd=rocToISO(this.value);renderPerformance()"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>' +
+            html += '<div style="background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:12px">' +
+                '<div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">' +
+                    '<div style="flex:1"><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">起始日</label><div class="roc-date-wrap"><input id="perfHistStart" type="text" value="'+esc(_perfHistStart?isoToROC(_perfHistStart):'')+'" placeholder="114/01/01" style="width:100%;font-size:14px"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
+                    '<span style="font-size:16px;color:var(--muted);margin-top:16px">～</span>' +
+                    '<div style="flex:1"><label style="font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">結束日</label><div class="roc-date-wrap"><input id="perfHistEnd" type="text" value="'+esc(_perfHistEnd?isoToROC(_perfHistEnd):'')+'" placeholder="115/12/31" style="width:100%;font-size:14px"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
+                '</div>' +
+                '<div style="display:flex;gap:8px;justify-content:flex-end">' +
+                    '<button type="button" onclick="_perfHistStart=\'\';_perfHistEnd=\'\';renderPerformance()" style="padding:6px 16px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:13px;color:var(--text)">清除</button>' +
+                    '<button type="button" onclick="_perfHistStart=rocToISO(document.getElementById(\'perfHistStart\').value);_perfHistEnd=rocToISO(document.getElementById(\'perfHistEnd\').value);renderPerformance()" style="padding:6px 16px;border:none;border-radius:6px;background:#8B5CF6;color:white;cursor:pointer;font-size:13px;font-weight:600">查詢</button>' +
+                '</div>' +
             '</div>';
         }
     }
