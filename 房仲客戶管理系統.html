@@ -8261,12 +8261,13 @@ var APP_VERSION = '20260401a';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
-// 更新後檢查版本是否變更
+// 更新後檢查頁面是否變更（用 HTML 長度作為指紋，不依賴手動版本號）
 (function(){
-    var oldVer = localStorage.getItem('_appOldVersion');
-    if (oldVer) {
-        localStorage.removeItem('_appOldVersion');
-        if (oldVer !== APP_VERSION) {
+    var oldFp = localStorage.getItem('_appOldFingerprint');
+    if (oldFp) {
+        localStorage.removeItem('_appOldFingerprint');
+        var newFp = String(document.documentElement.outerHTML.length);
+        if (oldFp !== newFp) {
             setTimeout(function(){ showUpdateMsg('✅ 更新成功！', '版本：' + APP_VERSION); }, 500);
         } else {
             setTimeout(function(){ showUpdateMsg('⚠️ 未更新成功', '版本仍為：' + APP_VERSION + '\n請稍後再試'); }, 500);
@@ -8302,7 +8303,7 @@ function clearCache() {
     document.body.appendChild(ov);
 }
 function doClearCache() {
-    localStorage.setItem('_appOldVersion', APP_VERSION);
+    localStorage.setItem('_appOldFingerprint', String(document.documentElement.outerHTML.length));
     if ('caches' in window) {
         caches.keys().then(function(names) {
             return Promise.all(names.map(function(n) { return caches.delete(n); }));
