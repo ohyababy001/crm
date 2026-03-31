@@ -144,7 +144,7 @@
         .cmeta-v { font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .cmeta-v.full { white-space: normal; word-break: break-all; }
         .card-notes-col { flex: 1; min-width: 0; }
-        .notes-inline { font-size: 13px; color: #1F2937; cursor: text; border: 1.5px solid transparent; border-radius: 6px; padding: 4px 7px; margin: -4px -7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: border-color 0.12s, background 0.12s; }
+        .notes-inline { font-size: 13px; color: #1F2937; cursor: text; border: 1.5px solid transparent; border-radius: 6px; padding: 4px 7px; margin: -4px -7px; white-space: pre-line; word-break: break-word; transition: border-color 0.12s, background 0.12s; }
         .notes-inline:hover { border-color: var(--border); background: var(--bg); }
         .notes-inline.empty-note { color: #94A3B8; font-style: italic; font-size: 12px; }
         .notes-edit-area { width: 100%; border: 1.5px solid var(--wood); border-radius: 6px; padding: 4px 7px; font-size: 13px; font-family: inherit; outline: none; resize: none; color: var(--text); box-shadow: 0 0 0 3px rgba(87,83,78,0.1); }
@@ -1626,11 +1626,12 @@ function _doMigrateRental() {
         // 複製扁平欄位（庫存/買方/成交/商機）
         ['bGrade','bName','bPhone','bIdNo','bOccupation','bBirthday','bEmail','bSource','bAddrType','bZip','bAddr',
          'bDemands','bPersons','bBasicAddrs','bAddrs',
-         'sGrade','sName','sPhone','sIdNo','sOccupation','sBirthday','sEmail','sSource','sAddrType','sZip','sOwnerAddr','sServiceFee',
+         'sGrade','sName','sPhone','sIdNo','sOccupation','sBirthday','sEmail','sSource','sAddrType','sZip','sOwnerAddr','sBasicAddrs','sServiceFee',
          'sProperties','sPersons','community','sAddr','sPrice','sFloorPrice','contractType','contractStart','contractEnd',
          'sPriceHistory','sFloorPriceHistory','sServiceFeeHistory',
-         'cName','cPhone','cIdNo','cOccupation','cBirthday','cEmail','cSource','cAddrType','cZip','cAddr','cContacts','cAddrs','deals',
-         'dName','dPhone','dIdNo','dOccupation','dBirthday','dEmail','dSource','dAddrType','dZip','dAddr','dPersons','dAddrs','schedules'
+         'llBasicAddrs','ttBasicAddrs',
+         'cName','cPhone','cIdNo','cOccupation','cBirthday','cEmail','cSource','cAddrType','cZip','cAddr','cBasicAddrs','cContacts','cAddrs','deals',
+         'dName','dPhone','dIdNo','dOccupation','dBirthday','dEmail','dSource','dAddrType','dZip','dAddr','dBasicAddrs','dPersons','dAddrs','schedules'
         ].forEach(function(f){ if(c[f]!==undefined&&c[f]!==''&&c[f]!==null) lr[f]=c[f]; });
         // 從 roleData.landlord 複製加掛標籤的資料（優先於扁平欄位）
         if (c.roleData && c.roleData.landlord) {
@@ -1745,13 +1746,13 @@ function extractTagFields(tagType) {
         return { bGrade:get('f-bGrade'), bName:get('f-bName'), bPhone:get('f-bPhone'), bIdNo:get('f-bIdNo'), bOccupation:get('f-bOccupation'), bBirthday:rocToISO(get('f-bBirthday')), bEmail:get('f-bEmail'), bSource:get('f-bSource'), bAddrType:get('f-bAddrType'), bZip:get('f-bZip'), bAddr:get('f-bAddr'), bBasicAddrs:getBuyerBasicAddrs(), bPersons:getBPersons(), bDemands:getBuyerDemands(), bAddrs:getBAddrs() };
     }
     if (tagType === '庫存屋主') {
-        return { sGrade:get('f-sGrade'), sName:get('f-sName'), sPhone:get('f-sPhone'), sIdNo:get('f-sIdNo'), sOccupation:get('f-sOccupation'), sBirthday:rocToISO(get('f-sBirthday')), sEmail:get('f-sEmail'), sSource:get('f-sSource'), sAddrType:get('f-sAddrType'), sZip:get('f-sZip'), sOwnerAddr:get('f-sOwnerAddr'), sPersons:getPersonBlocks('sPersonList'), sProperties:getSellerProperties() };
+        return { sGrade:get('f-sGrade'), sName:get('f-sName'), sPhone:get('f-sPhone'), sIdNo:get('f-sIdNo'), sOccupation:get('f-sOccupation'), sBirthday:rocToISO(get('f-sBirthday')), sEmail:get('f-sEmail'), sSource:get('f-sSource'), sAddrType:get('f-sAddrType'), sZip:get('f-sZip'), sOwnerAddr:get('f-sOwnerAddr'), sBasicAddrs:getBasicAddrs('sBasicAddrList'), sPersons:getPersonBlocks('sPersonList'), sProperties:getSellerProperties() };
     }
     if (tagType === '成交客戶') {
-        return { cName:get('f-cName'), cPhone:get('f-cPhone'), cIdNo:get('f-cIdNo'), cOccupation:get('f-cOccupation'), cBirthday:rocToISO(get('f-cBirthday')), cEmail:get('f-cEmail'), cSource:get('f-cSource'), cAddrType:get('f-cAddrType'), cZip:get('f-cZip'), cAddr:get('f-cAddr'), cContacts:getCContacts(), cAddrs:getCAddrs(), deals:getDeals() };
+        return { cName:get('f-cName'), cPhone:get('f-cPhone'), cIdNo:get('f-cIdNo'), cOccupation:get('f-cOccupation'), cBirthday:rocToISO(get('f-cBirthday')), cEmail:get('f-cEmail'), cSource:get('f-cSource'), cAddrType:get('f-cAddrType'), cZip:get('f-cZip'), cAddr:get('f-cAddr'), cBasicAddrs:getBasicAddrs('cBasicAddrList'), cContacts:getCContacts(), cAddrs:getCAddrs(), deals:getDeals() };
     }
     if (tagType === '商機募集') {
-        return { dName:get('f-dName'), dPhone:get('f-dPhone'), dIdNo:get('f-dIdNo'), dOccupation:get('f-dOccupation'), dBirthday:rocToISO(get('f-dBirthday')), dEmail:get('f-dEmail'), dSource:get('f-dSource'), dAddrType:get('f-dAddrType'), dZip:get('f-dZip'), dAddr:get('f-dAddr'), dPersons:getDPersons(), dAddrs:getDAddrs(), schedules:getSchedules() };
+        return { dName:get('f-dName'), dPhone:get('f-dPhone'), dIdNo:get('f-dIdNo'), dOccupation:get('f-dOccupation'), dBirthday:rocToISO(get('f-dBirthday')), dEmail:get('f-dEmail'), dSource:get('f-dSource'), dAddrType:get('f-dAddrType'), dZip:get('f-dZip'), dAddr:get('f-dAddr'), dBasicAddrs:getBasicAddrs('dBasicAddrList'), dPersons:getDPersons(), dAddrs:getDAddrs(), schedules:getSchedules() };
     }
     return {};
 }
@@ -1775,6 +1776,8 @@ function loadTagFields(tagType, d) {
     if (tagType === '庫存屋主') {
         sv('f-sGrade',d.sGrade); sv('f-sName',d.sName); sv('f-sPhone',d.sPhone); sv('f-sIdNo',d.sIdNo); sv('f-sOccupation',d.sOccupation); sv('f-sBirthday',d.sBirthday?isoToROC(d.sBirthday):''); sv('f-sEmail',d.sEmail); sv('f-sSource',d.sSource); sv('f-sZip',d.sZip); sv('f-sOwnerAddr',d.sOwnerAddr);
         if (d.sAddrType) { var at=document.getElementById('f-sAddrType'); if(at) at.value=d.sAddrType; }
+        document.getElementById('sBasicAddrList').innerHTML='';
+        if (d.sBasicAddrs && d.sBasicAddrs.length) d.sBasicAddrs.forEach(function(a){ addBuyerAddrRow('sBasicAddrList',a); });
         clearPersonBlocks('sPersonList');
         if (d.sPersons && d.sPersons.length) d.sPersons.forEach(function(p){ addPersonBlock('sPersonList',p); });
         clearSellerProperties();
@@ -1783,6 +1786,8 @@ function loadTagFields(tagType, d) {
     if (tagType === '成交客戶') {
         sv('f-cName',d.cName); sv('f-cPhone',d.cPhone); sv('f-cIdNo',d.cIdNo); sv('f-cOccupation',d.cOccupation); sv('f-cBirthday',d.cBirthday?isoToROC(d.cBirthday):''); sv('f-cEmail',d.cEmail); sv('f-cSource',d.cSource); sv('f-cZip',d.cZip); sv('f-cAddr',d.cAddr);
         if (d.cAddrType) { var at=document.getElementById('f-cAddrType'); if(at) at.value=d.cAddrType; }
+        document.getElementById('cBasicAddrList').innerHTML='';
+        if (d.cBasicAddrs && d.cBasicAddrs.length) d.cBasicAddrs.forEach(function(a){ addBuyerAddrRow('cBasicAddrList',a); });
         clearCRows();
         if (d.cContacts && d.cContacts.length) d.cContacts.forEach(function(p){ addCContactRow(p); });
         if (d.cAddrs && d.cAddrs.length) d.cAddrs.forEach(function(a){ addCAddrRow(a); });
@@ -1792,6 +1797,8 @@ function loadTagFields(tagType, d) {
     if (tagType === '商機募集') {
         sv('f-dName',d.dName); sv('f-dPhone',d.dPhone); sv('f-dIdNo',d.dIdNo); sv('f-dOccupation',d.dOccupation); sv('f-dBirthday',d.dBirthday?isoToROC(d.dBirthday):''); sv('f-dEmail',d.dEmail); sv('f-dSource',d.dSource); sv('f-dZip',d.dZip); sv('f-dAddr',d.dAddr);
         if (d.dAddrType) { var at=document.getElementById('f-dAddrType'); if(at) at.value=d.dAddrType; }
+        document.getElementById('dBasicAddrList').innerHTML='';
+        if (d.dBasicAddrs && d.dBasicAddrs.length) d.dBasicAddrs.forEach(function(a){ addBuyerAddrRow('dBasicAddrList',a); });
         clearDPersons();
         if (d.dPersons && d.dPersons.length) d.dPersons.forEach(function(p){ addDPersonRow(p); });
         clearDAddrs();
@@ -3044,7 +3051,7 @@ function renderCard(c) {
             return `<span class="tag t-${TC[t]||'buyer'}">${TYPE_DISPLAY[t]||t}</span>`;
         }).join('');
         const statusTag = !cTypes.includes('經營買方') && c.status ? `<span class="tag s-${c.status}">${c.status}</span>` : '';
-        const notesText = c.notes ? c.notes.replace(/[\r\n]+/g,' ').replace(/\s+/g,' ').trim() : '';
+        const notesText = c.notes ? c.notes.trim() : '';
         const dateLabel = c.lastContact ? '📞 '+relTime(c.lastContact) : '';
         const createdLabel = c.created ? '建檔 '+isoToROC((c.created||'').slice(0,10)) : '';
 
@@ -3616,6 +3623,8 @@ function typeDetail(origC, viewAs) {
             var mgTotal=(parseFloat(rp.rMgmtBuilding)||0)+(parseFloat(rp.rMgmtCar)||0)+(parseFloat(rp.rMgmtMoto)||0)+(parseFloat(rp.rMgmtOther)||0);
             if (mgTotal) { var mp=[]; if(rp.rMgmtBuilding)mp.push('建物'+rp.rMgmtBuilding); if(rp.rMgmtCar)mp.push('汽車位'+rp.rMgmtCar); if(rp.rMgmtMoto)mp.push('機車位'+rp.rMgmtMoto); if(rp.rMgmtOther)mp.push('其他'+rp.rMgmtOther); h+=dRow('管理費',mgT+'合計'+mgTotal.toLocaleString()+'元'+(mp.length?'（'+mp.join('、')+'）':'')); }
             else if (mgT.trim()) h+=dRow('管理費',mgT);
+            var _meters=[]; if(rp.rMeterElec)_meters.push('電錶：'+rp.rMeterElec); if(rp.rMeterWater)_meters.push('水錶：'+rp.rMeterWater); if(rp.rMeterGas)_meters.push('瓦斯錶：'+rp.rMeterGas); if(rp.rTrashSpot)_meters.push('垃圾集中：'+rp.rTrashSpot); if(rp.rTrashBag)_meters.push('專用袋：'+rp.rTrashBag);
+            if(_meters.length) h+=dRow('裝置',_meters.join('、'));
             h += dRow('車位',rp.rParking||'');
             h += dRow('車位編號',rp.rParkingNo||'');
             if (rp.rEquipment && Object.keys(rp.rEquipment).length) h += dRow('附屬設備', Object.keys(rp.rEquipment).map(function(k){ return k+' '+rp.rEquipment[k]; }).join('、'));
@@ -3825,7 +3834,8 @@ function showDet(id, viewAs) {
         '<span style="font-size:12px;font-weight:600;color:var(--muted)">' + (detIdx+1) + ' / ' + detListCache.length + '</span>' +
         '<button class="btn-ic" onclick="navDet(1)" title="下一筆" style="font-size:14px;padding:4px 8px;'+nextStyle+'">▶</button>';
 }
-function closeDet(){ document.getElementById('dModal').style.display='none'; detListCache=[]; currentDetId=null; currentDetIdx=-1; }
+var _detFromPerf = false;
+function closeDet(){ document.getElementById('dModal').style.display='none'; if(_detFromPerf){ _detFromPerf=false; document.getElementById('perfModal').style.display='flex'; } detListCache=[]; currentDetId=null; currentDetIdx=-1; }
 function switchBdTab(btn, idx) {
     var tabs = btn.closest('[data-bd-tabs]');
     var container = tabs.parentElement;
@@ -5005,6 +5015,15 @@ function addRentalProperty(data) {
             '<div style="flex:1;min-width:70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">其他</label><div class="input-grp"><input data-f="mgmtOther" value="'+esc(d.rMgmtOther||'')+'" style="min-width:0;flex:1" oninput="calcRpMgmt(this)"><span class="input-sfx">元</span></div></div>' +
             '<div style="flex:1;min-width:70px"><label style="font-size:12px;margin-bottom:2px;padding-left:4px;display:block">合計</label><div data-f="mgmtTotal" style="padding:8px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE8E0;color:#5C4A32;text-align:center">0 元</div></div>' +
         '</div>' +
+        // 裝置
+        '<div style="font-size:12px;font-weight:700;color:#5B21B6;margin-bottom:4px">裝置</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:6px;margin-bottom:8px">' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">電錶</label><input data-f="meterElec" value="'+esc(d.rMeterElec||'')+'" placeholder=""></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">水錶</label><input data-f="meterWater" value="'+esc(d.rMeterWater||'')+'" placeholder=""></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">瓦斯錶</label><input data-f="meterGas" value="'+esc(d.rMeterGas||'')+'" placeholder=""></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">垃圾集中</label><input data-f="trashSpot" value="'+esc(d.rTrashSpot||'')+'" placeholder=""></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">專用袋</label><select data-f="trashBag" style="width:100%"><option value=""'+(d.rTrashBag?'':' selected')+'>—</option><option value="Y"'+(d.rTrashBag==='Y'?' selected':'')+'>Y</option><option value="N"'+(d.rTrashBag==='N'?' selected':'')+'>N</option></select></div>' +
+        '</div>' +
         // 起租日+到期日+續約+歷程
         '<div class="sp-contract-row" style="display:grid;grid-template-columns:3fr 3fr auto auto;gap:8px;align-items:end">' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">起租日</label><div class="roc-date-wrap"><input data-f="startDate" type="text" value="'+esc(d.rStartDate?isoToROC(d.rStartDate):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
@@ -5195,7 +5214,7 @@ function getRentalProperties() {
     document.querySelectorAll('#rPropertyList .person-block').forEach(function(block) {
         var get = function(f){ var el=block.querySelector('[data-f="'+f+'"]'); return el?el.value.trim():''; };
         if (get('community') || get('addr') || get('rent')) {
-            r.push({ rCommunity:get('community'), rAddr:get('addr'), rent:get('rent'), rRentPeriod:get('rentPeriod'), rSz:get('sz'), rParking:get('parking'), rParkingNo:get('parkingNo'), rMgmtType:get('mgmtType'), rMgmtBuilding:get('mgmtBuilding'), rMgmtCar:get('mgmtCar'), rMgmtMoto:get('mgmtMoto'), rMgmtOther:get('mgmtOther'), rStartDate:rocToISO(get('startDate')), rEndDate:rocToISO(get('endDate')), rpRenewals: block._rpRenewals || [], rEquipment: getRpEquipData(block), rpDriveUrl: block._rpDriveUrl || '' });
+            r.push({ rCommunity:get('community'), rAddr:get('addr'), rent:get('rent'), rRentPeriod:get('rentPeriod'), rSz:get('sz'), rParking:get('parking'), rParkingNo:get('parkingNo'), rMgmtType:get('mgmtType'), rMgmtBuilding:get('mgmtBuilding'), rMgmtCar:get('mgmtCar'), rMgmtMoto:get('mgmtMoto'), rMgmtOther:get('mgmtOther'), rMeterElec:get('meterElec'), rMeterWater:get('meterWater'), rMeterGas:get('meterGas'), rTrashSpot:get('trashSpot'), rTrashBag:get('trashBag'), rStartDate:rocToISO(get('startDate')), rEndDate:rocToISO(get('endDate')), rpRenewals: block._rpRenewals || [], rEquipment: getRpEquipData(block), rpDriveUrl: block._rpDriveUrl || '' });
         }
     });
     return r;
@@ -5298,14 +5317,15 @@ function addBuyerAddrRow(listId, data) {
         '<button type="button" class="c-del" onclick="this.parentElement.remove()" style="margin-bottom:4px">✕</button></div>';
     document.getElementById(listId).insertAdjacentHTML('beforeend', html);
 }
-function getBuyerBasicAddrs() {
+function getBasicAddrs(listId) {
     var r = [];
-    document.querySelectorAll('#bBasicAddrList .c-row').forEach(function(row) {
+    document.querySelectorAll('#'+listId+' .c-row').forEach(function(row) {
         var get = function(f){ var el=row.querySelector('[data-f="'+f+'"]'); return el?el.value.trim():''; };
         if (get('addr')) r.push({ type:get('type'), zip:get('zip'), addr:get('addr') });
     });
     return r;
 }
+function getBuyerBasicAddrs() { return getBasicAddrs('bBasicAddrList'); }
 function clearBuyerBasicAddrs() { document.getElementById('bBasicAddrList').innerHTML = ''; bBasicAddrId = 0; }
 // ── 新增聯絡人區塊內的額外地址 ──
 function addPbAddrRow(btn, data) {
@@ -6602,6 +6622,7 @@ function openEdit(id, viewAs) {
     setVal('f-sIdNo',c.sIdNo); setVal('f-sOccupation',c.sOccupation||''); setVal('f-sBirthday',isoToROC(c.sBirthday));
     loadAddrType('f-sAddrType', c.sAddrType);
     setVal('f-sZip', c.sZip || ''); setVal('f-sOwnerAddr',c.sOwnerAddr);
+    if (c.sBasicAddrs && c.sBasicAddrs.length) c.sBasicAddrs.forEach(function(a){ addBuyerAddrRow('sBasicAddrList', a); });
     setVal('f-sEmail', c.sEmail || (sellerOnly ? c.email : ''));
     setVal('f-sSource', c.sSource || (sellerOnly ? c.source : ''));
     setVal('f-sServiceFee',c.sServiceFee);
@@ -6652,6 +6673,7 @@ function openEdit(id, viewAs) {
     setVal('f-llSource', c.llSource || '');
     loadAddrType('f-llAddrType', c.llAddrType);
     setVal('f-llZip', c.llZip || ''); setVal('f-llAddr', c.llAddr || '');
+    if (c.llBasicAddrs && c.llBasicAddrs.length) c.llBasicAddrs.forEach(function(a){ addBuyerAddrRow('llBasicAddrList', a); });
     setVal('f-llBank', c.llBank || ''); setVal('f-llBankCode', c.llBankCode || ''); setVal('f-llBankAccount', c.llBankAccount || '');
     // 房東額外人員（跳過第一筆）
     if (c.rLandlords && c.rLandlords.length > 1) c.rLandlords.slice(1).forEach(function(p){ addRPersonRow('rLandlordList','房東',p); });
@@ -6666,6 +6688,7 @@ function openEdit(id, viewAs) {
     setVal('f-ttSource', c.ttSource || '');
     loadAddrType('f-ttAddrType', c.ttAddrType);
     setVal('f-ttZip', c.ttZip || ''); setVal('f-ttAddr', c.ttAddr || '');
+    if (c.ttBasicAddrs && c.ttBasicAddrs.length) c.ttBasicAddrs.forEach(function(a){ addBuyerAddrRow('ttBasicAddrList', a); });
     // 租客額外人員（跳過第一筆）
     if (c.rTenants && c.rTenants.length > 1) c.rTenants.slice(1).forEach(function(p){ addRPersonRow('rTenantList','租客',p); });
     if (c.tenantPersons && c.tenantPersons.length) c.tenantPersons.forEach(function(p){ addRPersonRow('rTenantList','租客',p); });
@@ -6757,6 +6780,7 @@ function openEdit(id, viewAs) {
     setVal('f-cBirthday', c.cBirthday ? isoToROC(c.cBirthday) : (cFirst.birthday ? isoToROC(cFirst.birthday) : ''));
     loadAddrType('f-cAddrType', c.cAddrType);
     setVal('f-cZip', c.cZip || ''); setVal('f-cAddr', c.cAddr || '');
+    if (c.cBasicAddrs && c.cBasicAddrs.length) c.cBasicAddrs.forEach(function(a){ addBuyerAddrRow('cBasicAddrList', a); });
     setVal('f-cEmail', c.cEmail || '');
     setVal('f-cSource', c.cSource || (closedOnly ? c.source : ''));
     // 額外聯絡人（跳過第一筆，已載入固定欄位）
@@ -6778,6 +6802,7 @@ function openEdit(id, viewAs) {
     setVal('f-dBirthday', c.dBirthday ? isoToROC(c.dBirthday) : '');
     loadAddrType('f-dAddrType', c.dAddrType);
     setVal('f-dZip', c.dZip || ''); setVal('f-dAddr', c.dPersonAddr || '');
+    if (c.dBasicAddrs && c.dBasicAddrs.length) c.dBasicAddrs.forEach(function(a){ addBuyerAddrRow('dBasicAddrList', a); });
     setVal('f-dEmail', c.dEmail || '');
     setVal('f-dSource', c.dSource || (devOnly ? c.source : ''));
     // 額外屋主（跳過第一筆，已載入固定欄位）
@@ -6988,7 +7013,7 @@ function saveClient() {
         // 庫存屋主
         sGrade:get('f-sGrade'),
         sName:get('f-sName'), sPhone:get('f-sPhone'), sOccupation:get('f-sOccupation'), sEmail:get('f-sEmail'), sSource:get('f-sSource'),
-        sIdNo:get('f-sIdNo'), sBirthday:rocToISO(get('f-sBirthday')), sAddrType:get('f-sAddrType'), sZip:get('f-sZip'), sOwnerAddr:get('f-sOwnerAddr'),
+        sIdNo:get('f-sIdNo'), sBirthday:rocToISO(get('f-sBirthday')), sAddrType:get('f-sAddrType'), sZip:get('f-sZip'), sOwnerAddr:get('f-sOwnerAddr'), sBasicAddrs:getBasicAddrs('sBasicAddrList'),
         sPersons:getPersonBlocks('sPersonList'),
         sProperties:getSellerProperties(),
         contractType:get('f-contractType'),
@@ -7001,8 +7026,8 @@ function saveClient() {
         sRenewals: (function(){ var existing = editId ? (DB.find(function(x){return x.id===editId;})||{}).sRenewals || [] : []; return existing.concat(sRenewals); })(),
         contractStart:rocToISO(get('f-contractStart')), contractEnd:rocToISO(get('f-contractEnd')),
         // 租案管理
-        llName:get('f-llName'), llPhone:get('f-llPhone'), llIdNo:get('f-llIdNo'), llOccupation:get('f-llOccupation'), llBirthday:rocToISO(get('f-llBirthday')), llEmail:get('f-llEmail'), llSource:get('f-llSource'), llAddrType:get('f-llAddrType'), llZip:get('f-llZip'), llAddr:get('f-llAddr'), llBank:get('f-llBank'), llBankCode:get('f-llBankCode'), llBankAccount:get('f-llBankAccount'),
-        ttName:get('f-ttName'), ttPhone:get('f-ttPhone'), ttIdNo:get('f-ttIdNo'), ttOccupation:get('f-ttOccupation'), ttBirthday:rocToISO(get('f-ttBirthday')), ttEmail:get('f-ttEmail'), ttSource:get('f-ttSource'), ttAddrType:get('f-ttAddrType'), ttZip:get('f-ttZip'), ttAddr:get('f-ttAddr'),
+        llName:get('f-llName'), llPhone:get('f-llPhone'), llIdNo:get('f-llIdNo'), llOccupation:get('f-llOccupation'), llBirthday:rocToISO(get('f-llBirthday')), llEmail:get('f-llEmail'), llSource:get('f-llSource'), llAddrType:get('f-llAddrType'), llZip:get('f-llZip'), llAddr:get('f-llAddr'), llBasicAddrs:getBasicAddrs('llBasicAddrList'), llBank:get('f-llBank'), llBankCode:get('f-llBankCode'), llBankAccount:get('f-llBankAccount'),
+        ttName:get('f-ttName'), ttPhone:get('f-ttPhone'), ttIdNo:get('f-ttIdNo'), ttOccupation:get('f-ttOccupation'), ttBirthday:rocToISO(get('f-ttBirthday')), ttEmail:get('f-ttEmail'), ttSource:get('f-ttSource'), ttAddrType:get('f-ttAddrType'), ttZip:get('f-ttZip'), ttAddr:get('f-ttAddr'), ttBasicAddrs:getBasicAddrs('ttBasicAddrList'),
         linkedLandlordId:get('f-linkedLandlordId'),
         linkedPropertyIdx:parseInt(get('f-linkedPropertyIdx'))||0,
         rLandlords: (function(){ var arr=[]; if(get('f-llName')||get('f-llPhone')) arr.push({name:get('f-llName'),phone:get('f-llPhone'),idNo:get('f-llIdNo'),occupation:''}); return arr.concat(getRPersons('rLandlordList')); })(),
@@ -7049,13 +7074,13 @@ function saveClient() {
         // 成交（租案管理時從快取還原非當前頁籤的資料）
         cName: (function(){ var v=get('f-cName'); if(v) return v; if(selectedTypes.includes('租案管理')){ var or=activeRentalTab==='租客'?'landlord':'tenant'; var c=_roleFormCache[or]&&_roleFormCache[or].closed; if(c) return c.cName||''; } return ''; })(),
         cPhone: (function(){ var v=get('f-cPhone'); if(v) return v; if(selectedTypes.includes('租案管理')){ var or=activeRentalTab==='租客'?'landlord':'tenant'; var c=_roleFormCache[or]&&_roleFormCache[or].closed; if(c) return c.cPhone||''; } return ''; })(),
-        cIdNo:get('f-cIdNo'), cOccupation:get('f-cOccupation'), cBirthday:rocToISO(get('f-cBirthday')), cAddrType:get('f-cAddrType'), cZip:get('f-cZip'), cAddr:get('f-cAddr'),
+        cIdNo:get('f-cIdNo'), cOccupation:get('f-cOccupation'), cBirthday:rocToISO(get('f-cBirthday')), cAddrType:get('f-cAddrType'), cZip:get('f-cZip'), cAddr:get('f-cAddr'), cBasicAddrs:getBasicAddrs('cBasicAddrList'),
         cEmail:get('f-cEmail'), cSource:get('f-cSource'),
         cContacts: (function(){ var arr=[]; var cn=get('f-cName'),cp=get('f-cPhone'); if(cn||cp) { arr.push({name:cn,phone:cp,idNo:get('f-cIdNo'),birthday:rocToISO(get('f-cBirthday'))}); return arr.concat(isClosed?getCContacts():[]); } if(selectedTypes.includes('租案管理')){ var or=activeRentalTab==='租客'?'landlord':'tenant'; var c=_roleFormCache[or]&&_roleFormCache[or].closed; if(c&&c.cContacts) return c.cContacts; } return arr; })(),
         cAddrs: (function(){ if(isClosed){ var a=getCAddrs(); if(a.length) return a; } if(selectedTypes.includes('租案管理')){ var or=activeRentalTab==='租客'?'landlord':'tenant'; var c=_roleFormCache[or]&&_roleFormCache[or].closed; if(c&&c.cAddrs) return c.cAddrs; } return []; })(),
         deals: (function(){ var d=getDeals(); if(d.length) return d; if(selectedTypes.includes('租案管理')){ var or=activeRentalTab==='租客'?'landlord':'tenant'; var c=_roleFormCache[or]&&_roleFormCache[or].closed; if(c&&c.deals&&c.deals.length) return c.deals; } return d; })(),
         // 商機募集
-        dName:get('f-dName'), dPhone:get('f-dPhone'), dIdNo:get('f-dIdNo'), dOccupation:get('f-dOccupation'), dAddrType:get('f-dAddrType'), dZip:get('f-dZip'), dPersonAddr:get('f-dAddr'),
+        dName:get('f-dName'), dPhone:get('f-dPhone'), dIdNo:get('f-dIdNo'), dOccupation:get('f-dOccupation'), dAddrType:get('f-dAddrType'), dZip:get('f-dZip'), dPersonAddr:get('f-dAddr'), dBasicAddrs:getBasicAddrs('dBasicAddrList'),
         dBirthday:rocToISO(get('f-dBirthday')), dEmail:get('f-dEmail'), dSource:get('f-dSource'),
         dPersons: (function(){ var arr=[]; if(get('f-dName')||get('f-dPhone')) arr.push({name:get('f-dName'),phone:get('f-dPhone'),idNo:get('f-dIdNo')}); return arr.concat(getDPersons()); })(), dAddrs:getDAddrs(),
         devType: (function(){ var types=[]; getDAddrs().forEach(function(a){ if(a.devType&&types.indexOf(a.devType)<0) types.push(a.devType); }); return types.join('、'); })(),
@@ -7556,10 +7581,14 @@ function epSelectClient(id, name) {
     input.setSelectionRange(input.value.length, input.value.length);
 }
 function perfGoClient(id) {
-    var c = DB.find(function(x){ return x.id === id; });
+    var c = DB.find(function(x){ return x.id === id && !x._deleted; });
     if (!c) { alert('找不到此客戶，可能已被刪除'); return; }
     document.getElementById('perfModal').style.display = 'none';
-    showDetByView(id, '');
+    _detFromPerf = true;
+    // 從業績表進入時，用單筆客戶作為列表，避免左右切換異常
+    detListCache = [c];
+    currentDetIdx = 0;
+    showDet(id, '');
 }
 function addPerfRecord() {
     var overlay = document.createElement('div');
