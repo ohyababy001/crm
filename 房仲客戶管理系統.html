@@ -482,6 +482,8 @@
             /* 租案物件：管理費手機版換行 */
             .rp-mgmt-row { display:grid !important; grid-template-columns: repeat(3,1fr); gap:4px; }
             .rp-mgmt-row > div { flex:none !important; min-width:0 !important; }
+            /* 租案物件：裝置手機版 3+2 排列 */
+            .rp-meter-row { grid-template-columns: 1fr 1fr 1fr !important; }
             /* 庫存物件：立約日+到期日+續約+歷程 換行 */
             .sp-contract-row { grid-template-columns: 1fr 1fr !important; }
             .sp-contract-row > .bf-chip { padding: 8px 10px !important; font-size: 13px !important; }
@@ -5017,7 +5019,7 @@ function addRentalProperty(data) {
         '</div>' +
         // 裝置
         '<div style="font-size:12px;font-weight:700;color:#5B21B6;margin-bottom:4px">裝置</div>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:6px;margin-bottom:8px">' +
+        '<div class="rp-meter-row" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:6px;margin-bottom:8px">' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">電錶</label><input data-f="meterElec" value="'+esc(d.rMeterElec||'')+'" placeholder=""></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">水錶</label><input data-f="meterWater" value="'+esc(d.rMeterWater||'')+'" placeholder=""></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">瓦斯錶</label><input data-f="meterGas" value="'+esc(d.rMeterGas||'')+'" placeholder=""></div>' +
