@@ -7383,6 +7383,53 @@ function perfSelectClient(id, name) {
     document.getElementById('perfClientId').value = id;
     document.getElementById('perfClientSuggest').style.display = 'none';
 }
+function epClientSearch(val) {
+    var suggest = document.getElementById('epClientSuggest');
+    if (!suggest) return;
+    val = val.trim();
+    if (!val) { suggest.style.display = 'none'; return; }
+    var matches = [];
+    DB.forEach(function(c) {
+        if (c._deleted) return;
+        var names = [];
+        if (c.bName) names.push({name:c.bName, role:'買方'});
+        if (c.sName) names.push({name:c.sName, role:'庫存'});
+        if (c.llName) names.push({name:c.llName, role:'房東'});
+        if (c.ttName) names.push({name:c.ttName, role:'租客'});
+        if (c.cName) names.push({name:c.cName, role:'成交'});
+        if (c.dName) names.push({name:c.dName, role:'商機'});
+        if (c.rLandlords) c.rLandlords.forEach(function(l){ if(l.name) names.push({name:l.name, role:'房東'}); });
+        if (c.rTenants) c.rTenants.forEach(function(t){ if(t.name) names.push({name:t.name, role:'租客'}); });
+        names.forEach(function(n) {
+            if (n.name.indexOf(val) !== -1) {
+                matches.push({id:c.id, name:n.name, role:n.role, phone:c.phone||''});
+            }
+        });
+    });
+    if (!matches.length) { suggest.style.display = 'none'; return; }
+    var seen = {};
+    matches = matches.filter(function(m) { var k = m.id+'_'+m.name; if(seen[k]) return false; seen[k]=true; return true; });
+    if (matches.length > 8) matches = matches.slice(0, 8);
+    var catColors = {'買方':'#1E40AF','庫存':'#065F46','房東':'#0E7490','租客':'#BE185D','成交':'#92400E','商機':'#6D28D9'};
+    var catBgs = {'買方':'#DBEAFE','庫存':'#D1FAE5','房東':'#CFFAFE','租客':'#FCE7F3','成交':'#FEF3C7','商機':'#EDE9FE'};
+    suggest.innerHTML = matches.map(function(m) {
+        return '<div class="perf-suggest-item" style="display:flex;align-items:center;gap:6px;padding:8px 10px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--bg)" ' +
+            'onmousedown="epSelectClient(\''+esc(m.id)+'\',\''+esc(m.name)+'\')">' +
+            '<span style="font-weight:600;flex:1">'+esc(m.name)+'</span>' +
+            (m.phone?'<span style="color:var(--muted);font-size:11px">'+esc(m.phone)+'</span>':'') +
+            '<span style="padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600;background:'+(catBgs[m.role]||'#F3F4F6')+';color:'+(catColors[m.role]||'#374151')+'">'+esc(m.role)+'</span>' +
+        '</div>';
+    }).join('');
+    suggest.style.display = '';
+}
+function epCloseSuggest() {
+    setTimeout(function(){ var s=document.getElementById('epClientSuggest'); if(s) s.style.display='none'; }, 200);
+}
+function epSelectClient(id, name) {
+    document.getElementById('epClient').value = name;
+    document.getElementById('epClientId').value = id;
+    document.getElementById('epClientSuggest').style.display = 'none';
+}
 function perfGoClient(id) {
     var c = DB.find(function(x){ return x.id === id; });
     if (!c) { alert('找不到此客戶，可能已被刪除'); return; }
@@ -7509,7 +7556,7 @@ function editPerfRecord(idx) {
         '<div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">項目</label><div id="epCatBtns" style="display:flex;gap:6px">'+catBtnsHtml+'</div></div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">成交日期</label><div class="roc-date-wrap"><input id="epDate" type="text" value="'+esc(r.date?isoToROC(r.date):'')+'" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
-            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">客戶/物件</label><input id="epClient" value="'+esc(r.client||'')+'" placeholder=""></div>' +
+            '<div class="fg" style="margin-bottom:0;position:relative"><label style="font-size:12px">客戶/物件</label><input id="epClient" value="'+esc(r.client||'')+'" autocomplete="off" oninput="epClientSearch(this.value)" onblur="epCloseSuggest()" onfocus="epClientSearch(this.value)"><input type="hidden" id="epClientId" value="'+esc(r.clientId||'')+'"><div id="epClientSuggest" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:100000;background:white;border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.15);max-height:180px;overflow-y:auto"></div></div>' +
         '</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">業績（報稅）</label><div class="input-grp"><input id="epFeeTax" value="'+esc(r.feeTax||'')+'" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
@@ -7554,6 +7601,7 @@ function editPerfRecord(idx) {
         r.category = selCat;
         r.date = date;
         r.client = document.getElementById('epClient').value.trim();
+        r.clientId = document.getElementById('epClientId').value || '';
         r.feeTax = document.getElementById('epFeeTax').value.trim();
         r.feeNoTax = document.getElementById('epFeeNoTax').value.trim();
         r.fee = String((parseFloat(r.feeTax)||0) + (parseFloat(r.feeNoTax)||0) || '');
