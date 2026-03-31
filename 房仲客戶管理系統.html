@@ -8259,23 +8259,20 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260401a';
+var APP_VERSION = '20260401b';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
-// 更新後檢查：fetch 原始碼比對長度，不受 DOM 動態渲染影響
+// 更新後檢查版本是否變更
 (function(){
-    var oldLen = localStorage.getItem('_appOldSrcLen');
-    if (oldLen) {
-        localStorage.removeItem('_appOldSrcLen');
-        fetch(location.pathname + '?_t=' + Date.now()).then(function(r){ return r.text(); }).then(function(src){
-            var newLen = String(src.length);
-            if (oldLen !== newLen) {
-                showUpdateMsg('✅ 更新成功！', '版本：' + APP_VERSION);
-            } else {
-                showUpdateMsg('⚠️ 未更新成功', '版本仍為：' + APP_VERSION + '\n請稍後再試');
-            }
-        }).catch(function(){});
+    var oldVer = localStorage.getItem('_appOldVersion');
+    if (oldVer) {
+        localStorage.removeItem('_appOldVersion');
+        if (oldVer !== APP_VERSION) {
+            setTimeout(function(){ showUpdateMsg('✅ 更新成功！', '版本：' + APP_VERSION); }, 500);
+        } else {
+            setTimeout(function(){ showUpdateMsg('⚠️ 未更新成功', '版本仍為：' + APP_VERSION + '\n請稍後再試'); }, 500);
+        }
     }
 })();
 function showUpdateMsg(title, msg) {
@@ -8307,24 +8304,21 @@ function clearCache() {
     document.body.appendChild(ov);
 }
 function doClearCache() {
-    fetch(location.pathname + '?_t=' + Date.now()).then(function(r){ return r.text(); }).then(function(src){
-        localStorage.setItem('_appOldSrcLen', String(src.length));
-    }).finally(function(){
-        if ('caches' in window) {
-            caches.keys().then(function(names) {
-                return Promise.all(names.map(function(n) { return caches.delete(n); }));
-            }).then(function() {
-                if (navigator.serviceWorker) {
-                    navigator.serviceWorker.getRegistrations().then(function(regs) {
-                        regs.forEach(function(r) { r.unregister(); });
-                    });
-                }
-                window.location.reload(true);
-            });
-        } else {
+    localStorage.setItem('_appOldVersion', APP_VERSION);
+    if ('caches' in window) {
+        caches.keys().then(function(names) {
+            return Promise.all(names.map(function(n) { return caches.delete(n); }));
+        }).then(function() {
+            if (navigator.serviceWorker) {
+                navigator.serviceWorker.getRegistrations().then(function(regs) {
+                    regs.forEach(function(r) { r.unregister(); });
+                });
+            }
             window.location.reload(true);
-        }
-    });
+        });
+    } else {
+        window.location.reload(true);
+    }
 }
 </script>
 </body>
