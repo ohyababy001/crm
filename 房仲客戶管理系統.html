@@ -7280,7 +7280,7 @@ function renderPerformance() {
     // 搜尋列
     html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">' +
         '<div style="font-size:13px;font-weight:700;color:var(--text)">業績紀錄</div>' +
-        '<div style="flex:1;position:relative"><input id="perfSearchInput" type="text" placeholder="搜尋名字/物件" value="'+esc(_perfSearch)+'" oninput="_perfSearch=this.value;renderPerformance()" style="width:100%;padding:5px 28px 5px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;box-sizing:border-box">' +
+        '<div style="flex:1;position:relative"><input id="perfSearchInput" type="text" placeholder="搜尋名字/物件" value="'+esc(_perfSearch)+'" oncompositionstart="_perfComposing=true" oncompositionend="_perfComposing=false;_perfSearch=this.value;renderPerformance()" oninput="if(!_perfComposing){_perfSearch=this.value;renderPerformance()}" style="width:100%;padding:5px 28px 5px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;box-sizing:border-box">' +
         (_perfSearch ? '<button type="button" onclick="_perfSearch=\'\';renderPerformance()" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;line-height:1">✕</button>' : '') +
         '</div></div>';
     // 搜尋過濾
@@ -7337,6 +7337,7 @@ var _perfRange = 'month';
 var _perfHistYear = new Date().getFullYear();
 var _perfHistMonth = 'all';
 var _perfSearch = '';
+var _perfComposing = false;
 function setPerfRange(range) {
     _perfRange = range;
     document.querySelectorAll('.perf-tab').forEach(function(b) {
