@@ -7241,8 +7241,20 @@ function renderPerformance() {
     // 固定區域結束，以下為可捲動區域
     document.getElementById('perfFixed').innerHTML = html;
     html = '';
+    // 搜尋列
+    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">' +
+        '<div style="font-size:13px;font-weight:700;color:var(--text)">業績紀錄</div>' +
+        '<div style="flex:1;position:relative"><input id="perfSearchInput" type="text" placeholder="搜尋名字/物件" value="'+esc(_perfSearch)+'" oninput="_perfSearch=this.value;renderPerformance()" style="width:100%;padding:5px 28px 5px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;box-sizing:border-box">' +
+        (_perfSearch ? '<button type="button" onclick="_perfSearch=\'\';renderPerformance()" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;line-height:1">✕</button>' : '') +
+        '</div></div>';
+    // 搜尋過濾
+    if (_perfSearch) {
+        var _sq = _perfSearch.toLowerCase();
+        filtered = filtered.filter(function(r) {
+            return (r.client||'').toLowerCase().indexOf(_sq) >= 0 || (r.memo||'').toLowerCase().indexOf(_sq) >= 0;
+        });
+    }
     // 紀錄列表
-    html += '<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px">業績紀錄</div>';
     if (!filtered.length) {
         html += '<div style="text-align:center;color:var(--muted);padding:20px;font-size:14px">尚無紀錄</div>';
     } else {
@@ -7281,10 +7293,14 @@ function renderPerformance() {
         });
     }
     document.getElementById('perfBody').innerHTML = html;
+    // 搜尋框保持焦點
+    var si = document.getElementById('perfSearchInput');
+    if (si && _perfSearch) { si.focus(); si.setSelectionRange(si.value.length, si.value.length); }
 }
 var _perfRange = 'month';
 var _perfHistYear = new Date().getFullYear();
 var _perfHistMonth = 'all';
+var _perfSearch = '';
 function setPerfRange(range) {
     _perfRange = range;
     document.querySelectorAll('.perf-tab').forEach(function(b) {
