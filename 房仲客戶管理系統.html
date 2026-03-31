@@ -1826,10 +1826,16 @@ function persist() {
     if (_syncTimer) clearTimeout(_syncTimer);
     _syncTimer = setTimeout(autoSync, 3000);
 }
+function persistPerf() {
+    localStorage.setItem('perfRecords', JSON.stringify(_perfRecords));
+    if (_syncTimer) clearTimeout(_syncTimer);
+    _syncTimer = setTimeout(autoSync, 3000);
+}
 function autoSync() {
     var status = document.getElementById('cloudStatus');
     if (status) status.textContent = '☁️ 同步中…';
-    var payload = JSON.stringify(DB);
+    var syncData = DB.filter(function(c){ return !c.__perfRecords; }).concat([{__perfRecords: true, records: _perfRecords}]);
+    var payload = JSON.stringify(syncData);
     // 嘗試多種方式確保 POST 送達
     // 方式1: sendBeacon（最可靠的跨域 POST）
     if (navigator.sendBeacon) {
@@ -1857,7 +1863,8 @@ function verifySyncResult(status) {
         delete window[vCb];
         if (vScript.parentNode) vScript.parentNode.removeChild(vScript);
         if (Array.isArray(data) && data.length > 0) {
-            if (status) status.textContent = '☁️ 已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + data.length + '筆）';
+            var cnt = data.filter(function(c){ return !c.__perfRecords; }).length;
+            if (status) status.textContent = '☁️ 已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + cnt + '筆）';
         } else {
             if (status) status.textContent = '⚠️ 同步可能失敗，請重試';
         }
@@ -1915,16 +1922,36 @@ function autoFetchCloud() {
         delete window[cbName];
         if (script.parentNode) script.parentNode.removeChild(script);
         try {
-            var cloudData = Array.isArray(data) ? data : null;
-            if (!cloudData && data && typeof data === 'object') {
-                var raw = data.payload ? String(data.payload) : '';
-                if (raw) {
-                    try { var obj = JSON.parse(raw); if (obj && obj.payload) raw = obj.payload; } catch(e) {}
-                    if (raw.indexOf('\\"') >= 0) raw = raw.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
-                    cloudData = JSON.parse(raw);
+            var cloudData = null, cloudPerf = null;
+            if (Array.isArray(data)) {
+                cloudData = data;
+            } else if (data && typeof data === 'object') {
+                // 相容過渡期物件格式 {db, perfRecords}
+                if (data.db && Array.isArray(data.db)) {
+                    cloudData = data.db;
+                    cloudPerf = Array.isArray(data.perfRecords) ? data.perfRecords : null;
+                } else {
+                    var raw = data.payload ? String(data.payload) : '';
+                    if (raw) {
+                        try { var obj = JSON.parse(raw); if (obj && obj.payload) raw = obj.payload; } catch(e) {}
+                        if (raw.indexOf('\\"') >= 0) raw = raw.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+                        var parsed = JSON.parse(raw);
+                        if (Array.isArray(parsed)) { cloudData = parsed; }
+                        else if (parsed && parsed.db && Array.isArray(parsed.db)) { cloudData = parsed.db; cloudPerf = Array.isArray(parsed.perfRecords) ? parsed.perfRecords : null; }
+                    }
                 }
             }
             if (!Array.isArray(cloudData) || cloudData.length === 0) return;
+            // 提取業績紀錄標記（新陣列格式）
+            if (!cloudPerf) {
+                var perfMeta = cloudData.filter(function(c){ return c.__perfRecords; })[0];
+                if (perfMeta) {
+                    cloudPerf = Array.isArray(perfMeta.records) ? perfMeta.records : null;
+                    cloudData = cloudData.filter(function(c){ return !c.__perfRecords; });
+                }
+            } else {
+                cloudData = cloudData.filter(function(c){ return !c.__perfRecords; });
+            }
             var cloudJSON = JSON.stringify(cloudData);
             var localJSON = JSON.stringify(DB);
             // 資料不同才更新
@@ -1973,6 +2000,11 @@ function autoFetchCloud() {
                 _lastSyncJSON = JSON.stringify(DB);
                 localStorage.setItem('reCRM', _lastSyncJSON);
                 render();
+                // 同步業績紀錄
+                if (cloudPerf) {
+                    _perfRecords = cloudPerf;
+                    localStorage.setItem('perfRecords', JSON.stringify(_perfRecords));
+                }
                 var status = document.getElementById('cloudStatus');
                 if (status) status.textContent = '☁️ 已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + DB.length + '筆）';
             }
@@ -7364,7 +7396,7 @@ function addPerfRecord() {
         var memo = document.getElementById('perfMemo').value.trim();
         var fee = (parseFloat(feeTax)||0) + (parseFloat(feeNoTax)||0);
         _perfRecords.push({ caseType:_perfSelectedCase, category:_perfSelectedCat, date:date, client:client, clientId:clientId, feeTax:feeTax, feeNoTax:feeNoTax, fee:String(fee||''), memo:memo, created:new Date().toISOString() });
-        localStorage.setItem('perfRecords', JSON.stringify(_perfRecords));
+        persistPerf();
         overlay.remove();
         renderPerformance();
     };
@@ -7407,7 +7439,7 @@ function deletePerfRecord(idx) {
     document.body.appendChild(overlay);
     document.getElementById('_perfDelBtn').onclick = function() {
         _perfRecords.splice(idx, 1);
-        localStorage.setItem('perfRecords', JSON.stringify(_perfRecords));
+        persistPerf();
         overlay.remove();
         renderPerformance();
     };
@@ -7484,7 +7516,7 @@ function editPerfRecord(idx) {
         r.feeNoTax = document.getElementById('epFeeNoTax').value.trim();
         r.fee = String((parseFloat(r.feeTax)||0) + (parseFloat(r.feeNoTax)||0) || '');
         r.memo = document.getElementById('epMemo').value.trim();
-        localStorage.setItem('perfRecords', JSON.stringify(_perfRecords));
+        persistPerf();
         overlay.remove();
         renderPerformance();
     };
@@ -7548,7 +7580,19 @@ function exportCSV() {
         c.devType,c.dCommunity,c.dAddr,
         c.notes,isoToROC((c.created||'').slice(0,10))
     ].map(v=>`"${(v||'').replace(/"/g,'""')}"`));
-    const csv='\uFEFF'+[H.join(','),...R.map(r=>r.join(','))].join('\n');
+    var rows = [H.join(',')].concat(R.map(function(r){return r.join(',');}));
+    // 附加業績紀錄區段
+    if (_perfRecords.length) {
+        rows.push('');
+        rows.push('"[業績紀錄]"');
+        var PH = ['案件類型','項目','成交日期','客戶/物件','業績(報稅)','實收(不報稅)','總業績','備註','建立時間'];
+        rows.push(PH.join(','));
+        _perfRecords.forEach(function(r) {
+            rows.push([r.caseType||'', r.category||'', r.date?isoToROC(r.date):'', r.client||'', r.feeTax||'', r.feeNoTax||'', r.fee||'', r.memo||'', r.created?r.created.slice(0,10):'']
+                .map(function(v) { return '"' + String(v||'').replace(/"/g,'""') + '"'; }).join(','));
+        });
+    }
+    const csv='\uFEFF'+rows.join('\n');
     const a=document.createElement('a');
     a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
     a.download=`客戶資料_${localDateISO()}.csv`;
@@ -7568,48 +7612,93 @@ function importCSV(file) {
         if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
         var lines = parseCSVLines(text);
         if (lines.length < 2) { alert('CSV 檔案沒有資料'); return; }
-        var headers = lines[0];
+        // 找業績紀錄分隔標記
+        var perfStartIdx = -1;
+        for (var p = 0; p < lines.length; p++) {
+            if (lines[p].length >= 1 && lines[p][0].replace(/"/g,'').trim() === '[業績紀錄]') { perfStartIdx = p; break; }
+        }
+        // 客戶資料區段
+        var clientLines = perfStartIdx > 0 ? lines.slice(0, perfStartIdx) : lines;
+        var headers = clientLines[0];
         var nameIdx = headers.indexOf('姓名');
         var phoneIdx = headers.indexOf('電話');
         var emailIdx = headers.indexOf('Email');
         var typeIdx = headers.indexOf('類型');
         var sourceIdx = headers.indexOf('來源');
         var notesIdx = headers.indexOf('備註');
-        if (nameIdx < 0) { alert('CSV 缺少「姓名」欄位'); return; }
-        if (phoneIdx < 0) { alert('CSV 缺少「電話」欄位'); return; }
         var count = 0, skip = 0;
-        for (var i = 1; i < lines.length; i++) {
-            var row = lines[i];
-            var name = (row[nameIdx] || '').trim();
-            var phone = (row[phoneIdx] || '').trim();
-            if (!name && !phone) continue;
-            // 檢查是否重複（同名同電話）
-            var exists = DB.some(function(c) { return c.name === name && c.phone === phone; });
-            if (exists) { skip++; continue; }
-            var types = typeIdx >= 0 ? (row[typeIdx]||'').split('、').filter(Boolean) : ['經營買方'];
-            if (!types.length) types = ['經營買方'];
-            var data = {
-                id: uid(),
-                name: name,
-                phone: phone,
-                email: emailIdx >= 0 ? (row[emailIdx]||'').trim() : '',
-                type: types[0],
-                types: types,
-                source: sourceIdx >= 0 ? (row[sourceIdx]||'').trim() : '',
-                notes: notesIdx >= 0 ? (row[notesIdx]||'').trim() : '',
-                status: '',
-                lastContact: new Date().toISOString(),
-                created: new Date().toISOString(),
-                history: [{ type:'create', time: new Date().toISOString() }]
-            };
-            DB.unshift(data);
-            count++;
+        if (nameIdx >= 0 && phoneIdx >= 0) {
+            for (var i = 1; i < clientLines.length; i++) {
+                var row = clientLines[i];
+                var name = (row[nameIdx] || '').trim();
+                var phone = (row[phoneIdx] || '').trim();
+                if (!name && !phone) continue;
+                var exists = DB.some(function(c) { return c.name === name && c.phone === phone; });
+                if (exists) { skip++; continue; }
+                var types = typeIdx >= 0 ? (row[typeIdx]||'').split('、').filter(Boolean) : ['經營買方'];
+                if (!types.length) types = ['經營買方'];
+                var data = {
+                    id: uid(),
+                    name: name,
+                    phone: phone,
+                    email: emailIdx >= 0 ? (row[emailIdx]||'').trim() : '',
+                    type: types[0],
+                    types: types,
+                    source: sourceIdx >= 0 ? (row[sourceIdx]||'').trim() : '',
+                    notes: notesIdx >= 0 ? (row[notesIdx]||'').trim() : '',
+                    status: '',
+                    lastContact: new Date().toISOString(),
+                    created: new Date().toISOString(),
+                    history: [{ type:'create', time: new Date().toISOString() }]
+                };
+                DB.unshift(data);
+                count++;
+            }
+        }
+        // 業績紀錄區段
+        var perfCount = 0;
+        if (perfStartIdx > 0 && perfStartIdx + 2 < lines.length) {
+            var perfHeaders = lines[perfStartIdx + 1];
+            var iCaseType = perfHeaders.indexOf('案件類型');
+            var iCategory = perfHeaders.indexOf('項目');
+            var iDate = perfHeaders.indexOf('成交日期');
+            var iClient = perfHeaders.indexOf('客戶/物件');
+            var iFeeTax = perfHeaders.indexOf('業績(報稅)');
+            var iFeeNoTax = perfHeaders.indexOf('實收(不報稅)');
+            var iFee = perfHeaders.indexOf('總業績');
+            var iMemo = perfHeaders.indexOf('備註');
+            for (var j = perfStartIdx + 2; j < lines.length; j++) {
+                var prow = lines[j];
+                var date = iDate >= 0 ? rocToISO((prow[iDate]||'').trim()) : '';
+                if (!date) continue;
+                var feeTax = iFeeTax >= 0 ? (prow[iFeeTax]||'').trim() : '';
+                var feeNoTax = iFeeNoTax >= 0 ? (prow[iFeeNoTax]||'').trim() : '';
+                var fee = iFee >= 0 ? (prow[iFee]||'').trim() : String((parseFloat(feeTax)||0) + (parseFloat(feeNoTax)||0) || '');
+                _perfRecords.push({
+                    caseType: iCaseType >= 0 ? (prow[iCaseType]||'').trim() : '買賣案',
+                    category: iCategory >= 0 ? (prow[iCategory]||'').trim() : '',
+                    date: date,
+                    client: iClient >= 0 ? (prow[iClient]||'').trim() : '',
+                    clientId: '',
+                    feeTax: feeTax,
+                    feeNoTax: feeNoTax,
+                    fee: fee,
+                    memo: iMemo >= 0 ? (prow[iMemo]||'').trim() : '',
+                    created: new Date().toISOString()
+                });
+                perfCount++;
+            }
+            if (perfCount) persistPerf();
         }
         persist(); render();
         var now = new Date().toLocaleString('zh-TW');
         document.getElementById('importTime').textContent = '上次匯入：' + now;
         localStorage.setItem('lastImportTime', now);
-        alert('匯入完成：新增 ' + count + ' 筆' + (skip ? '，跳過 ' + skip + ' 筆重複' : ''));
+        var msg = '匯入完成：';
+        if (count || skip) msg += '客戶 ' + count + ' 筆' + (skip ? '（跳過 ' + skip + ' 筆重複）' : '');
+        if (perfCount) msg += (count || skip ? '，' : '') + '業績 ' + perfCount + ' 筆';
+        if (!count && !skip && !perfCount) msg += '無新增資料';
+        alert(msg);
     };
     reader.readAsText(file, 'UTF-8');
     // 清除 input 以便再次選同一檔案
@@ -7771,15 +7860,42 @@ function cloudRestore() {
     if (btnEl) btnEl.disabled = true;
 
     function processRestore(data) {
-        if (Array.isArray(data)) {
-            DB = data;
-        } else if (data && typeof data === 'object') {
-            var raw = data.payload ? String(data.payload) : JSON.stringify(data);
+        var _perfRestoredCount = 0;
+        function extractPerf(arr) {
+            var meta = arr.filter(function(c){ return c.__perfRecords; })[0];
+            if (meta) {
+                var rp = Array.isArray(meta.records) ? meta.records : [];
+                _perfRecords = rp;
+                _perfRestoredCount = rp.length;
+                localStorage.setItem('perfRecords', JSON.stringify(_perfRecords));
+                return arr.filter(function(c){ return !c.__perfRecords; });
+            }
+            return arr;
+        }
+        function parseRaw(raw) {
             try { var obj = JSON.parse(raw); if (obj && obj.payload && typeof obj.payload === 'string') raw = obj.payload; } catch(e) {}
             if (raw.indexOf('\\"') >= 0) raw = raw.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
-            var restored = JSON.parse(raw);
-            if (!Array.isArray(restored)) throw new Error('資料格式錯誤');
-            DB = restored;
+            return JSON.parse(raw);
+        }
+        if (Array.isArray(data)) {
+            DB = extractPerf(data);
+        } else if (data && typeof data === 'object') {
+            // 相容過渡期物件格式 {db, perfRecords}
+            if (data.db && Array.isArray(data.db)) {
+                DB = data.db;
+                if (Array.isArray(data.perfRecords)) { _perfRecords = data.perfRecords; _perfRestoredCount = data.perfRecords.length; localStorage.setItem('perfRecords', JSON.stringify(_perfRecords)); }
+            } else {
+                var raw = data.payload ? String(data.payload) : JSON.stringify(data);
+                var restored = parseRaw(raw);
+                if (Array.isArray(restored)) {
+                    DB = extractPerf(restored);
+                } else if (restored && restored.db && Array.isArray(restored.db)) {
+                    DB = restored.db;
+                    if (Array.isArray(restored.perfRecords)) { _perfRecords = restored.perfRecords; _perfRestoredCount = restored.perfRecords.length; localStorage.setItem('perfRecords', JSON.stringify(_perfRecords)); }
+                } else {
+                    throw new Error('資料格式錯誤');
+                }
+            }
         } else {
             throw new Error('雲端沒有備份資料');
         }
@@ -7787,15 +7903,22 @@ function cloudRestore() {
         // 還原後重新遷移租案資料
         localStorage.removeItem('migrated_six_types_v2');
         localStorage.removeItem('migrated_six_types_v3');
-        var _beforeCount = DB.length;
-        var _rentalCount = DB.filter(function(c){ return c.types && c.types.includes('租案管理'); }).length;
         migrateAfterRestore();
-        var _llCount = DB.filter(function(c){ return c.types && c.types.includes('房東'); }).length;
-        var _ttCount = DB.filter(function(c){ return c.types && c.types.includes('租客'); }).length;
-        alert('遷移: 還原'+_beforeCount+'筆, 租案'+_rentalCount+'筆 → 房東'+_llCount+'筆, 租客'+_ttCount+'筆, 總共'+DB.length+'筆');
         persist(); render();
+        // 統計各類型筆數
+        var _typeMap = {'經營買方':0,'庫存屋主':0,'房東':0,'租客':0,'成交客戶':0,'商機募集':0};
+        var _typeLabels = {'經營買方':'買方','庫存屋主':'庫存','房東':'房東','租客':'租客','成交客戶':'成交','商機募集':'商機'};
+        DB.forEach(function(c) {
+            if (c._deleted) return;
+            getTypes(c).forEach(function(t) { if (t in _typeMap) _typeMap[t]++; });
+        });
+        var _summary = '還原共計 ' + DB.length + ' 筆\n';
+        Object.keys(_typeMap).forEach(function(t) {
+            _summary += _typeLabels[t] + '還原→' + _typeMap[t] + ' 筆\n';
+        });
+        _summary += '業績還原→' + _perfRestoredCount + ' 筆';
         if (statusEl) statusEl.textContent = '✅ 還原成功（共 ' + DB.length + ' 筆）';
-        alert('還原成功，共 ' + DB.length + ' 筆資料');
+        alert(_summary);
     }
 
     var cbName = 'cloudCb_' + Date.now();
