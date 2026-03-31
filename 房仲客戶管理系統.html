@@ -3064,6 +3064,13 @@ function renderCard(c) {
             else expireTag = `<span class="tag tag-expiring">剩${dLeft}天到期</span>`;
         }
 
+        // 房東物件數（提前計算供名字徽章使用）
+        var _objCount = 0;
+        if (showType==='房東') {
+            var _rpC = (c.rProperties && c.rProperties.length) || 0;
+            var _ttC = (c.linkedTenantIds && c.linkedTenantIds.length) || 0;
+            _objCount = Math.max(_rpC, _ttC);
+        }
         // 中間欄 type-specific info
         let meta = '';
         if (showType==='經營買方') {
@@ -3141,17 +3148,21 @@ function renderCard(c) {
             var _cEnd = cc.contractEnd || sp0.contractEnd || '';
             if (_cEnd) meta += `<div class="cmeta-row"><span class="cmeta-k">到期日</span><span class="cmeta-v" style="color:#D97706;font-weight:700">${esc(isoToROC(_cEnd))}</span></div>`;
         } else if (showType==='房東') {
-            var _rpCount = (c.rProperties && c.rProperties.length) || 0;
-            var _ttCount = (c.linkedTenantIds && c.linkedTenantIds.length) || 0;
-            var _objCount = Math.max(_rpCount, _ttCount);
+            // 找最早到期的物件
             var _rp0 = (c.rProperties && c.rProperties[0]) || {};
+            if (c.rProperties && c.rProperties.length > 1) {
+                var _sorted = c.rProperties.slice().sort(function(a,b) {
+                    var ea = a.rEndDate || '9999', eb = b.rEndDate || '9999';
+                    return ea.localeCompare(eb);
+                });
+                _rp0 = _sorted[0];
+            }
             var _rComm = _rp0.rCommunity || c.rCommunity || '';
             var _rAddr = _rp0.rAddr || c.rAddr || '';
             var _rRent = _rp0.rent || c.rent || '';
             var _rEnd = _rp0.rEndDate || c.rEndDate || '';
             var _rSz = _rp0.rSz || c.rSz || '';
             var _rParking = _rp0.rParking || c.rParking || '';
-            if (_objCount > 1) meta += `<div class="cmeta-row"><span class="cmeta-k">物件數</span><span class="cmeta-v" style="color:#0E7490;font-weight:700">${_objCount} 間物件</span></div>`;
             if (_rComm) meta += `<div class="cmeta-row"><span class="cmeta-k">社區</span><span class="cmeta-v">${esc(_rComm)}</span></div>`;
             if (_rAddr) meta += `<div class="cmeta-row"><span class="cmeta-k">地址</span><span class="cmeta-v full">${esc(_rAddr)}</span></div>`;
             if (_rRent) {
@@ -3267,7 +3278,7 @@ function renderCard(c) {
 
         return `<div class="card${c.archived?' archived':''}${cardClass}" onclick="showDetByView('${c.id}','${c._viewAs||''}')">
             <div class="card-main">
-                <div class="card-name">${esc(cardName)}${c._viewAs!=='tenant'&&cTypes.includes('成交客戶')&&c.deals&&c.deals.length?`<span class="deal-count">${c.deals.length}</span>`:''}${nameSuffix}${sameLL}</div>
+                <div class="card-name">${esc(cardName)}${c._viewAs!=='tenant'&&cTypes.includes('成交客戶')&&c.deals&&c.deals.length?`<span class="deal-count">${c.deals.length}</span>`:''}${(showType==='房東'&&_objCount>1)?`<span style="font-size:12px;padding:1px 7px;border-radius:10px;background:#CFFAFE;color:#0E7490;font-weight:700;margin-left:4px;white-space:nowrap">${_objCount}間</span>`:''}${nameSuffix}${sameLL}</div>
                 <div class="card-phone">${esc(cardPhone)}</div>
                 <div class="tags">
                     ${typeTags}
