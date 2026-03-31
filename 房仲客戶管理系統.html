@@ -7479,7 +7479,7 @@ function addPerfRecord() {
             '<button type="button" id="perfSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#8B5CF6;color:white;cursor:pointer;font-size:14px;font-weight:600">儲存</button>' +
         '</div>';
     overlay.appendChild(box);
-    overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+    overlay.onclick = function(e){ if(e.target===overlay) { if(confirm('確定要關閉？尚未儲存的資料將會遺失')) overlay.remove(); } };
     document.body.appendChild(overlay);
     _perfSelectedCase = '買賣案';
     _perfSelectedCat = '';
@@ -7577,7 +7577,7 @@ function editPerfRecord(idx) {
             '<button type="button" id="epSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#8B5CF6;color:white;cursor:pointer;font-size:14px;font-weight:600">儲存</button>' +
         '</div>';
     overlay.appendChild(box);
-    overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+    overlay.onclick = function(e){ if(e.target===overlay) { if(confirm('確定要關閉？尚未儲存的資料將會遺失')) overlay.remove(); } };
     document.body.appendChild(overlay);
     function bindCatBtns() {
         document.querySelectorAll('.epCatBtn').forEach(function(b) {
