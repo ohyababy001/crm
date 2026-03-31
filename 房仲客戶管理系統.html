@@ -7234,7 +7234,7 @@ function renderPerformance() {
             '<button type="button" onclick="_perfHistMode=\'yearMonth\';renderPerformance()" style="padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;background:'+(_perfHistMode==='yearMonth'?'var(--deep)':'white')+';color:'+(_perfHistMode==='yearMonth'?'white':'var(--text)')+'">年月</button>' +
             '<button type="button" onclick="_perfHistMode=\'range\';renderPerformance()" style="padding:4px 12px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;background:'+(_perfHistMode==='range'?'var(--deep)':'white')+';color:'+(_perfHistMode==='range'?'white':'var(--text)')+'">區間</button>' +
         '</div>';
-        html += '<div style="min-height:52px;margin-bottom:12px">';
+        html += '<div style="background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:12px">';
         if (_perfHistMode === 'yearMonth') {
             var years = [];
             _perfRecords.forEach(function(r) { if (r.date) { var y = parseInt(r.date.substring(0,4)); if (years.indexOf(y) < 0) years.push(y); } });
@@ -7250,15 +7250,13 @@ function renderPerformance() {
             for (var mi=0; mi<12; mi++) { html += '<option value="'+mi+'"'+(_perfHistMonth===String(mi)?' selected':'')+'>'+(mi+1)+' 月</option>'; }
             html += '</select></div>';
         } else {
-            html += '<div style="background:#F8FAFC;border:1px solid var(--border);border-radius:10px;padding:10px 14px">' +
-                '<div style="display:flex;gap:8px;align-items:center">' +
+            html += '<div style="display:flex;gap:8px;align-items:center">' +
                     '<div style="flex:1"><div class="roc-date-wrap"><input id="perfHistStart" type="text" value="'+esc(_perfHistStart?isoToROC(_perfHistStart):'')+'" placeholder="起始日" style="width:100%;font-size:14px"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
                     '<span style="font-size:16px;color:var(--muted)">～</span>' +
                     '<div style="flex:1"><div class="roc-date-wrap"><input id="perfHistEnd" type="text" value="'+esc(_perfHistEnd?isoToROC(_perfHistEnd):'')+'" placeholder="結束日" style="width:100%;font-size:14px"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
                     '<button type="button" onclick="_perfHistStart=\'\';_perfHistEnd=\'\';renderPerformance()" style="padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:13px;color:var(--text);white-space:nowrap">清除</button>' +
                     '<button type="button" onclick="_perfHistStart=rocToISO(document.getElementById(\'perfHistStart\').value);_perfHistEnd=rocToISO(document.getElementById(\'perfHistEnd\').value);renderPerformance()" style="padding:6px 12px;border:none;border-radius:6px;background:#8B5CF6;color:white;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap">查詢</button>' +
-                '</div>' +
-            '</div>';
+                '</div>';
         }
         html += '</div>';
     }
@@ -8228,7 +8226,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260331c';
+var APP_VERSION = '20260331d';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
