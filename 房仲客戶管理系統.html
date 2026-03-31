@@ -7912,13 +7912,24 @@ function cloudRestore() {
             if (c._deleted) return;
             getTypes(c).forEach(function(t) { if (t in _typeMap) _typeMap[t]++; });
         });
-        var _summary = '還原共計 ' + DB.length + ' 筆\n';
-        Object.keys(_typeMap).forEach(function(t) {
-            _summary += _typeLabels[t] + '還原→' + _typeMap[t] + ' 筆\n';
-        });
-        _summary += '業績還原→' + _perfRestoredCount + ' 筆';
         if (statusEl) statusEl.textContent = '✅ 還原成功（共 ' + DB.length + ' 筆）';
-        alert(_summary);
+        // 自訂置中彈窗
+        var _ov = document.createElement('div');
+        _ov.className = 'fill-overlay';
+        var _bx = document.createElement('div');
+        _bx.className = 'fill-menu';
+        _bx.style.cssText = 'padding:24px 28px;text-align:center;min-width:240px';
+        var _h = '<div style="font-size:17px;font-weight:800;margin-bottom:16px">還原共計 ' + DB.length + ' 筆</div>';
+        Object.keys(_typeMap).forEach(function(t) {
+            _h += '<div style="font-size:14px;margin-bottom:4px">' + _typeLabels[t] + '還原→' + _typeMap[t] + ' 筆</div>';
+        });
+        _h += '<div style="height:12px"></div>';
+        _h += '<div style="font-size:14px;font-weight:700">業績還原→' + _perfRestoredCount + ' 筆</div>';
+        _h += '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="margin-top:20px;padding:8px 28px;border:none;border-radius:8px;background:var(--deep);color:white;cursor:pointer;font-size:14px;font-weight:600">確定</button>';
+        _bx.innerHTML = _h;
+        _ov.appendChild(_bx);
+        _ov.onclick = function(e){ if(e.target===_ov) _ov.remove(); };
+        document.body.appendChild(_ov);
     }
 
     var cbName = 'cloudCb_' + Date.now();
