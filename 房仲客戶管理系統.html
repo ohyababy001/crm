@@ -7856,7 +7856,22 @@ function closeVcfModal() {
 
 
 function cloudRestore() {
-    if (!confirm('確定要從雲端還原？將覆蓋目前本機的所有資料。')) return;
+    var ov = document.createElement('div');
+    ov.className = 'fill-overlay';
+    var bx = document.createElement('div');
+    bx.className = 'fill-menu';
+    bx.style.cssText = 'padding:24px 28px;text-align:center;min-width:260px';
+    bx.innerHTML = '<div style="font-size:16px;font-weight:700;margin-bottom:8px">確定要從雲端還原？</div>' +
+        '<div style="font-size:13px;color:var(--muted);margin-bottom:20px">將覆蓋目前本機的所有資料</div>' +
+        '<div style="display:flex;gap:10px;justify-content:center">' +
+            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 24px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
+            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove();doCloudRestore()" style="padding:8px 24px;border:none;border-radius:8px;background:#EF4444;color:white;cursor:pointer;font-size:14px;font-weight:600">還原</button>' +
+        '</div>';
+    ov.appendChild(bx);
+    ov.onclick = function(e){ if(e.target===ov) ov.remove(); };
+    document.body.appendChild(ov);
+}
+function doCloudRestore() {
     var statusEl = document.getElementById('cloudStatus');
     var btnEl = document.getElementById('btnRestore');
     if (statusEl) statusEl.textContent = '還原中…';
