@@ -799,7 +799,7 @@
 
             <div class="dash-sections">
                 <div class="dash-section dash-schedule">
-                    <div class="dash-sec-title">📅 近期行程（15天內）</div>
+                    <div class="dash-sec-title" style="display:flex;justify-content:space-between;align-items:center">📅 近期行程（15天內）<button class="btn-ic" onclick="addPersonalSchedule()" title="新增個人行程" style="font-size:16px;padding:2px 6px">＋</button></div>
                     <div class="dash-list" id="dashSchedule"></div>
                 </div>
                 <div class="dash-section dash-seller">
@@ -2993,19 +2993,32 @@ function renderDashboard() {
             if (diff >= 0 && diff <= 15) schedList.push({ id:c.id, name:c.name, date:s.date, time:s.time||'', memo:s.memo||'', days:diff, community:c.dCommunity||'' });
         });
     });
+    // 合併個人行程
+    var psList = JSON.parse(localStorage.getItem('_personalSchedules') || '[]');
+    psList.forEach(function(s, idx) {
+        if (!s.date) return;
+        var diff = daysUntilExpire(s.date);
+        if (diff >= 0 && diff <= 15) schedList.push({ id:'_ps', psIdx:idx, name:'個人行程', date:s.date, time:s.time||'', memo:s.memo||'', days:diff, community:'', personal:true });
+    });
     schedList.sort(function(a,b) { return (a.date+a.time).localeCompare(b.date+b.time); });
     document.getElementById('dashSchedule').innerHTML = schedList.length ? schedList.map(function(s) {
         var dayLabel = s.days === 0 ? '今天' : s.days + '天後';
+        var nameHtml = s.personal
+            ? '<span class="dash-item-name" style="color:#0891B2">'+esc(s.memo||'個人行程')+'</span>'
+            : '<span class="dash-item-name" style="cursor:pointer" onclick="showDet(\''+s.id+'\')">'+esc(s.name)+(s.community?'<span style="font-weight:400;color:#64748B"> · '+esc(s.community)+'</span>':'')+'</span>';
+        var editBtn = s.personal
+            ? '<button class="btn-ic" onclick="editPersonalSchedule('+s.psIdx+')" title="編輯" style="font-size:13px;padding:2px 4px">✏️</button>'
+            : '<button class="btn-ic" onclick="editDashSchedule(\''+s.id+'\',\''+s.date+'\',\''+s.time+'\',this)" title="編輯" style="font-size:13px;padding:2px 4px">✏️</button>';
+        var doneBtn = s.personal
+            ? '<button class="btn-ic" onclick="completePersonalSchedule('+s.psIdx+')" title="完成" style="font-size:13px;padding:2px 4px">✅</button>'
+            : '<button class="btn-ic" onclick="completeSchedule(\''+s.id+'\',\''+s.date+'\',\''+s.time+'\')" title="完成" style="font-size:13px;padding:2px 4px">✅</button>';
+        var memoHtml = s.personal ? '' : (s.memo ? '<div class="dash-sched-memo">'+esc(s.memo)+'</div>' : '');
         return '<div class="dash-item dash-sched-item">' +
             '<div class="dash-sched-row1">' +
                 '<span class="dash-item-info" style="color:'+(s.days===0?'#EF4444':'')+'">'+esc(isoToMDW(s.date))+(s.time?' '+s.time:'')+'</span>' +
-                '<span class="dash-item-name" style="cursor:pointer" onclick="showDet(\''+s.id+'\')">'+esc(s.name)+(s.community?'<span style="font-weight:400;color:#64748B"> · '+esc(s.community)+'</span>':'')+'</span>' +
-                '<span style="display:flex;gap:2px;flex-shrink:0">' +
-                    '<button class="btn-ic" onclick="editDashSchedule(\''+s.id+'\',\''+s.date+'\',\''+s.time+'\',this)" title="編輯" style="font-size:13px;padding:2px 4px">✏️</button>' +
-                '<button class="btn-ic" onclick="completeSchedule(\''+s.id+'\',\''+s.date+'\',\''+s.time+'\')" title="完成" style="font-size:13px;padding:2px 4px">✅</button>' +
-                '</span>' +
-            '</div>' +
-            (s.memo ? '<div class="dash-sched-memo">'+esc(s.memo)+'</div>' : '') +
+                nameHtml +
+                '<span style="display:flex;gap:2px;flex-shrink:0">' + editBtn + doneBtn + '</span>' +
+            '</div>' + memoHtml +
         '</div>';
     }).join('') : '<div class="dash-empty">近15天內沒有預排行程</div>';
 
@@ -5718,6 +5731,55 @@ function editDashSchedule(clientId, date, time) {
         return s.date === date && (s.time||'') === (time||'');
     });
     quickSchedule(clientId, date, time, s ? s.memo : '');
+}
+
+// ── 個人行程 ──
+function _getPS() { return JSON.parse(localStorage.getItem('_personalSchedules') || '[]'); }
+function _savePS(arr) { localStorage.setItem('_personalSchedules', JSON.stringify(arr)); }
+
+function addPersonalSchedule(prefillIdx) {
+    var editing = prefillIdx !== undefined;
+    var ps = editing ? _getPS()[prefillIdx] || {} : {};
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.padding = '16px'; box.style.minWidth = '300px'; box.style.maxWidth = '360px';
+    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">📅 個人行程</div>' +
+        '<div style="display:flex;gap:8px;margin-bottom:10px">' +
+            '<div class="roc-date-wrap" style="flex:1"><input id="ps-date" type="text" placeholder="日期" value="'+(ps.date?esc(isoToROC(ps.date)):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>' +
+            '<select id="ps-time" style="width:90px;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px">' + buildTimeOptions(ps.time||'') + '</select>' +
+        '</div>' +
+        '<div style="margin-bottom:12px"><input id="ps-memo" type="text" placeholder="事項說明" value="'+esc(ps.memo||'')+'" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit"></div>' +
+        '<div style="display:flex;gap:8px">' +
+            '<button onclick="this.closest(\'.fill-overlay\').remove()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
+            '<button id="ps-save" style="flex:1;padding:10px;border:none;border-radius:8px;background:#0891B2;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">儲存</button>' +
+        '</div>';
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    document.getElementById('ps-save').onclick = function() {
+        var date = rocToISO(document.getElementById('ps-date').value);
+        var time = document.getElementById('ps-time').value;
+        var memo = document.getElementById('ps-memo').value.trim();
+        if (!date) { alert('請選擇日期'); return; }
+        var arr = _getPS();
+        if (editing) { arr[prefillIdx] = { date:date, time:time, memo:memo }; }
+        else { arr.push({ date:date, time:time, memo:memo }); }
+        _savePS(arr);
+        overlay.remove();
+        render();
+    };
+    box.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('ps-save').click(); } });
+    document.getElementById('ps-memo').focus();
+}
+
+function editPersonalSchedule(idx) { addPersonalSchedule(idx); }
+
+function completePersonalSchedule(idx) {
+    var arr = _getPS();
+    arr.splice(idx, 1);
+    _savePS(arr);
+    render();
 }
 
 // ── 開啟雲端資料夾 ──
@@ -8508,7 +8570,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zs';
+var APP_VERSION = '20260403zt';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
