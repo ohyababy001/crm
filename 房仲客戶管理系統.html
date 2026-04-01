@@ -3018,7 +3018,7 @@ function renderDashboard() {
             { id: 'dashSchedule', minDays: schedList.length ? schedList[0].days : Infinity },
             { id: 'dashBirthday', minDays: bdayList.length ? bdayList[0].days : Infinity }
         ];
-        sectionOrder.sort(function(a, b) { return a.minDays - b.minDays; });
+        sectionOrder.sort(function(a, b) { return a.minDays !== b.minDays ? a.minDays - b.minDays : a.id.localeCompare(b.id); });
         var container = document.querySelector('.dash-sections');
         sectionOrder.forEach(function(s) {
             var el = document.getElementById(s.id).parentElement;
@@ -8319,6 +8319,11 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.overlay').forEach(function(o) {
         _mnavObs.observe(o, { attributes: true, attributeFilter: ['style'] });
     });
+    var _resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(_resizeTimer);
+        _resizeTimer = setTimeout(function(){ if(document.getElementById('dashboard').style.display!=='none') renderDashboard(); }, 200);
+    }, { passive: true });
     // 所有日期欄位 blur 時自動格式化
     document.addEventListener('focusout', function(e) {
         if (e.target && e.target.tagName === 'INPUT' && e.target.closest('.roc-date-wrap')) {
@@ -8328,7 +8333,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403q';
+var APP_VERSION = '20260403r';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
