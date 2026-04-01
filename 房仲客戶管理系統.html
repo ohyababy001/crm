@@ -798,7 +798,7 @@
                     <div class="dash-list" id="dashExpiringRental"></div>
                 </div>
                 <div class="dash-section">
-                    <div class="dash-sec-title">📅 近期行程（7天內）</div>
+                    <div class="dash-sec-title">📅 近期行程（15天內）</div>
                     <div class="dash-list" id="dashSchedule"></div>
                 </div>
                 <div class="dash-section">
@@ -2964,14 +2964,14 @@ function renderDashboard() {
             '<span class="dash-item-info" style="color:'+(d<=0?'#EF4444':'#D97706')+'">'+label+'</span></div>';
     }).join('') : '<div class="dash-empty">目前沒有即將到期的租案合約</div>';
 
-    // 近期行程（7天內）
+    // 近期行程（15天內）
     var schedList = [];
     DB.forEach(function(c) {
         if (c.archived || !c.schedules) return;
         c.schedules.forEach(function(s) {
             if (!s.date) return;
             var diff = daysUntilExpire(s.date);
-            if (diff >= 0 && diff <= 7) schedList.push({ id:c.id, name:c.name, date:s.date, time:s.time||'', memo:s.memo||'', days:diff, community:c.dCommunity||'' });
+            if (diff >= 0 && diff <= 15) schedList.push({ id:c.id, name:c.name, date:s.date, time:s.time||'', memo:s.memo||'', days:diff, community:c.dCommunity||'' });
         });
     });
     schedList.sort(function(a,b) { return (a.date+a.time).localeCompare(b.date+b.time); });
@@ -2984,7 +2984,7 @@ function renderDashboard() {
                 '<button class="btn-ic" onclick="editDashSchedule(\''+s.id+'\',\''+s.date+'\',\''+s.time+'\',this)" title="編輯" style="font-size:13px;padding:2px 4px">✏️</button>' +
                 '<button class="btn-ic" onclick="completeSchedule(\''+s.id+'\',\''+s.date+'\',\''+s.time+'\')" title="完成" style="font-size:13px;padding:2px 4px">✅</button>' +
             '</span></div>';
-    }).join('') : '<div class="dash-empty">近7天內沒有預排行程</div>';
+    }).join('') : '<div class="dash-empty">近15天內沒有預排行程</div>';
 
     // 生日提醒（7天內）
     var bdayList = [];
@@ -8400,7 +8400,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403s';
+var APP_VERSION = '20260403t';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
