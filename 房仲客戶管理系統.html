@@ -3894,6 +3894,8 @@ document.addEventListener('keydown', function(e) {
 
 // ── 預覽頁左右切換 ──
 function showDetByView(id, viewAs) {
+    var sel = window.getSelection();
+    if (sel && sel.toString().length > 0) { sel.removeAllRanges(); return; }
     if (!detListCache.length) detListCache = getData();
     currentDetIdx = detListCache.findIndex(function(x){ return x.id === id && (x._viewAs||'') === viewAs; });
     if (currentDetIdx < 0) currentDetIdx = detListCache.findIndex(function(x){ return x.id === id; });
@@ -8333,7 +8335,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260401w';
+var APP_VERSION = '20260401x';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
