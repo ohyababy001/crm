@@ -5871,7 +5871,15 @@ function filterAllSchedList() {
     }) : all;
     var el = document.getElementById('all-sched-list');
     if (!el) return;
+    var thisYear = new Date().getFullYear();
+    var prevYear = null;
     el.innerHTML = filtered.length ? filtered.map(function(s) {
+        var sYear = parseInt(s.date);
+        var separator = '';
+        if (prevYear !== null && sYear !== prevYear) {
+            separator = '<div style="height:1px;background:var(--border);margin:12px 0"></div>';
+        }
+        prevYear = sYear;
         var nameColor = s.personal ? '#0891B2' : '#1E40AF';
         var nameText = s.personal ? (s.memo || '個人行程') : s.clientName;
         var memoText = s.personal ? '' : (s.memo ? ' <span style="color:#475569">/ '+esc(s.memo)+'</span>' : '');
@@ -5881,9 +5889,9 @@ function filterAllSchedList() {
         var doneBtn = s.personal
             ? '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();completePersonalSchedule('+s.psIdx+')" title="完成" style="font-size:14px;padding:4px 8px">✅</button>'
             : '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();completeSchedule(\''+s.clientId+'\',\''+s.date+'\',\''+s.time+'\')" title="完成" style="font-size:14px;padding:4px 8px">✅</button>';
-        return '<div style="padding:8px 0;border-bottom:1px solid #F1F5F9;display:flex;align-items:center;gap:8px">' +
+        return separator + '<div style="padding:8px 0;border-bottom:1px solid #F1F5F9;display:flex;align-items:center;gap:8px">' +
             '<div style="flex:1">' +
-                '<div style="font-size:14px;color:'+(parseInt(s.date)!==new Date().getFullYear()?'#9CA3AF':'#334155')+';font-weight:600">'+esc(isoToMDW(s.date,true))+(s.time?' '+s.time:'')+'</div>' +
+                '<div style="font-size:14px;color:#334155;font-weight:600">'+esc(isoToMDW(s.date,true))+(s.time?' '+s.time:'')+'</div>' +
                 '<div style="font-size:15px"><span style="color:'+nameColor+';font-weight:600">'+esc(nameText)+'</span>'+memoText+'</div>' +
             '</div>' +
             '<span style="display:flex;gap:2px;flex-shrink:0">' + editBtn + doneBtn + '</span>' +
@@ -8748,7 +8756,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zze';
+var APP_VERSION = '20260403zzf';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
