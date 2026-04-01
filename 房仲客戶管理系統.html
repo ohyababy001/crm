@@ -7460,7 +7460,8 @@ function renderPerfList(filtered) {
             var _parts = [];
             if (ft) _parts.push('業績'+ft.toLocaleString());
             if (fnt) _parts.push('實收'+fnt.toLocaleString());
-            if (fot) _parts.push('自訂業績比例');
+            if (r.feeOtherAmt) _parts.push('自訂業績'+(parseFloat(r.feeOtherAmt)||0).toLocaleString());
+            else if (fot) _parts.push('自訂業績'+fot.toLocaleString());
             if (_parts.length) feeDetail = _parts.join(' / ');
             else if (r.fee) feeDetail = parseFloat(r.fee).toLocaleString();
             html += '<div style="padding:8px 0;border-bottom:1px solid var(--bg);font-size:13px">' +
@@ -8328,7 +8329,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260401s';
+var APP_VERSION = '20260401t';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
