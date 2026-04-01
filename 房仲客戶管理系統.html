@@ -2133,7 +2133,7 @@ function isoToMDW(isoStr) {
     if (!isoStr) return '';
     var p = isoStr.split('-');
     if (p.length !== 3) return isoStr;
-    var d = new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
+    var d = new Date(new Date().getFullYear(), parseInt(p[1])-1, parseInt(p[2]));
     var w = ['日','一','二','三','四','五','六'][d.getDay()];
     return parseInt(p[1])+'月'+parseInt(p[2])+'日 週'+w;
 }
@@ -8493,7 +8493,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zi';
+var APP_VERSION = '20260403zj';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
