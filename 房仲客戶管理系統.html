@@ -2937,7 +2937,7 @@ function renderDashboard() {
     var thisMonth = today.slice(0,7);
 
     // 數據卡片
-    var dashDB = DB.filter(function(c){ return !c._deleted && !c.archived; });
+    var dashDB = DB.filter(function(c){ return !c._deleted && !c.archived && !c._system; });
     var counts = [
         { label:'買方', num: dashDB.filter(c=>hasType(c,'經營買方')).length, color:'#1D4ED8', filter:'經營買方' },
         { label:'庫存', num: dashDB.filter(c=>hasType(c,'庫存屋主')).length, color:'#065F46', filter:'庫存屋主' },
@@ -2994,7 +2994,7 @@ function renderDashboard() {
         });
     });
     // 合併個人行程
-    var psList = JSON.parse(localStorage.getItem('_personalSchedules') || '[]');
+    var psList = _getPS();
     psList.forEach(function(s, idx) {
         if (!s.date) return;
         var diff = daysUntilExpire(s.date);
@@ -3075,9 +3075,9 @@ function renderDashboard() {
 }
 
 function render() {
-    var liveDB = DB.filter(function(c){ return !c._deleted; });
+    var liveDB = DB.filter(function(c){ return !c._deleted && !c._system; });
     document.getElementById('ct-all').textContent = liveDB.filter(c=>!c.archived).length;
-    var trashN = DB.filter(function(c){ return c._deleted; }).length;
+    var trashN = DB.filter(function(c){ return c._deleted && !c._system; }).length;
     document.getElementById('trashCount').textContent = trashN ? '('+trashN+')' : '';
     TYPES.forEach(t => {
         var active = liveDB.filter(c => hasType(c,t) && !c.archived).length;
@@ -5753,8 +5753,20 @@ function editDashSchedule(clientId, date, time) {
 }
 
 // ── 個人行程 ──
-function _getPS() { return JSON.parse(localStorage.getItem('_personalSchedules') || '[]'); }
-function _savePS(arr) { localStorage.setItem('_personalSchedules', JSON.stringify(arr)); }
+function _getPSRecord() {
+    var rec = DB.find(function(c){ return c.id === '_personalSchedules'; });
+    if (!rec) {
+        // 從 localStorage 遷移舊資料
+        var old = JSON.parse(localStorage.getItem('_personalSchedules') || '[]');
+        rec = { id:'_personalSchedules', _system:true, schedules:old };
+        DB.push(rec);
+        if (old.length) persist();
+        localStorage.removeItem('_personalSchedules');
+    }
+    return rec;
+}
+function _getPS() { return _getPSRecord().schedules || []; }
+function _savePS(arr) { _getPSRecord().schedules = arr; persist(); }
 
 function addPersonalSchedule(prefillIdx) {
     var editing = prefillIdx !== undefined;
@@ -8591,7 +8603,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zu';
+var APP_VERSION = '20260403zv';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
