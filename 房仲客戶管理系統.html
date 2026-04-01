@@ -538,7 +538,9 @@
             .deal-box { overflow: hidden; }
             .deal-box > div:first-child { width: 100% !important; }
             .deal-fields { grid-template-columns: 1fr 1fr !important; }
-            .deal-f-addr { grid-column: span 2 !important; }
+            .deal-f-community { order: 1; }
+            .deal-f-addr { order: 2; grid-column: span 2 !important; }
+            .deal-f-price { order: 3; }
 
             /* 附屬設備 grid 改三欄 */
             .equip-grid { gap: 4px 8px !important; }
@@ -8311,7 +8313,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260402w';
+var APP_VERSION = '20260402x';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
