@@ -1994,6 +1994,13 @@ function autoFetchCloud() {
             var localJSON = JSON.stringify(DB);
             // 資料不同才更新
             if (cloudJSON !== localJSON) {
+                // 安全檢查：雲端筆數比本地少太多時不覆蓋（可能是上傳未完成）
+                var localActiveCnt = DB.filter(function(c){ return !c._deleted; }).length;
+                var cloudActiveCnt = cloudData.filter(function(c){ return !c._deleted; }).length;
+                if (cloudActiveCnt < localActiveCnt - 2) {
+                    // 雲端少太多，跳過覆蓋
+                    return;
+                }
                 // 合併：保留本機的 rpDriveUrl/spDriveUrl 不被雲端覆蓋
                 cloudData.forEach(function(cc) {
                     var local = DB.find(function(x){ return x.id === cc.id; });
@@ -2032,6 +2039,12 @@ function autoFetchCloud() {
                             if (ld.dAddrDriveUrl && cc.dAddrs[i] && !cc.dAddrs[i].dAddrDriveUrl) cc.dAddrs[i].dAddrDriveUrl = ld.dAddrDriveUrl;
                         });
                     }
+                });
+                // 保留本地有但雲端沒有的紀錄
+                var cloudIds = {};
+                cloudData.forEach(function(cc){ cloudIds[cc.id] = true; });
+                DB.forEach(function(local) {
+                    if (!cloudIds[local.id]) cloudData.push(local);
                 });
                 DB = cloudData;
                 DB.forEach(function(c) { if (!c.types) c.types = c.type ? [c.type] : []; });
@@ -8327,7 +8340,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403c';
+var APP_VERSION = '20260403d';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
