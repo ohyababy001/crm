@@ -4747,10 +4747,8 @@ function addBuyerDemand(data) {
             '<div class="fg" style="flex:1;margin-bottom:0;min-width:0"><label style="font-size:12px">自備款</label><div class="input-grp"><input data-f="downPayment" value="'+esc(d.downPayment||'')+'" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>' +
         '</div>' +
         // 想要/不想要
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' +
-            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">想要</label><input data-f="want" value="'+esc(d.want||'')+'"></div>' +
-            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">不想要</label><input data-f="noWant" value="'+esc(d.noWant||'')+'"></div>' +
-        '</div>' +
+        '<div class="fg" style="margin-bottom:6px"><label style="font-size:12px">想要</label><input data-f="want" value="'+esc(d.want||'')+'"></div>' +
+        '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">不想要</label><input data-f="noWant" value="'+esc(d.noWant||'')+'"></div>' +
     '</div>';
     document.getElementById('bDemandList').insertAdjacentHTML('beforeend', html);
 }
@@ -8310,7 +8308,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260402n';
+var APP_VERSION = '20260402p';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
