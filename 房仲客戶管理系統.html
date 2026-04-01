@@ -799,7 +799,7 @@
 
             <div class="dash-sections">
                 <div class="dash-section dash-schedule">
-                    <div class="dash-sec-title" style="display:flex;justify-content:space-between;align-items:center">📅 近期行程（15天內）<span style="display:flex;gap:12px;align-items:center"><button class="btn-ic" onclick="showDoneSchedules()" title="已完成" style="font-size:15px;padding:3px 8px">✅已完成</button><button class="btn-ic" onclick="addPersonalSchedule()" title="新增個人行程" style="font-size:16px;padding:2px 6px">＋</button></span></div>
+                    <div class="dash-sec-title" style="display:flex;justify-content:space-between;align-items:center">📅 近期行程（15天內）<span style="display:flex;gap:12px;align-items:center"><button class="btn-ic" onclick="showAllSchedules()" title="全部行程" style="font-size:15px;padding:3px 8px">📋全部</button><button class="btn-ic" onclick="showDoneSchedules()" title="已完成" style="font-size:15px;padding:3px 8px">✅已完成</button><button class="btn-ic" onclick="addPersonalSchedule()" title="新增個人行程" style="font-size:16px;padding:2px 6px">＋</button></span></div>
                     <div class="dash-list" id="dashSchedule"></div>
                 </div>
                 <div class="dash-section dash-seller">
@@ -5824,6 +5824,71 @@ function completePersonalSchedule(idx) {
     });
 }
 
+// ── 全部行程 ──
+function _getAllFutureSchedules() {
+    var todayISO = localDateISO();
+    var all = [];
+    DB.forEach(function(c) {
+        if (c._system || c.archived || !c.schedules) return;
+        c.schedules.forEach(function(s) {
+            if (!s.date || s.date < todayISO) return;
+            all.push({ clientId:c.id, clientName:c.name, date:s.date, time:s.time||'', memo:s.memo||'', personal:false });
+        });
+    });
+    _getPS().forEach(function(s, idx) {
+        if (!s.date || s.date < todayISO) return;
+        all.push({ clientId:'', clientName:'個人行程', psIdx:idx, date:s.date, time:s.time||'', memo:s.memo||'', personal:true });
+    });
+    all.sort(function(a,b) { return (a.date+a.time).localeCompare(b.date+b.time); });
+    return all;
+}
+
+function showAllSchedules() {
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.cssText = 'padding:16px;width:90vw;max-width:500px;max-height:80vh;display:flex;flex-direction:column';
+    box.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">' +
+            '<span style="font-weight:700;font-size:15px">📋 全部行程</span>' +
+            '<button onclick="this.closest(\'.fill-overlay\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)">✕</button>' +
+        '</div>' +
+        '<input id="all-sched-search" type="text" placeholder="搜尋客戶名或事項…" oninput="filterAllSchedList()" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:12px">' +
+        '<div id="all-sched-list" style="flex:1;overflow-y:auto"></div>';
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    filterAllSchedList();
+}
+
+function filterAllSchedList() {
+    var q = (document.getElementById('all-sched-search') ? document.getElementById('all-sched-search').value : '').trim().toLowerCase();
+    var all = _getAllFutureSchedules();
+    var filtered = q ? all.filter(function(s) {
+        return (s.clientName||'').toLowerCase().includes(q) || (s.memo||'').toLowerCase().includes(q);
+    }) : all;
+    var el = document.getElementById('all-sched-list');
+    if (!el) return;
+    el.innerHTML = filtered.length ? filtered.map(function(s) {
+        var nameColor = s.personal ? '#0891B2' : '#1E40AF';
+        var nameText = s.personal ? (s.memo || '個人行程') : s.clientName;
+        var memoText = s.personal ? '' : (s.memo ? ' <span style="color:#475569">/ '+esc(s.memo)+'</span>' : '');
+        var editBtn = s.personal
+            ? '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();editPersonalSchedule('+s.psIdx+')" title="編輯" style="font-size:14px;padding:4px 8px">✏️</button>'
+            : '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();editDashSchedule(\''+s.clientId+'\',\''+s.date+'\',\''+s.time+'\')" title="編輯" style="font-size:14px;padding:4px 8px">✏️</button>';
+        var doneBtn = s.personal
+            ? '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();completePersonalSchedule('+s.psIdx+')" title="完成" style="font-size:14px;padding:4px 8px">✅</button>'
+            : '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();completeSchedule(\''+s.clientId+'\',\''+s.date+'\',\''+s.time+'\')" title="完成" style="font-size:14px;padding:4px 8px">✅</button>';
+        return '<div style="padding:8px 0;border-bottom:1px solid #F1F5F9;display:flex;align-items:center;gap:8px">' +
+            '<div style="flex:1">' +
+                '<div style="font-size:14px;color:#334155;font-weight:600">'+esc(isoToMDW(s.date))+(s.time?' '+s.time:'')+'</div>' +
+                '<div style="font-size:15px"><span style="color:'+nameColor+';font-weight:600">'+esc(nameText)+'</span>'+memoText+'</div>' +
+            '</div>' +
+            '<span style="display:flex;gap:2px;flex-shrink:0">' + editBtn + doneBtn + '</span>' +
+        '</div>';
+    }).join('') : '<div style="text-align:center;color:var(--muted);padding:20px;font-size:14px">'+(q?'沒有符合的行程':'目前沒有未來行程')+'</div>';
+}
+
 // ── 已完成行程 ──
 function showDoneSchedules() {
     var overlay = document.createElement('div');
@@ -8681,7 +8746,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zza';
+var APP_VERSION = '20260403zzb';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
