@@ -7459,7 +7459,7 @@ function renderPerfList(filtered) {
             var _parts = [];
             if (ft) _parts.push('績'+ft.toLocaleString());
             if (fnt) _parts.push('收'+fnt.toLocaleString());
-            if (fot) _parts.push('他'+fot.toLocaleString());
+            if (fot) _parts.push('他'+fot.toLocaleString()+(r.feeOtherRate?'(×'+r.feeOtherRate+')':''));
             if (_parts.length) feeDetail = _parts.join('/');
             else if (r.fee) feeDetail = parseFloat(r.fee).toLocaleString();
             html += '<div style="padding:8px 0;border-bottom:1px solid var(--bg);font-size:13px">' +
@@ -7647,10 +7647,17 @@ function addPerfRecord() {
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">成交日期</label><div class="roc-date-wrap"><input id="perfDate" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
             '<div class="fg" style="margin-bottom:0;position:relative"><label style="font-size:12px">客戶/物件</label><input id="perfClient" placeholder="搜尋姓名" autocomplete="off" oninput="perfClientSearch(this.value)" onblur="perfCloseSuggest()" onfocus="perfClientSearch(this.value)"><input type="hidden" id="perfClientId"><div id="perfClientSuggest" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:100000;background:white;border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.15);max-height:180px;overflow-y:auto"></div></div>' +
         '</div>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">業績（報稅）</label><div class="input-grp"><input id="perfFeeTax" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">實收（不報稅）</label><div class="input-grp"><input id="perfFeeNoTax" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
-            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">其他</label><div class="input-grp"><input id="perfFeeOther" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
+        '</div>' +
+        '<div id="perfOtherWrap" style="margin-bottom:8px">' +
+            '<button type="button" id="perfOtherToggle" onclick="togglePerfOther(\'perf\')" style="font-size:12px;font-weight:600;color:#8B5CF6;background:none;border:1px dashed #8B5CF6;border-radius:6px;padding:4px 10px;cursor:pointer">＋ 其他業績（自訂比例）</button>' +
+            '<div id="perfOtherFields" style="display:none;margin-top:6px;display:none;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:end">' +
+                '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">業績金額</label><div class="input-grp"><input id="perfOtherAmt" oninput="calcPerfOther(\'perf\')" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
+                '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">自訂比例</label><input id="perfOtherRate" oninput="calcPerfOther(\'perf\')" placeholder="例：0.5" style="min-width:0"></div>' +
+                '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">小計</label><div id="perfOtherResult" style="padding:8px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE9FE;color:#5B21B6;text-align:center">0 元</div></div>' +
+            '</div>' +
         '</div>' +
         '<div class="fg" style="margin-bottom:12px"><label style="font-size:12px">備註</label><input id="perfMemo" placeholder=""></div>' +
         '<div style="display:flex;gap:8px;justify-content:flex-end">' +
@@ -7670,16 +7677,30 @@ function addPerfRecord() {
         var clientId = document.getElementById('perfClientId').value || '';
         var feeTax = document.getElementById('perfFeeTax').value.trim();
         var feeNoTax = document.getElementById('perfFeeNoTax').value.trim();
-        var feeOther = document.getElementById('perfFeeOther').value.trim();
+        var otherAmt = document.getElementById('perfOtherAmt').value.trim();
+        var otherRate = document.getElementById('perfOtherRate').value.trim();
+        var feeOther = String(Math.round((parseFloat(otherAmt)||0) * (parseFloat(otherRate)||0)) || '');
         var memo = document.getElementById('perfMemo').value.trim();
         var fee = (parseFloat(feeTax)||0) + (parseFloat(feeNoTax)||0) + (parseFloat(feeOther)||0);
-        _perfRecords.push({ caseType:_perfSelectedCase, category:_perfSelectedCat, date:date, client:client, clientId:clientId, feeTax:feeTax, feeNoTax:feeNoTax, feeOther:feeOther, fee:String(fee||''), memo:memo, created:new Date().toISOString() });
+        _perfRecords.push({ caseType:_perfSelectedCase, category:_perfSelectedCat, date:date, client:client, clientId:clientId, feeTax:feeTax, feeNoTax:feeNoTax, feeOther:feeOther, feeOtherAmt:otherAmt, feeOtherRate:otherRate, fee:String(fee||''), memo:memo, created:new Date().toISOString() });
         persistPerf();
         overlay.remove();
         renderPerformance();
     };
 }
 var _perfSelectedCase = '買賣案', _perfSelectedCat = '';
+function togglePerfOther(prefix) {
+    var toggle = document.getElementById(prefix+'OtherToggle');
+    var fields = document.getElementById(prefix+'OtherFields');
+    toggle.style.display = 'none';
+    fields.style.display = 'grid';
+}
+function calcPerfOther(prefix) {
+    var amt = parseFloat(document.getElementById(prefix+'OtherAmt').value) || 0;
+    var rate = parseFloat(document.getElementById(prefix+'OtherRate').value) || 0;
+    var result = Math.round(amt * rate);
+    document.getElementById(prefix+'OtherResult').textContent = result.toLocaleString() + ' 元';
+}
 function setPerfCase(caseType) {
     _perfSelectedCase = caseType;
     ['買賣案','租賃案'].forEach(function(t) {
@@ -7747,10 +7768,17 @@ function editPerfRecord(idx) {
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">成交日期</label><div class="roc-date-wrap"><input id="epDate" type="text" value="'+esc(r.date?isoToROC(r.date):'')+'" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
             '<div class="fg" style="margin-bottom:0;position:relative"><label style="font-size:12px">客戶/物件</label><input id="epClient" value="'+esc(r.client||'')+'" autocomplete="off" oninput="epClientSearch(this.value)" onblur="epCloseSuggest()" onfocus="epClientSearch(this.value)"><input type="hidden" id="epClientId" value="'+esc(r.clientId||'')+'"><div id="epClientSuggest" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:100000;background:white;border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.15);max-height:180px;overflow-y:auto"></div></div>' +
         '</div>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">業績（報稅）</label><div class="input-grp"><input id="epFeeTax" value="'+esc(r.feeTax||'')+'" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">實收（不報稅）</label><div class="input-grp"><input id="epFeeNoTax" value="'+esc(r.feeNoTax||'')+'" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
-            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">其他</label><div class="input-grp"><input id="epFeeOther" value="'+esc(r.feeOther||'')+'" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
+        '</div>' +
+        '<div id="epOtherWrap" style="margin-bottom:8px">' +
+            '<button type="button" id="epOtherToggle" onclick="togglePerfOther(\'ep\')" style="font-size:12px;font-weight:600;color:#8B5CF6;background:none;border:1px dashed #8B5CF6;border-radius:6px;padding:4px 10px;cursor:pointer;'+(r.feeOther?'display:none':'')+'">＋ 其他業績（自訂比例）</button>' +
+            '<div id="epOtherFields" style="'+(r.feeOther?'display:grid;':'display:none;')+'margin-top:6px;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:end">' +
+                '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">業績金額</label><div class="input-grp"><input id="epOtherAmt" value="'+esc(r.feeOtherAmt||'')+'" oninput="calcPerfOther(\'ep\')" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
+                '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">自訂比例</label><input id="epOtherRate" value="'+esc(r.feeOtherRate||'')+'" oninput="calcPerfOther(\'ep\')" placeholder="例：0.5" style="min-width:0"></div>' +
+                '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">小計</label><div id="epOtherResult" style="padding:8px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE9FE;color:#5B21B6;text-align:center">'+(r.feeOther?parseInt(r.feeOther).toLocaleString()+' 元':'0 元')+'</div></div>' +
+            '</div>' +
         '</div>' +
         '<div class="fg" style="margin-bottom:12px"><label style="font-size:12px">備註</label><input id="epMemo" value="'+esc(r.memo||'')+'" placeholder=""></div>' +
         '<div style="display:flex;gap:8px;justify-content:flex-end">' +
@@ -7794,7 +7822,9 @@ function editPerfRecord(idx) {
         r.clientId = document.getElementById('epClientId').value || '';
         r.feeTax = document.getElementById('epFeeTax').value.trim();
         r.feeNoTax = document.getElementById('epFeeNoTax').value.trim();
-        r.feeOther = document.getElementById('epFeeOther').value.trim();
+        r.feeOtherAmt = document.getElementById('epOtherAmt').value.trim();
+        r.feeOtherRate = document.getElementById('epOtherRate').value.trim();
+        r.feeOther = String(Math.round((parseFloat(r.feeOtherAmt)||0) * (parseFloat(r.feeOtherRate)||0)) || '');
         r.fee = String((parseFloat(r.feeTax)||0) + (parseFloat(r.feeNoTax)||0) + (parseFloat(r.feeOther)||0) || '');
         r.memo = document.getElementById('epMemo').value.trim();
         persistPerf();
@@ -8297,7 +8327,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260401j';
+var APP_VERSION = '20260401k';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
