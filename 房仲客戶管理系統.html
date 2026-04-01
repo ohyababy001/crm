@@ -2508,32 +2508,47 @@ function autoBankCode(el) {
     }
 }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-// 分類備註：取得指定分類的備註（向下相容舊 notes）
+// 分類備註
+var _NOTE_LABELS = {'經營買方':'買方備註','庫存屋主':'庫存備註','房東':'房東備註','租客':'租客備註','成交客戶':'成交備註','商機募集':'商機備註'};
+var _VALID_NOTE_TYPES = {'經營買方':1,'庫存屋主':1,'房東':1,'租客':1,'成交客戶':1,'商機募集':1};
+function _resolveNoteType(type) {
+    if (_VALID_NOTE_TYPES[type]) return type;
+    return '';
+}
 function getTypeNote(c, type) {
-    if (c.typeNotes && c.typeNotes[type]) return c.typeNotes[type];
+    if (!c) return '';
+    var key = _resolveNoteType(type);
+    if (key && c.typeNotes && c.typeNotes[key]) return c.typeNotes[key];
     return '';
 }
 function getAllNotes(c) {
+    if (!c) return '';
     var parts = [];
     if (c.typeNotes) { Object.keys(c.typeNotes).forEach(function(k){ if(c.typeNotes[k]) parts.push(c.typeNotes[k]); }); }
-    if (c.notes && !parts.length) parts.push(c.notes);
+    if (!parts.length && c.notes) parts.push(c.notes);
     return parts.join('\n');
 }
+// 表單：先收集當前 textarea 的值，再重新渲染（保留用戶輸入）
 function renderTypeNotes(c) {
     var area = document.getElementById('typeNotesArea');
     if (!area) return;
+    // 先收集當前表單中的值
+    var existing = {};
+    document.querySelectorAll('[data-type-note]').forEach(function(ta) {
+        existing[ta.getAttribute('data-type-note')] = ta.value;
+    });
     var types = selectedTypes.filter(function(t){ return t !== '租案管理'; });
     if (!types.length) types = ['備註'];
-    var labels = {'經營買方':'買方備註','庫存屋主':'庫存備註','房東':'房東備註','租客':'租客備註','成交客戶':'成交備註','商機募集':'商機備註'};
     var tn = (c && c.typeNotes) || {};
     // 向下相容：舊 notes 遷移
     if (c && c.notes && !Object.keys(tn).some(function(k){return tn[k];})) {
-        if (types.length === 1 && types[0] !== '備註') tn[types[0]] = c.notes;
-        else tn[types[0]] = c.notes;
+        var firstType = types.find(function(t){ return _VALID_NOTE_TYPES[t]; }) || types[0];
+        tn[firstType] = c.notes;
     }
     area.innerHTML = types.map(function(t) {
-        var label = labels[t] || '備註';
-        var val = tn[t] || '';
+        var label = _NOTE_LABELS[t] || '備註';
+        // 優先用表單中已輸入的值，其次用資料庫的值
+        var val = (existing[t] !== undefined) ? existing[t] : (tn[t] || '');
         return '<div class="fg" style="margin-bottom:6px"><label style="font-size:12px">'+label+'</label><textarea data-type-note="'+esc(t)+'" placeholder="" style="min-height:50px">'+esc(val)+'</textarea></div>';
     }).join('');
 }
@@ -2541,17 +2556,11 @@ function collectTypeNotes() {
     var tn = {};
     document.querySelectorAll('[data-type-note]').forEach(function(ta) {
         var t = ta.getAttribute('data-type-note');
+        if (!_VALID_NOTE_TYPES[t] && t !== '備註') return;
         var v = ta.value.trim();
         if (v) tn[t] = v;
     });
     return tn;
-}
-function getNotesForFilter(c, filter) {
-    var typeMap = {'經營買方':'經營買方','庫存屋主':'庫存屋主','房東':'房東','租客':'租客','成交客戶':'成交客戶','商機募集':'商機募集'};
-    var t = typeMap[filter];
-    if (t && c.typeNotes && c.typeNotes[t]) return c.typeNotes[t];
-    if (c.notes && (!c.typeNotes || !Object.keys(c.typeNotes).some(function(k){return c.typeNotes[k];}))) return c.notes;
-    return '';
 }
 
 // ── Sidebar filter ──
@@ -3125,7 +3134,7 @@ function renderCard(c) {
             return `<span class="tag t-${TC[t]||'buyer'}">${TYPE_DISPLAY[t]||t}</span>`;
         }).join('');
         const statusTag = !cTypes.includes('經營買方') && c.status ? `<span class="tag s-${c.status}">${c.status}</span>` : '';
-        const notesText = (getTypeNote(c, showType) || (curFilter==='all' ? getAllNotes(c) : '') || c.notes || '').trim();
+        const notesText = (getTypeNote(c, showType) || (curFilter==='all' ? getAllNotes(c) : getTypeNote(c, curFilter)) || c.notes || '').trim();
         const dateLabel = c.lastContact ? '📞 '+relTime(c.lastContact) : '';
         const createdLabel = c.created ? '建檔 '+isoToROC((c.created||'').slice(0,10)) : '';
 
@@ -3413,11 +3422,11 @@ function editNoteInline(id, el, noteType) {
     if (!c.typeNotes) c.typeNotes = {};
     // 向下相容：如果有舊 notes 且 typeNotes 是空的，先遷移到第一個類型
     if (c.notes && !Object.keys(c.typeNotes).some(function(k){return c.typeNotes[k];})) {
-        var firstType = (c.types && c.types[0]) || noteType || '';
-        if (firstType && firstType !== '租案管理') c.typeNotes[firstType] = c.notes;
+        var firstType = (c.types && c.types.find(function(t){return _VALID_NOTE_TYPES[t];})) || '';
+        if (firstType) c.typeNotes[firstType] = c.notes;
     }
-    var key = noteType || curFilter || '';
-    if (key === 'all' || key === '租案管理') key = (c.types && c.types.find(function(t){return t!=='租案管理';})) || '';
+    // 解析 key：確保是有效的備註類型
+    var key = _resolveNoteType(noteType) || _resolveNoteType(curFilter) || (c.types && c.types.find(function(t){return _VALID_NOTE_TYPES[t];})) || '';
     const original = c.typeNotes[key] || '';
     const ta = document.createElement('textarea');
     ta.className = 'notes-edit-area';
@@ -8299,7 +8308,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260402h';
+var APP_VERSION = '20260402i';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
