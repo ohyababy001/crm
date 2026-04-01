@@ -5927,7 +5927,7 @@ function addDealRow(data) {
             '<div class="deal-f-date roc-date-wrap" style="flex:3"><input class="deal-date" type="text" placeholder="成交日期" style="min-width:0;flex:1" value="'+esc(d.date?isoToROC(d.date):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>' +
             '<select class="deal-f-role deal-role" style="flex:2"><option value=""'+(d.role?'':' selected')+'>買/賣方</option><option value="買方"'+(d.role==='買方'?' selected':'')+'>買方</option><option value="賣方"'+(d.role==='賣方'?' selected':'')+'>賣方</option></select>' +
         '</div>' +
-        '<div class="deal-fields" style="display:grid;grid-template-columns:100px 1fr 90px;gap:8px">' +
+        '<div class="deal-fields" style="display:grid;grid-template-columns:100px 1fr 100px;gap:8px">' +
             '<input class="deal-f-community deal-community" placeholder="社區大樓" value="'+esc(d.community||'')+'">' +
             '<input class="deal-f-addr deal-addr" placeholder="成交地址" value="'+esc(d.addr||'')+'">' +
             '<div class="deal-f-price input-grp"><input class="deal-price" style="min-width:0;flex:1" placeholder="價格" value="'+esc(d.price||'')+'"><span class="input-sfx">萬</span></div>' +
@@ -8314,7 +8314,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260402y';
+var APP_VERSION = '20260402z';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
