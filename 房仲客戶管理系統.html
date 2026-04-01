@@ -3004,7 +3004,7 @@ function renderDashboard() {
     document.getElementById('dashSchedule').innerHTML = schedList.length ? schedList.map(function(s) {
         var dayLabel = s.days === 0 ? '今天' : s.days + '天後';
         var nameHtml = s.personal
-            ? '<span class="dash-item-name" style="color:#0891B2">'+esc(s.memo||'個人行程')+'</span>'
+            ? ''
             : '<span class="dash-item-name" style="cursor:pointer" onclick="showDet(\''+s.id+'\')">'+esc(s.name)+(s.community?'<span style="font-weight:400;color:#64748B"> · '+esc(s.community)+'</span>':'')+'</span>';
         var editBtn = s.personal
             ? '<button class="btn-ic" onclick="editPersonalSchedule('+s.psIdx+')" title="編輯" style="font-size:13px;padding:2px 4px">✏️</button>'
@@ -3012,7 +3012,7 @@ function renderDashboard() {
         var doneBtn = s.personal
             ? '<button class="btn-ic" onclick="completePersonalSchedule('+s.psIdx+')" title="完成" style="font-size:13px;padding:2px 4px">✅</button>'
             : '<button class="btn-ic" onclick="completeSchedule(\''+s.id+'\',\''+s.date+'\',\''+s.time+'\')" title="完成" style="font-size:13px;padding:2px 4px">✅</button>';
-        var memoHtml = s.personal ? '' : (s.memo ? '<div class="dash-sched-memo">'+esc(s.memo)+'</div>' : '');
+        var memoHtml = s.memo ? '<div class="dash-sched-memo"'+(s.personal?' style="color:#0891B2"':'')+'>'+esc(s.memo)+'</div>' : (s.personal ? '<div class="dash-sched-memo" style="color:#0891B2">個人行程</div>' : '');
         return '<div class="dash-item dash-sched-item">' +
             '<div class="dash-sched-row1">' +
                 '<span class="dash-item-info" style="color:'+(s.days===0?'#EF4444':'')+'">'+esc(isoToMDW(s.date))+(s.time?' '+s.time:'')+'</span>' +
@@ -8681,7 +8681,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zw';
+var APP_VERSION = '20260403zx';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
