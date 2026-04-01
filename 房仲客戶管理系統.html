@@ -4735,7 +4735,7 @@ function addBuyerDemand(data) {
     var selDists = d.areaDists || [];
     var selRooms = (d.roomTypes||'').split(',').filter(Boolean);
     var cities = ['新北市','台北市','其他縣市'];
-    var rooms = ['套房','二房','三房','四房','公寓','豪宅','店面','辦公','透天'];
+    var rooms = ['套房','二房','三房','四房','公寓','店面','辦公','透天'];
     // 區域 HTML
     var distHtml = '';
     Object.keys(DISTRICTS).forEach(function(city){
@@ -8343,7 +8343,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403i';
+var APP_VERSION = '20260403j';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
