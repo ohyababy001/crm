@@ -5683,6 +5683,7 @@ function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo) {
         overlay.remove();
         render();
     };
+    box.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('qs-save').click(); } });
     document.getElementById('qs-memo').focus();
 }
 
@@ -8493,7 +8494,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zl';
+var APP_VERSION = '20260403zm';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
