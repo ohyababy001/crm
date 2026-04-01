@@ -790,16 +790,16 @@
 
             <div class="dash-sections">
                 <div class="dash-section">
+                    <div class="dash-sec-title">📅 近期行程（15天內）</div>
+                    <div class="dash-list" id="dashSchedule"></div>
+                </div>
+                <div class="dash-section">
                     <div class="dash-sec-title">⚠ 庫存合約即將到期（15天內）</div>
                     <div class="dash-list" id="dashExpiringSeller"></div>
                 </div>
                 <div class="dash-section">
                     <div class="dash-sec-title">⚠ 房東合約即將到期（45天內）</div>
                     <div class="dash-list" id="dashExpiringRental"></div>
-                </div>
-                <div class="dash-section">
-                    <div class="dash-sec-title">📅 近期行程（15天內）</div>
-                    <div class="dash-list" id="dashSchedule"></div>
                 </div>
                 <div class="dash-section">
                     <div class="dash-sec-title">🎂 客戶生日提醒（7天內）</div>
@@ -8400,7 +8400,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403t';
+var APP_VERSION = '20260403u';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
