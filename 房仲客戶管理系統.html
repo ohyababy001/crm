@@ -2392,6 +2392,8 @@ function showHistory(id) {
             details = '<div class="history-detail">封存客戶' + (h.reason ? '：<span class="history-val">' + esc(h.reason) + '</span>' : '') + '</div>';
         } else if (h.type === 'unarchive') {
             details = '<div class="history-detail">解除封存</div>';
+        } else if (h.type === 'schedule_done') {
+            details = '<div class="history-detail"><span class="history-val">' + esc(h.detail || '') + '</span></div>';
         } else if (h.type === 'note') {
             details = '<div class="history-detail">更新備註：<span class="history-val">' + esc(h.value || '(清空)') + '</span></div>';
         } else if (h.changes && h.changes.length) {
@@ -5689,9 +5691,15 @@ function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo) {
 function completeSchedule(clientId, date, time) {
     var c = DB.find(function(x){ return x.id === clientId; });
     if (!c || !c.schedules) return;
+    var found = c.schedules.find(function(s) {
+        return s.date === date && (s.time||'') === (time||'');
+    });
+    var memo = found ? found.memo : '';
     c.schedules = c.schedules.filter(function(s) {
         return !(s.date === date && (s.time||'') === (time||''));
     });
+    if (!c.history) c.history = [];
+    c.history.push({ type:'schedule_done', time:new Date().toISOString(), detail:'【已完成行程】' + isoToROC(date) + (time ? ' ' + time : '') + (memo ? ' ' + memo : '') });
     persist();
     render();
 }
@@ -8493,7 +8501,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zo';
+var APP_VERSION = '20260403zp';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
