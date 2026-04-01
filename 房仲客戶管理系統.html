@@ -5649,7 +5649,6 @@ function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo) {
     if (!c) return;
     var overlay = document.createElement('div');
     overlay.className = 'fill-overlay';
-    overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
     var box = document.createElement('div');
     box.className = 'fill-menu';
     box.style.padding = '16px'; box.style.minWidth = '300px'; box.style.maxWidth = '360px';
@@ -8494,7 +8493,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zm';
+var APP_VERSION = '20260403zn';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
