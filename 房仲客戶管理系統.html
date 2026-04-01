@@ -353,6 +353,8 @@
 
         @media (max-width: 768px) {
             .dash-sched-memo { width: 100%; font-size: 14px; padding-left: 4px; margin-top: 2px; }
+            .dash-sched-btns { gap: 6px !important; }
+            .dash-sched-btns .btn-ic { font-size: 12px !important; padding: 2px 5px !important; }
             /* 全域防溢出 */
             html, body { overflow-x: hidden !important; width: 100% !important; }
             * { box-sizing: border-box !important; }
@@ -799,7 +801,7 @@
 
             <div class="dash-sections">
                 <div class="dash-section dash-schedule">
-                    <div class="dash-sec-title" style="display:flex;justify-content:space-between;align-items:center">📅 近期行程（15天內）<span style="display:flex;gap:12px;align-items:center"><button class="btn-ic" onclick="showAllSchedules()" title="全部行程" style="font-size:15px;padding:3px 8px">📋全部</button><button class="btn-ic" onclick="showDoneSchedules()" title="已完成" style="font-size:15px;padding:3px 8px">✅已完成</button><button class="btn-ic" onclick="addPersonalSchedule()" title="新增個人行程" style="font-size:16px;padding:2px 6px">＋</button></span></div>
+                    <div class="dash-sec-title" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center">📅 近期行程（15天內）<span class="dash-sched-btns" style="display:flex;gap:12px;align-items:center"><button class="btn-ic" onclick="showAllSchedules()" title="全部行程" style="font-size:15px;padding:3px 8px">📋全部</button><button class="btn-ic" onclick="showDoneSchedules()" title="已完成" style="font-size:15px;padding:3px 8px">✅已完成</button><button class="btn-ic" onclick="addPersonalSchedule()" title="新增個人行程" style="font-size:16px;padding:2px 6px">＋</button></span></div>
                     <div class="dash-list" id="dashSchedule"></div>
                 </div>
                 <div class="dash-section dash-seller">
@@ -8756,7 +8758,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zzf';
+var APP_VERSION = '20260403zzg';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
