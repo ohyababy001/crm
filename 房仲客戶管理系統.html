@@ -349,10 +349,10 @@
         .dash-empty { color: var(--muted); text-align: center; padding: 16px 0; font-size: 13px; }
         .dash-sched-item { flex-wrap: wrap; }
         .dash-sched-row1 { display: flex; align-items: center; gap: 8px; width: 100%; }
-        .dash-sched-memo { font-size: 14px; color: #475569; }
+        .dash-sched-memo { font-size: 15px; color: #475569; }
 
         @media (max-width: 768px) {
-            .dash-sched-memo { width: 100%; font-size: 15px; padding-left: 4px; margin-top: 2px; }
+            .dash-sched-memo { width: 100%; font-size: 14px; padding-left: 4px; margin-top: 2px; }
             /* 全域防溢出 */
             html, body { overflow-x: hidden !important; width: 100% !important; }
             * { box-sizing: border-box !important; }
@@ -8508,7 +8508,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zr';
+var APP_VERSION = '20260403zs';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
