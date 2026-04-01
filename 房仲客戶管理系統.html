@@ -3621,8 +3621,18 @@ function typeDetail(origC, viewAs) {
                 rows.push(dRow('連結房東', (_ll.llName||_ll.name)+(_ll.llPhone?' '+_ll.llPhone:'')));
                 if (_ll.rProperties && _ll.rProperties.length) {
                     var _llProp = _ll.rProperties[c.linkedPropertyIdx||0] || _ll.rProperties[0];
+                    rows.push(dRow('社區大樓', _llProp.rCommunity||''));
                     rows.push(dRow('物件地址', _llProp.rAddr||''));
-                    rows.push(dRow('租金', _llProp.rent?(_llProp.rent+(_llProp.rent.includes('元')?'':'元')):''));
+                    rows.push(dRow('坪數', _llProp.rSz?(_llProp.rSz+(_llProp.rSz.includes('坪')?'':'坪')):''));
+                    var _ttRentD = _llProp.rent?(_llProp.rent+(_llProp.rent.includes('元')?'':'元')):'';
+                    if (_ttRentD && (_llProp.rMgmtType === '含管' || _llProp.rMgmtType === '內含')) {
+                        var _ttMgS = (parseFloat(_llProp.rMgmtBuilding)||0)+(parseFloat(_llProp.rMgmtCar)||0)+(parseFloat(_llProp.rMgmtMoto)||0)+(parseFloat(_llProp.rMgmtOther)||0);
+                        _ttRentD += ' 含管' + (_ttMgS ? ' ' + _ttMgS.toLocaleString() + '元' : '');
+                    } else if (_ttRentD && _llProp.rMgmtType === '不含管') {
+                        var _ttMgS = (parseFloat(_llProp.rMgmtBuilding)||0)+(parseFloat(_llProp.rMgmtCar)||0)+(parseFloat(_llProp.rMgmtMoto)||0)+(parseFloat(_llProp.rMgmtOther)||0);
+                        _ttRentD += ' 不含管' + (_ttMgS ? ' ' + _ttMgS.toLocaleString() + '元' : '');
+                    }
+                    rows.push(dRow('租金', _ttRentD));
                 }
             }
         }
@@ -8335,7 +8345,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260401x';
+var APP_VERSION = '20260401y';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
