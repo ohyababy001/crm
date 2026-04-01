@@ -2992,7 +2992,7 @@ function renderDashboard() {
     document.getElementById('dashSchedule').innerHTML = schedList.length ? schedList.map(function(s) {
         var dayLabel = s.days === 0 ? '今天' : s.days + '天後';
         return '<div class="dash-item">' +
-            '<span class="dash-item-info" style="color:'+(s.days===0?'#EF4444':'')+'">'+esc(isoToMDW(s.date))+(s.time?' '+s.time:'')+' ('+dayLabel+')</span>' +
+            '<span class="dash-item-info" style="color:'+(s.days===0?'#EF4444':'')+'">'+esc(isoToMDW(s.date))+(s.time?' '+s.time:'')+'</span>' +
             '<span class="dash-item-name" style="cursor:pointer" onclick="showDet(\''+s.id+'\')">'+esc(s.name)+(s.community?'<span style="font-weight:400;color:#64748B"> · '+esc(s.community)+'</span>':'')+(s.memo?' — '+esc(s.memo):'')+'</span>' +
             '<span style="display:flex;gap:2px;flex-shrink:0">' +
                 '<button class="btn-ic" onclick="editDashSchedule(\''+s.id+'\',\''+s.date+'\',\''+s.time+'\',this)" title="編輯" style="font-size:13px;padding:2px 4px">✏️</button>' +
@@ -3024,7 +3024,7 @@ function renderDashboard() {
     document.getElementById('dashBirthday').innerHTML = bdayList.length ? bdayList.map(function(b) {
         var label = b.days === 0 ? '今天生日！' : b.days + '天後';
         return '<div class="dash-item" onclick="showDet(\''+b.id+'\')" style="cursor:pointer">' +
-            '<span class="dash-item-info" style="color:'+(b.days===0?'#EF4444':'')+'">'+esc(isoToMDW(b.date))+' ('+label+')</span>' +
+            '<span class="dash-item-info" style="color:'+(b.days===0?'#EF4444':'')+'">'+esc(isoToMDW(b.date))+'</span>' +
             '<span class="dash-item-name">'+esc(b.name)+(b.who?'<span style="font-weight:400;color:#64748B">（'+esc(b.who)+'）</span>':'')+'</span></div>';
     }).join('') : '<div class="dash-empty">近7天內沒有客戶生日</div>';
 
@@ -8414,7 +8414,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zb';
+var APP_VERSION = '20260403zc';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
