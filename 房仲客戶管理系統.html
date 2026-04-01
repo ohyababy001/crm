@@ -2480,7 +2480,8 @@ var BANK_MAP = [
     ['810','星展銀行','星展'],
     ['812','台新國際商業銀行','台新銀行','台新'],
     ['816','安泰商業銀行','安泰銀行','安泰'],
-    ['822','中國信託商業銀行','中國信託','中信','中信銀行']
+    ['822','中國信託商業銀行','中國信託','中信','中信銀行'],
+    ['600','全國農業金庫','農會','農業金庫']
 ];
 function formatBankAccount(el) {
     var v = el.value.replace(/[^0-9]/g, '');
@@ -8228,7 +8229,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260402e';
+var APP_VERSION = '20260402f';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
