@@ -5883,7 +5883,7 @@ function filterAllSchedList() {
             : '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();completeSchedule(\''+s.clientId+'\',\''+s.date+'\',\''+s.time+'\')" title="完成" style="font-size:14px;padding:4px 8px">✅</button>';
         return '<div style="padding:8px 0;border-bottom:1px solid #F1F5F9;display:flex;align-items:center;gap:8px">' +
             '<div style="flex:1">' +
-                '<div style="font-size:14px;color:#334155;font-weight:600">'+esc(isoToMDW(s.date,true))+(s.time?' '+s.time:'')+'</div>' +
+                '<div style="font-size:14px;color:'+(parseInt(s.date)!==new Date().getFullYear()?'#9CA3AF':'#334155')+';font-weight:600">'+esc(isoToMDW(s.date,true))+(s.time?' '+s.time:'')+'</div>' +
                 '<div style="font-size:15px"><span style="color:'+nameColor+';font-weight:600">'+esc(nameText)+'</span>'+memoText+'</div>' +
             '</div>' +
             '<span style="display:flex;gap:2px;flex-shrink:0">' + editBtn + doneBtn + '</span>' +
@@ -8748,7 +8748,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zzd';
+var APP_VERSION = '20260403zze';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
