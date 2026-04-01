@@ -333,9 +333,12 @@
         .dash-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.08); border-color: #CBD5E1; transform: translateY(-2px); }
         .dash-card .dash-num { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
         .dash-card .dash-label { font-size: 13px; color: var(--muted); font-weight: 600; }
-        .dash-sections { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; gap: 16px; }
+        .dash-sections { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: auto auto; gap: 16px; grid-template-areas: "sched sched seller bday" "sched sched rental rental"; }
         .dash-section { background: white; border-radius: 14px; padding: 18px; border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.03); }
-        .dash-section.dash-schedule { grid-row: 1 / 3; }
+        .dash-section.dash-schedule { grid-area: sched; }
+        .dash-section.dash-seller { grid-area: seller; }
+        .dash-section.dash-bday { grid-area: bday; }
+        .dash-section.dash-rental { grid-area: rental; }
         .dash-sec-title { font-size: 14px; font-weight: 700; color: #475569; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
         .dash-list { font-size: 14px; }
         .dash-item { padding: 8px 8px; margin: 0 -8px; border-bottom: 1px solid #F1F5F9; display: flex; align-items: center; gap: 8px; border-radius: 6px; transition: background 0.15s; }
@@ -607,8 +610,8 @@
             .det-phone { font-size: 28px; text-align: center; }
 
             /* 總覽方塊 */
-            .dash-sections { grid-template-columns: 1fr !important; }
-            .dash-section.dash-schedule { grid-row: auto; }
+            .dash-sections { grid-template-columns: 1fr !important; grid-template-areas: none !important; }
+            .dash-section.dash-schedule, .dash-section.dash-seller, .dash-section.dash-bday, .dash-section.dash-rental { grid-area: auto; }
             .dash-cards { grid-template-columns: repeat(4, 1fr) !important; gap: 6px !important; }
             .dash-card { padding: 10px 4px !important; border-radius: 10px !important; }
             .dash-card .dash-num { font-size: 20px !important; }
@@ -796,15 +799,15 @@
                     <div class="dash-sec-title">📅 近期行程（15天內）</div>
                     <div class="dash-list" id="dashSchedule"></div>
                 </div>
-                <div class="dash-section">
+                <div class="dash-section dash-seller">
                     <div class="dash-sec-title">⚠ 庫存合約即將到期（15天內）</div>
                     <div class="dash-list" id="dashExpiringSeller"></div>
                 </div>
-                <div class="dash-section">
+                <div class="dash-section dash-bday">
                     <div class="dash-sec-title">🎂 客戶生日提醒（7天內）</div>
                     <div class="dash-list" id="dashBirthday"></div>
                 </div>
-                <div class="dash-section">
+                <div class="dash-section dash-rental">
                     <div class="dash-sec-title">⚠ 房東合約即將到期（45天內）</div>
                     <div class="dash-list" id="dashExpiringRental"></div>
                 </div>
@@ -8403,7 +8406,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403v';
+var APP_VERSION = '20260403w';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
