@@ -804,7 +804,7 @@
                     <div class="dash-list" id="dashExpiringSeller"></div>
                 </div>
                 <div class="dash-section dash-bday">
-                    <div class="dash-sec-title">🎂 今日生日</div>
+                    <div class="dash-sec-title">🎂 客戶生日提醒（7天內）</div>
                     <div class="dash-list" id="dashBirthday"></div>
                 </div>
                 <div class="dash-section dash-rental">
@@ -3000,8 +3000,9 @@ function renderDashboard() {
             '</span></div>';
     }).join('') : '<div class="dash-empty">近15天內沒有預排行程</div>';
 
-    // 生日提醒（當天）
+    // 生日提醒（7天內）
     var bdayList = [];
+    var _bdayDedup = {};
     function checkBday(id, clientName, who, dateStr) {
         if (!dateStr) return;
         var parts = dateStr.split('-');
@@ -3009,7 +3010,12 @@ function renderDashboard() {
         var thisYear = new Date(now.getFullYear(), parseInt(parts[1])-1, parseInt(parts[2]));
         var diff = Math.ceil((thisYear - now) / 86400000);
         if (diff < 0 && diff >= -1) { thisYear = new Date(now.getFullYear()+1, parseInt(parts[1])-1, parseInt(parts[2])); diff = Math.ceil((thisYear - now) / 86400000); }
-        if (diff === 0) bdayList.push({ id:id, name:clientName, who:who, date:dateStr, days:diff });
+        if (diff >= 0 && diff <= 7) {
+            var key = id + '_' + (who||'') + '_' + parts[1] + parts[2];
+            if (_bdayDedup[key]) return;
+            _bdayDedup[key] = true;
+            bdayList.push({ id:id, name:clientName, who:who, date:dateStr, days:diff });
+        }
     }
     DB.forEach(function(c) {
         if (c.archived) return;
@@ -3026,7 +3032,7 @@ function renderDashboard() {
         return '<div class="dash-item" onclick="showDet(\''+b.id+'\')" style="cursor:pointer">' +
             '<span class="dash-item-info" style="color:'+(b.days===0?'#EF4444':'')+'">'+esc(isoToMDW(b.date))+'</span>' +
             '<span class="dash-item-name">'+esc(b.name)+(b.who?'<span style="font-weight:400;color:#64748B">（'+esc(b.who)+'）</span>':'')+'</span></div>';
-    }).join('') : '<div class="dash-empty">今天沒有客戶生日</div>';
+    }).join('') : '<div class="dash-empty">近7天內沒有客戶生日</div>';
 
     // 手機版：依最近期日期排序提醒區塊（有提醒的在上，無提醒的在下）
     if (window.innerWidth <= 768) {
@@ -8487,7 +8493,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zg';
+var APP_VERSION = '20260403zh';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
