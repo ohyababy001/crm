@@ -3163,7 +3163,7 @@ function renderCard(c) {
             return `<span class="tag t-${TC[t]||'buyer'}">${TYPE_DISPLAY[t]||t}</span>`;
         }).join('');
         const statusTag = !cTypes.includes('經營買方') && c.status ? `<span class="tag s-${c.status}">${c.status}</span>` : '';
-        const notesText = (getTypeNote(c, showType) || (curFilter==='all' ? getAllNotes(c) : getTypeNote(c, curFilter)) || getAllNotes(c) || '').trim();
+        const notesText = (getTypeNote(c, showType) || (curFilter==='all' ? getAllNotes(c) : getTypeNote(c, curFilter)) || '').trim();
         const dateLabel = c.lastContact ? '📞 '+relTime(c.lastContact) : '';
         const createdLabel = c.created ? '建檔 '+isoToROC((c.created||'').slice(0,10)) : '';
 
@@ -8343,7 +8343,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403j';
+var APP_VERSION = '20260403k';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
