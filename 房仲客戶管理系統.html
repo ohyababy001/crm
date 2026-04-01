@@ -7457,10 +7457,12 @@ function renderPerfList(filtered) {
             var totalFeeR = ft + fnt + fot + ((!r.feeTax && !r.feeNoTax && !r.feeOther) ? (parseFloat(r.fee)||0) : 0);
             var feeDetail = '';
             var _parts = [];
-            if (ft) _parts.push('績'+ft.toLocaleString());
-            if (fnt) _parts.push('收'+fnt.toLocaleString());
-            if (fot) _parts.push('他'+fot.toLocaleString()+(r.feeOtherRate?'(×'+r.feeOtherRate+')':''));
-            if (_parts.length) feeDetail = _parts.join('/');
+            if (ft && fnt) { _parts.push('績'+ft.toLocaleString()); _parts.push('收'+fnt.toLocaleString()); }
+            else if (ft) _parts.push(ft.toLocaleString());
+            else if (fnt) _parts.push(fnt.toLocaleString());
+            if (fot && r.feeOtherAmt && r.feeOtherRate) _parts.push(parseFloat(r.feeOtherAmt).toLocaleString()+'×'+r.feeOtherRate);
+            else if (fot) _parts.push(fot.toLocaleString());
+            if (_parts.length) feeDetail = _parts.join(' / ');
             else if (r.fee) feeDetail = parseFloat(r.fee).toLocaleString();
             html += '<div style="padding:8px 0;border-bottom:1px solid var(--bg);font-size:13px">' +
                 '<div style="display:flex;align-items:center;gap:6px">' +
@@ -8327,7 +8329,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260401m';
+var APP_VERSION = '20260401n';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
