@@ -2764,7 +2764,7 @@ function getData() {
                 return aEnd.localeCompare(bEnd);
             }
         }
-        if (s==='dealCount') return (b.deals||[]).length - (a.deals||[]).length;
+        if (s==='dealCount') { var _dc = (b.deals||[]).length - (a.deals||[]).length; if (_dc !== 0) return _dc; var _adl=(a.deals&&a.deals.length)?a.deals.reduce(function(m,d){return d.date>m?d.date:m;},''):''; var _bdl=(b.deals&&b.deals.length)?b.deals.reduce(function(m,d){return d.date>m?d.date:m;},''):''; return (_bdl||'').localeCompare(_adl||''); }
         if (s==='dealDate') { var _ad=(a.deals&&a.deals.length)?a.deals.reduce(function(m,d){return d.date>m?d.date:m;},''):''; var _bd=(b.deals&&b.deals.length)?b.deals.reduce(function(m,d){return d.date>m?d.date:m;},''):''; return (_bd||'').localeCompare(_ad||''); }
         if (s==='newest') return (b.created||'').localeCompare(a.created||'');
         if (s==='oldest') return (a.created||'').localeCompare(b.created||'');
@@ -7014,7 +7014,7 @@ function updateEditNav() {
             var bEnd = b.contractEnd || (b.sProperties && b.sProperties.length ? b.sProperties.reduce(function(min,sp){ var d=sp.contractEnd||'9999-12-31'; return d<min?d:min; },'9999-12-31') : '9999-12-31');
             return aEnd.localeCompare(bEnd);
         }
-        if (s2==='dealCount') return (b.deals||[]).length - (a.deals||[]).length;
+        if (s2==='dealCount') { var _dc2 = (b.deals||[]).length - (a.deals||[]).length; if (_dc2 !== 0) return _dc2; var _adl2=(a.deals&&a.deals.length)?a.deals.reduce(function(m,d){return d.date>m?d.date:m;},''):''; var _bdl2=(b.deals&&b.deals.length)?b.deals.reduce(function(m,d){return d.date>m?d.date:m;},''):''; return (_bdl2||'').localeCompare(_adl2||''); }
             if (s2==='dealDate') { var _ad2=(a.deals&&a.deals.length)?a.deals.reduce(function(m,d){return d.date>m?d.date:m;},''):''; var _bd2=(b.deals&&b.deals.length)?b.deals.reduce(function(m,d){return d.date>m?d.date:m;},''):''; return (_bd2||'').localeCompare(_ad2||''); }
         if (s2==='newest') return (b.created||'').localeCompare(a.created||'');
         if (s2==='oldest') return (a.created||'').localeCompare(b.created||'');
@@ -8310,7 +8310,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260402m';
+var APP_VERSION = '20260402n';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
