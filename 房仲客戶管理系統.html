@@ -992,8 +992,8 @@
                     <div class="fg" style="margin-bottom:0"><label>車位價格</label><div class="input-grp" id="parkingPriceGroup" style="visibility:hidden"><input id="f-parkingPrice" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>
                     <div class="fg" style="margin-bottom:0"><label>車位編號</label><input id="f-parkingNo" style="display:none"></div>
                 </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-                    <div style="padding:8px 12px;border-radius:8px;font-size:14px;font-weight:700;background:#EFF6FF;color:#1D4ED8;text-align:center">登記面積 <span id="sRegSz">0</span> 坪</div>
+                <div style="display:grid;grid-template-columns:6fr 2fr;gap:8px;margin-bottom:8px">
+                    <div style="padding:8px 12px;border-radius:8px;font-size:14px;font-weight:700;background:#EFF6FF;color:#1D4ED8;text-align:center">建物<span id="sRegBldg">0</span>坪＋車位<span id="sRegPark">0</span>坪　共登記面積 <span id="sRegSz">0</span> 坪</div>
                     <div style="padding:8px 12px;border-radius:8px;font-size:14px;font-weight:700;background:#F0FDF4;color:#059669;text-align:center">公設比 <span id="sCommonRatio">0</span>%</div>
                 </div>
                 <input type="hidden" id="f-sLandSz" value="">
@@ -3554,7 +3554,7 @@ function typeDetail(origC, viewAs) {
             if(pr||no) html+=_grid(3,[_cell('車位價格',pr||''),_cell('車位編號',no||''),'<div></div>']);
             var m=parseFloat(sp.mainBldg)||0,a=parseFloat(sp.ancBldg)||0,cov=parseFloat(sp.common)||0,pk=parseFloat(sp.parkingSz)||0;
             var bldg=m+a+cov; var reg=bldg+pk; var ratio=bldg>0?(cov/bldg*100).toFixed(1):0;
-            if(reg) html+=_grid(3,[_cell('登記面積',reg.toFixed(2)+'坪'),_cell('公設比',bldg?ratio+'%':''),'<div></div>']);
+            if(reg) html+='<div class="sp-grid" style="display:grid;grid-template-columns:6fr 2fr;border-bottom:1px solid var(--bg)">'+_cell('登記面積','建物'+bldg.toFixed(2)+'坪＋車位'+pk.toFixed(2)+'坪　共'+reg.toFixed(2)+'坪')+_cell('公設比',bldg?ratio+'%':'')+'</div>';
             var cs=isoToROC(sp.contractStart||''), ce=isoToROC(sp.contractEnd||'');
             if(cs||ce) html+=_grid(3,[_cell('立約日',cs||''),_cell('到期日',ce||''),'<div></div>']);
             r.push(html);
@@ -3616,7 +3616,7 @@ function typeDetail(origC, viewAs) {
             if(pr||no) html+=_grid(3,[_cell('車位價格',pr||''),_cell('車位編號',no||''),'<div></div>']);
             var m=parseFloat(c.sMainBldg)||0,a=parseFloat(c.sAncBldg)||0,cov=parseFloat(c.sCommon)||0,pk=parseFloat(c.sParkingSz)||0;
             var bldg=m+a+cov; var reg=bldg+pk; var ratio=bldg>0?(cov/bldg*100).toFixed(1):0;
-            if(reg) html+=_grid(3,[_cell('登記面積',reg.toFixed(2)+'坪'),_cell('公設比',bldg?ratio+'%':''),'<div></div>']);
+            if(reg) html+='<div class="sp-grid" style="display:grid;grid-template-columns:6fr 2fr;border-bottom:1px solid var(--bg)">'+_cell('登記面積','建物'+bldg.toFixed(2)+'坪＋車位'+pk.toFixed(2)+'坪　共'+reg.toFixed(2)+'坪')+_cell('公設比',bldg?ratio+'%':'')+'</div>';
             var cs=isoToROC(c.contractStart||''), ce=isoToROC(c.contractEnd||'');
             if(cs||ce) html+=_grid(3,[_cell('立約日',cs||''),_cell('到期日',ce||''),'<div></div>']);
             rows.push(html);
@@ -4111,8 +4111,8 @@ function addSellerProperty(data) {
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">車位價格</label><div class="input-grp" style="'+(d.parking?'':'visibility:hidden')+'"><input data-f="parkingPrice" value="'+esc(d.parkingPrice||'')+'" style="min-width:0;flex:1"><span class="input-sfx">萬</span></div></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">車位編號</label><input data-f="parkingNo" value="'+esc(d.parkingNo||'')+'" style="'+(d.parking?'':'display:none')+'"></div>' +
         '</div>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">' +
-            '<div style="padding:8px 12px;border-radius:8px;font-size:13px;font-weight:700;background:#EFF6FF;color:#1D4ED8;text-align:center">登記面積 <span data-f="regSz">0</span> 坪</div>' +
+        '<div style="display:grid;grid-template-columns:6fr 2fr;gap:8px;margin-bottom:6px">' +
+            '<div style="padding:8px 12px;border-radius:8px;font-size:13px;font-weight:700;background:#EFF6FF;color:#1D4ED8;text-align:center">建物<span data-f="regBldg">0</span>坪＋車位<span data-f="regPark">0</span>坪　共登記面積 <span data-f="regSz">0</span> 坪</div>' +
             '<div style="padding:8px 12px;border-radius:8px;font-size:13px;font-weight:700;background:#F0FDF4;color:#059669;text-align:center">公設比 <span data-f="commonRatio">0</span>%</div>' +
         '</div>' +
         // 管理費
@@ -4200,6 +4200,8 @@ function calcSpSellerSz(el) {
     var main=get('mainBldg'), anc=get('ancBldg'), com=get('common'), pk=get('parkingSz');
     var bldg=main+anc+com, regSz=bldg+pk;
     var ratio = bldg > 0 ? (com/bldg*100).toFixed(1) : 0;
+    var bldgEl=block.querySelector('[data-f="regBldg"]'); if(bldgEl) bldgEl.textContent=bldg?bldg.toFixed(2):'0';
+    var parkEl=block.querySelector('[data-f="regPark"]'); if(parkEl) parkEl.textContent=pk?pk.toFixed(2):'0';
     var regEl=block.querySelector('[data-f="regSz"]'); if(regEl) regEl.textContent=regSz?regSz.toFixed(2):'0';
     var ratEl=block.querySelector('[data-f="commonRatio"]'); if(ratEl) ratEl.textContent=ratio;
 }
@@ -4466,6 +4468,8 @@ function calcSellerSz() {
     var bldg = main+anc+com;
     var regSz = bldg+pk;
     var ratio = bldg > 0 ? (com/bldg*100).toFixed(1) : 0;
+    document.getElementById('sRegBldg').textContent = bldg ? bldg.toFixed(2) : '0';
+    document.getElementById('sRegPark').textContent = pk ? pk.toFixed(2) : '0';
     document.getElementById('sRegSz').textContent = regSz ? regSz.toFixed(2) : '0';
     document.getElementById('sCommonRatio').textContent = ratio;
     // 向下相容：填入隱藏的 f-sSz 和 f-sLandSz
@@ -8328,7 +8332,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403l';
+var APP_VERSION = '20260403m';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
