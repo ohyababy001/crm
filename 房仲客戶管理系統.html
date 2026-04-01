@@ -3369,7 +3369,11 @@ function editNoteInline(id, el) {
     ta.focus();
     ta.setSelectionRange(ta.value.length, ta.value.length);
 
+    var _saved = false;
     function save() {
+        if (_saved) return;
+        _saved = true;
+        ta.removeEventListener('blur', save);
         const val = ta.value.trim();
         if (val !== original) {
             if (!c.history) c.history = [];
@@ -3382,7 +3386,7 @@ function editNoteInline(id, el) {
     }
     ta.addEventListener('blur', save);
     ta.addEventListener('keydown', e => {
-        if (e.key === 'Escape') { render(); }
+        if (e.key === 'Escape') { _saved = true; ta.removeEventListener('blur', save); render(); }
         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); save(); }
     });
 }
@@ -8329,7 +8333,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260401v';
+var APP_VERSION = '20260401w';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
