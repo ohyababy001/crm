@@ -534,8 +534,9 @@
             #cAddrList .c-row input[style*="width:76px"] { flex: 0 0 70px !important; width: 70px !important; }
             #cAddrList .c-row input[style*="flex:1"] { flex: 1 1 100% !important; }
 
-            /* 成交物件：手機版 2欄重排 */
+            /* 成交物件：手機版重排 */
             .deal-box { overflow: hidden; }
+            .deal-box > div:first-child { width: 100% !important; }
             .deal-fields { grid-template-columns: 1fr 1fr !important; }
             .deal-f-addr { grid-column: span 2 !important; }
 
@@ -8310,7 +8311,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260402v';
+var APP_VERSION = '20260402w';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
