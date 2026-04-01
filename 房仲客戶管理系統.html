@@ -3146,7 +3146,7 @@ function renderCard(c) {
             return `<span class="tag t-${TC[t]||'buyer'}">${TYPE_DISPLAY[t]||t}</span>`;
         }).join('');
         const statusTag = !cTypes.includes('經營買方') && c.status ? `<span class="tag s-${c.status}">${c.status}</span>` : '';
-        const notesText = (getTypeNote(c, showType) || (curFilter==='all' ? getAllNotes(c) : getTypeNote(c, curFilter)) || (!c.typeNotes ? (c.notes||'') : '')).trim();
+        const notesText = (getTypeNote(c, showType) || (curFilter==='all' ? getAllNotes(c) : getTypeNote(c, curFilter)) || getAllNotes(c) || '').trim();
         const dateLabel = c.lastContact ? '📞 '+relTime(c.lastContact) : '';
         const createdLabel = c.created ? '建檔 '+isoToROC((c.created||'').slice(0,10)) : '';
 
@@ -3431,15 +3431,13 @@ function renderCard(c) {
 function editNoteInline(id, el, noteType) {
     const c = DB.find(x => x.id === id);
     if (!c) return;
-    if (!c.typeNotes) c.typeNotes = {};
-    // 向下相容：如果有舊 notes 且 typeNotes 是空的，先遷移到第一個類型
-    if (c.notes && !Object.keys(c.typeNotes).some(function(k){return c.typeNotes[k];})) {
-        var firstType = (c.types && c.types.find(function(t){return _VALID_NOTE_TYPES[t];})) || '';
-        if (firstType) c.typeNotes[firstType] = c.notes;
-    }
     // 解析 key：確保是有效的備註類型
     var key = _resolveNoteType(noteType) || _resolveNoteType(curFilter) || (c.types && c.types.find(function(t){return _VALID_NOTE_TYPES[t];})) || '';
-    const original = c.typeNotes[key] || '';
+    // 讀取值：優先 typeNotes，fallback 舊 notes（不直接改 DB）
+    var original = (c.typeNotes && c.typeNotes[key]) || '';
+    if (!original && c.notes && (!c.typeNotes || !Object.keys(c.typeNotes).some(function(k){return c.typeNotes[k];}))) {
+        original = c.notes;
+    }
     const ta = document.createElement('textarea');
     ta.className = 'notes-edit-area';
     ta.value = original;
@@ -3455,6 +3453,7 @@ function editNoteInline(id, el, noteType) {
         ta.removeEventListener('blur', save);
         const val = ta.value.trim();
         if (val !== original) {
+            if (!c.typeNotes) c.typeNotes = {};
             if (!c.history) c.history = [];
             c.history.push({ type:'note', time: new Date().toISOString(), value: val });
             c.typeNotes[key] = val;
@@ -8321,7 +8320,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403a';
+var APP_VERSION = '20260403b';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
