@@ -347,9 +347,12 @@
         .dash-item-info { color: #334155; font-size: 16px; font-weight: 600; white-space: nowrap; flex-shrink: 0; min-width: 90px; }
         .dash-item-name { font-weight: 600; flex: 1; min-width: 0; color: #1E40AF; font-size: 18px; }
         .dash-empty { color: var(--muted); text-align: center; padding: 16px 0; font-size: 13px; }
-
+        .dash-sched-item { flex-wrap: wrap; }
+        .dash-sched-row1 { display: flex; align-items: center; gap: 8px; width: 100%; }
+        .dash-sched-memo { font-size: 14px; color: #475569; }
 
         @media (max-width: 768px) {
+            .dash-sched-memo { width: 100%; font-size: 15px; padding-left: 4px; margin-top: 2px; }
             /* 全域防溢出 */
             html, body { overflow-x: hidden !important; width: 100% !important; }
             * { box-sizing: border-box !important; }
@@ -2993,13 +2996,17 @@ function renderDashboard() {
     schedList.sort(function(a,b) { return (a.date+a.time).localeCompare(b.date+b.time); });
     document.getElementById('dashSchedule').innerHTML = schedList.length ? schedList.map(function(s) {
         var dayLabel = s.days === 0 ? '今天' : s.days + '天後';
-        return '<div class="dash-item">' +
-            '<span class="dash-item-info" style="color:'+(s.days===0?'#EF4444':'')+'">'+esc(isoToMDW(s.date))+(s.time?' '+s.time:'')+'</span>' +
-            '<span class="dash-item-name" style="cursor:pointer" onclick="showDet(\''+s.id+'\')">'+esc(s.name)+(s.community?'<span style="font-weight:400;color:#64748B"> · '+esc(s.community)+'</span>':'')+(s.memo?' / '+esc(s.memo):'')+'</span>' +
-            '<span style="display:flex;gap:2px;flex-shrink:0">' +
-                '<button class="btn-ic" onclick="editDashSchedule(\''+s.id+'\',\''+s.date+'\',\''+s.time+'\',this)" title="編輯" style="font-size:13px;padding:2px 4px">✏️</button>' +
+        return '<div class="dash-item dash-sched-item">' +
+            '<div class="dash-sched-row1">' +
+                '<span class="dash-item-info" style="color:'+(s.days===0?'#EF4444':'')+'">'+esc(isoToMDW(s.date))+(s.time?' '+s.time:'')+'</span>' +
+                '<span class="dash-item-name" style="cursor:pointer" onclick="showDet(\''+s.id+'\')">'+esc(s.name)+(s.community?'<span style="font-weight:400;color:#64748B"> · '+esc(s.community)+'</span>':'')+'</span>' +
+                '<span style="display:flex;gap:2px;flex-shrink:0">' +
+                    '<button class="btn-ic" onclick="editDashSchedule(\''+s.id+'\',\''+s.date+'\',\''+s.time+'\',this)" title="編輯" style="font-size:13px;padding:2px 4px">✏️</button>' +
                 '<button class="btn-ic" onclick="completeSchedule(\''+s.id+'\',\''+s.date+'\',\''+s.time+'\')" title="完成" style="font-size:13px;padding:2px 4px">✅</button>' +
-            '</span></div>';
+                '</span>' +
+            '</div>' +
+            (s.memo ? '<div class="dash-sched-memo">'+esc(s.memo)+'</div>' : '') +
+        '</div>';
     }).join('') : '<div class="dash-empty">近15天內沒有預排行程</div>';
 
     // 生日提醒（7天內）
@@ -8501,7 +8508,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zq';
+var APP_VERSION = '20260403zr';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
