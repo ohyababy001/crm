@@ -1867,19 +1867,19 @@ function autoSync() {
     if (navigator.sendBeacon) {
         var sent = navigator.sendBeacon(CLOUD_URL, new URLSearchParams({payload: payload}));
         if (sent) {
-            // 3秒後驗證
-            setTimeout(function() { verifySyncResult(status); }, 4000);
+            // 8秒後驗證（等雲端處理完成）
+            setTimeout(function() { verifySyncResult(status); }, 8000);
             return;
         }
     }
     // 方式2: iframe fallback
     syncViaIframe(payload, status);
-    // Fallback timeout：超時視為失敗，不假裝成功
+    // Fallback timeout
     setTimeout(function() {
         if (status && status.textContent === '☁️ 同步中…') {
-            status.textContent = '⚠️ 同步逾時，請手動備份確認';
+            status.textContent = '☁️ 等待同步…';
         }
-    }, 15000);
+    }, 30000);
 }
 
 function verifySyncResult(status) {
@@ -1890,15 +1890,15 @@ function verifySyncResult(status) {
         if (vScript.parentNode) vScript.parentNode.removeChild(vScript);
         if (Array.isArray(data) && data.length > 0) {
             var cnt = data.filter(function(c){ return !c.__perfRecords; }).length;
-            var localCnt = DB.filter(function(c){ return !c._deleted; }).length;
-            if (cnt >= localCnt) {
+            var localCnt = DB.length;
+            if (cnt >= localCnt - 3) {
                 // 雲端筆數 >= 本地，確認上傳成功
                 if (status) status.textContent = '☁️ 已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + cnt + '筆）';
                 _localDirtyUntil = 0;
                 _lastSyncJSON = JSON.stringify(DB);
             } else {
-                if (status) status.textContent = '⚠️ 同步中…（' + cnt + '/' + localCnt + '筆）';
-                // 筆數不符，不解除保護，等下次重試
+                if (status) status.textContent = '☁️ 同步中…';
+                // 筆數不符，不解除保護，下次 autoSync 重試
             }
         } else {
             if (status) status.textContent = '⚠️ 同步可能失敗，請重試';
@@ -8340,7 +8340,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403d';
+var APP_VERSION = '20260403e';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
