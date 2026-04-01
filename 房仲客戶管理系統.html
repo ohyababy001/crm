@@ -3134,7 +3134,7 @@ function renderCard(c) {
             return `<span class="tag t-${TC[t]||'buyer'}">${TYPE_DISPLAY[t]||t}</span>`;
         }).join('');
         const statusTag = !cTypes.includes('經營買方') && c.status ? `<span class="tag s-${c.status}">${c.status}</span>` : '';
-        const notesText = (getTypeNote(c, showType) || (curFilter==='all' ? getAllNotes(c) : getTypeNote(c, curFilter)) || c.notes || '').trim();
+        const notesText = (getTypeNote(c, showType) || (curFilter==='all' ? getAllNotes(c) : getTypeNote(c, curFilter)) || (!c.typeNotes ? (c.notes||'') : '')).trim();
         const dateLabel = c.lastContact ? '📞 '+relTime(c.lastContact) : '';
         const createdLabel = c.created ? '建檔 '+isoToROC((c.created||'').slice(0,10)) : '';
 
@@ -7119,7 +7119,7 @@ function saveClient() {
         name, phone, idNo: get('f-bIdNo') || get('f-idNo'), type, types,
         email: get('f-bEmail') || get('fe'), status: '',
         lastContact: new Date().toISOString(),
-        source: get('f-bSource') || get('fso'), typeNotes:collectTypeNotes(), notes:(function(){ var tn=collectTypeNotes(); var parts=Object.keys(tn).map(function(k){return tn[k];}); return parts.join('\n')||get('fnotes'); })(),
+        source: get('f-bSource') || get('fso'), typeNotes:collectTypeNotes(), notes:(function(){ var tn=collectTypeNotes(); return Object.keys(tn).map(function(k){return tn[k];}).join('\n'); })(),
         // 經營買方
         bGrade:get('f-bGrade'),
         bName:get('f-bName'), bPhone:get('f-bPhone'), bIdNo:get('f-bIdNo'), bOccupation:get('f-bOccupation'), bBirthday:rocToISO(get('f-bBirthday')), bAddrType:get('f-bAddrType'), bZip:get('f-bZip'), bAddr:get('f-bAddr'), bBasicAddrs:getBuyerBasicAddrs(), bEmail:get('f-bEmail'), bSource:get('f-bSource'),
@@ -8308,7 +8308,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260402i';
+var APP_VERSION = '20260402j';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
