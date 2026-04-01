@@ -7333,16 +7333,17 @@ function renderPerformance() {
         }
         return true;
     });
-    var buyCount = 0, rentCount = 0, buyFeeTax = 0, buyFeeNoTax = 0, buyFeeOther = 0, rentFeeTax = 0, rentFeeNoTax = 0, rentFeeOther = 0;
+    var buyCount = 0, rentCount = 0, buyFeeTax = 0, buyFeeNoTax = 0, buyFeeOtherAmt = 0, buyFeeOtherIncome = 0, rentFeeTax = 0, rentFeeNoTax = 0, rentFeeOtherAmt = 0, rentFeeOtherIncome = 0;
     filtered.forEach(function(r) {
         var ft = parseFloat(r.feeTax) || 0;
         var fnt = parseFloat(r.feeNoTax) || 0;
-        var fot = parseFloat(r.feeOther) || 0;
+        var fotAmt = parseFloat(r.feeOtherAmt) || 0;
+        var fotIncome = parseFloat(r.feeOther) || 0;
         // 向下相容舊資料
-        if (!r.caseType && !ft && !fnt && !fot && r.fee) { ft = parseFloat(r.fee) || 0; }
+        if (!r.caseType && !ft && !fnt && !fotIncome && r.fee) { ft = parseFloat(r.fee) || 0; }
         var isBuy = r.caseType === '買賣案' || (!r.caseType && (r.category === '賣方' || r.category === '買方' || r.category === '庫存'));
-        if (isBuy) { buyCount++; buyFeeTax += ft; buyFeeNoTax += fnt; buyFeeOther += fot; }
-        else { rentCount++; rentFeeTax += ft; rentFeeNoTax += fnt; rentFeeOther += fot; }
+        if (isBuy) { buyCount++; buyFeeTax += ft; buyFeeNoTax += fnt; buyFeeOtherAmt += fotAmt; buyFeeOtherIncome += fotIncome; }
+        else { rentCount++; rentFeeTax += ft; rentFeeNoTax += fnt; rentFeeOtherAmt += fotAmt; rentFeeOtherIncome += fotIncome; }
     });
     var rangeLabel;
     if (range === 'history') {
@@ -7358,28 +7359,28 @@ function renderPerformance() {
     } else {
         rangeLabel = { month:'本月', quarter:'本季', year:'本年', all:'全部' }[range];
     }
-    var _totalFeeTax = buyFeeTax + rentFeeTax;
+    var _totalFeeTax = buyFeeTax + rentFeeTax + buyFeeOtherAmt + rentFeeOtherAmt;
     var _totalFeeNoTax = buyFeeNoTax + rentFeeNoTax;
-    var _totalFeeOther = buyFeeOther + rentFeeOther;
+    var _totalFeeOtherIncome = buyFeeOtherIncome + rentFeeOtherIncome;
     var _rate = 0.63;
-    var _totalIncome = Math.round(_totalFeeTax * _rate + _totalFeeNoTax + _totalFeeOther);
+    var _totalIncome = Math.round((buyFeeTax + rentFeeTax) * _rate + _totalFeeNoTax + _totalFeeOtherIncome);
     html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">' +
         '<div style="background:#FEF3C7;border-radius:8px;padding:6px 8px">' +
             '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px"><span style="font-size:11px;color:#92400E;font-weight:600">'+rangeLabel+'買賣案</span><span style="font-size:14px;font-weight:800;color:#B45309">'+buyCount+'<span style="font-size:10px;font-weight:600"> 筆</span></span></div>' +
-            '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:#92400E">業績</span><span style="font-size:13px;font-weight:800;color:#B45309">'+buyFeeTax.toLocaleString()+'</span></div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:#92400E">業績</span><span style="font-size:13px;font-weight:800;color:#B45309">'+(buyFeeTax+buyFeeOtherAmt).toLocaleString()+'</span></div>' +
             '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:#92400E">實收</span><span style="font-size:13px;font-weight:800;color:#B45309">'+buyFeeNoTax.toLocaleString()+'</span></div>' +
-            (buyFeeOther ? '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:#92400E">自訂</span><span style="font-size:13px;font-weight:800;color:#B45309">'+buyFeeOther.toLocaleString()+'</span></div>' : '') +
+            (buyFeeOtherIncome ? '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:#92400E">自訂收入</span><span style="font-size:13px;font-weight:800;color:#B45309">'+buyFeeOtherIncome.toLocaleString()+'</span></div>' : '') +
         '</div>' +
         '<div style="background:#EDE9FE;border-radius:8px;padding:6px 8px">' +
             '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px"><span style="font-size:11px;color:#6D28D9;font-weight:600">'+rangeLabel+'租賃案</span><span style="font-size:14px;font-weight:800;color:#5B21B6">'+rentCount+'<span style="font-size:10px;font-weight:600"> 筆</span></span></div>' +
-            '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:#6D28D9">業績</span><span style="font-size:13px;font-weight:800;color:#5B21B6">'+rentFeeTax.toLocaleString()+'</span></div>' +
+            '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:#6D28D9">業績</span><span style="font-size:13px;font-weight:800;color:#5B21B6">'+(rentFeeTax+rentFeeOtherAmt).toLocaleString()+'</span></div>' +
             '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:#6D28D9">實收</span><span style="font-size:13px;font-weight:800;color:#5B21B6">'+rentFeeNoTax.toLocaleString()+'</span></div>' +
-            (rentFeeOther ? '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:#6D28D9">自訂</span><span style="font-size:13px;font-weight:800;color:#5B21B6">'+rentFeeOther.toLocaleString()+'</span></div>' : '') +
+            (rentFeeOtherIncome ? '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:#6D28D9">自訂收入</span><span style="font-size:13px;font-weight:800;color:#5B21B6">'+rentFeeOtherIncome.toLocaleString()+'</span></div>' : '') +
         '</div>' +
     '</div>' +
     '<div style="background:#F0FDF4;border-radius:8px;padding:6px 10px;margin-bottom:6px">' +
-        '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px"><span style="font-size:11px;font-weight:600;color:#065F46">總業績 '+_totalFeeTax.toLocaleString()+' ｜ 總實收 '+_totalFeeNoTax.toLocaleString()+(_totalFeeOther?' ｜ 自訂 '+_totalFeeOther.toLocaleString():'')+'</span></div>' +
-        '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:11px;font-weight:700;color:#065F46">總收入 <span style="font-size:10px;color:#6B7280;font-weight:400">業績×'+_rate+'+實收'+(_totalFeeOther?'+自訂':'')+'</span></span><span style="font-size:16px;font-weight:800;color:#047857">'+_totalIncome.toLocaleString()+'<span style="font-size:10px">元</span></span></div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px"><span style="font-size:11px;font-weight:600;color:#065F46">總業績 '+_totalFeeTax.toLocaleString()+' ｜ 總實收 '+_totalFeeNoTax.toLocaleString()+(_totalFeeOtherIncome?' ｜ 自訂收入 '+_totalFeeOtherIncome.toLocaleString():'')+'</span></div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:11px;font-weight:700;color:#065F46">總收入 <span style="font-size:10px;color:#6B7280;font-weight:400">業績×'+_rate+'+實收'+(_totalFeeOtherIncome?'+自訂收入':'')+'</span></span><span style="font-size:16px;font-weight:800;color:#047857">'+_totalIncome.toLocaleString()+'<span style="font-size:10px">元</span></span></div>' +
     '</div>';
     // 搜尋列（固定區域）
     html += '<div id="perfSearchWrap" style="display:flex;align-items:center;gap:8px;margin-bottom:10px">' +
@@ -8327,7 +8328,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260401p';
+var APP_VERSION = '20260401q';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
