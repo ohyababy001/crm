@@ -7460,7 +7460,8 @@ function renderPerfList(filtered) {
             var _parts = [];
             if (ft) _parts.push('業績'+ft.toLocaleString());
             if (fnt) _parts.push('實收'+fnt.toLocaleString());
-            if (fot) _parts.push('自訂'+fot.toLocaleString());
+            if (fot && r.feeOtherAmt) _parts.push('自訂'+(parseFloat(r.feeOtherAmt)||0).toLocaleString()+'×'+(r.feeOtherRate||'')+'='+fot.toLocaleString());
+            else if (fot) _parts.push('自訂'+fot.toLocaleString());
             if (_parts.length) feeDetail = _parts.join(' / ');
             else if (r.fee) feeDetail = parseFloat(r.fee).toLocaleString();
             html += '<div style="padding:8px 0;border-bottom:1px solid var(--bg);font-size:13px">' +
@@ -7653,7 +7654,7 @@ function addPerfRecord() {
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">實收（不報稅）</label><div class="input-grp"><input id="perfFeeNoTax" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
         '</div>' +
         '<div id="perfOtherWrap" style="margin-bottom:8px">' +
-            '<button type="button" id="perfOtherToggle" onclick="togglePerfOther(\'perf\')" style="font-size:12px;font-weight:600;color:#8B5CF6;background:none;border:1px dashed #8B5CF6;border-radius:6px;padding:4px 10px;cursor:pointer">＋ 自訂收入</button>' +
+            '<button type="button" id="perfOtherToggle" onclick="togglePerfOther(\'perf\')" style="font-size:12px;font-weight:600;color:#8B5CF6;background:none;border:1px dashed #8B5CF6;border-radius:6px;padding:4px 10px;cursor:pointer">＋ 自訂業績比例</button>' +
             '<div id="perfOtherFields" style="display:none;margin-top:6px;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:end">' +
                 '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">業績金額</label><div class="input-grp"><input id="perfOtherAmt" oninput="calcPerfOther(\'perf\')" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
                 '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">自訂比例</label><input id="perfOtherRate" oninput="calcPerfOther(\'perf\')" placeholder="例：0.5" style="min-width:0"></div>' +
@@ -7774,7 +7775,7 @@ function editPerfRecord(idx) {
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">實收（不報稅）</label><div class="input-grp"><input id="epFeeNoTax" value="'+esc(r.feeNoTax||'')+'" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
         '</div>' +
         '<div id="epOtherWrap" style="margin-bottom:8px">' +
-            '<button type="button" id="epOtherToggle" onclick="togglePerfOther(\'ep\')" style="font-size:12px;font-weight:600;color:#8B5CF6;background:none;border:1px dashed #8B5CF6;border-radius:6px;padding:4px 10px;cursor:pointer;'+(r.feeOther?'display:none':'')+'">＋ 自訂收入</button>' +
+            '<button type="button" id="epOtherToggle" onclick="togglePerfOther(\'ep\')" style="font-size:12px;font-weight:600;color:#8B5CF6;background:none;border:1px dashed #8B5CF6;border-radius:6px;padding:4px 10px;cursor:pointer;'+(r.feeOther?'display:none':'')+'">＋ 自訂業績比例</button>' +
             '<div id="epOtherFields" style="'+(r.feeOther?'display:grid;':'display:none;')+'margin-top:6px;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:end">' +
                 '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">業績金額</label><div class="input-grp"><input id="epOtherAmt" value="'+esc(r.feeOtherAmt||'')+'" oninput="calcPerfOther(\'ep\')" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
                 '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">自訂比例</label><input id="epOtherRate" value="'+esc(r.feeOtherRate||'')+'" oninput="calcPerfOther(\'ep\')" placeholder="例：0.5" style="min-width:0"></div>' +
@@ -8328,7 +8329,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260401q';
+var APP_VERSION = '20260401r';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
