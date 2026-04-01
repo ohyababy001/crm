@@ -2132,13 +2132,15 @@ function isoToROC(isoStr) {
     if (parts.length !== 3) return isoStr;
     return (parseInt(parts[0]) - 1911) + '/' + parts[1] + '/' + parts[2];
 }
-function isoToMDW(isoStr) {
+function isoToMDW(isoStr, showYear) {
     if (!isoStr) return '';
     var p = isoStr.split('-');
     if (p.length !== 3) return isoStr;
-    var d = new Date(new Date().getFullYear(), parseInt(p[1])-1, parseInt(p[2]));
+    var year = parseInt(p[0]);
+    var d = new Date(year, parseInt(p[1])-1, parseInt(p[2]));
     var w = ['日','一','二','三','四','五','六'][d.getDay()];
-    return parseInt(p[1])+'月'+parseInt(p[2])+'日 週'+w;
+    var prefix = (showYear && year !== new Date().getFullYear()) ? (year-1911)+'年' : '';
+    return prefix+parseInt(p[1])+'月'+parseInt(p[2])+'日 週'+w;
 }
 // 民國文字 → ISO
 function rocToISO(rocStr) {
@@ -5881,7 +5883,7 @@ function filterAllSchedList() {
             : '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();completeSchedule(\''+s.clientId+'\',\''+s.date+'\',\''+s.time+'\')" title="完成" style="font-size:14px;padding:4px 8px">✅</button>';
         return '<div style="padding:8px 0;border-bottom:1px solid #F1F5F9;display:flex;align-items:center;gap:8px">' +
             '<div style="flex:1">' +
-                '<div style="font-size:14px;color:#334155;font-weight:600">'+esc(isoToMDW(s.date))+(s.time?' '+s.time:'')+'</div>' +
+                '<div style="font-size:14px;color:#334155;font-weight:600">'+esc(isoToMDW(s.date,true))+(s.time?' '+s.time:'')+'</div>' +
                 '<div style="font-size:15px"><span style="color:'+nameColor+';font-weight:600">'+esc(nameText)+'</span>'+memoText+'</div>' +
             '</div>' +
             '<span style="display:flex;gap:2px;flex-shrink:0">' + editBtn + doneBtn + '</span>' +
@@ -8746,7 +8748,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zzc';
+var APP_VERSION = '20260403zzd';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
