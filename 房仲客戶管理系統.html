@@ -2977,9 +2977,13 @@ function renderDashboard() {
     schedList.sort(function(a,b) { return (a.date+a.time).localeCompare(b.date+b.time); });
     document.getElementById('dashSchedule').innerHTML = schedList.length ? schedList.map(function(s) {
         var dayLabel = s.days === 0 ? '今天' : s.days + '天後';
-        return '<div class="dash-item" onclick="showDet(\''+s.id+'\')">' +
-            '<span class="dash-item-name">'+esc(s.name)+(s.community?'<span style="font-weight:400;color:#64748B"> · '+esc(s.community)+'</span>':'')+(s.memo?' — '+esc(s.memo):'')+'</span>' +
-            '<span class="dash-item-info" style="color:'+(s.days===0?'#EF4444':'#D97706')+'">'+esc(isoToROC(s.date))+(s.time?' '+s.time:'')+' ('+dayLabel+')</span></div>';
+        return '<div class="dash-item" style="gap:6px">' +
+            '<span class="dash-item-name" style="flex:1;cursor:pointer" onclick="showDet(\''+s.id+'\')">'+esc(s.name)+(s.community?'<span style="font-weight:400;color:#64748B"> · '+esc(s.community)+'</span>':'')+(s.memo?' — '+esc(s.memo):'')+'</span>' +
+            '<span class="dash-item-info" style="color:'+(s.days===0?'#EF4444':'#D97706')+';white-space:nowrap">'+esc(isoToROC(s.date))+(s.time?' '+s.time:'')+' ('+dayLabel+')</span>' +
+            '<span style="display:flex;gap:2px;flex-shrink:0">' +
+                '<button class="btn-ic" onclick="editDashSchedule(\''+s.id+'\',\''+s.date+'\',\''+s.time+'\',this)" title="編輯" style="font-size:13px;padding:2px 4px">✏️</button>' +
+                '<button class="btn-ic" onclick="completeSchedule(\''+s.id+'\',\''+s.date+'\',\''+s.time+'\')" title="完成" style="font-size:13px;padding:2px 4px">✅</button>' +
+            '</span></div>';
     }).join('') : '<div class="dash-empty">近7天內沒有預排行程</div>';
 
     // 生日提醒（7天內）
@@ -3420,6 +3424,7 @@ function renderCard(c) {
             <div class="card-bottom-right">
                 <div style="display:flex;gap:6px">
                     <button class="btn-ic" onclick="event.stopPropagation();openDriveFolder('${c.id}','${c._viewAs||''}')" title="雲端資料夾">${getRpDriveIcon(c)}</button>
+                    <button class="btn-ic" onclick="event.stopPropagation();quickSchedule('${c.id}')" title="預排行程">📅</button>
                     <button class="btn-ic" onclick="event.stopPropagation();openEdit('${c.id}','${c._viewAs||''}')" title="編輯">✏️</button>
                     ${archBtn}
                     <button class="btn-ic del" onclick="event.stopPropagation();del('${c.id}')" title="刪除">🗑️</button>
@@ -5544,6 +5549,68 @@ function getSchedules() {
     return r;
 }
 function clearSchedules() { document.getElementById('scheduleList').innerHTML = ''; schedId = 0; }
+
+// ── 卡片一鍵預排行程 ──
+function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo) {
+    var c = DB.find(function(x){ return x.id === clientId; });
+    if (!c) return;
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.padding = '16px'; box.style.minWidth = '300px'; box.style.maxWidth = '360px';
+    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">📅 預排行程 — '+esc(c.name)+'</div>' +
+        '<div style="display:flex;gap:8px;margin-bottom:10px">' +
+            '<div class="roc-date-wrap" style="flex:1"><input id="qs-date" type="text" placeholder="日期" value="'+(prefillDate?esc(isoToROC(prefillDate)):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>' +
+            '<select id="qs-time" style="width:90px;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px">' + buildTimeOptions(prefillTime||'') + '</select>' +
+        '</div>' +
+        '<div style="margin-bottom:12px"><input id="qs-memo" type="text" placeholder="事項說明（如：帶看、回電、簽約…）" value="'+esc(prefillMemo||'')+'" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit"></div>' +
+        '<div style="display:flex;gap:8px">' +
+            '<button onclick="this.closest(\'.fill-overlay\').remove()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
+            '<button id="qs-save" style="flex:1;padding:10px;border:none;border-radius:8px;background:#0891B2;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">儲存</button>' +
+        '</div>';
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    // 儲存
+    document.getElementById('qs-save').onclick = function() {
+        var date = rocToISO(document.getElementById('qs-date').value);
+        var time = document.getElementById('qs-time').value;
+        var memo = document.getElementById('qs-memo').value.trim();
+        if (!date) { alert('請選擇日期'); return; }
+        if (!c.schedules) c.schedules = [];
+        // 如果是編輯模式（有 prefillDate），先移除舊的
+        if (prefillDate) {
+            c.schedules = c.schedules.filter(function(s) {
+                return !(s.date === prefillDate && (s.time||'') === (prefillTime||''));
+            });
+        }
+        c.schedules.push({ date:date, time:time, memo:memo });
+        persist();
+        overlay.remove();
+        render();
+    };
+    document.getElementById('qs-memo').focus();
+}
+
+function completeSchedule(clientId, date, time) {
+    var c = DB.find(function(x){ return x.id === clientId; });
+    if (!c || !c.schedules) return;
+    c.schedules = c.schedules.filter(function(s) {
+        return !(s.date === date && (s.time||'') === (time||''));
+    });
+    persist();
+    render();
+}
+
+function editDashSchedule(clientId, date, time) {
+    var c = DB.find(function(x){ return x.id === clientId; });
+    if (!c || !c.schedules) return;
+    var s = c.schedules.find(function(s) {
+        return s.date === date && (s.time||'') === (time||'');
+    });
+    quickSchedule(clientId, date, time, s ? s.memo : '');
+}
 
 // ── 開啟雲端資料夾 ──
 
@@ -8333,7 +8400,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403r';
+var APP_VERSION = '20260403s';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
