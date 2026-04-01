@@ -2899,6 +2899,7 @@ function isRentalExpiring(endDateStr) {
 function daysUntilExpire(dateStr) {
     if (!dateStr) return Infinity;
     var end = new Date(dateStr + 'T00:00:00');
+    if (isNaN(end.getTime())) return Infinity;
     var now = new Date(); now.setHours(0,0,0,0);
     return Math.ceil((end - now) / 86400000);
 }
@@ -7129,7 +7130,7 @@ function saveClient() {
 
     const data = {
         name, phone, idNo: get('f-bIdNo') || get('f-idNo'), type, types,
-        email: get('f-bEmail') || get('fe'), status: '',
+        email: get('f-bEmail') || get('fe'), status: get('fs') || '',
         lastContact: new Date().toISOString(),
         source: get('f-bSource') || get('fso'), typeNotes:collectTypeNotes(), notes:(function(){ var tn=collectTypeNotes(); return Object.keys(tn).map(function(k){return tn[k];}).join('\n'); })(),
         // 經營買方
@@ -7334,7 +7335,7 @@ function saveClient() {
                 }
                 // 同步扁平庫存欄位（只同步到沒有自己庫存資料的紀錄）
                 if (data.sProperties && data.sProperties.length && (!x.sProperties || !x.sProperties.length)) {
-                    x.sProperties = data.sProperties;
+                    x.sProperties = JSON.parse(JSON.stringify(data.sProperties));
                     x.sName = data.sName; x.sPhone = data.sPhone;
                     x.community = data.community; x.sAddr = data.sAddr;
                     x.sPrice = data.sPrice; x.sFloorPrice = data.sFloorPrice;
@@ -7670,8 +7671,10 @@ function addPerfRecord() {
         var clientId = document.getElementById('perfClientId').value || '';
         var feeTax = document.getElementById('perfFeeTax').value.trim();
         var feeNoTax = document.getElementById('perfFeeNoTax').value.trim();
-        var otherAmt = document.getElementById('perfOtherAmt').value.trim();
-        var otherRate = document.getElementById('perfOtherRate').value.trim();
+        var _pOA = document.getElementById('perfOtherAmt');
+        var _pOR = document.getElementById('perfOtherRate');
+        var otherAmt = _pOA ? _pOA.value.trim() : '';
+        var otherRate = _pOR ? _pOR.value.trim() : '';
         var feeOther = String(Math.round((parseFloat(otherAmt)||0) * (parseFloat(otherRate)||0)) || '');
         var memo = document.getElementById('perfMemo').value.trim();
         var fee = (parseFloat(feeTax)||0) + (parseFloat(feeNoTax)||0) + (parseFloat(feeOther)||0);
@@ -7815,8 +7818,10 @@ function editPerfRecord(idx) {
         r.clientId = document.getElementById('epClientId').value || '';
         r.feeTax = document.getElementById('epFeeTax').value.trim();
         r.feeNoTax = document.getElementById('epFeeNoTax').value.trim();
-        r.feeOtherAmt = document.getElementById('epOtherAmt').value.trim();
-        r.feeOtherRate = document.getElementById('epOtherRate').value.trim();
+        var _epOA = document.getElementById('epOtherAmt');
+        var _epOR = document.getElementById('epOtherRate');
+        r.feeOtherAmt = _epOA ? _epOA.value.trim() : (r.feeOtherAmt||'');
+        r.feeOtherRate = _epOR ? _epOR.value.trim() : (r.feeOtherRate||'');
         r.feeOther = String(Math.round((parseFloat(r.feeOtherAmt)||0) * (parseFloat(r.feeOtherRate)||0)) || '');
         r.fee = String((parseFloat(r.feeTax)||0) + (parseFloat(r.feeNoTax)||0) + (parseFloat(r.feeOther)||0) || '');
         r.memo = document.getElementById('epMemo').value.trim();
@@ -7989,6 +7994,8 @@ function importCSV(file) {
                     feeTax: feeTax,
                     feeNoTax: feeNoTax,
                     feeOther: feeOther,
+                    feeOtherAmt: '',
+                    feeOtherRate: '',
                     fee: fee,
                     memo: iMemo >= 0 ? (prow[iMemo]||'').trim() : '',
                     created: new Date().toISOString()
@@ -8320,7 +8327,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403b';
+var APP_VERSION = '20260403c';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
