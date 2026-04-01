@@ -333,7 +333,7 @@
         .dash-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.08); border-color: #CBD5E1; transform: translateY(-2px); }
         .dash-card .dash-num { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
         .dash-card .dash-label { font-size: 13px; color: var(--muted); font-weight: 600; }
-        .dash-sections { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: auto auto; gap: 16px; grid-template-areas: "sched sched seller bday" "sched sched rental rental"; }
+        .dash-sections { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: auto auto; gap: 16px; grid-template-areas: "sched sched seller bday" "sched sched rental ."; }
         .dash-section { background: white; border-radius: 14px; padding: 18px; border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.03); }
         .dash-section.dash-schedule { grid-area: sched; }
         .dash-section.dash-seller { grid-area: seller; }
@@ -8406,7 +8406,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403w';
+var APP_VERSION = '20260403x';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
