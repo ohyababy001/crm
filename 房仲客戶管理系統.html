@@ -344,7 +344,7 @@
         .dash-item { padding: 8px 8px; margin: 0 -8px; border-bottom: 1px solid #F1F5F9; display: flex; align-items: center; gap: 8px; border-radius: 6px; transition: background 0.15s; }
         .dash-item:last-child { border-bottom: none; }
         .dash-item:hover { background: #F0F4F8; }
-        .dash-item-info { color: var(--muted); font-size: 13px; white-space: nowrap; flex-shrink: 0; min-width: 90px; }
+        .dash-item-info { color: #334155; font-size: 14px; font-weight: 600; white-space: nowrap; flex-shrink: 0; min-width: 90px; }
         .dash-item-name { font-weight: 600; flex: 1; min-width: 0; }
         .dash-empty { color: var(--muted); text-align: center; padding: 16px 0; font-size: 13px; }
 
@@ -2954,7 +2954,7 @@ function renderDashboard() {
         var d = daysUntilExpire(c.contractEnd);
         var label = d < 0 ? '已過期'+Math.abs(d)+'天' : d===0 ? '今天到期' : '剩'+d+'天';
         return '<div class="dash-item" onclick="showDet(\''+c.id+'\')" style="cursor:pointer">' +
-            '<span class="dash-item-info" style="color:'+(d<=0?'#EF4444':'#D97706')+'">'+label+'</span>' +
+            '<span class="dash-item-info" style="color:'+(d<=0?'#EF4444':'')+'">'+label+'</span>' +
             '<span class="dash-item-name">'+esc(c.name)+'<span style="font-weight:400;color:#64748B"> · '+esc(c.community||c.sAddr||'')+'</span></span></div>';
     }).join('') : '<div class="dash-empty">目前沒有即將到期的庫存合約</div>';
 
@@ -2966,7 +2966,7 @@ function renderDashboard() {
         var d = daysUntilExpire(c.rEndDate);
         var label = d < 0 ? '已過期'+Math.abs(d)+'天' : d===0 ? '今天到期' : '剩'+d+'天';
         return '<div class="dash-item" onclick="showDet(\''+c.id+'\')" style="cursor:pointer">' +
-            '<span class="dash-item-info" style="color:'+(d<=0?'#EF4444':'#D97706')+'">'+label+'</span>' +
+            '<span class="dash-item-info" style="color:'+(d<=0?'#EF4444':'')+'">'+label+'</span>' +
             '<span class="dash-item-name">'+esc(c.name)+'<span style="font-weight:400;color:#64748B"> · '+esc(c.rCommunity||c.rAddr||'')+'</span></span></div>';
     }).join('') : '<div class="dash-empty">目前沒有即將到期的租案合約</div>';
 
@@ -2984,7 +2984,7 @@ function renderDashboard() {
     document.getElementById('dashSchedule').innerHTML = schedList.length ? schedList.map(function(s) {
         var dayLabel = s.days === 0 ? '今天' : s.days + '天後';
         return '<div class="dash-item">' +
-            '<span class="dash-item-info" style="color:'+(s.days===0?'#EF4444':'#D97706')+'">'+esc(isoToROC(s.date))+(s.time?' '+s.time:'')+' ('+dayLabel+')</span>' +
+            '<span class="dash-item-info" style="color:'+(s.days===0?'#EF4444':'')+'">'+esc(isoToROC(s.date))+(s.time?' '+s.time:'')+' ('+dayLabel+')</span>' +
             '<span class="dash-item-name" style="cursor:pointer" onclick="showDet(\''+s.id+'\')">'+esc(s.name)+(s.community?'<span style="font-weight:400;color:#64748B"> · '+esc(s.community)+'</span>':'')+(s.memo?' — '+esc(s.memo):'')+'</span>' +
             '<span style="display:flex;gap:2px;flex-shrink:0">' +
                 '<button class="btn-ic" onclick="editDashSchedule(\''+s.id+'\',\''+s.date+'\',\''+s.time+'\',this)" title="編輯" style="font-size:13px;padding:2px 4px">✏️</button>' +
@@ -3016,7 +3016,7 @@ function renderDashboard() {
     document.getElementById('dashBirthday').innerHTML = bdayList.length ? bdayList.map(function(b) {
         var label = b.days === 0 ? '今天生日！' : b.days + '天後';
         return '<div class="dash-item" onclick="showDet(\''+b.id+'\')" style="cursor:pointer">' +
-            '<span class="dash-item-info" style="color:'+(b.days===0?'#EF4444':'#D97706')+'">'+esc(isoToROC(b.date))+' ('+label+')</span>' +
+            '<span class="dash-item-info" style="color:'+(b.days===0?'#EF4444':'')+'">'+esc(isoToROC(b.date))+' ('+label+')</span>' +
             '<span class="dash-item-name">'+esc(b.name)+(b.who?'<span style="font-weight:400;color:#64748B">（'+esc(b.who)+'）</span>':'')+'</span></div>';
     }).join('') : '<div class="dash-empty">近7天內沒有客戶生日</div>';
 
@@ -8406,7 +8406,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403y';
+var APP_VERSION = '20260403z';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
