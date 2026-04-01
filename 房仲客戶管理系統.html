@@ -5378,6 +5378,79 @@ function buildTimeOptions(sel) {
     }
     return opts;
 }
+// 滾輪時間選擇器
+function openTimePicker(inputEl) {
+    var cur = (inputEl.value || '').split(':');
+    var selH = cur.length === 2 ? parseInt(cur[0]) : 9;
+    var selM = cur.length === 2 ? parseInt(cur[1]) : 0;
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.cssText = 'padding:16px;width:260px;';
+    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px;text-align:center">選擇時間</div>' +
+        '<div style="display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:16px">' +
+            '<div id="tp-h-wrap" style="width:80px;height:180px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch"></div>' +
+            '<span style="font-size:24px;font-weight:700">:</span>' +
+            '<div id="tp-m-wrap" style="width:80px;height:180px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch"></div>' +
+        '</div>' +
+        '<div style="display:flex;gap:8px">' +
+            '<button id="tp-cancel" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
+            '<button id="tp-clear" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:#F1F5F9;font-size:14px;cursor:pointer;font-family:inherit">清除</button>' +
+            '<button id="tp-ok" style="flex:1;padding:10px;border:none;border-radius:8px;background:#0891B2;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">確定</button>' +
+        '</div>';
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    var hWrap = document.getElementById('tp-h-wrap');
+    var mWrap = document.getElementById('tp-m-wrap');
+    var itemH = 36;
+    function buildCol(wrap, count, sel) {
+        var html = '';
+        for (var i = 0; i < count; i++) {
+            var val = String(i).padStart(2, '0');
+            html += '<div data-val="'+i+'" style="height:'+itemH+'px;display:flex;align-items:center;justify-content:center;font-size:20px;scroll-snap-align:center;cursor:pointer;border-radius:6px;transition:background 0.1s'+(i===sel?';background:#E0F2FE;font-weight:700;color:#0891B2':'')+'">' + val + '</div>';
+        }
+        wrap.innerHTML = html;
+        wrap.scrollTop = sel * itemH - (180 - itemH) / 2;
+    }
+    function highlightCol(wrap) {
+        var mid = wrap.scrollTop + 90;
+        var items = wrap.querySelectorAll('[data-val]');
+        items.forEach(function(el) {
+            var top = el.offsetTop, bot = top + itemH;
+            if (top <= mid && bot > mid) {
+                el.style.background = '#E0F2FE'; el.style.fontWeight = '700'; el.style.color = '#0891B2';
+            } else {
+                el.style.background = ''; el.style.fontWeight = ''; el.style.color = '';
+            }
+        });
+    }
+    buildCol(hWrap, 24, selH);
+    buildCol(mWrap, 60, selM);
+    hWrap.addEventListener('scroll', function() { highlightCol(hWrap); });
+    mWrap.addEventListener('scroll', function() { highlightCol(mWrap); });
+    hWrap.addEventListener('click', function(e) { var v = e.target.closest('[data-val]'); if (v) { hWrap.scrollTo({top: parseInt(v.dataset.val)*itemH-(180-itemH)/2, behavior:'smooth'}); } });
+    mWrap.addEventListener('click', function(e) { var v = e.target.closest('[data-val]'); if (v) { mWrap.scrollTo({top: parseInt(v.dataset.val)*itemH-(180-itemH)/2, behavior:'smooth'}); } });
+    function getVal(wrap) {
+        var mid = wrap.scrollTop + 90;
+        var best = 0, bestDist = Infinity;
+        wrap.querySelectorAll('[data-val]').forEach(function(el) {
+            var center = el.offsetTop + itemH / 2;
+            var dist = Math.abs(center - mid);
+            if (dist < bestDist) { bestDist = dist; best = parseInt(el.dataset.val); }
+        });
+        return best;
+    }
+    document.getElementById('tp-ok').onclick = function() {
+        var h = String(getVal(hWrap)).padStart(2,'0');
+        var m = String(getVal(mWrap)).padStart(2,'0');
+        inputEl.value = h + ':' + m;
+        overlay.remove();
+    };
+    document.getElementById('tp-clear').onclick = function() { inputEl.value = ''; overlay.remove(); };
+    document.getElementById('tp-cancel').onclick = function() { overlay.remove(); };
+}
 // ── 額外人員整組區塊（通用） ──
 var personBlockId = 0;
 function addPersonBlock(listId, data) {
@@ -5543,7 +5616,7 @@ function addScheduleRow(data) {
     var html = '<div class="c-row" id="sched-'+schedId+'" style="border:1px solid var(--border);border-left:4px solid #0891B2;border-radius:10px;padding:8px 10px;margin-bottom:8px;background:#FAFAF9;flex-wrap:wrap;gap:6px">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:2px"><span style="font-size:12px;font-weight:700;color:#0891B2">行程 '+localNum+'</span><button type="button" class="c-del" onclick="this.parentElement.parentElement.remove()">✕</button></div>' +
         '<div class="roc-date-wrap" style="width:160px;flex-shrink:0"><input type="text" placeholder="日期" style="min-width:0;flex:1" value="'+esc(d.date?isoToROC(d.date):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>' +
-        '<select class="sched-time" style="width:80px;flex-shrink:0">' + buildTimeOptions(d.time||'') + '</select>' +
+        '<input class="sched-time" type="text" readonly placeholder="時間" onclick="openTimePicker(this)" style="width:80px;flex-shrink:0;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px;cursor:pointer;text-align:center" value="'+esc(d.time||'')+'">' +
         '<input type="text" style="flex:1" placeholder="備註" value="'+esc(d.memo||'')+'">' +
     '</div>';
     document.getElementById('scheduleList').insertAdjacentHTML('beforeend', html);
@@ -5577,7 +5650,7 @@ function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo) {
     box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">📅 預排行程 — '+esc(c.name)+'</div>' +
         '<div style="display:flex;gap:8px;margin-bottom:10px">' +
             '<div class="roc-date-wrap" style="flex:1"><input id="qs-date" type="text" placeholder="日期" value="'+(prefillDate?esc(isoToROC(prefillDate)):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>' +
-            '<select id="qs-time" style="width:90px;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px">' + buildTimeOptions(prefillTime||'') + '</select>' +
+            '<input id="qs-time" type="text" readonly placeholder="時間" onclick="openTimePicker(this)" style="width:90px;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px;cursor:pointer;text-align:center" value="'+(prefillTime||'')+'">' +
         '</div>' +
         '<div style="margin-bottom:12px"><input id="qs-memo" type="text" placeholder="事項說明（如：帶看、回電、簽約…）" value="'+esc(prefillMemo||'')+'" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit"></div>' +
         '<div style="display:flex;gap:8px">' +
@@ -8414,7 +8487,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zc';
+var APP_VERSION = '20260403zd';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
