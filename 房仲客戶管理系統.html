@@ -1844,16 +1844,16 @@ var _ctEls = {}, _caEls = {};
 var CLOUD_URL = 'https://script.google.com/macros/s/AKfycbyKZfyP9__lWhLjsEtSvwrfZha-7mxeYzrfFCX0fDV7je4UPPOTAEJ1b1Gl0Q2rejpf/exec';
 var _syncTimer = null;
 function persist() {
-    localStorage.setItem('reCRM', JSON.stringify(DB));
+    try { localStorage.setItem('reCRM', JSON.stringify(DB)); } catch(e) { console.error('localStorage寫入失敗', e); }
     _lastSyncJSON = JSON.stringify(DB);
-    // 標記本機有變更，15秒內不接受雲端覆蓋（等上傳完成）
-    _localDirtyUntil = Date.now() + 15000;
+    // 標記本機有變更，30秒內不接受雲端覆蓋（等上傳完成）
+    _localDirtyUntil = Date.now() + 30000;
     // 自動雲端同步（延遲3秒，避免連續操作重複上傳）
     if (_syncTimer) clearTimeout(_syncTimer);
     _syncTimer = setTimeout(autoSync, 3000);
 }
 function persistPerf() {
-    localStorage.setItem('perfRecords', JSON.stringify(_perfRecords));
+    try { localStorage.setItem('perfRecords', JSON.stringify(_perfRecords)); } catch(e) { console.error('localStorage寫入失敗', e); }
     if (_syncTimer) clearTimeout(_syncTimer);
     _syncTimer = setTimeout(autoSync, 3000);
 }
@@ -1890,9 +1890,16 @@ function verifySyncResult(status) {
         if (vScript.parentNode) vScript.parentNode.removeChild(vScript);
         if (Array.isArray(data) && data.length > 0) {
             var cnt = data.filter(function(c){ return !c.__perfRecords; }).length;
-            if (status) status.textContent = '☁️ 已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + cnt + '筆）';
-            _localDirtyUntil = 0; // 上傳成功，解除保護
-            _lastSyncJSON = JSON.stringify(DB);
+            var localCnt = DB.filter(function(c){ return !c._deleted; }).length;
+            if (cnt >= localCnt) {
+                // 雲端筆數 >= 本地，確認上傳成功
+                if (status) status.textContent = '☁️ 已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + cnt + '筆）';
+                _localDirtyUntil = 0;
+                _lastSyncJSON = JSON.stringify(DB);
+            } else {
+                if (status) status.textContent = '⚠️ 同步中…（' + cnt + '/' + localCnt + '筆）';
+                // 筆數不符，不解除保護，等下次重試
+            }
         } else {
             if (status) status.textContent = '⚠️ 同步可能失敗，請重試';
         }
@@ -7326,8 +7333,8 @@ function saveClient() {
                         x.roleData.landlord[key] = data.roleData.landlord[key];
                     });
                 }
-                // 同步扁平庫存欄位
-                if (data.sProperties && data.sProperties.length) {
+                // 同步扁平庫存欄位（只同步到沒有自己庫存資料的紀錄）
+                if (data.sProperties && data.sProperties.length && (!x.sProperties || !x.sProperties.length)) {
                     x.sProperties = data.sProperties;
                     x.sName = data.sName; x.sPhone = data.sPhone;
                     x.community = data.community; x.sAddr = data.sAddr;
@@ -8314,7 +8321,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260402z';
+var APP_VERSION = '20260403a';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
