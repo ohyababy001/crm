@@ -799,7 +799,7 @@
 
             <div class="dash-sections">
                 <div class="dash-section dash-schedule">
-                    <div class="dash-sec-title" style="display:flex;justify-content:space-between;align-items:center">📅 近期行程（15天內）<button class="btn-ic" onclick="addPersonalSchedule()" title="新增個人行程" style="font-size:16px;padding:2px 6px">＋</button></div>
+                    <div class="dash-sec-title" style="display:flex;justify-content:space-between;align-items:center">📅 近期行程（15天內）<span><button class="btn-ic" onclick="showDoneSchedules()" title="已完成" style="font-size:13px;padding:2px 6px">✅已完成</button><button class="btn-ic" onclick="addPersonalSchedule()" title="新增個人行程" style="font-size:16px;padding:2px 6px">＋</button></span></div>
                     <div class="dash-list" id="dashSchedule"></div>
                 </div>
                 <div class="dash-section dash-seller">
@@ -5738,7 +5738,7 @@ function completeSchedule(clientId, date, time) {
         });
         if (!c.history) c.history = [];
         c.history.push({ type:'schedule_done', time:new Date().toISOString(), detail:'【已完成行程】' + isoToROC(date) + (time ? ' ' + time : '') + (memo ? ' ' + memo : '') });
-        persist();
+        _addDoneSchedule({ clientId:clientId, clientName:c.name, date:date, time:time, memo:memo, doneAt:new Date().toISOString() });
         render();
     });
 }
@@ -5767,6 +5767,13 @@ function _getPSRecord() {
 }
 function _getPS() { return _getPSRecord().schedules || []; }
 function _savePS(arr) { _getPSRecord().schedules = arr; persist(); }
+function _getDoneSchedules() { return _getPSRecord().doneSchedules || []; }
+function _addDoneSchedule(item) {
+    var rec = _getPSRecord();
+    if (!rec.doneSchedules) rec.doneSchedules = [];
+    rec.doneSchedules.unshift(item);
+    persist();
+}
 
 function addPersonalSchedule(prefillIdx) {
     var editing = prefillIdx !== undefined;
@@ -5809,9 +5816,80 @@ function editPersonalSchedule(idx) { addPersonalSchedule(idx); }
 function completePersonalSchedule(idx) {
     confirmAction('確定完成此行程？', function() {
         var arr = _getPS();
+        var item = arr[idx];
         arr.splice(idx, 1);
         _savePS(arr);
+        if (item) _addDoneSchedule({ clientId:'', clientName:'個人行程', date:item.date, time:item.time, memo:item.memo, doneAt:new Date().toISOString(), personal:true });
         render();
+    });
+}
+
+// ── 已完成行程 ──
+function showDoneSchedules() {
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.cssText = 'padding:16px;width:90vw;max-width:500px;max-height:80vh;display:flex;flex-direction:column';
+    box.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">' +
+            '<span style="font-weight:700;font-size:15px">✅ 已完成行程</span>' +
+            '<button onclick="this.closest(\'.fill-overlay\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)">✕</button>' +
+        '</div>' +
+        '<input id="done-search" type="text" placeholder="搜尋客戶名或事項…" oninput="filterDoneList()" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:12px">' +
+        '<div id="done-list" style="flex:1;overflow-y:auto"></div>';
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    filterDoneList();
+}
+
+function filterDoneList() {
+    var q = (document.getElementById('done-search') ? document.getElementById('done-search').value : '').trim().toLowerCase();
+    var list = _getDoneSchedules();
+    var filtered = q ? list.filter(function(d) {
+        return (d.clientName||'').toLowerCase().includes(q) || (d.memo||'').toLowerCase().includes(q);
+    }) : list;
+    var el = document.getElementById('done-list');
+    if (!el) return;
+    el.innerHTML = filtered.length ? filtered.map(function(d, i) {
+        var realIdx = q ? list.indexOf(d) : i;
+        var nameColor = d.personal ? '#0891B2' : '#1E40AF';
+        return '<div style="padding:8px 0;border-bottom:1px solid #F1F5F9;display:flex;align-items:center;gap:8px">' +
+            '<div style="flex:1">' +
+                '<div style="font-size:14px;color:#334155;font-weight:600">'+esc(isoToMDW(d.date))+(d.time?' '+d.time:'')+'</div>' +
+                '<div style="font-size:15px"><span style="color:'+nameColor+';font-weight:600">'+esc(d.clientName||'')+'</span>'+(d.memo?' <span style="color:#475569">/ '+esc(d.memo)+'</span>':'')+'</div>' +
+                '<div style="font-size:11px;color:#94A3B8">完成於 '+esc(toROCDateTime(d.doneAt))+'</div>' +
+            '</div>' +
+            '<button class="btn-ic" onclick="restoreDoneSchedule('+realIdx+')" title="恢復" style="font-size:14px;padding:4px 8px">↩️</button>' +
+        '</div>';
+    }).join('') : '<div style="text-align:center;color:var(--muted);padding:20px;font-size:14px">'+(q?'沒有符合的紀錄':'尚無已完成行程')+'</div>';
+}
+
+function restoreDoneSchedule(idx) {
+    var list = _getDoneSchedules();
+    var d = list[idx];
+    if (!d) return;
+    confirmAction('確定恢復此行程？', function() {
+        list.splice(idx, 1);
+        var rec = _getPSRecord();
+        rec.doneSchedules = list;
+        if (d.personal || !d.clientId) {
+            // 恢復為個人行程
+            var arr = _getPS();
+            arr.push({ date:d.date, time:d.time, memo:d.memo });
+            _savePS(arr);
+        } else {
+            // 恢復為客戶行程
+            var c = DB.find(function(x){ return x.id === d.clientId; });
+            if (c) {
+                if (!c.schedules) c.schedules = [];
+                c.schedules.push({ date:d.date, time:d.time, memo:d.memo });
+            }
+            persist();
+        }
+        render();
+        // 重新渲染已完成列表
+        filterDoneList();
     });
 }
 
@@ -8603,7 +8681,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zv';
+var APP_VERSION = '20260403zw';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
