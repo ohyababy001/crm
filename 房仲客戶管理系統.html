@@ -5708,20 +5708,39 @@ function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo) {
     document.getElementById('qs-memo').focus();
 }
 
+function confirmAction(msg, onConfirm) {
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.cssText = 'padding:20px;min-width:260px;max-width:320px;text-align:center';
+    box.innerHTML = '<div style="font-size:15px;margin-bottom:16px;line-height:1.5">'+msg+'</div>' +
+        '<div style="display:flex;gap:8px">' +
+            '<button id="cf-no" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
+            '<button id="cf-yes" style="flex:1;padding:10px;border:none;border-radius:8px;background:#0891B2;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">確定</button>' +
+        '</div>';
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    document.getElementById('cf-no').onclick = function() { overlay.remove(); };
+    document.getElementById('cf-yes').onclick = function() { overlay.remove(); onConfirm(); };
+}
+
 function completeSchedule(clientId, date, time) {
-    var c = DB.find(function(x){ return x.id === clientId; });
-    if (!c || !c.schedules) return;
-    var found = c.schedules.find(function(s) {
-        return s.date === date && (s.time||'') === (time||'');
+    confirmAction('確定完成此行程？', function() {
+        var c = DB.find(function(x){ return x.id === clientId; });
+        if (!c || !c.schedules) return;
+        var found = c.schedules.find(function(s) {
+            return s.date === date && (s.time||'') === (time||'');
+        });
+        var memo = found ? found.memo : '';
+        c.schedules = c.schedules.filter(function(s) {
+            return !(s.date === date && (s.time||'') === (time||''));
+        });
+        if (!c.history) c.history = [];
+        c.history.push({ type:'schedule_done', time:new Date().toISOString(), detail:'【已完成行程】' + isoToROC(date) + (time ? ' ' + time : '') + (memo ? ' ' + memo : '') });
+        persist();
+        render();
     });
-    var memo = found ? found.memo : '';
-    c.schedules = c.schedules.filter(function(s) {
-        return !(s.date === date && (s.time||'') === (time||''));
-    });
-    if (!c.history) c.history = [];
-    c.history.push({ type:'schedule_done', time:new Date().toISOString(), detail:'【已完成行程】' + isoToROC(date) + (time ? ' ' + time : '') + (memo ? ' ' + memo : '') });
-    persist();
-    render();
 }
 
 function editDashSchedule(clientId, date, time) {
@@ -5776,10 +5795,12 @@ function addPersonalSchedule(prefillIdx) {
 function editPersonalSchedule(idx) { addPersonalSchedule(idx); }
 
 function completePersonalSchedule(idx) {
-    var arr = _getPS();
-    arr.splice(idx, 1);
-    _savePS(arr);
-    render();
+    confirmAction('確定完成此行程？', function() {
+        var arr = _getPS();
+        arr.splice(idx, 1);
+        _savePS(arr);
+        render();
+    });
 }
 
 // ── 開啟雲端資料夾 ──
@@ -8570,7 +8591,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zt';
+var APP_VERSION = '20260403zu';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
