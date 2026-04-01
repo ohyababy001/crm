@@ -2581,7 +2581,7 @@ const titles = { all:'總覽','經營買方':'買方','庫存屋主':'庫存','�
     if (type === '庫存屋主' || isRentalType) {
         sortOpts = '<option value="expireDate">到期時間</option><option value="lastContact">最近聯絡</option><option value="name">姓名排序</option><option value="newest">最新加入</option>';
     } else if (type === '成交客戶') {
-        sortOpts = '<option value="dealCount">成交次數</option><option value="lastContact">最近聯絡</option><option value="name">姓名排序</option><option value="newest">最新加入</option>';
+        sortOpts = '<option value="dealCount">成交次數</option><option value="dealDate">成交時間</option><option value="lastContact">最近聯絡</option><option value="name">姓名排序</option><option value="newest">最新加入</option>';
     } else if (type === '商機募集') {
         sortOpts = '<option value="nextSchedule">預計時間</option><option value="lastContact">最近聯絡</option><option value="name">姓名排序</option><option value="newest">最新加入</option>';
     } else {
@@ -2765,6 +2765,7 @@ function getData() {
             }
         }
         if (s==='dealCount') return (b.deals||[]).length - (a.deals||[]).length;
+        if (s==='dealDate') { var _ad=(a.deals&&a.deals.length)?a.deals.reduce(function(m,d){return d.date>m?d.date:m;},''):''; var _bd=(b.deals&&b.deals.length)?b.deals.reduce(function(m,d){return d.date>m?d.date:m;},''):''; return (_bd||'').localeCompare(_ad||''); }
         if (s==='newest') return (b.created||'').localeCompare(a.created||'');
         if (s==='oldest') return (a.created||'').localeCompare(b.created||'');
         if (s==='name')   return a.name.localeCompare(b.name,'zh');
@@ -7014,6 +7015,7 @@ function updateEditNav() {
             return aEnd.localeCompare(bEnd);
         }
         if (s2==='dealCount') return (b.deals||[]).length - (a.deals||[]).length;
+            if (s2==='dealDate') { var _ad2=(a.deals&&a.deals.length)?a.deals.reduce(function(m,d){return d.date>m?d.date:m;},''):''; var _bd2=(b.deals&&b.deals.length)?b.deals.reduce(function(m,d){return d.date>m?d.date:m;},''):''; return (_bd2||'').localeCompare(_ad2||''); }
         if (s2==='newest') return (b.created||'').localeCompare(a.created||'');
         if (s2==='oldest') return (a.created||'').localeCompare(b.created||'');
         if (s2==='name')   return a.name.localeCompare(b.name,'zh');
@@ -8308,7 +8310,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260402j';
+var APP_VERSION = '20260402k';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
