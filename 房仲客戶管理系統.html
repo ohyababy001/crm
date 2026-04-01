@@ -3206,7 +3206,8 @@ function renderCard(c) {
                 meta += `<div class="cmeta-row"><span class="cmeta-k">${_rSz?'坪數':'車位'}</span><span class="cmeta-v">${_szParts.join(' / ')}</span></div>`;
             }
             if (_rRent) {
-                var _rentDisp = esc(_rRent) + (_rRent.includes('元')?'':'元');
+                var _rPeriod = _rp0.rRentPeriod || c.rRentPeriod || '';
+                var _rentDisp = esc(_rRent) + (_rRent.includes('元')?'':'元') + (_rPeriod?'／'+esc(_rPeriod):'');
                 var _rMgmt = (parseFloat(_rp0.rMgmtBuilding)||0)+(parseFloat(_rp0.rMgmtCar)||0)+(parseFloat(_rp0.rMgmtMoto)||0)+(parseFloat(_rp0.rMgmtOther)||0);
                 if (_rp0.rMgmtType === '含管' || _rp0.rMgmtType === '內含') {
                     _rentDisp += ' <span style="color:#64748B">含管' + (_rMgmt ? ' ' + _rMgmt.toLocaleString() + '元' : '') + '</span>';
@@ -3231,7 +3232,8 @@ function renderCard(c) {
                     if (_llRp.rAddr || _llC.rAddr) meta += `<div class="cmeta-row"><span class="cmeta-k">地址</span><span class="cmeta-v full">${esc(_llRp.rAddr||_llC.rAddr)}</span></div>`;
                     var _ttRent = _llRp.rent || _llC.rent || '';
                     if (_ttRent) {
-                        var _ttRentDisp = esc(_ttRent) + (_ttRent.includes('元')?'':'元');
+                        var _ttPeriod = _llRp.rRentPeriod || _llC.rRentPeriod || '';
+                        var _ttRentDisp = esc(_ttRent) + (_ttRent.includes('元')?'':'元') + (_ttPeriod?'／'+esc(_ttPeriod):'');
                         var _ttMgmt = (parseFloat(_llRp.rMgmtBuilding||_llC.rMgmtBuilding)||0)+(parseFloat(_llRp.rMgmtCar||_llC.rMgmtCar)||0)+(parseFloat(_llRp.rMgmtMoto||_llC.rMgmtMoto)||0)+(parseFloat(_llRp.rMgmtOther||_llC.rMgmtOther)||0);
                         var _ttMgmtType = _llRp.rMgmtType || _llC.rMgmtType || '';
                         if (_ttMgmtType === '含管' || _ttMgmtType === '內含') {
@@ -8229,7 +8231,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260402f';
+var APP_VERSION = '20260402g';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
