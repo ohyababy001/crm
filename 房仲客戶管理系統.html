@@ -536,7 +536,8 @@
 
             /* 成交物件：手機版重排 */
             .deal-box { overflow: hidden; }
-            .deal-box > div:first-child { width: 100% !important; }
+            .deal-box > div:nth-child(2) { width: 100% !important; }
+            .deal-box > div:nth-child(2) > * { flex: 1 !important; }
             .deal-fields { grid-template-columns: 1fr 1fr !important; }
             .deal-f-community { order: 1; }
             .deal-f-addr { order: 2; grid-column: span 2 !important; }
@@ -8313,7 +8314,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260402x';
+var APP_VERSION = '20260402y';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
