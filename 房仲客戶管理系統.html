@@ -7143,7 +7143,7 @@ function saveClient() {
 
     const data = {
         name, phone, idNo: get('f-bIdNo') || get('f-idNo'), type, types,
-        email: get('f-bEmail') || get('fe'), status: get('fs') || '',
+        email: get('f-bEmail') || get('fe'), status: document.getElementById('statusGroup').style.display !== 'none' ? get('fs') : '',
         lastContact: new Date().toISOString(),
         source: get('f-bSource') || get('fso'), typeNotes:collectTypeNotes(), notes:(function(){ var tn=collectTypeNotes(); return Object.keys(tn).map(function(k){return tn[k];}).join('\n'); })(),
         // 經營買方
@@ -8340,7 +8340,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403e';
+var APP_VERSION = '20260403f';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
