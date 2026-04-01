@@ -3322,7 +3322,7 @@ function renderCard(c) {
         } else if (showType==='成交客戶') {
             var deals = cc.deals || [];
             if (!deals.length && (cc.cProp||cc.cPrice||cc.cDate)) deals = [{date:cc.cDate,community:'',addr:cc.cProp,price:cc.cPrice}];
-            var d = deals.length ? deals[deals.length - 1] : null;
+            var d = deals.length ? deals.slice().sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); })[0] : null;
             if (d) {
                 if (d.role) meta += `<div class="cmeta-row"><span class="cmeta-k">身份</span><span class="cmeta-v">${esc(d.role)}</span></div>`;
                 if (d.date) meta += `<div class="cmeta-row"><span class="cmeta-k">日期</span><span class="cmeta-v">${esc(isoToROC(d.date))}</span></div>`;
@@ -8310,7 +8310,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260402k';
+var APP_VERSION = '20260402m';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
