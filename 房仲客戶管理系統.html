@@ -805,14 +805,6 @@
                     <div class="dash-sec-title">🎂 客戶生日提醒（7天內）</div>
                     <div class="dash-list" id="dashBirthday"></div>
                 </div>
-                <div class="dash-section">
-                    <div class="dash-sec-title">📵 超過7天未聯絡</div>
-                    <div class="dash-list" id="dashNoContact"></div>
-                </div>
-                <div class="dash-section">
-                    <div class="dash-sec-title">🆕 最近新增客戶</div>
-                    <div class="dash-list" id="dashRecent"></div>
-                </div>
             </div>
         </div>
 
@@ -2923,7 +2915,6 @@ function daysUntilExpire(dateStr) {
 function renderDashboard() {
     var now = new Date(); now.setHours(0,0,0,0);
     var today = localDateISO(now);
-    var sevenAgo = localDateISO(new Date(now - 7*86400000));
     var thisMonth = today.slice(0,7);
 
     // 數據卡片
@@ -3019,27 +3010,21 @@ function renderDashboard() {
             '<span class="dash-item-info" style="color:'+(b.days===0?'#EF4444':'#D97706')+'">'+label+'</span></div>';
     }).join('') : '<div class="dash-empty">近7天內沒有客戶生日</div>';
 
-    // 超過7天未聯絡
-    var noContact = DB.filter(function(c) {
-        if (c.archived) return false;
-        if (!hasType(c,'經營買方') && !hasType(c,'庫存屋主')) return false;
-        if (!c.lastContact) return true;
-        return c.lastContact < sevenAgo;
-    }).sort(function(a,b) { return (a.lastContact||'').localeCompare(b.lastContact||''); }).slice(0, 10);
-    document.getElementById('dashNoContact').innerHTML = noContact.length ? noContact.map(function(c) {
-        var info = c.lastContact ? relTime(c.lastContact) : '從未聯絡';
-        return '<div class="dash-item" onclick="showDet(\''+c.id+'\')">' +
-            '<span class="dash-item-name">'+esc(c.name)+'<span style="font-weight:400;color:#64748B"> · '+esc(TYPE_DISPLAY[c.type]||c.type)+'</span></span>' +
-            '<span class="dash-item-info">'+esc(info)+'</span></div>';
-    }).join('') : '<div class="dash-empty">所有客戶皆已近期聯絡</div>';
-
-    // 最近新增
-    var recent = DB.filter(function(c){ return !c.archived; }).sort(function(a,b) { return (b.created||'').localeCompare(a.created||''); }).slice(0, 8);
-    document.getElementById('dashRecent').innerHTML = recent.length ? recent.map(function(c) {
-        return '<div class="dash-item" onclick="showDet(\''+c.id+'\')">' +
-            '<span class="dash-item-name">'+esc(c.name)+'<span style="font-weight:400;color:#64748B"> · '+esc(TYPE_DISPLAY[c.type]||c.type)+'</span></span>' +
-            '<span class="dash-item-info">'+esc(isoToROC((c.created||'').slice(0,10)))+'</span></div>';
-    }).join('') : '<div class="dash-empty">尚無客戶資料</div>';
+    // 手機版：依最近期日期排序提醒區塊（有提醒的在上，無提醒的在下）
+    if (window.innerWidth <= 768) {
+        var sectionOrder = [
+            { id: 'dashExpiringSeller', minDays: expSeller.length ? daysUntilExpire(expSeller[0].contractEnd) : Infinity },
+            { id: 'dashExpiringRental', minDays: expRental.length ? daysUntilExpire(expRental[0].rEndDate) : Infinity },
+            { id: 'dashSchedule', minDays: schedList.length ? schedList[0].days : Infinity },
+            { id: 'dashBirthday', minDays: bdayList.length ? bdayList[0].days : Infinity }
+        ];
+        sectionOrder.sort(function(a, b) { return a.minDays - b.minDays; });
+        var container = document.querySelector('.dash-sections');
+        sectionOrder.forEach(function(s) {
+            var el = document.getElementById(s.id).parentElement;
+            container.appendChild(el);
+        });
+    }
 
 }
 
@@ -8343,7 +8328,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403k';
+var APP_VERSION = '20260403l';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
