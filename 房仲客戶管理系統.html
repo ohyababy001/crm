@@ -3209,10 +3209,8 @@ function renderCard(c) {
                 var _rMgmt = (parseFloat(_rp0.rMgmtBuilding)||0)+(parseFloat(_rp0.rMgmtCar)||0)+(parseFloat(_rp0.rMgmtMoto)||0)+(parseFloat(_rp0.rMgmtOther)||0);
                 if (_rp0.rMgmtType === '含管' || _rp0.rMgmtType === '內含') {
                     _rentDisp += ' <span style="color:#64748B">含管' + (_rMgmt ? ' ' + _rMgmt.toLocaleString() + '元' : '') + '</span>';
-                } else if (_rMgmt) {
-                    _rentDisp += ' <span style="color:#64748B">不含管 ' + _rMgmt.toLocaleString() + '元</span>';
-                } else {
-                    _rentDisp += ' <span style="color:#64748B">不含管</span>';
+                } else if (_rp0.rMgmtType === '不含管') {
+                    _rentDisp += ' <span style="color:#64748B">不含管' + (_rMgmt ? ' ' + _rMgmt.toLocaleString() + '元' : '') + '</span>';
                 }
                 meta += `<div class="cmeta-row"><span class="cmeta-k">租金</span><span class="cmeta-v">${_rentDisp}</span></div>`;
             }
@@ -3237,10 +3235,8 @@ function renderCard(c) {
                         var _ttMgmtType = _llRp.rMgmtType || _llC.rMgmtType || '';
                         if (_ttMgmtType === '含管' || _ttMgmtType === '內含') {
                             _ttRentDisp += ' <span style="color:#64748B">含管' + (_ttMgmt ? ' ' + _ttMgmt.toLocaleString() + '元' : '') + '</span>';
-                        } else if (_ttMgmt) {
-                            _ttRentDisp += ' <span style="color:#64748B">不含管 ' + _ttMgmt.toLocaleString() + '元</span>';
-                        } else {
-                            _ttRentDisp += ' <span style="color:#64748B">不含管</span>';
+                        } else if (_ttMgmtType === '不含管') {
+                            _ttRentDisp += ' <span style="color:#64748B">不含管' + (_ttMgmt ? ' ' + _ttMgmt.toLocaleString() + '元' : '') + '</span>';
                         }
                         meta += `<div class="cmeta-row"><span class="cmeta-k">租金</span><span class="cmeta-v">${_ttRentDisp}</span></div>`;
                     }
@@ -3570,10 +3566,8 @@ function typeDetail(origC, viewAs) {
                     var mgmtSum = (parseFloat(rp.rMgmtBuilding)||0)+(parseFloat(rp.rMgmtCar)||0)+(parseFloat(rp.rMgmtMoto)||0)+(parseFloat(rp.rMgmtOther)||0);
                     if (rp.rMgmtType === '含管' || rp.rMgmtType === '內含') {
                         rentDisp += ' 含管' + (mgmtSum ? ' ' + mgmtSum.toLocaleString() + '元' : '');
-                    } else if (mgmtSum) {
-                        rentDisp += ' 不含管 ' + mgmtSum.toLocaleString() + '元';
-                    } else {
-                        rentDisp += ' 不含管';
+                    } else if (rp.rMgmtType === '不含管') {
+                        rentDisp += ' 不含管' + (mgmtSum ? ' ' + mgmtSum.toLocaleString() + '元' : '');
                     }
                     rows.push(dRow('租金', rentDisp));
                 }
@@ -6502,10 +6496,8 @@ function selectLandlord(id, propIdx) {
             var _mgmtSum = (parseFloat(sp.rMgmtBuilding)||0)+(parseFloat(sp.rMgmtCar)||0)+(parseFloat(sp.rMgmtMoto)||0)+(parseFloat(sp.rMgmtOther)||0);
             if (sp.rMgmtType === '含管' || sp.rMgmtType === '內含') {
                 info += ' 含管' + (_mgmtSum ? ' ' + _mgmtSum.toLocaleString() + '元' : '');
-            } else if (_mgmtSum) {
-                info += ' 不含管 ' + _mgmtSum.toLocaleString() + '元';
-            } else {
-                info += ' 不含管';
+            } else if (sp.rMgmtType === '不含管') {
+                info += ' 不含管' + (_mgmtSum ? ' ' + _mgmtSum.toLocaleString() + '元' : '');
             }
             info += '）';
         }
@@ -8337,7 +8329,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260401u';
+var APP_VERSION = '20260401v';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
