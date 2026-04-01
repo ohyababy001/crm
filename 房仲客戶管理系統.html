@@ -3033,7 +3033,7 @@ function renderDashboard() {
         var label = b.days === 0 ? '今天生日！' : b.days + '天後';
         return '<div class="dash-item" onclick="showDet(\''+b.id+'\')" style="cursor:pointer">' +
             '<span class="dash-item-info" style="color:'+(b.days===0?'#EF4444':'')+'">'+esc(isoToMDW(b.date))+'</span>' +
-            '<span class="dash-item-name">'+(b.who?esc(b.who)+'<span style="font-weight:400;color:#64748B">（'+esc(b.name)+'）</span>':esc(b.name))+'<span style="font-size:12px;color:#B0B0B0;margin-left:6px">'+esc(isoToROC(b.date))+'</span></span></div>';
+            '<span class="dash-item-name">'+(b.who?esc(b.who)+'<span style="font-weight:400;color:#64748B">（'+esc(b.name)+'）</span>':esc(b.name))+'<span style="font-size:12px;color:#292524;margin-left:6px">'+esc(isoToROC(b.date))+'</span></span></div>';
     }).join('') : '<div class="dash-empty">近7天內沒有客戶生日</div>';
 
     // 手機版：依最近期日期排序提醒區塊（有提醒的在上，無提醒的在下）
@@ -8501,7 +8501,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zp';
+var APP_VERSION = '20260403zq';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
