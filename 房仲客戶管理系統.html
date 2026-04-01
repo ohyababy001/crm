@@ -7368,18 +7368,18 @@ function renderPerformance() {
             '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px"><span style="font-size:11px;color:#92400E;font-weight:600">'+rangeLabel+'買賣案</span><span style="font-size:14px;font-weight:800;color:#B45309">'+buyCount+'<span style="font-size:10px;font-weight:600"> 筆</span></span></div>' +
             '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:#92400E">業績</span><span style="font-size:13px;font-weight:800;color:#B45309">'+buyFeeTax.toLocaleString()+'</span></div>' +
             '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:#92400E">實收</span><span style="font-size:13px;font-weight:800;color:#B45309">'+buyFeeNoTax.toLocaleString()+'</span></div>' +
-            (buyFeeOther ? '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:#92400E">其他</span><span style="font-size:13px;font-weight:800;color:#B45309">'+buyFeeOther.toLocaleString()+'</span></div>' : '') +
+            (buyFeeOther ? '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:#92400E">自訂</span><span style="font-size:13px;font-weight:800;color:#B45309">'+buyFeeOther.toLocaleString()+'</span></div>' : '') +
         '</div>' +
         '<div style="background:#EDE9FE;border-radius:8px;padding:6px 8px">' +
             '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px"><span style="font-size:11px;color:#6D28D9;font-weight:600">'+rangeLabel+'租賃案</span><span style="font-size:14px;font-weight:800;color:#5B21B6">'+rentCount+'<span style="font-size:10px;font-weight:600"> 筆</span></span></div>' +
             '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:#6D28D9">業績</span><span style="font-size:13px;font-weight:800;color:#5B21B6">'+rentFeeTax.toLocaleString()+'</span></div>' +
             '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:#6D28D9">實收</span><span style="font-size:13px;font-weight:800;color:#5B21B6">'+rentFeeNoTax.toLocaleString()+'</span></div>' +
-            (rentFeeOther ? '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:#6D28D9">其他</span><span style="font-size:13px;font-weight:800;color:#5B21B6">'+rentFeeOther.toLocaleString()+'</span></div>' : '') +
+            (rentFeeOther ? '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:#6D28D9">自訂</span><span style="font-size:13px;font-weight:800;color:#5B21B6">'+rentFeeOther.toLocaleString()+'</span></div>' : '') +
         '</div>' +
     '</div>' +
     '<div style="background:#F0FDF4;border-radius:8px;padding:6px 10px;margin-bottom:6px">' +
-        '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px"><span style="font-size:11px;font-weight:600;color:#065F46">總業績 '+_totalFeeTax.toLocaleString()+' ｜ 總實收 '+_totalFeeNoTax.toLocaleString()+(_totalFeeOther?' ｜ 其他收入 '+_totalFeeOther.toLocaleString():'')+'</span></div>' +
-        '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:11px;font-weight:700;color:#065F46">總收入 <span style="font-size:10px;color:#6B7280;font-weight:400">業績×'+_rate+'+實收'+(_totalFeeOther?'+其他收入':'')+'</span></span><span style="font-size:16px;font-weight:800;color:#047857">'+_totalIncome.toLocaleString()+'<span style="font-size:10px">元</span></span></div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px"><span style="font-size:11px;font-weight:600;color:#065F46">總業績 '+_totalFeeTax.toLocaleString()+' ｜ 總實收 '+_totalFeeNoTax.toLocaleString()+(_totalFeeOther?' ｜ 自訂 '+_totalFeeOther.toLocaleString():'')+'</span></div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:11px;font-weight:700;color:#065F46">總收入 <span style="font-size:10px;color:#6B7280;font-weight:400">業績×'+_rate+'+實收'+(_totalFeeOther?'+自訂':'')+'</span></span><span style="font-size:16px;font-weight:800;color:#047857">'+_totalIncome.toLocaleString()+'<span style="font-size:10px">元</span></span></div>' +
     '</div>';
     // 搜尋列（固定區域）
     html += '<div id="perfSearchWrap" style="display:flex;align-items:center;gap:8px;margin-bottom:10px">' +
@@ -7457,11 +7457,9 @@ function renderPerfList(filtered) {
             var totalFeeR = ft + fnt + fot + ((!r.feeTax && !r.feeNoTax && !r.feeOther) ? (parseFloat(r.fee)||0) : 0);
             var feeDetail = '';
             var _parts = [];
-            if (ft && fnt) { _parts.push('績'+ft.toLocaleString()); _parts.push('收'+fnt.toLocaleString()); }
-            else if (ft) _parts.push(ft.toLocaleString());
-            else if (fnt) _parts.push(fnt.toLocaleString());
-            if (fot && r.feeOtherAmt && r.feeOtherRate) _parts.push(parseFloat(r.feeOtherAmt).toLocaleString()+'×'+r.feeOtherRate);
-            else if (fot) _parts.push(fot.toLocaleString());
+            if (ft) _parts.push('業績'+ft.toLocaleString());
+            if (fnt) _parts.push('實收'+fnt.toLocaleString());
+            if (fot) _parts.push('自訂'+fot.toLocaleString());
             if (_parts.length) feeDetail = _parts.join(' / ');
             else if (r.fee) feeDetail = parseFloat(r.fee).toLocaleString();
             html += '<div style="padding:8px 0;border-bottom:1px solid var(--bg);font-size:13px">' +
@@ -7654,7 +7652,7 @@ function addPerfRecord() {
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">實收（不報稅）</label><div class="input-grp"><input id="perfFeeNoTax" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
         '</div>' +
         '<div id="perfOtherWrap" style="margin-bottom:8px">' +
-            '<button type="button" id="perfOtherToggle" onclick="togglePerfOther(\'perf\')" style="font-size:12px;font-weight:600;color:#8B5CF6;background:none;border:1px dashed #8B5CF6;border-radius:6px;padding:4px 10px;cursor:pointer">＋ 其他收入（自訂比例）</button>' +
+            '<button type="button" id="perfOtherToggle" onclick="togglePerfOther(\'perf\')" style="font-size:12px;font-weight:600;color:#8B5CF6;background:none;border:1px dashed #8B5CF6;border-radius:6px;padding:4px 10px;cursor:pointer">＋ 自訂收入</button>' +
             '<div id="perfOtherFields" style="display:none;margin-top:6px;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:end">' +
                 '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">業績金額</label><div class="input-grp"><input id="perfOtherAmt" oninput="calcPerfOther(\'perf\')" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
                 '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">自訂比例</label><input id="perfOtherRate" oninput="calcPerfOther(\'perf\')" placeholder="例：0.5" style="min-width:0"></div>' +
@@ -7775,7 +7773,7 @@ function editPerfRecord(idx) {
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">實收（不報稅）</label><div class="input-grp"><input id="epFeeNoTax" value="'+esc(r.feeNoTax||'')+'" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
         '</div>' +
         '<div id="epOtherWrap" style="margin-bottom:8px">' +
-            '<button type="button" id="epOtherToggle" onclick="togglePerfOther(\'ep\')" style="font-size:12px;font-weight:600;color:#8B5CF6;background:none;border:1px dashed #8B5CF6;border-radius:6px;padding:4px 10px;cursor:pointer;'+(r.feeOther?'display:none':'')+'">＋ 其他收入（自訂比例）</button>' +
+            '<button type="button" id="epOtherToggle" onclick="togglePerfOther(\'ep\')" style="font-size:12px;font-weight:600;color:#8B5CF6;background:none;border:1px dashed #8B5CF6;border-radius:6px;padding:4px 10px;cursor:pointer;'+(r.feeOther?'display:none':'')+'">＋ 自訂收入</button>' +
             '<div id="epOtherFields" style="'+(r.feeOther?'display:grid;':'display:none;')+'margin-top:6px;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:end">' +
                 '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">業績金額</label><div class="input-grp"><input id="epOtherAmt" value="'+esc(r.feeOtherAmt||'')+'" oninput="calcPerfOther(\'ep\')" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
                 '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">自訂比例</label><input id="epOtherRate" value="'+esc(r.feeOtherRate||'')+'" oninput="calcPerfOther(\'ep\')" placeholder="例：0.5" style="min-width:0"></div>' +
@@ -7898,7 +7896,7 @@ function exportCSV() {
     if (_perfRecords.length) {
         rows.push('');
         rows.push('"[業績紀錄]"');
-        var PH = ['案件類型','項目','成交日期','客戶/物件','業績(報稅)','實收(不報稅)','其他','總業績','備註','建立時間'];
+        var PH = ['案件類型','項目','成交日期','客戶/物件','業績(報稅)','實收(不報稅)','自訂','總業績','備註','建立時間'];
         rows.push(PH.join(','));
         _perfRecords.forEach(function(r) {
             rows.push([r.caseType||'', r.category||'', r.date?isoToROC(r.date):'', r.client||'', r.feeTax||'', r.feeNoTax||'', r.feeOther||'', r.fee||'', r.memo||'', r.created?r.created.slice(0,10):'']
@@ -7978,7 +7976,7 @@ function importCSV(file) {
             var iClient = perfHeaders.indexOf('客戶/物件');
             var iFeeTax = perfHeaders.indexOf('業績(報稅)');
             var iFeeNoTax = perfHeaders.indexOf('實收(不報稅)');
-            var iFeeOther = perfHeaders.indexOf('其他');
+            var iFeeOther = perfHeaders.indexOf('自訂'); if(iFeeOther<0) iFeeOther = perfHeaders.indexOf('其他');
             var iFee = perfHeaders.indexOf('總業績');
             var iMemo = perfHeaders.indexOf('備註');
             for (var j = perfStartIdx + 2; j < lines.length; j++) {
@@ -8329,7 +8327,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260401n';
+var APP_VERSION = '20260401p';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
