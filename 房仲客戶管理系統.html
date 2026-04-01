@@ -7378,8 +7378,8 @@ function renderPerformance() {
         '</div>' +
     '</div>' +
     '<div style="background:#F0FDF4;border-radius:8px;padding:6px 10px;margin-bottom:6px">' +
-        '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px"><span style="font-size:11px;font-weight:600;color:#065F46">總業績 '+_totalFeeTax.toLocaleString()+' ｜ 總實收 '+_totalFeeNoTax.toLocaleString()+(_totalFeeOther?' ｜ 其他 '+_totalFeeOther.toLocaleString():'')+'</span></div>' +
-        '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:11px;font-weight:700;color:#065F46">總收入 <span style="font-size:10px;color:#6B7280;font-weight:400">業績×'+_rate+'+實收'+(_totalFeeOther?'+其他':'')+'</span></span><span style="font-size:16px;font-weight:800;color:#047857">'+_totalIncome.toLocaleString()+'<span style="font-size:10px">元</span></span></div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px"><span style="font-size:11px;font-weight:600;color:#065F46">總業績 '+_totalFeeTax.toLocaleString()+' ｜ 總實收 '+_totalFeeNoTax.toLocaleString()+(_totalFeeOther?' ｜ 其他收入 '+_totalFeeOther.toLocaleString():'')+'</span></div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:11px;font-weight:700;color:#065F46">總收入 <span style="font-size:10px;color:#6B7280;font-weight:400">業績×'+_rate+'+實收'+(_totalFeeOther?'+其他收入':'')+'</span></span><span style="font-size:16px;font-weight:800;color:#047857">'+_totalIncome.toLocaleString()+'<span style="font-size:10px">元</span></span></div>' +
     '</div>';
     // 搜尋列（固定區域）
     html += '<div id="perfSearchWrap" style="display:flex;align-items:center;gap:8px;margin-bottom:10px">' +
@@ -7652,11 +7652,11 @@ function addPerfRecord() {
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">實收（不報稅）</label><div class="input-grp"><input id="perfFeeNoTax" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
         '</div>' +
         '<div id="perfOtherWrap" style="margin-bottom:8px">' +
-            '<button type="button" id="perfOtherToggle" onclick="togglePerfOther(\'perf\')" style="font-size:12px;font-weight:600;color:#8B5CF6;background:none;border:1px dashed #8B5CF6;border-radius:6px;padding:4px 10px;cursor:pointer">＋ 其他業績（自訂比例）</button>' +
-            '<div id="perfOtherFields" style="display:none;margin-top:6px;display:none;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:end">' +
+            '<button type="button" id="perfOtherToggle" onclick="togglePerfOther(\'perf\')" style="font-size:12px;font-weight:600;color:#8B5CF6;background:none;border:1px dashed #8B5CF6;border-radius:6px;padding:4px 10px;cursor:pointer">＋ 其他收入（自訂比例）</button>' +
+            '<div id="perfOtherFields" style="display:none;margin-top:6px;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:end">' +
                 '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">業績金額</label><div class="input-grp"><input id="perfOtherAmt" oninput="calcPerfOther(\'perf\')" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
                 '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">自訂比例</label><input id="perfOtherRate" oninput="calcPerfOther(\'perf\')" placeholder="例：0.5" style="min-width:0"></div>' +
-                '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">小計</label><div id="perfOtherResult" style="padding:8px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE9FE;color:#5B21B6;text-align:center">0 元</div></div>' +
+                '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">= 收入</label><div id="perfOtherResult" style="padding:8px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE9FE;color:#5B21B6;text-align:center">0 元</div></div>' +
             '</div>' +
         '</div>' +
         '<div class="fg" style="margin-bottom:12px"><label style="font-size:12px">備註</label><input id="perfMemo" placeholder=""></div>' +
@@ -7773,11 +7773,11 @@ function editPerfRecord(idx) {
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">實收（不報稅）</label><div class="input-grp"><input id="epFeeNoTax" value="'+esc(r.feeNoTax||'')+'" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
         '</div>' +
         '<div id="epOtherWrap" style="margin-bottom:8px">' +
-            '<button type="button" id="epOtherToggle" onclick="togglePerfOther(\'ep\')" style="font-size:12px;font-weight:600;color:#8B5CF6;background:none;border:1px dashed #8B5CF6;border-radius:6px;padding:4px 10px;cursor:pointer;'+(r.feeOther?'display:none':'')+'">＋ 其他業績（自訂比例）</button>' +
+            '<button type="button" id="epOtherToggle" onclick="togglePerfOther(\'ep\')" style="font-size:12px;font-weight:600;color:#8B5CF6;background:none;border:1px dashed #8B5CF6;border-radius:6px;padding:4px 10px;cursor:pointer;'+(r.feeOther?'display:none':'')+'">＋ 其他收入（自訂比例）</button>' +
             '<div id="epOtherFields" style="'+(r.feeOther?'display:grid;':'display:none;')+'margin-top:6px;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:end">' +
                 '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">業績金額</label><div class="input-grp"><input id="epOtherAmt" value="'+esc(r.feeOtherAmt||'')+'" oninput="calcPerfOther(\'ep\')" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
                 '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">自訂比例</label><input id="epOtherRate" value="'+esc(r.feeOtherRate||'')+'" oninput="calcPerfOther(\'ep\')" placeholder="例：0.5" style="min-width:0"></div>' +
-                '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">小計</label><div id="epOtherResult" style="padding:8px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE9FE;color:#5B21B6;text-align:center">'+(r.feeOther?parseInt(r.feeOther).toLocaleString()+' 元':'0 元')+'</div></div>' +
+                '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">= 收入</label><div id="epOtherResult" style="padding:8px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE9FE;color:#5B21B6;text-align:center">'+(r.feeOther?parseInt(r.feeOther).toLocaleString()+' 元':'0 元')+'</div></div>' +
             '</div>' +
         '</div>' +
         '<div class="fg" style="margin-bottom:12px"><label style="font-size:12px">備註</label><input id="epMemo" value="'+esc(r.memo||'')+'" placeholder=""></div>' +
@@ -8327,7 +8327,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260401k';
+var APP_VERSION = '20260401m';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
