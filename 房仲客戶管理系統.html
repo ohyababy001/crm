@@ -799,7 +799,7 @@
 
             <div class="dash-sections">
                 <div class="dash-section dash-schedule">
-                    <div class="dash-sec-title" style="display:flex;justify-content:space-between;align-items:center">📅 近期行程（15天內）<span style="display:flex;gap:0;align-items:center"><button class="btn-ic" onclick="showDoneSchedules()" title="已完成" style="font-size:15px;padding:3px 4px">✅已完成</button><button class="btn-ic" onclick="addPersonalSchedule()" title="新增個人行程" style="font-size:16px;padding:2px 6px">＋</button></span></div>
+                    <div class="dash-sec-title" style="display:flex;justify-content:space-between;align-items:center">📅 近期行程（15天內）<span style="display:flex;gap:12px;align-items:center"><button class="btn-ic" onclick="showDoneSchedules()" title="已完成" style="font-size:15px;padding:3px 8px">✅已完成</button><button class="btn-ic" onclick="addPersonalSchedule()" title="新增個人行程" style="font-size:16px;padding:2px 6px">＋</button></span></div>
                     <div class="dash-list" id="dashSchedule"></div>
                 </div>
                 <div class="dash-section dash-seller">
@@ -8681,7 +8681,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zz';
+var APP_VERSION = '20260403zza';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
