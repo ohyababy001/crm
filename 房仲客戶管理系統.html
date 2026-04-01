@@ -2158,7 +2158,7 @@ function autoFormatDate(el) {
         y = parseInt(digits.slice(0,4)) - 1911;
         m = digits.slice(4,6);
         d = digits.slice(6,8);
-    } else if (digits.length === 7 && parseInt(digits.slice(0,3)) > 100) {
+    } else if (digits.length === 7 && parseInt(digits.slice(0,3)) >= 100) {
         // 民國7碼：1140630 → 114/06/30
         y = parseInt(digits.slice(0,3));
         m = digits.slice(3,5);
@@ -8343,7 +8343,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403h';
+var APP_VERSION = '20260403i';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
