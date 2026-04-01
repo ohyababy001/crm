@@ -1682,12 +1682,8 @@ function _cleanupRentalTags() {
     _cleanupRentalTags();
     localStorage.setItem('reCRM', JSON.stringify(DB));
 })();
-// 一次性修復：清除被錯誤存入的「待聯絡」status
-if (!localStorage.getItem('_fix_status_v1')) {
-    DB.forEach(function(c){ if (c.status === '待聯絡') c.status = ''; });
-    localStorage.setItem('reCRM', JSON.stringify(DB));
-    localStorage.setItem('_fix_status_v1', '1');
-}
+// 修復：清除被錯誤存入的「待聯絡」status（每次載入都執行）
+DB.forEach(function(c){ if (c.status === '待聯絡') c.status = ''; });
 
 function getTypes(c) { return c.types && c.types.length ? c.types : (c.type ? [c.type] : []); }
 function getDisplayTypesForRole(c, cTypes) {
@@ -2054,6 +2050,7 @@ function autoFetchCloud() {
                 });
                 DB = cloudData;
                 DB.forEach(function(c) { if (!c.types) c.types = c.type ? [c.type] : []; });
+                DB.forEach(function(c){ if (c.status === '待聯絡') c.status = ''; });
                 _lastSyncJSON = JSON.stringify(DB);
                 localStorage.setItem('reCRM', _lastSyncJSON);
                 render();
@@ -8346,7 +8343,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403g';
+var APP_VERSION = '20260403h';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
