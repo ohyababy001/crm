@@ -1212,7 +1212,8 @@
 
             <!-- 備註 -->
             <div class="sec-title" style="margin-top:4px">備註 / 跟進記錄</div>
-            <div class="fg">
+            <div id="typeNotesArea"></div>
+            <div class="fg" style="display:none">
                 <textarea id="fnotes" placeholder=""></textarea>
             </div>
         </div>
@@ -1639,7 +1640,8 @@ function _doMigrateRental() {
          'sPriceHistory','sFloorPriceHistory','sServiceFeeHistory',
          'llBasicAddrs','ttBasicAddrs',
          'cName','cPhone','cIdNo','cOccupation','cBirthday','cEmail','cSource','cAddrType','cZip','cAddr','cBasicAddrs','cContacts','cAddrs','deals',
-         'dName','dPhone','dIdNo','dOccupation','dBirthday','dEmail','dSource','dAddrType','dZip','dAddr','dBasicAddrs','dPersons','dAddrs','schedules'
+         'dName','dPhone','dIdNo','dOccupation','dBirthday','dEmail','dSource','dAddrType','dZip','dAddr','dBasicAddrs','dPersons','dAddrs','schedules',
+         'typeNotes'
         ].forEach(function(f){ if(c[f]!==undefined&&c[f]!==''&&c[f]!==null) lr[f]=c[f]; });
         // 從 roleData.landlord 複製加掛標籤的資料（優先於扁平欄位）
         if (c.roleData && c.roleData.landlord) {
@@ -2506,6 +2508,51 @@ function autoBankCode(el) {
     }
 }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+// 分類備註：取得指定分類的備註（向下相容舊 notes）
+function getTypeNote(c, type) {
+    if (c.typeNotes && c.typeNotes[type]) return c.typeNotes[type];
+    return '';
+}
+function getAllNotes(c) {
+    var parts = [];
+    if (c.typeNotes) { Object.keys(c.typeNotes).forEach(function(k){ if(c.typeNotes[k]) parts.push(c.typeNotes[k]); }); }
+    if (c.notes && !parts.length) parts.push(c.notes);
+    return parts.join('\n');
+}
+function renderTypeNotes(c) {
+    var area = document.getElementById('typeNotesArea');
+    if (!area) return;
+    var types = selectedTypes.filter(function(t){ return t !== '租案管理'; });
+    if (!types.length) types = ['備註'];
+    var labels = {'經營買方':'買方備註','庫存屋主':'庫存備註','房東':'房東備註','租客':'租客備註','成交客戶':'成交備註','商機募集':'商機備註'};
+    var tn = (c && c.typeNotes) || {};
+    // 向下相容：舊 notes 遷移
+    if (c && c.notes && !Object.keys(tn).some(function(k){return tn[k];})) {
+        if (types.length === 1 && types[0] !== '備註') tn[types[0]] = c.notes;
+        else tn[types[0]] = c.notes;
+    }
+    area.innerHTML = types.map(function(t) {
+        var label = labels[t] || '備註';
+        var val = tn[t] || '';
+        return '<div class="fg" style="margin-bottom:6px"><label style="font-size:12px">'+label+'</label><textarea data-type-note="'+esc(t)+'" placeholder="" style="min-height:50px">'+esc(val)+'</textarea></div>';
+    }).join('');
+}
+function collectTypeNotes() {
+    var tn = {};
+    document.querySelectorAll('[data-type-note]').forEach(function(ta) {
+        var t = ta.getAttribute('data-type-note');
+        var v = ta.value.trim();
+        if (v) tn[t] = v;
+    });
+    return tn;
+}
+function getNotesForFilter(c, filter) {
+    var typeMap = {'經營買方':'經營買方','庫存屋主':'庫存屋主','房東':'房東','租客':'租客','成交客戶':'成交客戶','商機募集':'商機募集'};
+    var t = typeMap[filter];
+    if (t && c.typeNotes && c.typeNotes[t]) return c.typeNotes[t];
+    if (c.notes && (!c.typeNotes || !Object.keys(c.typeNotes).some(function(k){return c.typeNotes[k];}))) return c.notes;
+    return '';
+}
 
 // ── Sidebar filter ──
 function setFilter(type, btn) {
@@ -2595,7 +2642,7 @@ function getData() {
     }
     if (q) list = list.filter(function(c) {
         // 共用欄位
-        var common = (c.notes||'').toLowerCase().includes(q) ||
+        var common = (getAllNotes(c)||'').toLowerCase().includes(q) ||
             (c.areaDisplay||'').toLowerCase().includes(q) ||
             (c.community||'').toLowerCase().includes(q) ||
             (c.sAddr||'').toLowerCase().includes(q) ||
@@ -2775,7 +2822,7 @@ function getData() {
     if (q && !isRentalTab) {
         list = list.filter(function(c) {
             if (!c._viewAs) return true;
-            var common = (c.notes||'').toLowerCase().includes(q) ||
+            var common = (getAllNotes(c)||'').toLowerCase().includes(q) ||
                 (c.rCommunity||'').toLowerCase().includes(q) ||
                 (c.rAddr||'').toLowerCase().includes(q);
             if (common) return true;
@@ -3078,7 +3125,7 @@ function renderCard(c) {
             return `<span class="tag t-${TC[t]||'buyer'}">${TYPE_DISPLAY[t]||t}</span>`;
         }).join('');
         const statusTag = !cTypes.includes('經營買方') && c.status ? `<span class="tag s-${c.status}">${c.status}</span>` : '';
-        const notesText = c.notes ? c.notes.trim() : '';
+        const notesText = (getTypeNote(c, showType) || (curFilter==='all' ? getAllNotes(c) : '') || c.notes || '').trim();
         const dateLabel = c.lastContact ? '📞 '+relTime(c.lastContact) : '';
         const createdLabel = c.created ? '建檔 '+isoToROC((c.created||'').slice(0,10)) : '';
 
@@ -3341,7 +3388,7 @@ function renderCard(c) {
             ${meta ? `<div class="card-divider"></div><div class="card-meta">${meta}</div>` : ''}
             <div class="card-divider"></div>
             <div class="card-notes-col" onclick="event.stopPropagation()">
-                <div class="notes-inline${notesText?'':' empty-note'}" onclick="editNoteInline('${c.id}',this)">${notesText ? esc(notesText) : '點擊新增備註…'}</div>
+                <div class="notes-inline${notesText?'':' empty-note'}" onclick="editNoteInline('${c.id}',this,'${esc(showType)}')">${notesText ? esc(notesText) : '點擊新增備註…'}</div>
                 <div class="card-contact">
                     ${dateLabel ? `<span>${esc(dateLabel)}</span>` : ''}
                     ${c.history && c.history.length ? `<button class="btn-history" onclick="event.stopPropagation();showHistory('${c.id}')">歷程</button>` : ''}
@@ -3360,10 +3407,18 @@ function renderCard(c) {
 }
 
 // ── Inline Note Edit ──
-function editNoteInline(id, el) {
+function editNoteInline(id, el, noteType) {
     const c = DB.find(x => x.id === id);
     if (!c) return;
-    const original = c.notes || '';
+    if (!c.typeNotes) c.typeNotes = {};
+    // 向下相容：如果有舊 notes 且 typeNotes 是空的，先遷移到第一個類型
+    if (c.notes && !Object.keys(c.typeNotes).some(function(k){return c.typeNotes[k];})) {
+        var firstType = (c.types && c.types[0]) || noteType || '';
+        if (firstType && firstType !== '租案管理') c.typeNotes[firstType] = c.notes;
+    }
+    var key = noteType || curFilter || '';
+    if (key === 'all' || key === '租案管理') key = (c.types && c.types.find(function(t){return t!=='租案管理';})) || '';
+    const original = c.typeNotes[key] || '';
     const ta = document.createElement('textarea');
     ta.className = 'notes-edit-area';
     ta.value = original;
@@ -3381,7 +3436,8 @@ function editNoteInline(id, el) {
         if (val !== original) {
             if (!c.history) c.history = [];
             c.history.push({ type:'note', time: new Date().toISOString(), value: val });
-            c.notes = val;
+            c.typeNotes[key] = val;
+            c.notes = getAllNotes(c);
             c.lastContact = new Date().toISOString();
             persist();
         }
@@ -3852,7 +3908,15 @@ function showDet(id, viewAs) {
         <div class="det-body">
             <div class="tags" style="margin-bottom:10px">${detTypeTags}${statusTag}</div>
             ${allTd}
-            ${c.notes?`<div class="det-sec">備註 / 跟進記錄</div><div style="font-size:14px;white-space:pre-wrap;line-height:1.6">${esc(c.notes)}</div>`:''}
+            ${(function(){
+                var _nLabels={'經營買方':'買方備註','庫存屋主':'庫存備註','房東':'房東備註','租客':'租客備註','成交客戶':'成交備註','商機募集':'商機備註'};
+                if(c.typeNotes&&Object.keys(c.typeNotes).some(function(k){return c.typeNotes[k];})){
+                    return '<div class="det-sec">備註 / 跟進記錄</div>'+Object.keys(c.typeNotes).filter(function(k){return c.typeNotes[k];}).map(function(k){
+                        return '<div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:2px">'+(_nLabels[k]||k)+'</div><div style="font-size:14px;white-space:pre-wrap;line-height:1.6;margin-bottom:8px">'+esc(c.typeNotes[k])+'</div>';
+                    }).join('');
+                }
+                return c.notes?'<div class="det-sec">備註 / 跟進記錄</div><div style="font-size:14px;white-space:pre-wrap;line-height:1.6">'+esc(c.notes)+'</div>':'';
+            })()}
         </div>`;
     document.getElementById('dModal').style.display='flex';
     // 預覽導航
@@ -5983,6 +6047,9 @@ function applyTypePicker() {
     // 房東/租客已是獨立類型，不需要子頁籤切換
     // 自動帶入基本資料
     syncBasicInfo();
+    // 更新備註欄位（按功能分開）
+    var _editC = editId ? DB.find(function(x){return x.id===editId;}) : null;
+    renderTypeNotes(_editC);
     // 更新左右切換導覽（依當前標籤篩選）
     if (editId) updateEditNav();
 }
@@ -6632,6 +6699,7 @@ function openEdit(id, viewAs) {
     // 舊共用欄位（向下相容，仍載入隱藏欄位供清空）
     setVal('fn', ''); setVal('fp', ''); setVal('f-idNo', ''); setVal('fe', '');
     setVal('fs',c.status||'待聯絡'); setVal('flc',isoToROC(c.lastContact)); setVal('fso', ''); setVal('fnotes',c.notes);
+    renderTypeNotes(c);
     // 買方需求區塊
     if (c.bDemands && c.bDemands.length) {
         c.bDemands.forEach(function(bd){ addBuyerDemand(bd); });
@@ -7042,7 +7110,7 @@ function saveClient() {
         name, phone, idNo: get('f-bIdNo') || get('f-idNo'), type, types,
         email: get('f-bEmail') || get('fe'), status: '',
         lastContact: new Date().toISOString(),
-        source: get('f-bSource') || get('fso'), notes:get('fnotes'),
+        source: get('f-bSource') || get('fso'), typeNotes:collectTypeNotes(), notes:(function(){ var tn=collectTypeNotes(); var parts=Object.keys(tn).map(function(k){return tn[k];}); return parts.join('\n')||get('fnotes'); })(),
         // 經營買方
         bGrade:get('f-bGrade'),
         bName:get('f-bName'), bPhone:get('f-bPhone'), bIdNo:get('f-bIdNo'), bOccupation:get('f-bOccupation'), bBirthday:rocToISO(get('f-bBirthday')), bAddrType:get('f-bAddrType'), bZip:get('f-bZip'), bAddr:get('f-bAddr'), bBasicAddrs:getBuyerBasicAddrs(), bEmail:get('f-bEmail'), bSource:get('f-bSource'),
@@ -8231,7 +8299,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260402g';
+var APP_VERSION = '20260402h';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
