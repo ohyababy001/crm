@@ -5444,7 +5444,8 @@ function loadCustomEquips(data) {
 }
 function clearCustomEquips() { var el = document.getElementById('equipCustomList'); if(el) el.innerHTML = ''; customEquipId = 0; }
 initEquipList();
-initCContactHeader();
+// initCContactHeader 定義在區塊9，延遲到 DOM 載入後執行
+document.addEventListener('DOMContentLoaded', function() { if(typeof initCContactHeader==='function') initCContactHeader(); });
 
 // ── 租案子頁籤 ──
 var activeRentalTab = '房東';
