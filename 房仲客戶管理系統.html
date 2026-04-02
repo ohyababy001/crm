@@ -1187,7 +1187,12 @@
 
             <!-- 商機募集 -->
             <div class="type-sec" id="s-商機募集">
-                <div class="basic-contact-box" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;margin-top:4px;background:#FAFAF9"><div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px">基本聯絡人</div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;align-items:center" id="dContactTabs">
+                    <button type="button" class="bf-chip on" data-tab-idx="0" onclick="switchDContactTab(0,this)">基本聯絡人</button>
+                </div>
+                <button type="button" class="add-row-btn" onclick="addDPersonTabbed()" style="margin-bottom:8px;display:inline-block;width:auto;padding:4px 12px">＋ 新增聯絡人</button>
+                <div id="dContactPanels">
+                    <div class="d-contact-panel" data-panel="0" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9">
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'dev')">帶入</button></label><input id="f-dName" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-dPhone" placeholder="" onblur="autoPhone(this)"></div>
@@ -1206,9 +1211,9 @@
                     <button type="button" class="btn-ic" onclick="addBuyerAddrRow('dBasicAddrList')" title="新增地址" style="margin-bottom:2px;font-size:16px;padding:6px 8px">＋</button>
                 </div>
                 <div id="dBasicAddrList"></div>
+                    </div>
                 </div>
-                <div id="dPersonList"></div>
-                <button type="button" class="add-row-btn" onclick="addDPersonRow()" style="margin-bottom:6px">＋ 新增聯絡人</button>
+                <div id="dPersonList" style="display:none"></div>
                 <div class="sec-title" style="margin-top:10px">開發物件</div>
                 <div id="dAddrList"></div>
                 <button type="button" class="add-row-btn" onclick="addDAddrRow()">＋ 新增物件</button>
@@ -1818,8 +1823,8 @@ function loadTagFields(tagType, d) {
         if (d.dAddrType) { var at=document.getElementById('f-dAddrType'); if(at) at.value=d.dAddrType; }
         document.getElementById('dBasicAddrList').innerHTML='';
         if (d.dBasicAddrs && d.dBasicAddrs.length) d.dBasicAddrs.forEach(function(a){ addBuyerAddrRow('dBasicAddrList',a); });
-        clearDPersons();
-        if (d.dPersons && d.dPersons.length) d.dPersons.forEach(function(p){ addDPersonRow(p); });
+        clearDContactTabs();
+        if (d.dPersons && d.dPersons.length) d.dPersons.forEach(function(p){ addDPersonTabbed(p); });
         clearDAddrs();
         if (d.dAddrs && d.dAddrs.length) d.dAddrs.forEach(function(a){ addDAddrRow(a); });
         clearSchedules();
@@ -5597,11 +5602,107 @@ function addPbAddrRow(btn, data) {
 function getBPersons() { return getPersonBlocks('bPersonList'); }
 function clearBPersons() { clearPersonBlocks('bPersonList'); }
 
-// ── 商機募集：屋主多筆 ──
+// ── 商機募集：屋主多筆（頁籤式） ──
 var dPersonId = 0;
+var _dContactTabIdx = 0;
 function addDPersonRow(data) { addPersonBlock('dPersonList', data); }
-function getDPersons() { return getPersonBlocks('dPersonList'); }
+function getDPersons() {
+    var r = [];
+    document.querySelectorAll('#dContactPanels .d-contact-panel[data-panel]').forEach(function(panel) {
+        if (panel.getAttribute('data-panel') === '0') return; // skip basic
+        var block = panel.querySelector('.person-block');
+        if (!block) return;
+        var get = function(f){ var el=block.querySelector('[data-f="'+f+'"]'); return el?el.value.trim():''; };
+        var obj = { name:get('name'), phone:get('phone'), idNo:get('idNo'), occupation:get('occupation'), birthday:rocToISO(get('birthday')), email:get('email'), source:get('source'), addrType:get('addrType'), zip:get('zip'), addr:get('addr') };
+        // 額外地址
+        var extraAddrs = [];
+        block.querySelectorAll('.pb-addr-list [data-addr-row]').forEach(function(row) {
+            var g = function(f){ var el=row.querySelector('[data-f="'+f+'"]'); return el?el.value.trim():''; };
+            if (g('addr')||g('zip')) extraAddrs.push({ addrType:g('addrType'), zip:g('zip'), addr:g('addr') });
+        });
+        if (extraAddrs.length) obj.extraAddrs = extraAddrs;
+        if (obj.name||obj.phone) r.push(obj);
+    });
+    return r;
+}
 function clearDPersons() { clearPersonBlocks('dPersonList'); dPersonId = 0; }
+
+function addDPersonTabbed(data) {
+    // 先在隱藏的 dPersonList 新增一個 person block
+    addDPersonRow(data);
+    var blocks = document.querySelectorAll('#dPersonList .person-block');
+    var idx = blocks.length; // 1-based (基本是0)
+    var name = (data && data.name) ? data.name : '聯絡人' + idx;
+    // 新增頁籤按鈕
+    var tabs = document.getElementById('dContactTabs');
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'bf-chip';
+    btn.textContent = name;
+    btn.onclick = function(){ switchDContactTab(idx, btn); };
+    btn.setAttribute('data-tab-idx', idx);
+    tabs.appendChild(btn);
+    // 新增面板（從 person-block 複製內容顯示）
+    var panel = document.createElement('div');
+    panel.className = 'd-contact-panel';
+    panel.setAttribute('data-panel', idx);
+    panel.style.cssText = 'border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9;display:none';
+    var block = blocks[blocks.length - 1];
+    panel.appendChild(block);
+    block.style.border = 'none'; block.style.padding = '0'; block.style.margin = '0'; block.style.background = 'transparent';
+    // 移除 person-block 自帶的標題列和刪除按鈕（用頁籤管理）
+    var header = block.querySelector('div:first-child');
+    if (header && header.querySelector('.c-del')) {
+        header.innerHTML = '<span style="font-size:12px;font-weight:700;color:#8B7355">'+esc(name)+'</span>' +
+            '<button type="button" class="c-del" onclick="removeDContactTab('+idx+')" style="color:#EF4444">刪除此聯絡人</button>';
+        header.style.display = 'flex'; header.style.justifyContent = 'space-between'; header.style.alignItems = 'center';
+    }
+    document.getElementById('dContactPanels').appendChild(panel);
+    // 切到新頁籤
+    switchDContactTab(idx, btn);
+    // 監聽姓名欄位更新頁籤文字
+    var nameInput = block.querySelector('[data-f="name"]');
+    if (nameInput) {
+        nameInput.addEventListener('input', function() {
+            btn.textContent = nameInput.value || '聯絡人' + idx;
+        });
+    }
+}
+
+function switchDContactTab(idx, btn) {
+    _dContactTabIdx = idx;
+    document.querySelectorAll('#dContactTabs .bf-chip').forEach(function(b){ b.classList.remove('on'); });
+    if (btn) btn.classList.add('on');
+    else {
+        var btns = document.querySelectorAll('#dContactTabs .bf-chip');
+        btns.forEach(function(b){ if (parseInt(b.getAttribute('data-tab-idx')||'0') === idx) b.classList.add('on'); });
+    }
+    document.querySelectorAll('#dContactPanels .d-contact-panel').forEach(function(p){
+        p.style.display = parseInt(p.getAttribute('data-panel')) === idx ? '' : 'none';
+    });
+}
+
+function removeDContactTab(idx) {
+    if (!confirm('確定刪除此聯絡人？')) return;
+    var panel = document.querySelector('#dContactPanels .d-contact-panel[data-panel="'+idx+'"]');
+    if (panel) panel.remove();
+    var tab = document.querySelector('#dContactTabs .bf-chip[data-tab-idx="'+idx+'"]');
+    if (tab) tab.remove();
+    // 切回基本
+    var firstBtn = document.querySelector('#dContactTabs .bf-chip');
+    if (firstBtn) switchDContactTab(0, firstBtn);
+}
+
+function clearDContactTabs() {
+    // 清除所有額外聯絡人頁籤和面板
+    document.querySelectorAll('#dContactTabs .bf-chip[data-tab-idx]').forEach(function(b){ b.remove(); });
+    document.querySelectorAll('#dContactPanels .d-contact-panel[data-panel]').forEach(function(p){
+        if (p.getAttribute('data-panel') !== '0') p.remove();
+    });
+    document.getElementById('dPersonList').innerHTML = '';
+    dPersonId = 0;
+    switchDContactTab(0);
+}
 
 // ── 商機募集：社區/地址多筆 ──
 var dAddrId = 0;
@@ -8797,7 +8898,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404c';
+var APP_VERSION = '20260404d';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
