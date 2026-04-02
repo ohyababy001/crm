@@ -1825,7 +1825,13 @@ function loadTagFields(tagType, d) {
         document.getElementById('dBasicAddrList').innerHTML='';
         if (d.dBasicAddrs && d.dBasicAddrs.length) d.dBasicAddrs.forEach(function(a){ addBuyerAddrRow('dBasicAddrList',a); });
         clearDContactTabs();
-        if (d.dPersons && d.dPersons.length) d.dPersons.forEach(function(p){ addDPersonTabbed(p); });
+        if (d.dPersons && d.dPersons.length) {
+            // dPersons[0] 是基本聯絡人本人（saveClient 會塞入），跳過
+            d.dPersons.forEach(function(p, i) {
+                if (i === 0 && p.name === d.dName && p.phone === d.dPhone) return;
+                addDPersonTabbed(p);
+            });
+        }
         clearDAddrs();
         if (d.dAddrs && d.dAddrs.length) d.dAddrs.forEach(function(a){ addDAddrRow(a); });
         clearSchedules();
@@ -8899,7 +8905,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404g';
+var APP_VERSION = '20260404h';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
