@@ -7069,7 +7069,7 @@ function resetForm() {
     document.getElementById('sourceGroup').style.display = '';
     clearBPersons();
     clearBuyerBasicAddrs();
-    ['sBasicAddrList','llBasicAddrList','ttBasicAddrList','cBasicAddrList','dBasicAddrList'].forEach(function(id){ var el=document.getElementById(id); if(el) el.innerHTML=''; });
+    ['basicAddrList','sBasicAddrList','llBasicAddrList','ttBasicAddrList','cBasicAddrList','dBasicAddrList'].forEach(function(id){ var el=document.getElementById(id); if(el) el.innerHTML=''; });
     clearPersonBlocks('sPersonList');
     clearSellerProperties();
     document.getElementById('sellerFixedProperty').style.display = 'none';
@@ -7312,6 +7312,8 @@ function openEdit(id, viewAs) {
     if (_at) { var _atEl = document.getElementById('f-addrType'); if(_atEl) _atEl.value = _at; }
     setVal('f-addr', c.bAddr||c.sOwnerAddr||c.cAddr||c.dAddr||c.llAddr||c.ttAddr||'');
     setVal('f-zip', c.bZip||c.sZip||c.cZip||c.dZip||c.llZip||c.ttZip||'');
+    var _basicAddrs = c.basicAddrs||c.bBasicAddrs||c.sBasicAddrs||c.llBasicAddrs||c.ttBasicAddrs||c.cBasicAddrs||c.dBasicAddrs||[];
+    if (_basicAddrs.length) _basicAddrs.forEach(function(a){ addBuyerAddrRow('basicAddrList', a); });
     var _ll0 = (c.rLandlords&&c.rLandlords[0])||{};
     setVal('f-bank', _ll0.bank||c.llBank||c.bank||'');
     setVal('f-bankCode', _ll0.bankCode||c.llBankCode||c.bankCode||'');
@@ -7684,7 +7686,7 @@ function saveClient() {
         email: _basicEmail, status: '',
         lastContact: new Date().toISOString(),
         source: _basicSource, occupation: _basicOcc, birthday: _basicBday,
-        addrType: _basicAddrType, addr: _basicAddr, zip: _basicZip,
+        addrType: _basicAddrType, addr: _basicAddr, zip: _basicZip, basicAddrs: getBasicAddrs('basicAddrList'),
         bank: _basicBank, bankCode: _basicBankCode, bankAccount: _basicBankAccount,
         typeNotes:collectTypeNotes(), notes:(function(){ var tn=collectTypeNotes(); return Object.keys(tn).map(function(k){return tn[k];}).join('\n'); })(),
         // 經營買方
@@ -7814,6 +7816,9 @@ function saveClient() {
     }
     // 銀行資料也存到舊欄位
     data.llBank = _basicBank; data.llBankCode = _basicBankCode; data.llBankAccount = _basicBankAccount;
+    // 額外地址同步到各類型
+    var _bAddrs = data.basicAddrs || [];
+    data.bBasicAddrs = _bAddrs; data.sBasicAddrs = _bAddrs; data.cBasicAddrs = _bAddrs; data.dBasicAddrs = _bAddrs; data.llBasicAddrs = _bAddrs; data.ttBasicAddrs = _bAddrs;
     // 租案：先儲存當前頁籤表單到快取（roleData 在歷程比較後再建）
     if (selectedTypes.includes('租案管理')) {
         var curRole = activeRentalTab === '租客' ? 'tenant' : 'landlord';
@@ -8960,7 +8965,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405zs';
+var APP_VERSION = '20260405zt';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
