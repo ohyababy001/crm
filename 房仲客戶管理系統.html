@@ -892,6 +892,13 @@
                 </div>
             </div>
 
+            <!-- 共用聯絡人 -->
+            <div id="sharedContactsWrap" style="margin-bottom:10px">
+                <div class="sec-title">其他聯絡人</div>
+                <div id="sharedContactsList"></div>
+                <button type="button" class="add-row-btn" onclick="addSharedContact()">＋ 新增聯絡人</button>
+            </div>
+
             <!-- 經營買方 -->
             <div class="type-sec" id="s-經營買方">
                 <div style="display:flex;align-items:center;gap:8px;margin:4px 0 10px">
@@ -5699,6 +5706,17 @@ function addPbAddrRow(btn, data) {
 function getBPersons() { return getPersonBlocks('bPersonList'); }
 function clearBPersons() { clearPersonBlocks('bPersonList'); }
 
+// ── 共用聯絡人 ──
+function addSharedContact(data) { addPersonBlock('sharedContactsList', data); }
+function getSharedContacts() { return getPersonBlocks('sharedContactsList'); }
+function clearSharedContacts() { document.getElementById('sharedContactsList').innerHTML = ''; }
+function loadSharedContacts(c) {
+    clearSharedContacts();
+    if (c.contacts && c.contacts.length) {
+        c.contacts.forEach(function(p){ addSharedContact(p); });
+    }
+}
+
 // ── 商機募集：屋主多筆（頁籤式） ──
 var dPersonId = 0;
 function addDPersonRow(data) { addPersonBlock('dPersonList', data); }
@@ -7079,6 +7097,7 @@ function resetForm() {
     clearDPersons();
     clearDAddrs();
     clearSchedules();
+    clearSharedContacts();
     document.querySelectorAll('#contractTypePicker .rm-btn').forEach(b => b.classList.remove('on'));
     selectedRooms = [];
     selectedCity = '';
@@ -7517,6 +7536,9 @@ function openEdit(id, viewAs) {
     else if (c.dCommunity || c.dAddr) addDAddrRow({devType:c.devType||'出售', community:c.dCommunity, addr:c.dAddr});
     if (c.schedules && c.schedules.length) c.schedules.forEach(function(s){ addScheduleRow(s); });
 
+    // 共用聯絡人
+    loadSharedContacts(c);
+
     // 根據 viewAs 或有無資料決定預設頁籤（必須在 applyTypePicker 之前設定）
     var hasLL2 = (c.rLandlords && c.rLandlords.length) || c.rLandlord;
     var hasTT2 = (c.rTenants && c.rTenants.length) || c.rTenant;
@@ -7806,30 +7828,8 @@ function saveClient() {
         cDriveUrl: editId ? (DB.find(function(x){return x.id===editId;})||{}).cDriveUrl||'' : '',
         dDriveUrl: editId ? (DB.find(function(x){return x.id===editId;})||{}).dDriveUrl||'' : '',
     };
-    // 統一聯絡人：從各類型額外聯絡人合併到 contacts
-    (function(){
-        var _all = [], _seen = {};
-        var _bn = (obj.bName||obj.sName||obj.cName||obj.dName||obj.llName||obj.ttName||obj.name||'').trim();
-        function _ac(p, src) {
-            if (!p || !p.name) return;
-            var k = (p.name||'').trim()+'_'+(p.phone||'');
-            if (_seen[k] || (p.name||'').trim()===_bn) return;
-            _seen[k] = true;
-            var o = { name:p.name, phone:p.phone||'', idNo:p.idNo||'', occupation:p.occupation||'', birthday:p.birthday||'', email:p.email||'', source:p.source||'', addrType:p.addrType||'', zip:p.zip||'', addr:p.addr||'', _src:src };
-            if (p.extraAddrs) o.extraAddrs = p.extraAddrs;
-            if (p.bank) o.bank = p.bank;
-            if (p.bankCode) o.bankCode = p.bankCode;
-            if (p.bankAccount) o.bankAccount = p.bankAccount;
-            _all.push(o);
-        }
-        if (obj.bPersons) obj.bPersons.forEach(function(p){ _ac(p,'買方'); });
-        if (obj.sPersons) obj.sPersons.forEach(function(p){ _ac(p,'庫存'); });
-        if (obj.cContacts) obj.cContacts.forEach(function(p){ _ac(p,'成交'); });
-        if (obj.dPersons && obj.dPersons.length > 1) obj.dPersons.slice(1).forEach(function(p){ _ac(p,'商機'); });
-        if (obj.rLandlords && obj.rLandlords.length > 1) obj.rLandlords.slice(1).forEach(function(p){ _ac(p,'房東'); });
-        if (obj.rTenants && obj.rTenants.length > 1) obj.rTenants.slice(1).forEach(function(p){ _ac(p,'租客'); });
-        obj.contacts = _all;
-    })();
+    // 統一聯絡人：從共用聯絡人區塊讀取
+    obj.contacts = getSharedContacts();
     // 租案：先儲存當前頁籤表單到快取（roleData 在歷程比較後再建）
     if (selectedTypes.includes('租案管理')) {
         var curRole = activeRentalTab === '租客' ? 'tenant' : 'landlord';
@@ -8976,7 +8976,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404zy';
+var APP_VERSION = '20260404zz';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
