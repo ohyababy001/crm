@@ -4075,6 +4075,7 @@ function showDet(id, viewAs) {
                         return '<div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:2px">'+(_nLabels[k]||k)+'</div><div style="font-size:14px;white-space:pre-wrap;line-height:1.6;margin-bottom:8px">'+esc(c.typeNotes[k])+'</div>';
                     }).join('');
                 }
+                if (c.typeNotes) return '';
                 return c.notes?'<div class="det-sec">備註 / 跟進記錄</div><div style="font-size:14px;white-space:pre-wrap;line-height:1.6">'+esc(c.notes)+'</div>':'';
             })()}
         </div>`;
@@ -8978,7 +8979,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405zc';
+var APP_VERSION = '20260405zd';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
