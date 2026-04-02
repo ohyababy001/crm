@@ -3076,7 +3076,7 @@ function renderDashboard() {
         var diff = Math.ceil((thisYear - now) / 86400000);
         if (diff < 0 && diff >= -1) { thisYear = new Date(now.getFullYear()+1, parseInt(parts[1])-1, parseInt(parts[2])); diff = Math.ceil((thisYear - now) / 86400000); }
         if (diff >= 0 && diff <= 7) {
-            var key = id + '_' + (who||'') + '_' + parts[1] + parts[2];
+            var key = id + '_' + parts[1] + parts[2];
             if (_bdayDedup[key]) return;
             _bdayDedup[key] = true;
             var dismissKey = 'bday_'+id+'_'+(who||'')+'_'+now.getFullYear();
@@ -8968,7 +8968,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405zu';
+var APP_VERSION = '20260405zv';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
