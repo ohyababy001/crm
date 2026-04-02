@@ -6017,6 +6017,11 @@ function buildDriveFolderName(type, prop, client) {
     if (type === '租案' && typeof client === 'object') {
         var llName = client.llName || (client.rLandlords && client.rLandlords[0] ? client.rLandlords[0].name : '') || client.rLandlord || '';
         var ttName = client.ttName || (client.rTenants && client.rTenants[0] ? client.rTenants[0].name : '') || client.rTenant || '';
+        // 無起租日：【待租】建立時間-地址-[房東]名字
+        if (!prop.rStartDate) {
+            var _created = client.created ? isoToROC(client.created.slice(0,10)).replace(/\//g,'') : dateStr;
+            return '【待租】' + _created + '-' + addr + '-[房東]' + (llName || '未填姓名');
+        }
         if (llName && ttName) namePart = '[房東]' + llName + '-[租客]' + ttName;
         else if (llName) namePart = '[房東]' + llName;
         else if (ttName) namePart = '[租客]' + ttName;
@@ -8792,7 +8797,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404b';
+var APP_VERSION = '20260404c';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
