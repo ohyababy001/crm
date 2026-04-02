@@ -3246,6 +3246,8 @@ function renderCard(c) {
             if (_area) meta += `<div class="cmeta-row"><span class="cmeta-k">區域</span><span class="cmeta-v" style="white-space:pre-line;overflow:visible">${esc(_area)}</span></div>`;
             if (_rooms)   meta += `<div class="cmeta-row"><span class="cmeta-k">房型</span><span class="cmeta-v">${esc(_rooms)}</span></div>`;
             if (_budget)      meta += `<div class="cmeta-row"><span class="cmeta-k">預算</span><span class="cmeta-v">${esc(_budget)}${_budget.includes('萬')?'':'萬'}</span></div>`;
+            var _want = _bd ? _bd.want : cc.want;
+            if (_want) meta += `<div class="cmeta-row"><span class="cmeta-k">想要</span><span class="cmeta-v">${esc(_want)}</span></div>`;
         } else if (showType==='庫存屋主') {
             // 根據等級篩選或優先度選擇顯示的物件
             var sp0 = {};
@@ -8797,7 +8799,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404zd';
+var APP_VERSION = '20260404ze';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
