@@ -3060,7 +3060,11 @@ function renderDashboard() {
             '<div class="dash-sched-row1">' +
                 '<span class="dash-item-info" style="color:'+(s.days===0?'#EF4444':'')+'">'+esc(isoToMDW(s.date))+(s.time?' '+s.time:'')+'</span>' +
                 nameHtml +
-                '<span style="display:flex;gap:2px;flex-shrink:0">' + editBtn + doneBtn + '</span>' +
+                '<span style="display:flex;gap:2px;flex-shrink:0">' + editBtn + doneBtn +
+                (s.personal
+                    ? '<button class="btn-ic" onclick="deletePersonalSchedule('+s.psIdx+')" title="刪除" style="font-size:13px;padding:2px 4px">🗑️</button>'
+                    : '<button class="btn-ic" onclick="deleteSchedule(\''+s.id+'\',\''+s.date+'\',\''+s.time+'\')" title="刪除" style="font-size:13px;padding:2px 4px">🗑️</button>') +
+                '</span>' +
             '</div>' + memoHtml +
         '</div>';
     }).join('') : '<div class="dash-empty">近15天內沒有預排行程</div>';
@@ -5978,6 +5982,34 @@ function completePersonalSchedule(idx) {
         render();
     });
 }
+function deletePersonalSchedule(idx) {
+    confirmAction('確定刪除此行程？', function() {
+        var arr = _getPS();
+        arr.splice(idx, 1);
+        _savePS(arr);
+        render();
+    });
+}
+function deleteSchedule(clientId, date, time) {
+    confirmAction('確定刪除此行程？', function() {
+        var c = DB.find(function(x){ return x.id === clientId; });
+        if (!c || !c.schedules) return;
+        c.schedules = c.schedules.filter(function(s) {
+            return !(s.date === date && (s.time||'') === (time||''));
+        });
+        persist();
+        render();
+    });
+}
+function deleteDoneSchedule(idx) {
+    confirmAction('確定刪除此紀錄？', function() {
+        var rec = _getPSRecord();
+        if (!rec.doneSchedules) return;
+        rec.doneSchedules.splice(idx, 1);
+        persist();
+        filterDoneList();
+    });
+}
 
 // ── 全部行程 ──
 function _getAllFutureSchedules() {
@@ -6047,7 +6079,11 @@ function filterAllSchedList() {
                 '<div style="font-size:14px;color:#334155;font-weight:600">'+esc(isoToMDW(s.date,true))+(s.time?' '+s.time:'')+'</div>' +
                 '<div style="font-size:15px"><span style="color:'+nameColor+';font-weight:600">'+esc(nameText)+'</span>'+memoText+'</div>' +
             '</div>' +
-            '<span style="display:flex;gap:2px;flex-shrink:0">' + editBtn + doneBtn + '</span>' +
+            '<span style="display:flex;gap:2px;flex-shrink:0">' + editBtn + doneBtn +
+            (s.personal
+                ? '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();deletePersonalSchedule('+s.psIdx+')" title="刪除" style="font-size:14px;padding:4px 8px">🗑️</button>'
+                : '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();deleteSchedule(\''+s.clientId+'\',\''+s.date+'\',\''+s.time+'\')" title="刪除" style="font-size:14px;padding:4px 8px">🗑️</button>') +
+            '</span>' +
         '</div>';
     }).join('') : '<div style="text-align:center;color:var(--muted);padding:20px;font-size:14px">'+(q?'沒有符合的行程':'目前沒有未來行程')+'</div>';
 }
@@ -6089,6 +6125,7 @@ function filterDoneList() {
                 '<div style="font-size:11px;color:#94A3B8">完成於 '+esc(toROCDateTime(d.doneAt))+'</div>' +
             '</div>' +
             '<button class="btn-ic" onclick="restoreDoneSchedule('+realIdx+')" title="恢復" style="font-size:14px;padding:4px 8px">↩️</button>' +
+            '<button class="btn-ic" onclick="deleteDoneSchedule('+realIdx+')" title="刪除" style="font-size:14px;padding:4px 8px">🗑️</button>' +
         '</div>';
     }).join('') : '<div style="text-align:center;color:var(--muted);padding:20px;font-size:14px">'+(q?'沒有符合的紀錄':'尚無已完成行程')+'</div>';
 }
@@ -8980,7 +9017,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405zw';
+var APP_VERSION = '20260405zx';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
