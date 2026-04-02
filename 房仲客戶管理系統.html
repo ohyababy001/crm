@@ -4012,6 +4012,30 @@ function showDet(id, viewAs) {
         </div>
         <div class="det-body">
             <div class="tags" style="margin-bottom:10px">${detTypeTags}${statusTag}</div>
+            ${(function(){
+                var info = [];
+                // 根據類型取得基本聯絡人欄位
+                var idNo = c.bIdNo || c.sIdNo || c.cIdNo || c.dIdNo || c.llIdNo || c.ttIdNo || '';
+                var occ = c.bOccupation || c.sOccupation || c.cOccupation || c.dOccupation || c.llOccupation || c.ttOccupation || '';
+                var bday = c.bBirthday || c.sBirthday || c.cBirthday || c.dBirthday || c.llBirthday || c.ttBirthday || '';
+                var email = c.bEmail || c.sEmail || c.cEmail || c.dEmail || c.llEmail || c.ttEmail || '';
+                var source = c.bSource || c.sSource || c.cSource || c.dSource || c.rSource || '';
+                var addr = c.bAddr || c.sOwnerAddr || c.cAddr || c.dAddr || c.llAddr || c.ttAddr || '';
+                var zip = c.bZip || c.sZip || c.cZip || c.dZip || c.llZip || c.ttZip || '';
+                if (idNo) info.push(dRow('身分證字號', idNo));
+                if (bday) info.push(dRow('生日', isoToROC(bday)));
+                if (occ) info.push(dRow('職業', occ));
+                if (email) info.push(dRow('Email', email));
+                if (source) info.push(dRow('客戶來源', source));
+                if (addr) info.push(dRow('地址', (zip?zip+' ':'')+addr));
+                // 房東銀行帳號
+                if (hasType(c,'房東') || hasType(c,'租案管理')) {
+                    var ll0 = (c.rLandlords && c.rLandlords[0]) || {};
+                    var bank = ll0.bank || ''; var bankCode = ll0.bankCode || ''; var bankAccount = ll0.bankAccount || '';
+                    if (bank || bankAccount) info.push(dRow('銀行', (bank?bank:'')+(bankCode?' '+bankCode:'')+(bankAccount?' '+bankAccount:'')));
+                }
+                return info.length ? '<div style="border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:8px">'+info.join('')+'</div>' : '';
+            })()}
             ${allTd}
             ${(function(){
                 if (!c.schedules || !c.schedules.length) return '';
@@ -8885,7 +8909,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404zr';
+var APP_VERSION = '20260404zs';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
