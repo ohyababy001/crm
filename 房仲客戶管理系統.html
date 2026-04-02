@@ -2096,6 +2096,21 @@ function autoFetchCloud() {
                 DB = cloudData;
                 DB.forEach(function(c) { if (!c.types) c.types = c.type ? [c.type] : []; });
                 DB.forEach(function(c){ if (c._system) return; if (c.status === '待聯絡') c.status = ''; });
+                // 雲端同步後重新合併聯絡人
+                DB.forEach(function(c) {
+                    if (c._system) return;
+                    var _all = [], _seen = {};
+                    var _bn = (c.bName||c.sName||c.cName||c.dName||c.llName||c.ttName||c.name||'').trim();
+                    function _ac(p) { if (!p||!p.name) return; var k=(p.name||'').trim()+'_'+(p.phone||''); if (_seen[k]||(p.name||'').trim()===_bn) return; _seen[k]=true; _all.push(p); }
+                    if (c.contacts) c.contacts.forEach(_ac);
+                    if (c.bPersons) c.bPersons.forEach(_ac);
+                    if (c.sPersons) c.sPersons.forEach(_ac);
+                    if (c.cContacts) c.cContacts.forEach(_ac);
+                    if (c.dPersons&&c.dPersons.length>1) c.dPersons.slice(1).forEach(_ac);
+                    if (c.rLandlords&&c.rLandlords.length>1) c.rLandlords.slice(1).forEach(_ac);
+                    if (c.rTenants&&c.rTenants.length>1) c.rTenants.slice(1).forEach(_ac);
+                    c.contacts = _all;
+                });
                 _lastSyncJSON = JSON.stringify(DB);
                 localStorage.setItem('reCRM', _lastSyncJSON);
                 render();
@@ -5697,30 +5712,9 @@ function getSharedContacts() { return getPersonBlocks('sharedContactsList'); }
 function clearSharedContacts() { document.getElementById('sharedContactsList').innerHTML = ''; }
 function loadSharedContacts(c) {
     clearSharedContacts();
-    // 每次都重新合併所有來源，確保不遺漏
-    var _all = [], _seen = {};
-    var _bn = (c.bName||c.sName||c.cName||c.dName||c.llName||c.ttName||c.name||'').trim();
-    function _ac(p, src) {
-        if (!p || !p.name) return;
-        var k = (p.name||'').trim()+'_'+(p.phone||'');
-        if (_seen[k] || (p.name||'').trim()===_bn) return;
-        _seen[k] = true;
-        var o = { name:p.name, phone:p.phone||'', idNo:p.idNo||'', occupation:p.occupation||'', birthday:p.birthday||'', email:p.email||'', source:p.source||'', addrType:p.addrType||'', zip:p.zip||'', addr:p.addr||'', _src:p._src||src };
-        if (p.extraAddrs) o.extraAddrs = p.extraAddrs;
-        if (p.bank) o.bank = p.bank;
-        if (p.bankCode) o.bankCode = p.bankCode;
-        if (p.bankAccount) o.bankAccount = p.bankAccount;
-        _all.push(o);
+    if (c.contacts && c.contacts.length) {
+        c.contacts.forEach(function(p){ addSharedContact(p); });
     }
-    if (c.contacts) c.contacts.forEach(function(p){ _ac(p, p._src||'聯絡人'); });
-    if (c.bPersons) c.bPersons.forEach(function(p){ _ac(p,'買方'); });
-    if (c.sPersons) c.sPersons.forEach(function(p){ _ac(p,'庫存'); });
-    if (c.cContacts) c.cContacts.forEach(function(p){ _ac(p,'成交'); });
-    if (c.dPersons && c.dPersons.length > 1) c.dPersons.slice(1).forEach(function(p){ _ac(p,'商機'); });
-    if (c.rLandlords && c.rLandlords.length > 1) c.rLandlords.slice(1).forEach(function(p){ _ac(p,'房東'); });
-    if (c.rTenants && c.rTenants.length > 1) c.rTenants.slice(1).forEach(function(p){ _ac(p,'租客'); });
-    c.contacts = _all;
-    _all.forEach(function(p){ addSharedContact(p); });
 }
 
 // ── 商機募集：屋主多筆（頁籤式） ──
@@ -9010,7 +9004,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405w';
+var APP_VERSION = '20260405x';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
