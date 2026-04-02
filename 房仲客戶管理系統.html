@@ -3472,8 +3472,8 @@ function renderCard(c) {
             </div>
             <div class="card-bottom-right">
                 <div style="display:flex;gap:6px">
-                    <button class="btn-ic" onclick="event.stopPropagation();openDriveFolder('${c.id}','${c._viewAs||''}')" title="雲端資料夾">${getRpDriveIcon(c)}</button>
                     <button class="btn-ic" onclick="event.stopPropagation();quickSchedule('${c.id}')" title="預排行程">📅</button>
+                    <button class="btn-ic" onclick="event.stopPropagation();openDriveFolder('${c.id}','${c._viewAs||''}')" title="雲端資料夾">${getRpDriveIcon(c)}</button>
                     <button class="btn-ic" onclick="event.stopPropagation();openEdit('${c.id}','${c._viewAs||''}')" title="編輯">✏️</button>
                     ${archBtn}
                     <button class="btn-ic del" onclick="event.stopPropagation();del('${c.id}')" title="刪除">🗑️</button>
@@ -8777,7 +8777,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zzv';
+var APP_VERSION = '20260403zzw';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
