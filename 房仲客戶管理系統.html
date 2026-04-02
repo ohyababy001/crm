@@ -3194,6 +3194,7 @@ function render() {
         }
     }
     grid.innerHTML = html;
+    window._cardListOrder = list.map(function(c){ return { id:c.id, viewAs:c._viewAs||'' }; });
 }
 
 function renderCard(c) {
@@ -7593,61 +7594,21 @@ function navEdit(dir) {
 function updateEditNav() {
     var nav = document.getElementById('editNavGroup');
     if (!editId) { nav.style.display = 'none'; return; }
-    // 根據 curFilter 篩選（含同房東合併標籤）
-    var _navFilter = curFilter;
-    var list = DB.filter(function(c){ return !c._deleted && !c.archived && !c._system; });
-    if (_navFilter !== 'all') {
-        list = list.filter(function(c){
-            if (hasType(c, _navFilter)) return true;
-            if (hasType(c, '租案管理') && ['經營買方','庫存屋主','成交客戶','商機募集'].includes(_navFilter)) {
-                return getMergedLandlordTypes(c).includes(_navFilter);
-            }
-            return false;
-        });
-    }
-    // 排序：沿用 sortSel 的排序邏輯
-    var sortType = activeView || curFilter;
-    var _isRental2 = sortType === '房東' || sortType === '租客' || sortType === '租案管理';
-    var s2 = document.getElementById('sortSel').value;
-    list.sort(function(a,b) {
-        if (s2==='expireDate') {
-            if (_isRental2) {
-                function _getRentalEnd2(c) {
-                    if (c.rEndDate) return c.rEndDate;
-                    if (c.rProperties && c.rProperties.length) return c.rProperties.reduce(function(min,rp){ var d=rp.rEndDate||'9999-12-31'; return d<min?d:min; },'9999-12-31');
-                    if (c.linkedLandlordId) { var _ll=DB.find(function(x){return x.id===c.linkedLandlordId&&!x._deleted;}); if(_ll&&_ll.rProperties&&_ll.rProperties.length){ var _rp=_ll.rProperties[c.linkedPropertyIdx||0]; if(_rp&&_rp.rEndDate) return _rp.rEndDate; } }
-                    return '9999-12-31';
-                }
-                return _getRentalEnd2(a).localeCompare(_getRentalEnd2(b));
-            }
-            var aEnd = a.contractEnd || (a.sProperties && a.sProperties.length ? a.sProperties.reduce(function(min,sp){ var d=sp.contractEnd||'9999-12-31'; return d<min?d:min; },'9999-12-31') : '9999-12-31');
-            var bEnd = b.contractEnd || (b.sProperties && b.sProperties.length ? b.sProperties.reduce(function(min,sp){ var d=sp.contractEnd||'9999-12-31'; return d<min?d:min; },'9999-12-31') : '9999-12-31');
-            return aEnd.localeCompare(bEnd);
-        }
-        if (s2==='dealCount') { var _dc2 = (b.deals||[]).length - (a.deals||[]).length; if (_dc2 !== 0) return _dc2; var _adl2=(a.deals&&a.deals.length)?a.deals.reduce(function(m,d){return d.date>m?d.date:m;},''):''; var _bdl2=(b.deals&&b.deals.length)?b.deals.reduce(function(m,d){return d.date>m?d.date:m;},''):''; return (_bdl2||'').localeCompare(_adl2||''); }
-            if (s2==='dealDate') { var _ad2=(a.deals&&a.deals.length)?a.deals.reduce(function(m,d){return d.date>m?d.date:m;},''):''; var _bd2=(b.deals&&b.deals.length)?b.deals.reduce(function(m,d){return d.date>m?d.date:m;},''):''; return (_bd2||'').localeCompare(_ad2||''); }
-        if (s2==='newest') return (b.created||'').localeCompare(a.created||'');
-        if (s2==='oldest') return (a.created||'').localeCompare(b.created||'');
-        if (s2==='name')   return a.name.localeCompare(b.name,'zh');
-        if (s2==='lastContact') return (b.lastContact||'').localeCompare(a.lastContact||'');
-        return 0;
-    });
-    // 去重（ID + 同房東，但當前編輯的一定保留）
-    var seen = {};
-    var seenLL2 = {};
+    // 使用卡片列表的順序（與畫面一致）
+    var cardOrder = window._cardListOrder || [];
     editListCache = [];
-    list.forEach(function(c) {
-        if (seen[c.id]) return;
-        seen[c.id] = true;
-        // 同房東去重（當前編輯的不去重）
-        if (c.id !== editId && hasType(c, '租案管理') && _navFilter !== 'all' && _navFilter !== '租案管理' && _navFilter !== '租案_房東' && _navFilter !== '租案_租客') {
-            var _ll = (c.rLandlords && c.rLandlords[0]) || {name: c.rLandlord || c.llName, phone: c.rLandlordPhone || c.llPhone};
-            var _llk = ((_ll.name||'') + '_' + (_ll.phone||'')).toLowerCase();
-            if (_llk && _llk !== '_' && seenLL2[_llk]) return;
-            if (_llk && _llk !== '_') seenLL2[_llk] = true;
-        }
-        editListCache.push(c);
+    var seen = {};
+    cardOrder.forEach(function(item) {
+        if (seen[item.id]) return;
+        seen[item.id] = true;
+        var c = DB.find(function(x){ return x.id === item.id; });
+        if (c) editListCache.push(c);
     });
+    // 如果當前編輯的不在列表中，加入
+    if (!seen[editId]) {
+        var ec = DB.find(function(x){ return x.id === editId; });
+        if (ec) editListCache.push(ec);
+    }
     var idx = editListCache.findIndex(function(c){ return c.id === editId; });
     if (idx < 0 || editListCache.length <= 1) { nav.style.display = 'none'; return; }
     nav.style.display = 'flex';
@@ -8999,7 +8960,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405zr';
+var APP_VERSION = '20260405zs';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
