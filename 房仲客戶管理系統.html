@@ -7064,8 +7064,7 @@ function resetForm() {
     SIMPLE_FIELDS.forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
     document.getElementById('ft').value = '';
     document.getElementById('fs').value = '待聯絡';
-    document.getElementById('statusGroup').style.display = '';
-    document.getElementById('flcGroup').style.display = '';
+    // statusGroup/flcGroup 已移除
     document.querySelectorAll('.type-sec').forEach(el=>el.classList.remove('on'));
     document.querySelectorAll('.tp-btn').forEach(b=>b.classList.remove('selected'));
     clearLinkedLandlord();
@@ -7743,7 +7742,7 @@ function saveClient() {
 
     const data = {
         name, phone, idNo: _basicIdNo, type, types,
-        email: _basicEmail, status: document.getElementById('statusGroup').style.display !== 'none' ? get('fs') : '',
+        email: _basicEmail, status: '',
         lastContact: new Date().toISOString(),
         source: _basicSource, occupation: _basicOcc, birthday: _basicBday,
         addr: _basicAddr, zip: _basicZip,
@@ -8998,7 +8997,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405j';
+var APP_VERSION = '20260405k';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
