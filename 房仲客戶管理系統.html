@@ -5697,7 +5697,6 @@ function getSharedContacts() { return getPersonBlocks('sharedContactsList'); }
 function clearSharedContacts() { document.getElementById('sharedContactsList').innerHTML = ''; }
 function loadSharedContacts(c) {
     clearSharedContacts();
-    alert('loadSharedContacts: contacts=' + (c.contacts?c.contacts.length:'無') + '\ncContacts=' + (c.cContacts?c.cContacts.length:'無') + '\n' + (c.contacts||[]).map(function(p,i){return '['+i+'] '+p.name;}).join('\n'));
     if (c.contacts && c.contacts.length) {
         c.contacts.forEach(function(p){ addSharedContact(p); });
     }
@@ -8982,7 +8981,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405r';
+var APP_VERSION = '20260405s';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
