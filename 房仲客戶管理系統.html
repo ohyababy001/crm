@@ -867,6 +867,8 @@
                     <div class="roc-date-wrap"><input id="f-birthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>
                 </div>
             </div>
+            <div style="margin-bottom:4px"><button type="button" id="basicDetailToggle" onclick="var d=document.getElementById('basicDetailWrap');d.style.display=d.style.display==='none'?'':'none';this.textContent=d.style.display==='none'?'▶ 展開詳細':'▼ 收合詳細'" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--muted);padding:2px 0">▶ 展開詳細</button>
+            <div id="basicDetailWrap" style="display:none">
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                 <div class="fg" style="margin-bottom:0">
                     <label>職業</label>
@@ -893,6 +895,7 @@
                 <div class="fg" style="margin-bottom:0"><label>代碼</label><input id="f-bankCode" placeholder=""></div>
                 <div class="fg" style="margin-bottom:0"><label>銀行帳號</label><input id="f-bankAccount" placeholder="" onblur="formatBankAccount(this)"></div>
             </div>
+            </div></div>
             </div>
             <div id="statusFlcRow" style="display:none">
                 <select id="fs"><option>待聯絡</option></select>
@@ -8996,7 +8999,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405zp';
+var APP_VERSION = '20260405zq';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
