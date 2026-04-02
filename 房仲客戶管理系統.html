@@ -5696,7 +5696,7 @@ function removeDContactTab(idx) {
 
 function clearDContactTabs() {
     // 清除所有額外聯絡人頁籤和面板
-    document.querySelectorAll('#dContactTabs .bf-chip[data-tab-idx]').forEach(function(b){ b.remove(); });
+    document.querySelectorAll('#dContactTabs .bf-chip[data-tab-idx]').forEach(function(b){ if(b.getAttribute('data-tab-idx')!=='0') b.remove(); });
     document.querySelectorAll('#dContactPanels .d-contact-panel[data-panel]').forEach(function(p){
         if (p.getAttribute('data-panel') !== '0') p.remove();
     });
@@ -8899,7 +8899,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404f';
+var APP_VERSION = '20260404g';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
