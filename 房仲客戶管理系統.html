@@ -5697,9 +5697,30 @@ function getSharedContacts() { return getPersonBlocks('sharedContactsList'); }
 function clearSharedContacts() { document.getElementById('sharedContactsList').innerHTML = ''; }
 function loadSharedContacts(c) {
     clearSharedContacts();
-    if (c.contacts && c.contacts.length) {
-        c.contacts.forEach(function(p){ addSharedContact(p); });
+    // 每次都重新合併所有來源，確保不遺漏
+    var _all = [], _seen = {};
+    var _bn = (c.bName||c.sName||c.cName||c.dName||c.llName||c.ttName||c.name||'').trim();
+    function _ac(p, src) {
+        if (!p || !p.name) return;
+        var k = (p.name||'').trim()+'_'+(p.phone||'');
+        if (_seen[k] || (p.name||'').trim()===_bn) return;
+        _seen[k] = true;
+        var o = { name:p.name, phone:p.phone||'', idNo:p.idNo||'', occupation:p.occupation||'', birthday:p.birthday||'', email:p.email||'', source:p.source||'', addrType:p.addrType||'', zip:p.zip||'', addr:p.addr||'', _src:p._src||src };
+        if (p.extraAddrs) o.extraAddrs = p.extraAddrs;
+        if (p.bank) o.bank = p.bank;
+        if (p.bankCode) o.bankCode = p.bankCode;
+        if (p.bankAccount) o.bankAccount = p.bankAccount;
+        _all.push(o);
     }
+    if (c.contacts) c.contacts.forEach(function(p){ _ac(p, p._src||'聯絡人'); });
+    if (c.bPersons) c.bPersons.forEach(function(p){ _ac(p,'買方'); });
+    if (c.sPersons) c.sPersons.forEach(function(p){ _ac(p,'庫存'); });
+    if (c.cContacts) c.cContacts.forEach(function(p){ _ac(p,'成交'); });
+    if (c.dPersons && c.dPersons.length > 1) c.dPersons.slice(1).forEach(function(p){ _ac(p,'商機'); });
+    if (c.rLandlords && c.rLandlords.length > 1) c.rLandlords.slice(1).forEach(function(p){ _ac(p,'房東'); });
+    if (c.rTenants && c.rTenants.length > 1) c.rTenants.slice(1).forEach(function(p){ _ac(p,'租客'); });
+    c.contacts = _all;
+    _all.forEach(function(p){ addSharedContact(p); });
 }
 
 // ── 商機募集：屋主多筆（頁籤式） ──
@@ -7817,16 +7838,14 @@ function saveClient() {
         cDriveUrl: editId ? (DB.find(function(x){return x.id===editId;})||{}).cDriveUrl||'' : '',
         dDriveUrl: editId ? (DB.find(function(x){return x.id===editId;})||{}).dDriveUrl||'' : '',
     };
-    // 統一聯絡人：從共用聯絡人區塊讀取
+    // 統一聯絡人：從共用聯絡人區塊讀取，如果空則保留舊的
     var _sharedC = getSharedContacts();
-    var _oldContacts = editId ? (DB.find(function(x){return x.id===editId;})||{}).contacts || [] : [];
-    alert('存檔偵錯:\nsharedContacts=' + _sharedC.length + ' ' + _sharedC.map(function(p){return p.name;}).join(',') +
-          '\noldContacts=' + _oldContacts.length + ' ' + _oldContacts.map(function(p){return p.name;}).join(','));
-    // 如果共用區塊有資料就用，否則保留舊的 contacts
     if (_sharedC.length) {
         data.contacts = _sharedC;
+    } else if (editId) {
+        data.contacts = (DB.find(function(x){return x.id===editId;})||{}).contacts || [];
     } else {
-        data.contacts = _oldContacts;
+        data.contacts = [];
     }
     // 向下相容：同步固定基本欄位到各類型欄位
     data.bName=name; data.bPhone=phone; data.bIdNo=_basicIdNo; data.bOccupation=_basicOcc; data.bBirthday=_basicBday; data.bEmail=_basicEmail; data.bSource=_basicSource; data.bZip=_basicZip; data.bAddr=_basicAddr;
@@ -8991,7 +9010,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405v';
+var APP_VERSION = '20260405w';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
