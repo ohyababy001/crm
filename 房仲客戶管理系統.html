@@ -1553,6 +1553,7 @@ let DB = JSON.parse(localStorage.getItem('reCRM') || '[]');
 // 資料遷移
 var RENAME_MAP = {'租件管理':'租案管理','潛在開發':'商機募集'};
 DB.forEach(function(c) {
+    if (c._system) return;
     if (!c.types) c.types = c.type ? [c.type] : [];
     // 舊名稱轉新名稱
     if (RENAME_MAP[c.type]) c.type = RENAME_MAP[c.type];
@@ -1686,7 +1687,7 @@ function _cleanupRentalTags() {
     localStorage.setItem('reCRM', JSON.stringify(DB));
 })();
 // 修復：清除被錯誤存入的「待聯絡」status（每次載入都執行）
-DB.forEach(function(c){ if (c.status === '待聯絡') c.status = ''; });
+DB.forEach(function(c){ if (c._system) return; if (c.status === '待聯絡') c.status = ''; });
 
 function getTypes(c) { return c.types && c.types.length ? c.types : (c.type ? [c.type] : []); }
 function getDisplayTypesForRole(c, cTypes) {
@@ -2054,7 +2055,7 @@ function autoFetchCloud() {
                 });
                 DB = cloudData;
                 DB.forEach(function(c) { if (!c.types) c.types = c.type ? [c.type] : []; });
-                DB.forEach(function(c){ if (c.status === '待聯絡') c.status = ''; });
+                DB.forEach(function(c){ if (c._system) return; if (c.status === '待聯絡') c.status = ''; });
                 _lastSyncJSON = JSON.stringify(DB);
                 localStorage.setItem('reCRM', _lastSyncJSON);
                 render();
@@ -2966,7 +2967,7 @@ function renderDashboard() {
 
     // 庫存合約即將到期（15天內）
     var expSeller = DB.filter(function(c) {
-        return !c.archived && hasType(c,'庫存屋主') && c.contractEnd && daysUntilExpire(c.contractEnd)<=15;
+        return !c._system && !c._deleted && !c.archived && hasType(c,'庫存屋主') && c.contractEnd && daysUntilExpire(c.contractEnd)<=15;
     }).sort(function(a,b) { return (a.contractEnd||'').localeCompare(b.contractEnd||''); });
     document.getElementById('dashExpiringSeller').innerHTML = expSeller.length ? expSeller.map(function(c) {
         var d = daysUntilExpire(c.contractEnd);
@@ -2978,7 +2979,7 @@ function renderDashboard() {
 
     // 租案合約即將到期（到期月前一個月1號起）
     var expRental = DB.filter(function(c) {
-        return !c.archived && hasType(c,'房東') && c.rEndDate && isRentalExpiring(c.rEndDate);
+        return !c._system && !c._deleted && !c.archived && hasType(c,'房東') && c.rEndDate && isRentalExpiring(c.rEndDate);
     }).sort(function(a,b) { return (a.rEndDate||'').localeCompare(b.rEndDate||''); });
     document.getElementById('dashExpiringRental').innerHTML = expRental.length ? expRental.map(function(c) {
         var d = daysUntilExpire(c.rEndDate);
@@ -3047,7 +3048,7 @@ function renderDashboard() {
         }
     }
     DB.forEach(function(c) {
-        if (c.archived) return;
+        if (c._system || c._deleted || c.archived) return;
         // 舊格式 cBirthdays
         if (c.cBirthdays) c.cBirthdays.forEach(function(b){ checkBday(c.id, c.name, b.who, b.date); });
         // 新格式 cContacts 裡的 birthday
@@ -5770,6 +5771,7 @@ function completeSchedule(clientId, date, time) {
         if (!c.history) c.history = [];
         c.history.push({ type:'schedule_done', time:new Date().toISOString(), detail:'【已完成行程】' + isoToROC(date) + (time ? ' ' + time : '') + (memo ? ' ' + memo : '') });
         _addDoneSchedule({ clientId:clientId, clientName:c.name, date:date, time:time, memo:memo, doneAt:new Date().toISOString() });
+        persist();
         render();
     });
 }
@@ -8856,7 +8858,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404zo';
+var APP_VERSION = '20260404zp';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
