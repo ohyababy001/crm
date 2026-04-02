@@ -1567,6 +1567,9 @@ function migrateDB() {
         if (RENAME_MAP[c.type]) c.type = RENAME_MAP[c.type];
         c.types = c.types.map(function(t){ return RENAME_MAP[t] || t; });
         delete c.attachments;
+        // 確保 typeNotes 存在，清除純數字的舊 notes
+        if (!c.typeNotes) c.typeNotes = {};
+        if (c.notes && /^\d+$/.test(c.notes.trim())) c.notes = '';
         // 聯絡人合併
         var _all = [], _seen = {};
         var _bn = (c.bName||c.sName||c.cName||c.dName||c.llName||c.ttName||c.name||'').trim();
@@ -8979,7 +8982,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405zd';
+var APP_VERSION = '20260405ze';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
