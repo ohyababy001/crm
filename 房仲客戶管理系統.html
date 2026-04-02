@@ -7835,6 +7835,12 @@ function saveClient() {
     data.dName=name; data.dPhone=phone; data.dIdNo=_basicIdNo; data.dOccupation=_basicOcc; data.dBirthday=_basicBday; data.dEmail=_basicEmail; data.dSource=_basicSource; data.dZip=_basicZip; data.dAddr=_basicAddr;
     data.llName=name; data.llPhone=phone; data.llIdNo=_basicIdNo; data.llOccupation=_basicOcc; data.llBirthday=_basicBday; data.llEmail=_basicEmail;
     data.ttName=name; data.ttPhone=phone; data.ttIdNo=_basicIdNo; data.ttOccupation=_basicOcc; data.ttBirthday=_basicBday; data.ttEmail=_basicEmail;
+    // 向下相容：把 contacts 寫回各類型舊欄位
+    var _allContacts = data.contacts || [];
+    data.bPersons = _allContacts.slice();
+    data.sPersons = _allContacts.slice();
+    data.cContacts = [{name:name,phone:phone,idNo:_basicIdNo,birthday:_basicBday}].concat(_allContacts);
+    if (data.dPersons) { data.dPersons = [{name:name,phone:phone,idNo:_basicIdNo}].concat(_allContacts); }
     // 租案：先儲存當前頁籤表單到快取（roleData 在歷程比較後再建）
     if (selectedTypes.includes('租案管理')) {
         var curRole = activeRentalTab === '租客' ? 'tenant' : 'landlord';
@@ -8981,7 +8987,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405s';
+var APP_VERSION = '20260405t';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
