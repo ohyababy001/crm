@@ -1560,6 +1560,31 @@ DB.forEach(function(c) {
     c.types = c.types.map(function(t){ return RENAME_MAP[t] || t; });
     // 清理舊附件資料
     delete c.attachments;
+    // 聯絡人合併遷移：把各類型額外聯絡人合併到 contacts
+    if (!c.contacts) {
+        var _all = [], _seen = {};
+        var _basicName = (c.bName||c.sName||c.cName||c.dName||c.llName||c.ttName||c.name||'').trim();
+        function _addC(p, src) {
+            if (!p || !p.name) return;
+            var key = (p.name||'').trim() + '_' + (p.phone||'');
+            if (_seen[key] || (p.name||'').trim() === _basicName) return;
+            _seen[key] = true;
+            var obj = { name:p.name, phone:p.phone||'', idNo:p.idNo||'', occupation:p.occupation||'', birthday:p.birthday||'', email:p.email||'', source:p.source||'', addrType:p.addrType||'', zip:p.zip||'', addr:p.addr||'' };
+            if (p.extraAddrs) obj.extraAddrs = p.extraAddrs;
+            if (p.bank) obj.bank = p.bank;
+            if (p.bankCode) obj.bankCode = p.bankCode;
+            if (p.bankAccount) obj.bankAccount = p.bankAccount;
+            obj._src = src;
+            _all.push(obj);
+        }
+        if (c.bPersons) c.bPersons.forEach(function(p){ _addC(p,'買方'); });
+        if (c.sPersons) c.sPersons.forEach(function(p){ _addC(p,'庫存'); });
+        if (c.cContacts) c.cContacts.forEach(function(p){ _addC(p,'成交'); });
+        if (c.dPersons && c.dPersons.length > 1) c.dPersons.slice(1).forEach(function(p){ _addC(p,'商機'); });
+        if (c.rLandlords && c.rLandlords.length > 1) c.rLandlords.slice(1).forEach(function(p){ _addC(p,'房東'); });
+        if (c.rTenants && c.rTenants.length > 1) c.rTenants.slice(1).forEach(function(p){ _addC(p,'租客'); });
+        c.contacts = _all;
+    }
 });
 localStorage.setItem('reCRM', JSON.stringify(DB));
 
@@ -1649,7 +1674,7 @@ function _doMigrateRental() {
          'llBasicAddrs','ttBasicAddrs',
          'cName','cPhone','cIdNo','cOccupation','cBirthday','cEmail','cSource','cAddrType','cZip','cAddr','cBasicAddrs','cContacts','cAddrs','deals',
          'dName','dPhone','dIdNo','dOccupation','dBirthday','dEmail','dSource','dAddrType','dZip','dAddr','dBasicAddrs','dPersons','dAddrs','schedules',
-         'typeNotes'
+         'contacts','typeNotes'
         ].forEach(function(f){ if(c[f]!==undefined&&c[f]!==''&&c[f]!==null) lr[f]=c[f]; });
         // 從 roleData.landlord 複製加掛標籤的資料（優先於扁平欄位）
         if (c.roleData && c.roleData.landlord) {
@@ -2757,8 +2782,8 @@ function getData() {
             (c.bName||'').toLowerCase().includes(q) ||
             (c.cName||'').toLowerCase().includes(q) ||
             (c.dName||'').toLowerCase().includes(q)) return true;
-        // 搜尋新增聯絡人的姓名和電話
-        var _persons = [].concat(c.bPersons||[], c.sPersons||[], c.cContacts||[], c.dPersons||[], (c.rLandlords||[]).slice(1), (c.rTenants||[]).slice(1));
+        // 搜尋聯絡人的姓名和電話（統一 contacts + 向下相容舊欄位）
+        var _persons = (c.contacts||[]).concat(c.bPersons||[], c.sPersons||[], c.cContacts||[], c.dPersons||[], (c.rLandlords||[]).slice(1), (c.rTenants||[]).slice(1));
         return _persons.some(function(p){ return (p.name||'').toLowerCase().includes(q) || (p.phone||'').includes(q); });
     });
     // Buyer filters
@@ -4040,11 +4065,9 @@ function showDet(id, viewAs) {
                 return info.length ? '<div style="border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:8px">'+info.join('')+'</div>' : '';
             })()}
             ${(function(){
-                var others = [];
-                var basicName = (c.bName||c.sName||c.cName||c.dName||c.llName||c.ttName||c.name||'').trim();
-                function addPerson(label, p) {
-                    if (!p || !p.name || p.name.trim() === basicName) return;
-                    var lines = '<div style="font-weight:600">' + esc(p.name) + '</div>';
+                if (!c.contacts || !c.contacts.length) return '';
+                var others = c.contacts.map(function(p) {
+                    var lines = '<div style="font-weight:600">' + esc(p.name||'') + '</div>';
                     if (p.phone) lines += '<div>' + esc(p.phone) + '</div>';
                     if (p.idNo) lines += '<div>' + esc(p.idNo) + '</div>';
                     if (p.birthday) lines += '<div>生日 ' + esc(p.birthday.includes('-')?isoToROC(p.birthday):p.birthday) + '</div>';
@@ -4052,15 +4075,9 @@ function showDet(id, viewAs) {
                     if (p.email) lines += '<div>' + esc(p.email) + '</div>';
                     if (p.addr) lines += '<div>' + esc((p.zip?p.zip+' ':'')+p.addr) + '</div>';
                     if (p.bank||p.bankAccount) lines += '<div>銀行 ' + esc((p.bank||'')+(p.bankCode?' '+p.bankCode:'')+(p.bankAccount?' '+p.bankAccount:'')) + '</div>';
-                    others.push('<div class="det-row"><span class="det-key">'+label+'</span><span class="det-val" style="font-weight:400">'+lines+'</span></div>');
-                }
-                if (c.bPersons) c.bPersons.forEach(function(p){ addPerson('買方', p); });
-                if (c.sPersons) c.sPersons.forEach(function(p){ addPerson('庫存', p); });
-                if (c.cContacts) c.cContacts.forEach(function(p){ addPerson('成交', p); });
-                if (c.dPersons && c.dPersons.length > 1) c.dPersons.slice(1).forEach(function(p){ addPerson('商機', p); });
-                if (c.rLandlords && c.rLandlords.length > 1) c.rLandlords.slice(1).forEach(function(p){ addPerson('房東', p); });
-                if (c.rTenants && c.rTenants.length > 1) c.rTenants.slice(1).forEach(function(p){ addPerson('租客', p); });
-                return others.length ? '<div style="border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:8px"><div style="font-weight:700;font-size:12px;color:#475569;margin-bottom:4px">其他聯絡人</div>'+others.join('')+'</div>' : '';
+                    return '<div class="det-row"><span class="det-key">'+ esc(p._src||'聯絡人') +'</span><span class="det-val" style="font-weight:400">'+lines+'</span></div>';
+                }).join('');
+                return '<div style="border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:8px"><div style="font-weight:700;font-size:12px;color:#475569;margin-bottom:4px">其他聯絡人</div>'+others+'</div>';
             })()}
             ${allTd}
             ${(function(){
@@ -7789,6 +7806,30 @@ function saveClient() {
         cDriveUrl: editId ? (DB.find(function(x){return x.id===editId;})||{}).cDriveUrl||'' : '',
         dDriveUrl: editId ? (DB.find(function(x){return x.id===editId;})||{}).dDriveUrl||'' : '',
     };
+    // 統一聯絡人：從各類型額外聯絡人合併到 contacts
+    (function(){
+        var _all = [], _seen = {};
+        var _bn = (obj.bName||obj.sName||obj.cName||obj.dName||obj.llName||obj.ttName||obj.name||'').trim();
+        function _ac(p, src) {
+            if (!p || !p.name) return;
+            var k = (p.name||'').trim()+'_'+(p.phone||'');
+            if (_seen[k] || (p.name||'').trim()===_bn) return;
+            _seen[k] = true;
+            var o = { name:p.name, phone:p.phone||'', idNo:p.idNo||'', occupation:p.occupation||'', birthday:p.birthday||'', email:p.email||'', source:p.source||'', addrType:p.addrType||'', zip:p.zip||'', addr:p.addr||'', _src:src };
+            if (p.extraAddrs) o.extraAddrs = p.extraAddrs;
+            if (p.bank) o.bank = p.bank;
+            if (p.bankCode) o.bankCode = p.bankCode;
+            if (p.bankAccount) o.bankAccount = p.bankAccount;
+            _all.push(o);
+        }
+        if (obj.bPersons) obj.bPersons.forEach(function(p){ _ac(p,'買方'); });
+        if (obj.sPersons) obj.sPersons.forEach(function(p){ _ac(p,'庫存'); });
+        if (obj.cContacts) obj.cContacts.forEach(function(p){ _ac(p,'成交'); });
+        if (obj.dPersons && obj.dPersons.length > 1) obj.dPersons.slice(1).forEach(function(p){ _ac(p,'商機'); });
+        if (obj.rLandlords && obj.rLandlords.length > 1) obj.rLandlords.slice(1).forEach(function(p){ _ac(p,'房東'); });
+        if (obj.rTenants && obj.rTenants.length > 1) obj.rTenants.slice(1).forEach(function(p){ _ac(p,'租客'); });
+        obj.contacts = _all;
+    })();
     // 租案：先儲存當前頁籤表單到快取（roleData 在歷程比較後再建）
     if (selectedTypes.includes('租案管理')) {
         var curRole = activeRentalTab === '租客' ? 'tenant' : 'landlord';
@@ -8935,7 +8976,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404zx';
+var APP_VERSION = '20260404zy';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
