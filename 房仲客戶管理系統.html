@@ -4039,6 +4039,29 @@ function showDet(id, viewAs) {
                 }
                 return info.length ? '<div style="border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:8px">'+info.join('')+'</div>' : '';
             })()}
+            ${(function(){
+                var others = [];
+                var basicName = (c.bName||c.sName||c.cName||c.dName||c.llName||c.ttName||c.name||'').trim();
+                function addPerson(label, p) {
+                    if (!p || !p.name || p.name.trim() === basicName) return;
+                    var lines = '<div style="font-weight:600">' + esc(p.name) + '</div>';
+                    if (p.phone) lines += '<div>' + esc(p.phone) + '</div>';
+                    if (p.idNo) lines += '<div>' + esc(p.idNo) + '</div>';
+                    if (p.birthday) lines += '<div>生日 ' + esc(p.birthday.includes('-')?isoToROC(p.birthday):p.birthday) + '</div>';
+                    if (p.occupation) lines += '<div>' + esc(p.occupation) + '</div>';
+                    if (p.email) lines += '<div>' + esc(p.email) + '</div>';
+                    if (p.addr) lines += '<div>' + esc((p.zip?p.zip+' ':'')+p.addr) + '</div>';
+                    if (p.bank||p.bankAccount) lines += '<div>銀行 ' + esc((p.bank||'')+(p.bankCode?' '+p.bankCode:'')+(p.bankAccount?' '+p.bankAccount:'')) + '</div>';
+                    others.push('<div class="det-row"><span class="det-key">'+label+'</span><span class="det-val" style="font-weight:400">'+lines+'</span></div>');
+                }
+                if (c.bPersons) c.bPersons.forEach(function(p){ addPerson('買方', p); });
+                if (c.sPersons) c.sPersons.forEach(function(p){ addPerson('庫存', p); });
+                if (c.cContacts) c.cContacts.forEach(function(p){ addPerson('成交', p); });
+                if (c.dPersons && c.dPersons.length > 1) c.dPersons.slice(1).forEach(function(p){ addPerson('商機', p); });
+                if (c.rLandlords && c.rLandlords.length > 1) c.rLandlords.slice(1).forEach(function(p){ addPerson('房東', p); });
+                if (c.rTenants && c.rTenants.length > 1) c.rTenants.slice(1).forEach(function(p){ addPerson('租客', p); });
+                return others.length ? '<div style="border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:8px"><div style="font-weight:700;font-size:12px;color:#475569;margin-bottom:4px">其他聯絡人</div>'+others.join('')+'</div>' : '';
+            })()}
             ${allTd}
             ${(function(){
                 if (!c.schedules || !c.schedules.length) return '';
@@ -8912,7 +8935,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404zw';
+var APP_VERSION = '20260404zx';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
