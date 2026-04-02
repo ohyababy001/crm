@@ -7819,14 +7819,14 @@ function saveClient() {
     };
     // 統一聯絡人：從共用聯絡人區塊讀取
     var _sharedC = getSharedContacts();
+    var _oldContacts = editId ? (DB.find(function(x){return x.id===editId;})||{}).contacts || [] : [];
+    alert('存檔偵錯:\nsharedContacts=' + _sharedC.length + ' ' + _sharedC.map(function(p){return p.name;}).join(',') +
+          '\noldContacts=' + _oldContacts.length + ' ' + _oldContacts.map(function(p){return p.name;}).join(','));
     // 如果共用區塊有資料就用，否則保留舊的 contacts
     if (_sharedC.length) {
         data.contacts = _sharedC;
-    } else if (editId) {
-        var _oldC = DB.find(function(x){return x.id===editId;});
-        data.contacts = (_oldC && _oldC.contacts) || [];
     } else {
-        data.contacts = [];
+        data.contacts = _oldContacts;
     }
     // 向下相容：同步固定基本欄位到各類型欄位
     data.bName=name; data.bPhone=phone; data.bIdNo=_basicIdNo; data.bOccupation=_basicOcc; data.bBirthday=_basicBday; data.bEmail=_basicEmail; data.bSource=_basicSource; data.bZip=_basicZip; data.bAddr=_basicAddr;
@@ -8991,7 +8991,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405u';
+var APP_VERSION = '20260405v';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
