@@ -1861,7 +1861,7 @@ function loadTagFields(tagType, d) {
         clearDAddrs();
         if (d.dAddrs && d.dAddrs.length) d.dAddrs.forEach(function(a){ addDAddrRow(a); });
         clearSchedules();
-        if (d.schedules && d.schedules.length) d.schedules.forEach(function(s){ addScheduleRow(s); });
+        if (d.schedules && d.schedules.length) d.schedules.slice().sort(function(a,b){ return (a.date+(a.time||'')).localeCompare(b.date+(b.time||'')); }).forEach(function(s){ addScheduleRow(s); });
     }
 }
 function clearTagFields(tagType) {
@@ -7532,7 +7532,7 @@ function openEdit(id, viewAs) {
     if (c.dPersons && c.dPersons.length > 1) c.dPersons.slice(1).forEach(function(p){ addDPersonRow(p); });
     if (c.dAddrs && c.dAddrs.length) c.dAddrs.forEach(function(a){ addDAddrRow(a); });
     else if (c.dCommunity || c.dAddr) addDAddrRow({devType:c.devType||'出售', community:c.dCommunity, addr:c.dAddr});
-    if (c.schedules && c.schedules.length) c.schedules.forEach(function(s){ addScheduleRow(s); });
+    if (c.schedules && c.schedules.length) c.schedules.slice().sort(function(a,b){ return (a.date+(a.time||'')).localeCompare(b.date+(b.time||'')); }).forEach(function(s){ addScheduleRow(s); });
 
     // 共用聯絡人
     loadSharedContacts(c);
@@ -8999,7 +8999,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405zq';
+var APP_VERSION = '20260405zr';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
