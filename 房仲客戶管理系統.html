@@ -1564,43 +1564,38 @@ let DB = JSON.parse(localStorage.getItem('reCRM') || '[]');
 // 資料遷移：type → types 陣列
 // 資料遷移
 var RENAME_MAP = {'租件管理':'租案管理','潛在開發':'商機募集'};
-DB.forEach(function(c) {
-    if (c._system) return;
-    if (!c.types) c.types = c.type ? [c.type] : [];
-    // 舊名稱轉新名稱
-    if (RENAME_MAP[c.type]) c.type = RENAME_MAP[c.type];
-    c.types = c.types.map(function(t){ return RENAME_MAP[t] || t; });
-    // 清理舊附件資料
-    delete c.attachments;
-    // 聯絡人合併：每次載入都從各類型重新合併到 contacts
-    {
+function migrateDB() {
+    DB.forEach(function(c) {
+        if (c._system) return;
+        if (!c.types) c.types = c.type ? [c.type] : [];
+        if (RENAME_MAP[c.type]) c.type = RENAME_MAP[c.type];
+        c.types = c.types.map(function(t){ return RENAME_MAP[t] || t; });
+        delete c.attachments;
+        // 聯絡人合併
         var _all = [], _seen = {};
-        var _basicName = (c.bName||c.sName||c.cName||c.dName||c.llName||c.ttName||c.name||'').trim();
-        function _addC(p, src) {
+        var _bn = (c.bName||c.sName||c.cName||c.dName||c.llName||c.ttName||c.name||'').trim();
+        function _ac(p, src) {
             if (!p || !p.name) return;
-            var key = (p.name||'').trim() + '_' + (p.phone||'');
-            if (_seen[key] || (p.name||'').trim() === _basicName) return;
-            _seen[key] = true;
-            var obj = { name:p.name, phone:p.phone||'', idNo:p.idNo||'', occupation:p.occupation||'', birthday:p.birthday||'', email:p.email||'', source:p.source||'', addrType:p.addrType||'', zip:p.zip||'', addr:p.addr||'' };
-            if (p.extraAddrs) obj.extraAddrs = p.extraAddrs;
-            if (p.bank) obj.bank = p.bank;
-            if (p.bankCode) obj.bankCode = p.bankCode;
-            if (p.bankAccount) obj.bankAccount = p.bankAccount;
-            obj._src = src;
-            _all.push(obj);
+            var k = (p.name||'').trim()+'_'+(p.phone||'');
+            if (_seen[k] || (p.name||'').trim()===_bn) return;
+            _seen[k] = true;
+            var o = { name:p.name, phone:p.phone||'', idNo:p.idNo||'', occupation:p.occupation||'', birthday:p.birthday||'', email:p.email||'', source:p.source||'', addrType:p.addrType||'', zip:p.zip||'', addr:p.addr||'' };
+            if (p.extraAddrs) o.extraAddrs = p.extraAddrs;
+            if (p.bank) o.bank = p.bank; if (p.bankCode) o.bankCode = p.bankCode; if (p.bankAccount) o.bankAccount = p.bankAccount;
+            o._src = src; _all.push(o);
         }
-        // 先加入現有 contacts（共用聯絡人區塊儲存的）
-        if (c.contacts) c.contacts.forEach(function(p){ _addC(p, p._src||'聯絡人'); });
-        // 再從各類型舊欄位合併（去重）
-        if (c.bPersons) c.bPersons.forEach(function(p){ _addC(p,'買方'); });
-        if (c.sPersons) c.sPersons.forEach(function(p){ _addC(p,'庫存'); });
-        if (c.cContacts) c.cContacts.forEach(function(p){ _addC(p,'成交'); });
-        if (c.dPersons && c.dPersons.length > 1) c.dPersons.slice(1).forEach(function(p){ _addC(p,'商機'); });
-        if (c.rLandlords && c.rLandlords.length > 1) c.rLandlords.slice(1).forEach(function(p){ _addC(p,'房東'); });
-        if (c.rTenants && c.rTenants.length > 1) c.rTenants.slice(1).forEach(function(p){ _addC(p,'租客'); });
+        if (c.contacts) c.contacts.forEach(function(p){ _ac(p, p._src||'聯絡人'); });
+        if (c.bPersons) c.bPersons.forEach(function(p){ _ac(p,'買方'); });
+        if (c.sPersons) c.sPersons.forEach(function(p){ _ac(p,'庫存'); });
+        if (c.cContacts) c.cContacts.forEach(function(p){ _ac(p,'成交'); });
+        if (c.dPersons && c.dPersons.length > 1) c.dPersons.slice(1).forEach(function(p){ _ac(p,'商機'); });
+        if (c.rLandlords && c.rLandlords.length > 1) c.rLandlords.slice(1).forEach(function(p){ _ac(p,'房東'); });
+        if (c.rTenants && c.rTenants.length > 1) c.rTenants.slice(1).forEach(function(p){ _ac(p,'租客'); });
         c.contacts = _all;
-    }
-});
+    });
+    DB.forEach(function(c){ if (c._system) return; if (c.status === '待聯絡') c.status = ''; });
+}
+migrateDB();
 localStorage.setItem('reCRM', JSON.stringify(DB));
 
 // Migration: 租案管理 → 房東 + 租客 (six independent types)
@@ -1726,8 +1721,7 @@ function _cleanupRentalTags() {
     _cleanupRentalTags();
     localStorage.setItem('reCRM', JSON.stringify(DB));
 })();
-// 修復：清除被錯誤存入的「待聯絡」status（每次載入都執行）
-DB.forEach(function(c){ if (c._system) return; if (c.status === '待聯絡') c.status = ''; });
+// 待聯絡清除已在 migrateDB() 中處理
 
 function getTypes(c) { return c.types && c.types.length ? c.types : (c.type ? [c.type] : []); }
 function getDisplayTypesForRole(c, cTypes) {
@@ -2094,23 +2088,7 @@ function autoFetchCloud() {
                     if (!cloudIds[local.id]) cloudData.push(local);
                 });
                 DB = cloudData;
-                DB.forEach(function(c) { if (!c.types) c.types = c.type ? [c.type] : []; });
-                DB.forEach(function(c){ if (c._system) return; if (c.status === '待聯絡') c.status = ''; });
-                // 雲端同步後重新合併聯絡人
-                DB.forEach(function(c) {
-                    if (c._system) return;
-                    var _all = [], _seen = {};
-                    var _bn = (c.bName||c.sName||c.cName||c.dName||c.llName||c.ttName||c.name||'').trim();
-                    function _ac(p) { if (!p||!p.name) return; var k=(p.name||'').trim()+'_'+(p.phone||''); if (_seen[k]||(p.name||'').trim()===_bn) return; _seen[k]=true; _all.push(p); }
-                    if (c.contacts) c.contacts.forEach(_ac);
-                    if (c.bPersons) c.bPersons.forEach(_ac);
-                    if (c.sPersons) c.sPersons.forEach(_ac);
-                    if (c.cContacts) c.cContacts.forEach(_ac);
-                    if (c.dPersons&&c.dPersons.length>1) c.dPersons.slice(1).forEach(_ac);
-                    if (c.rLandlords&&c.rLandlords.length>1) c.rLandlords.slice(1).forEach(_ac);
-                    if (c.rTenants&&c.rTenants.length>1) c.rTenants.slice(1).forEach(_ac);
-                    c.contacts = _all;
-                });
+                migrateDB();
                 _lastSyncJSON = JSON.stringify(DB);
                 localStorage.setItem('reCRM', _lastSyncJSON);
                 render();
@@ -9004,7 +8982,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405x';
+var APP_VERSION = '20260405y';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
