@@ -1825,7 +1825,6 @@ function loadTagFields(tagType, d) {
         document.getElementById('dBasicAddrList').innerHTML='';
         if (d.dBasicAddrs && d.dBasicAddrs.length) d.dBasicAddrs.forEach(function(a){ addBuyerAddrRow('dBasicAddrList',a); });
         clearDContactTabs();
-        alert('dName='+d.dName+'\ndPersons='+(d.dPersons?d.dPersons.length:'無')+'\n'+(d.dPersons?d.dPersons.map(function(p,i){return '['+i+'] '+p.name+' / '+p.phone;}).join('\n'):''));
         if (d.dPersons && d.dPersons.length) {
             // dPersons[0] 是基本聯絡人本人（saveClient 會塞入），跳過
             d.dPersons.forEach(function(p, i) {
@@ -7511,7 +7510,8 @@ function openEdit(id, viewAs) {
     setVal('f-dEmail', c.dEmail || '');
     setVal('f-dSource', c.dSource || (devOnly ? c.source : ''));
     // 額外屋主（跳過第一筆，已載入固定欄位）
-    if (c.dPersons && c.dPersons.length > 1) c.dPersons.slice(1).forEach(function(p){ addDPersonRow(p); });
+    clearDContactTabs();
+    if (c.dPersons && c.dPersons.length > 1) c.dPersons.slice(1).forEach(function(p){ addDPersonTabbed(p); });
     if (c.dAddrs && c.dAddrs.length) c.dAddrs.forEach(function(a){ addDAddrRow(a); });
     else if (c.dCommunity || c.dAddr) addDAddrRow({devType:c.devType||'出售', community:c.dCommunity, addr:c.dAddr});
     if (c.schedules && c.schedules.length) c.schedules.forEach(function(s){ addScheduleRow(s); });
@@ -8910,7 +8910,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404l';
+var APP_VERSION = '20260404m';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
