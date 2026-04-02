@@ -7833,8 +7833,11 @@ function saveClient() {
     data.sPersons = _allContacts.slice();
     data.cContacts = [_basicPerson].concat(_allContacts);
     data.dPersons = [_basicPerson].concat(_allContacts);
-    // rLandlords/rTenants：保留第一筆（基本聯絡人），額外的從 contacts 補
-    if (data.rLandlords && data.rLandlords.length) { data.rLandlords = [data.rLandlords[0]].concat(_allContacts); }
+    // rLandlords/rTenants：保留第一筆（基本聯絡人），同步銀行資料，額外的從 contacts 補
+    if (data.rLandlords && data.rLandlords.length) {
+        data.rLandlords[0].bank = _basicBank; data.rLandlords[0].bankCode = _basicBankCode; data.rLandlords[0].bankAccount = _basicBankAccount;
+        data.rLandlords = [data.rLandlords[0]].concat(_allContacts);
+    }
     if (data.rTenants && data.rTenants.length) { data.rTenants = [data.rTenants[0]].concat(_allContacts); }
     // 租案：先儲存當前頁籤表單到快取（roleData 在歷程比較後再建）
     if (selectedTypes.includes('租案管理')) {
@@ -8982,7 +8985,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405zf';
+var APP_VERSION = '20260405zg';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
