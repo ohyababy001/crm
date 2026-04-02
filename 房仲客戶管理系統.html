@@ -1193,7 +1193,7 @@
                 <button type="button" class="bf-chip" onclick="addDPersonTabbed()" style="margin-bottom:8px">＋ 新增聯絡人</button>
                 <div id="dContactPanels">
                     <div class="d-contact-panel" data-panel="0" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9;min-height:200px">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:700;color:#8B7355">基本聯絡人</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:700;color:#8B7355">基本聯絡人</span><span style="font-size:12px;visibility:hidden">✕</span></div>
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <button type="button" class="btn-fill" onclick="showFillMenu(this,'dev')">帶入</button></label><input id="f-dName" placeholder="" oninput="updateDBasicTab()"></div>
                     <div class="fg" style="margin-bottom:0"><label>電話</label><input id="f-dPhone" placeholder="" onblur="autoPhone(this)"></div>
@@ -8925,7 +8925,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404z';
+var APP_VERSION = '20260404za';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
