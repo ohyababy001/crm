@@ -8799,28 +8799,50 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     // 手機手勢左右滑切換功能
-    var _swipeX0 = null, _swipeY0 = null;
+    var _swipeX0 = null, _swipeY0 = null, _swipeT0 = 0;
     var _swipeTabs = ['all','經營買方','庫存屋主','房東','租客','成交客戶','商機募集'];
     document.addEventListener('touchstart', function(e) {
         if (e.target.closest('.overlay,.modal,.fill-overlay,.fill-menu,textarea,input,select')) return;
         _swipeX0 = e.touches[0].clientX;
         _swipeY0 = e.touches[0].clientY;
+        _swipeT0 = Date.now();
     }, { passive: true });
     document.addEventListener('touchend', function(e) {
         if (_swipeX0 === null) return;
         var dx = e.changedTouches[0].clientX - _swipeX0;
         var dy = e.changedTouches[0].clientY - _swipeY0;
+        var dt = Date.now() - _swipeT0;
         _swipeX0 = null; _swipeY0 = null;
-        if (Math.abs(dx) < 80 || Math.abs(dy) > Math.abs(dx)) return;
+        if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx) * 0.7 || dt > 500) return;
         var cur = _swipeTabs.indexOf(curFilter);
         if (cur === -1) cur = 0;
-        if (dx < 0 && cur < _swipeTabs.length - 1) mobileFilter(_swipeTabs[cur + 1]);
-        else if (dx > 0 && cur > 0) mobileFilter(_swipeTabs[cur - 1]);
+        var next = dx < 0 ? cur + 1 : cur - 1;
+        if (next < 0 || next >= _swipeTabs.length) return;
+        var main = document.querySelector('.main');
+        var dir = dx < 0 ? '-' : '';
+        main.style.transition = 'none';
+        main.style.transform = 'translateX(0)';
+        main.style.opacity = '1';
+        requestAnimationFrame(function() {
+            main.style.transition = 'transform 0.15s ease-out, opacity 0.15s';
+            main.style.transform = 'translateX(' + dir + '30px)';
+            main.style.opacity = '0.3';
+            setTimeout(function() {
+                mobileFilter(_swipeTabs[next]);
+                main.style.transition = 'none';
+                main.style.transform = 'translateX(' + (dx < 0 ? '' : '-') + '30px)';
+                requestAnimationFrame(function() {
+                    main.style.transition = 'transform 0.15s ease-out, opacity 0.15s';
+                    main.style.transform = 'translateX(0)';
+                    main.style.opacity = '1';
+                });
+            }, 150);
+        });
     }, { passive: true });
 });
 </script>
 <script>
-var APP_VERSION = '20260404zj';
+var APP_VERSION = '20260404zk';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
