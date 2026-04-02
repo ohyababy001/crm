@@ -885,9 +885,9 @@
                     <input id="fso" placeholder="">
                 </div>
             </div>
-            <div style="display:grid;grid-template-columns:2fr 2fr 10fr auto;gap:6px;margin-bottom:6px;align-items:end">
+            <div data-addr-row style="display:grid;grid-template-columns:2fr 2fr 10fr auto;gap:6px;margin-bottom:6px;align-items:end">
                 <div class="fg" style="margin-bottom:0"><label>地址類型</label><select id="f-addrType" onchange="onAddrTypeChange(this)"><option value="住家">住家</option><option value="公司">公司</option><option value="自訂">自訂</option></select></div>
-                <div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input id="f-zip" placeholder="" style="min-width:0"></div>
+                <div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input id="f-zip" data-f="zip" placeholder="" style="min-width:0"></div>
                 <div class="fg" style="margin-bottom:0"><label>地址</label><input id="f-addr" placeholder="" onblur="autoZip(this)"></div>
                 <button type="button" class="btn-ic" onclick="addBuyerAddrRow('basicAddrList')" title="新增地址" style="margin-bottom:2px;font-size:16px;padding:6px 8px">＋</button>
             </div>
@@ -2594,7 +2594,7 @@ function formatBankAccount(el) {
 function autoBankCode(el) {
     var name = el.value.trim();
     if (!name) return;
-    var codeEl = el.closest('div[style*="grid"]').querySelector('[id*="BankCode"],[data-f="bankCode"]');
+    var codeEl = el.closest('div[style*="grid"]').querySelector('[id*="bankCode"],[id*="BankCode"],[data-f="bankCode"]');
     if (!codeEl) return;
     for (var i = 0; i < BANK_MAP.length; i++) {
         var row = BANK_MAP[i];
@@ -6917,6 +6917,21 @@ function applyFill(target, s) {
     var p = prefixMap[target];
     if (!p) return;
     function _sv(id, v) { var el=document.getElementById(id); if(el && v) el.value = v; }
+    // 填入固定基本聯絡人欄位
+    _sv('fn', s.name);
+    _sv('fp', s.phone);
+    _sv('f-idNo', s.idNo);
+    _sv('f-occupation', s.occupation);
+    _sv('f-birthday', s.birthday);
+    _sv('fe', s.email);
+    _sv('fso', s.source);
+    _sv('f-addr', s.addr);
+    _sv('f-zip', s.zip);
+    if (s.addrType) { var atEl = document.getElementById('f-addrType'); if(atEl) atEl.value = s.addrType; }
+    _sv('f-bank', s.bank);
+    _sv('f-bankCode', s.bankCode);
+    _sv('f-bankAccount', s.bankAccount);
+    // 向下相容：同時填入類型專屬欄位
     _sv('f-'+p+'Name', s.name);
     _sv('f-'+p+'Phone', s.phone);
     _sv('f-'+p+'IdNo', s.idNo);
@@ -6924,21 +6939,9 @@ function applyFill(target, s) {
     _sv('f-'+p+'Birthday', s.birthday);
     _sv('f-'+p+'Email', s.email);
     _sv('f-'+p+'Source', s.source);
-    // 地址（庫存用 sOwnerAddr）
     var addrId = (p === 's') ? 'f-sOwnerAddr' : 'f-'+p+'Addr';
     _sv(addrId, s.addr);
     _sv('f-'+p+'Zip', s.zip);
-    if (s.addrType) {
-        var atEl = document.getElementById('f-'+p+'AddrType');
-        if (atEl) {
-            if (atEl.tagName === 'SELECT') atEl.value = s.addrType;
-            else atEl.value = s.addrType;
-        }
-    }
-    // 銀行帳戶
-    if (s.bank) _sv('f-'+p+'Bank', s.bank);
-    if (s.bankCode) _sv('f-'+p+'BankCode', s.bankCode);
-    if (s.bankAccount) _sv('f-'+p+'BankAccount', s.bankAccount);
     // 帶入額外聯絡人
     if (s._cid && target === 'landlord') {
         var srcClient = DB.find(function(x){ return x.id === s._cid; });
@@ -9007,7 +9010,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405f';
+var APP_VERSION = '20260405g';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
