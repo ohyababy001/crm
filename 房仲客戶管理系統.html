@@ -5596,6 +5596,8 @@ function addPersonBlock(listId, data) {
             '<div class="fg" style="margin-bottom:0"><label>身份證字號</label><input data-f="idNo" value="'+esc(d.idNo||'')+'" placeholder=""></div>' +
             '<div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input data-f="birthday" type="text" value="'+esc(bdVal)+'" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
         '</div>' +
+        '<div style="margin-bottom:4px"><button type="button" onclick="var d=this.nextElementSibling;d.style.display=d.style.display===\'none\'?\'\':\'none\';this.textContent=d.style.display===\'none\'?\'▶ 展開詳細\':\'▼ 收合詳細\'" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--muted);padding:2px 0">▶ 展開詳細</button>' +
+        '<div style="display:none">' +
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">' +
             '<div class="fg" style="margin-bottom:0"><label>職業</label><input data-f="occupation" value="'+esc(d.occupation||'')+'" placeholder=""></div>' +
             '<div class="fg" style="margin-bottom:0"><label>客戶來源</label><input data-f="source" value="'+esc(d.source||'')+'" placeholder=""></div>' +
@@ -5613,6 +5615,7 @@ function addPersonBlock(listId, data) {
             '<div class="fg" style="margin-bottom:0"><label>銀行代碼</label><input data-f="bankCode" value="'+esc(d.bankCode||'')+'" placeholder=""></div>' +
             '<div class="fg" style="margin-bottom:0"><label>銀行帳號</label><input data-f="bankAccount" value="'+esc(d.bankAccount||'')+'" placeholder="" onblur="formatBankAccount(this)"></div>' +
         '</div>' +
+        '</div></div>' +
     '</div>';
     document.getElementById(listId).insertAdjacentHTML('beforeend', html);
     // 載入額外地址
@@ -8993,7 +8996,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405zo';
+var APP_VERSION = '20260405zp';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
