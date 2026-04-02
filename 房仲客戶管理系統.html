@@ -2675,7 +2675,7 @@ function showThisMonth() {
 function getData() {
     const q = document.getElementById('searchInput').value.trim().toLowerCase();
     // 排除已刪除的資料
-    var activeDB = DB.filter(function(c){ return !c._deleted; });
+    var activeDB = DB.filter(function(c){ return !c._deleted && !c._system; });
     // 本月新增模式
     if (showThisMonthMode) {
         var tm = localDateISO().slice(0,7);
@@ -7417,7 +7417,7 @@ function updateEditNav() {
     if (!editId) { nav.style.display = 'none'; return; }
     // 根據 curFilter 篩選（含同房東合併標籤）
     var _navFilter = curFilter;
-    var list = DB.filter(function(c){ return !c._deleted && !c.archived; });
+    var list = DB.filter(function(c){ return !c._deleted && !c.archived && !c._system; });
     if (_navFilter !== 'all') {
         list = list.filter(function(c){
             if (hasType(c, _navFilter)) return true;
@@ -8753,7 +8753,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zzm';
+var APP_VERSION = '20260403zzn';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
