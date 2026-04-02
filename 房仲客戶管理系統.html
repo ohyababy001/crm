@@ -892,9 +892,9 @@
                 <button type="button" class="btn-ic" onclick="addBuyerAddrRow('basicAddrList')" title="新增地址" style="margin-bottom:2px;font-size:16px;padding:6px 8px">＋</button>
             </div>
             <div id="basicAddrList"></div>
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:6px">
+            <div style="display:grid;grid-template-columns:3fr 1fr 4fr;gap:10px;margin-bottom:6px">
                 <div class="fg" style="margin-bottom:0"><label>銀行名稱</label><input id="f-bank" placeholder="" onblur="autoBankCode(this)"></div>
-                <div class="fg" style="margin-bottom:0"><label>銀行代碼</label><input id="f-bankCode" placeholder=""></div>
+                <div class="fg" style="margin-bottom:0"><label>代碼</label><input id="f-bankCode" placeholder=""></div>
                 <div class="fg" style="margin-bottom:0"><label>銀行帳號</label><input id="f-bankAccount" placeholder="" onblur="formatBankAccount(this)"></div>
             </div>
             </div>
@@ -9010,7 +9010,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405g';
+var APP_VERSION = '20260405h';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
