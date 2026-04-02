@@ -3523,6 +3523,7 @@ function editNoteInline(id, el, noteType) {
             if (!c.history) c.history = [];
             c.history.push({ type:'note', time: new Date().toISOString(), value: val });
             c.typeNotes[key] = val;
+            if (!val) c.notes = '';
             c.notes = getAllNotes(c);
             c.lastContact = new Date().toISOString();
             persist();
@@ -8911,7 +8912,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404zv';
+var APP_VERSION = '20260404zw';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
