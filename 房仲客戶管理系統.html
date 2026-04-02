@@ -6022,6 +6022,10 @@ function buildDriveFolderName(type, prop, client) {
     } else {
         namePart = client || '未填姓名';
     }
+    // 商機：姓名-地址
+    if (type === '商機') {
+        return namePart + '-' + (addr !== '未填地址' ? addr : '');
+    }
     // 組合格式
     if (addr === '未填地址' && !dateStr) return '【' + type + '】' + namePart;
     if (addr === '未填地址') return '【' + type + '】' + dateStr + '-' + namePart;
@@ -8759,7 +8763,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zzp';
+var APP_VERSION = '20260403zzq';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
