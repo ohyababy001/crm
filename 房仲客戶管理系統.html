@@ -6081,7 +6081,7 @@ function _getAllDriveProps(c) {
     if (cTypes.includes('商機募集')) {
         var dAddrs = c.dAddrs || [];
         dAddrs.forEach(function(d, i) {
-            var label = (d.addr || d.community || '商機物件 '+(i+1));
+            var label = ((d.community?d.community+' ':'') + (d.addr||'')).trim() || '商機物件 '+(i+1);
             all.push({ type:'商機', label: label, url: d.dAddrDriveUrl || '', urlKey:'dAddrDriveUrl', src:'dAddrs', idx:i, prop:d });
         });
         // 商機通用（無物件時）
@@ -8775,7 +8775,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zzt';
+var APP_VERSION = '20260403zzu';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
