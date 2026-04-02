@@ -5618,14 +5618,11 @@ function addDPersonRow(data) { addPersonBlock('dPersonList', data); }
 function getDPersons() {
     var r = [];
     document.querySelectorAll('#dContactPanels .d-contact-panel[data-panel]').forEach(function(panel) {
-        if (panel.getAttribute('data-panel') === '0') return; // skip basic
-        var block = panel.querySelector('.person-block');
-        if (!block) return;
-        var get = function(f){ var el=block.querySelector('[data-f="'+f+'"]'); return el?el.value.trim():''; };
+        if (panel.getAttribute('data-panel') === '0') return;
+        var get = function(f){ var el=panel.querySelector('[data-f="'+f+'"]'); return el?el.value.trim():''; };
         var obj = { name:get('name'), phone:get('phone'), idNo:get('idNo'), occupation:get('occupation'), birthday:rocToISO(get('birthday')), email:get('email'), source:get('source'), addrType:get('addrType'), zip:get('zip'), addr:get('addr') };
-        // 額外地址
         var extraAddrs = [];
-        block.querySelectorAll('.pb-addr-list [data-addr-row]').forEach(function(row) {
+        panel.querySelectorAll('.pb-addr-list [data-addr-row]').forEach(function(row) {
             var g = function(f){ var el=row.querySelector('[data-f="'+f+'"]'); return el?el.value.trim():''; };
             if (g('addr')||g('zip')) extraAddrs.push({ addrType:g('addrType'), zip:g('zip'), addr:g('addr') });
         });
@@ -5637,44 +5634,55 @@ function getDPersons() {
 function clearDPersons() { clearPersonBlocks('dPersonList'); dPersonId = 0; }
 
 function addDPersonTabbed(data) {
-    // 先在隱藏的 dPersonList 新增一個 person block
-    addDPersonRow(data);
     _dContactTabCounter++;
     var idx = _dContactTabCounter;
-    var blocks = document.querySelectorAll('#dPersonList .person-block');
-    var name = (data && data.name) ? data.name : '聯絡人' + idx;
-    // 新增頁籤按鈕
+    var d = data || {};
+    var name = d.name || '聯絡人' + idx;
+    var bdVal = d.birthday ? (d.birthday.includes('-') ? isoToROC(d.birthday) : d.birthday) : '';
+    // 頁籤按鈕
     var tabs = document.getElementById('dContactTabs');
     var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'bf-chip';
-    btn.textContent = name;
+    btn.type = 'button'; btn.className = 'bf-chip'; btn.textContent = name;
     btn.onclick = function(){ switchDContactTab(idx, btn); };
     btn.setAttribute('data-tab-idx', idx);
     tabs.appendChild(btn);
-    // 新增面板（從 person-block 複製內容顯示）
-    var panel = document.createElement('div');
-    panel.className = 'd-contact-panel';
-    panel.setAttribute('data-panel', idx);
-    panel.style.cssText = 'border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9;display:none;min-height:200px';
-    var block = blocks[blocks.length - 1];
-    panel.appendChild(block);
-    block.style.cssText = 'border:none;padding:0;margin:0;background:transparent;position:static';
-    // 移除 person-block 自帶的標題列和刪除按鈕（用頁籤管理）
-    var header = block.querySelector('div:first-child');
-    if (header && header.querySelector('.c-del')) {
-        header.innerHTML = '<span style="font-size:12px;font-weight:700;color:#8B7355">'+esc(name)+'</span>' +
-            '<button type="button" class="c-del" onclick="removeDContactTab('+idx+')" style="color:#EF4444;font-size:12px" title="刪除此聯絡人">✕</button>';
-        header.style.display = 'flex'; header.style.justifyContent = 'space-between'; header.style.alignItems = 'center';
+    // 跟基本聯絡人完全一樣的 HTML
+    var html = '<div class="d-contact-panel" data-panel="'+idx+'" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9;display:none;min-height:200px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:700;color:#8B7355" data-dp-title>'+esc(name)+'</span><button type="button" class="c-del" onclick="removeDContactTab('+idx+')" style="color:#EF4444;font-size:12px" title="刪除此聯絡人">✕</button></div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">' +
+            '<div class="fg" style="margin-bottom:0"><label>姓名 <button type="button" class="btn-fill" onclick="fillPersonBlock(this)">帶入</button></label><input data-f="name" value="'+esc(d.name||'')+'" placeholder=""></div>' +
+            '<div class="fg" style="margin-bottom:0"><label>電話</label><input data-f="phone" value="'+esc(d.phone||'')+'" placeholder="" onblur="autoPhone(this)"></div>' +
+            '<div class="fg" style="margin-bottom:0"><label>身份證字號</label><input data-f="idNo" value="'+esc(d.idNo||'')+'" placeholder=""></div>' +
+            '<div class="fg" style="margin-bottom:0"><label>職業</label><input data-f="occupation" value="'+esc(d.occupation||'')+'" placeholder=""></div>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">' +
+            '<div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input data-f="birthday" type="text" value="'+esc(bdVal)+'" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
+            '<div class="fg" style="margin-bottom:0;grid-column:span 2"><label>Email</label><input data-f="email" type="email" value="'+esc(d.email||'')+'" placeholder=""></div>' +
+            '<div class="fg" style="margin-bottom:0"><label>客戶來源</label><input data-f="source" value="'+esc(d.source||'')+'" placeholder=""></div>' +
+        '</div>' +
+        '<div data-addr-row style="display:grid;grid-template-columns:2fr 2fr 10fr auto;gap:6px;margin-bottom:6px;align-items:end">' +
+            '<div class="fg" style="margin-bottom:0"><label>類型</label><select data-f="addrType" onchange="onAddrTypeChange(this)"><option value="住家"'+(d.addrType==='住家'?' selected':'')+'>住家</option><option value="公司"'+(d.addrType==='公司'?' selected':'')+'>公司</option><option value="自訂"'+(d.addrType==='自訂'?' selected':'')+'>自訂</option></select></div>' +
+            '<div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input data-f="zip" value="'+esc(d.zip||'')+'" placeholder="" style="min-width:0"></div>' +
+            '<div class="fg" style="margin-bottom:0"><label>地址</label><input data-f="addr" value="'+esc(d.addr||'')+'" placeholder="" onblur="autoZip(this)"></div>' +
+            '<button type="button" class="btn-ic" onclick="addPbAddrRow(this)" title="新增地址" style="margin-bottom:2px;font-size:16px;padding:6px 8px">＋</button>' +
+        '</div>' +
+        '<div class="pb-addr-list"></div>' +
+    '</div>';
+    document.getElementById('dContactPanels').insertAdjacentHTML('beforeend', html);
+    var panel = document.querySelector('.d-contact-panel[data-panel="'+idx+'"]');
+    // 載入額外地址
+    if (d.extraAddrs && d.extraAddrs.length) {
+        var addBtn = panel.querySelector('.btn-ic[onclick*="addPbAddrRow"]');
+        if (addBtn) d.extraAddrs.forEach(function(a){ addPbAddrRow(addBtn, a); });
     }
-    document.getElementById('dContactPanels').appendChild(panel);
-    // 切到新頁籤
     switchDContactTab(idx, btn);
-    // 監聽姓名欄位更新頁籤文字
-    var nameInput = block.querySelector('[data-f="name"]');
+    // 姓名連動頁籤
+    var nameInput = panel.querySelector('[data-f="name"]');
     if (nameInput) {
         nameInput.addEventListener('input', function() {
             btn.textContent = nameInput.value || '聯絡人' + idx;
+            var title = panel.querySelector('[data-dp-title]');
+            if (title) title.textContent = nameInput.value || '聯絡人' + idx;
         });
     }
 }
@@ -8917,7 +8925,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404y';
+var APP_VERSION = '20260404z';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
