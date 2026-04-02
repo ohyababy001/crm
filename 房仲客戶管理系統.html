@@ -7301,6 +7301,8 @@ function openEdit(id, viewAs) {
     setVal('f-birthday', isoToROC(c.bBirthday||c.sBirthday||c.cBirthday||c.dBirthday||c.llBirthday||c.ttBirthday||''));
     setVal('fe', c.bEmail||c.sEmail||c.cEmail||c.dEmail||c.llEmail||c.ttEmail||'');
     setVal('fso', c.bSource||c.sSource||c.cSource||c.dSource||c.rSource||'');
+    var _at = c.addrType||c.bAddrType||c.sAddrType||c.cAddrType||c.dAddrType||c.llAddrType||c.ttAddrType||'';
+    if (_at) { var _atEl = document.getElementById('f-addrType'); if(_atEl) _atEl.value = _at; }
     setVal('f-addr', c.bAddr||c.sOwnerAddr||c.cAddr||c.dAddr||c.llAddr||c.ttAddr||'');
     setVal('f-zip', c.bZip||c.sZip||c.cZip||c.dZip||c.llZip||c.ttZip||'');
     var _ll0 = (c.rLandlords&&c.rLandlords[0])||{};
@@ -7683,6 +7685,7 @@ function saveClient() {
     var _basicBday = rocToISO(document.getElementById('f-birthday').value.trim());
     var _basicEmail = document.getElementById('fe').value.trim();
     var _basicSource = document.getElementById('fso').value.trim();
+    var _basicAddrType = document.getElementById('f-addrType').value;
     var _basicAddr = document.getElementById('f-addr').value.trim();
     var _basicZip = document.getElementById('f-zip').value.trim();
     var _basicBank = document.getElementById('f-bank').value.trim();
@@ -7714,7 +7717,7 @@ function saveClient() {
         email: _basicEmail, status: '',
         lastContact: new Date().toISOString(),
         source: _basicSource, occupation: _basicOcc, birthday: _basicBday,
-        addr: _basicAddr, zip: _basicZip,
+        addrType: _basicAddrType, addr: _basicAddr, zip: _basicZip,
         bank: _basicBank, bankCode: _basicBankCode, bankAccount: _basicBankAccount,
         typeNotes:collectTypeNotes(), notes:(function(){ var tn=collectTypeNotes(); return Object.keys(tn).map(function(k){return tn[k];}).join('\n'); })(),
         // 經營買方
@@ -7821,10 +7824,10 @@ function saveClient() {
         data.contacts = [];
     }
     // 向下相容：同步固定基本欄位到各類型欄位
-    data.bName=name; data.bPhone=phone; data.bIdNo=_basicIdNo; data.bOccupation=_basicOcc; data.bBirthday=_basicBday; data.bEmail=_basicEmail; data.bSource=_basicSource; data.bZip=_basicZip; data.bAddr=_basicAddr;
-    data.sName=name; data.sPhone=phone; data.sIdNo=_basicIdNo; data.sOccupation=_basicOcc; data.sBirthday=_basicBday; data.sEmail=_basicEmail; data.sSource=_basicSource; data.sZip=_basicZip; data.sOwnerAddr=_basicAddr;
-    data.cName=name; data.cPhone=phone; data.cIdNo=_basicIdNo; data.cOccupation=_basicOcc; data.cBirthday=_basicBday; data.cEmail=_basicEmail; data.cSource=_basicSource; data.cZip=_basicZip; data.cAddr=_basicAddr;
-    data.dName=name; data.dPhone=phone; data.dIdNo=_basicIdNo; data.dOccupation=_basicOcc; data.dBirthday=_basicBday; data.dEmail=_basicEmail; data.dSource=_basicSource; data.dZip=_basicZip; data.dAddr=_basicAddr;
+    data.bName=name; data.bPhone=phone; data.bIdNo=_basicIdNo; data.bOccupation=_basicOcc; data.bBirthday=_basicBday; data.bEmail=_basicEmail; data.bSource=_basicSource; data.bAddrType=_basicAddrType; data.bZip=_basicZip; data.bAddr=_basicAddr;
+    data.sName=name; data.sPhone=phone; data.sIdNo=_basicIdNo; data.sOccupation=_basicOcc; data.sBirthday=_basicBday; data.sEmail=_basicEmail; data.sSource=_basicSource; data.sAddrType=_basicAddrType; data.sZip=_basicZip; data.sOwnerAddr=_basicAddr;
+    data.cName=name; data.cPhone=phone; data.cIdNo=_basicIdNo; data.cOccupation=_basicOcc; data.cBirthday=_basicBday; data.cEmail=_basicEmail; data.cSource=_basicSource; data.cAddrType=_basicAddrType; data.cZip=_basicZip; data.cAddr=_basicAddr;
+    data.dName=name; data.dPhone=phone; data.dIdNo=_basicIdNo; data.dOccupation=_basicOcc; data.dBirthday=_basicBday; data.dEmail=_basicEmail; data.dSource=_basicSource; data.dAddrType=_basicAddrType; data.dZip=_basicZip; data.dAddr=_basicAddr;
     data.llName=name; data.llPhone=phone; data.llIdNo=_basicIdNo; data.llOccupation=_basicOcc; data.llBirthday=_basicBday; data.llEmail=_basicEmail;
     data.ttName=name; data.ttPhone=phone; data.ttIdNo=_basicIdNo; data.ttOccupation=_basicOcc; data.ttBirthday=_basicBday; data.ttEmail=_basicEmail;
     // 向下相容：把 contacts 寫回各類型舊欄位（只在有共用聯絡人時覆蓋）
@@ -8990,7 +8993,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405zm';
+var APP_VERSION = '20260405zn';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
