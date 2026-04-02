@@ -4079,7 +4079,7 @@ function showDet(id, viewAs) {
                 var bank = c.bank || _ll0.bank || '';
                 var bankCode = c.bankCode || _ll0.bankCode || '';
                 var bankAccount = c.bankAccount || _ll0.bankAccount || '';
-                if (bank || bankAccount) info.push(dRow('銀行', (bank?bank:'')+(bankCode?' '+bankCode:'')+(bankAccount?' '+bankAccount:'')));
+                if (bank || bankAccount) info.push(dRow('銀行', (bank?bank:'')+(bankCode?' ('+bankCode+')':'')+(bankAccount?' '+bankAccount:'')));
                 return info.length ? '<div style="border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:8px">'+info.join('')+'</div>' : '';
             })()}
             ${(function(){
@@ -8998,7 +8998,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405i';
+var APP_VERSION = '20260405j';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
