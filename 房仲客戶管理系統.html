@@ -3163,6 +3163,8 @@ function renderCard(c) {
         // 根據角色顯示對應標籤，當前功能排第一
         if (c._viewAs === 'landlord' && hasType(c, '租案管理')) c._mergedLandlordTypes = getMergedLandlordTypes(c);
         var displayTypes = getDisplayTypesForRole(c, cTypes);
+        var _tagOrder = {'成交客戶':0,'庫存屋主':1,'房東':2,'租客':3,'商機募集':4,'經營買方':5};
+        displayTypes.sort(function(a,b){ return (_tagOrder[a]!==undefined?_tagOrder[a]:9) - (_tagOrder[b]!==undefined?_tagOrder[b]:9); });
         if (curFilter !== 'all' && displayTypes.includes(curFilter)) {
             displayTypes = [curFilter].concat(displayTypes.filter(function(t){ return t !== curFilter; }));
         }
@@ -8775,7 +8777,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zzu';
+var APP_VERSION = '20260403zzv';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
