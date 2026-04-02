@@ -3515,7 +3515,9 @@ function editNoteInline(id, el, noteType) {
         if (_saved) return;
         _saved = true;
         ta.removeEventListener('blur', save);
-        const val = ta.value.trim();
+        var val = ta.value.trim();
+        // 如果只剩日期前綴沒有實際內容，視為清空
+        if (/^\d{7,8}$/.test(val)) val = '';
         if (val !== original) {
             if (!c.typeNotes) c.typeNotes = {};
             if (!c.history) c.history = [];
@@ -8909,7 +8911,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404zu';
+var APP_VERSION = '20260404zv';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
