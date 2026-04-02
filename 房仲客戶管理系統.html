@@ -5659,7 +5659,7 @@ function addDPersonTabbed(data) {
     panel.style.cssText = 'border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9;display:none;min-height:200px';
     var block = blocks[blocks.length - 1];
     panel.appendChild(block);
-    block.style.border = 'none'; block.style.padding = '0'; block.style.margin = '0'; block.style.background = 'transparent'; block.style.position = 'static';
+    block.style.cssText = 'border:none;padding:0;margin:0;background:transparent;position:static';
     // 移除 person-block 自帶的標題列和刪除按鈕（用頁籤管理）
     var header = block.querySelector('div:first-child');
     if (header && header.querySelector('.c-del')) {
@@ -8917,7 +8917,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404x';
+var APP_VERSION = '20260404y';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
