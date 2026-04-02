@@ -5655,7 +5655,7 @@ function addDPersonTabbed(data) {
     var header = block.querySelector('div:first-child');
     if (header && header.querySelector('.c-del')) {
         header.innerHTML = '<span style="font-size:12px;font-weight:700;color:#8B7355">'+esc(name)+'</span>' +
-            '<button type="button" class="c-del" onclick="removeDContactTab('+idx+')" style="color:#EF4444">刪除此聯絡人</button>';
+            '<button type="button" class="c-del" onclick="removeDContactTab('+idx+')" style="color:#EF4444;font-size:11px">刪除此聯絡人</button>';
         header.style.display = 'flex'; header.style.justifyContent = 'space-between'; header.style.alignItems = 'center';
     }
     document.getElementById('dContactPanels').appendChild(panel);
@@ -8899,7 +8899,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404e';
+var APP_VERSION = '20260404f';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
