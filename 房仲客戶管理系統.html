@@ -383,7 +383,7 @@
             .card-divider { display: none; }
             .card-meta { width: auto; flex: 1 1 100%; }
             .cmeta-row { font-size: 15px; margin-bottom: 5px; }
-            .card-notes-col { display: none; }
+            .card-notes-col { display: block; width: 100%; margin-top: 4px; }
             .card-right { display: none; }
             .card-bottom-right { position: absolute; top: 6px; right: 8px; align-items: flex-end; gap: 0; }
             .card-bottom-right .btn-ic { font-size: 16px; padding: 4px 6px; }
@@ -8801,7 +8801,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404zh';
+var APP_VERSION = '20260404zi';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
