@@ -3911,12 +3911,6 @@ function typeDetail(origC, viewAs) {
             if (c.devType) rows.push(dRow('類別',c.devType));
             if (c.dCommunity || c.dAddr) rows.push(dRow('地址',(c.dCommunity?c.dCommunity+'　':'')+(c.dAddr||'')));
         }
-        if (c.schedules && c.schedules.length) {
-            rows.push('<div style="font-weight:700;font-size:12px;color:#475569;margin-top:8px;margin-bottom:4px">預排行程</div>');
-            c.schedules.slice().sort(function(a,b){ return (a.date+(a.time||'')).localeCompare(b.date+(b.time||'')); }).forEach(function(s) {
-                rows.push(dRow(isoToROC(s.date)+(s.time?' '+s.time:''), s.memo||''));
-            });
-        }
         return rows.join('');
     }
     return '';
@@ -3976,6 +3970,12 @@ function showDet(id, viewAs) {
         <div class="det-body">
             <div class="tags" style="margin-bottom:10px">${detTypeTags}${statusTag}</div>
             ${allTd}
+            ${(function(){
+                if (!c.schedules || !c.schedules.length) return '';
+                var sorted = c.schedules.slice().sort(function(a,b){ return (a.date+(a.time||'')).localeCompare(b.date+(b.time||'')); });
+                return '<div style="font-weight:700;font-size:12px;color:#475569;margin-top:8px;margin-bottom:4px">預排行程</div>' +
+                    sorted.map(function(s){ return dRow(isoToROC(s.date)+(s.time?' '+s.time:''), s.memo||''); }).join('');
+            })()}
             ${(function(){
                 var _nLabels={'經營買方':'買方備註','庫存屋主':'庫存備註','房東':'房東備註','租客':'租客備註','成交客戶':'成交備註','商機募集':'商機備註'};
                 if(c.typeNotes&&Object.keys(c.typeNotes).some(function(k){return c.typeNotes[k];})){
@@ -8753,7 +8753,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zzi';
+var APP_VERSION = '20260403zzj';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
