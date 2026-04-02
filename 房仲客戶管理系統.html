@@ -863,14 +863,14 @@
                     <input id="f-idNo" placeholder="">
                 </div>
                 <div class="fg" style="margin-bottom:0">
-                    <label>職業</label>
-                    <input id="f-occupation" placeholder="">
+                    <label>生日</label>
+                    <div class="roc-date-wrap"><input id="f-birthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>
                 </div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                 <div class="fg" style="margin-bottom:0">
-                    <label>生日</label>
-                    <div class="roc-date-wrap"><input id="f-birthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>
+                    <label>職業</label>
+                    <input id="f-occupation" placeholder="">
                 </div>
                 <div class="fg" id="sourceGroup" style="margin-bottom:0">
                     <label>客戶來源</label>
@@ -5594,10 +5594,10 @@ function addPersonBlock(listId, data) {
             '<div class="fg" style="margin-bottom:0"><label>姓名 <button type="button" class="btn-fill" onclick="fillPersonBlock(this)">帶入</button></label><input data-f="name" value="'+esc(d.name||'')+'" placeholder=""></div>' +
             '<div class="fg" style="margin-bottom:0"><label>電話</label><input data-f="phone" value="'+esc(d.phone||'')+'" placeholder="" onblur="autoPhone(this)"></div>' +
             '<div class="fg" style="margin-bottom:0"><label>身份證字號</label><input data-f="idNo" value="'+esc(d.idNo||'')+'" placeholder=""></div>' +
-            '<div class="fg" style="margin-bottom:0"><label>職業</label><input data-f="occupation" value="'+esc(d.occupation||'')+'" placeholder=""></div>' +
+            '<div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input data-f="birthday" type="text" value="'+esc(bdVal)+'" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
         '</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">' +
-            '<div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input data-f="birthday" type="text" value="'+esc(bdVal)+'" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label>職業</label><input data-f="occupation" value="'+esc(d.occupation||'')+'" placeholder=""></div>' +
             '<div class="fg" style="margin-bottom:0"><label>客戶來源</label><input data-f="source" value="'+esc(d.source||'')+'" placeholder=""></div>' +
             '<div class="fg" style="margin-bottom:0;grid-column:span 2"><label>Email</label><input data-f="email" type="email" value="'+esc(d.email||'')+'" placeholder=""></div>' +
         '</div>' +
@@ -8993,7 +8993,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405zn';
+var APP_VERSION = '20260405zo';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
