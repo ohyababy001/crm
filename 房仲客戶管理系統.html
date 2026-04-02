@@ -7304,6 +7304,7 @@ function openEdit(id, viewAs) {
     setVal('f-addr', c.bAddr||c.sOwnerAddr||c.cAddr||c.dAddr||c.llAddr||c.ttAddr||'');
     setVal('f-zip', c.bZip||c.sZip||c.cZip||c.dZip||c.llZip||c.ttZip||'');
     var _ll0 = (c.rLandlords&&c.rLandlords[0])||{};
+    alert('銀行偵錯:\nll0.bank='+(_ll0.bank||'')+'\nc.llBank='+(c.llBank||'')+'\nc.bank='+(c.bank||'')+'\nll0.bankAccount='+(_ll0.bankAccount||'')+'\nc.llBankAccount='+(c.llBankAccount||'')+'\nc.bankAccount='+(c.bankAccount||''));
     setVal('f-bank', _ll0.bank||c.llBank||c.bank||'');
     setVal('f-bankCode', _ll0.bankCode||c.llBankCode||c.bankCode||'');
     setVal('f-bankAccount', _ll0.bankAccount||c.llBankAccount||c.bankAccount||'');
@@ -8986,7 +8987,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405zi';
+var APP_VERSION = '20260405zj';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
