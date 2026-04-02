@@ -6857,7 +6857,7 @@ function fillSearchDB(val, target, overlay) {
 
 // ── 新增聯絡人的帶入 ──
 function fillPersonBlock(btn) {
-    var block = btn.closest('.person-block'); if (!block) return;
+    var block = btn.closest('.person-block') || btn.closest('.d-contact-panel'); if (!block) return;
     var sources = collectPersonSources('');
     if (!sources.length) { alert('沒有可帶入的資料'); return; }
     var overlay = document.createElement('div');
@@ -8932,7 +8932,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404zb';
+var APP_VERSION = '20260404zc';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
