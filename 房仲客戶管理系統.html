@@ -6040,18 +6040,22 @@ function _getAllDriveProps(c) {
     var all = [];
     var cTypes = c.types || [];
     // 租案
-    var rProps = c.rProperties || [];
-    if (!rProps.length && (c.rAddr || c.rCommunity)) {
-        rProps = [{ rAddr: c.rAddr || '', rCommunity: c.rCommunity || '', rStartDate: c.rStartDate || '', rpDriveUrl: '', rpRenewals: c.renewals || [] }];
+    if (cTypes.includes('房東') || cTypes.includes('租客') || cTypes.includes('租案管理')) {
+        var rProps = c.rProperties || [];
+        if (!rProps.length && (c.rAddr || c.rCommunity)) {
+            rProps = [{ rAddr: c.rAddr || '', rCommunity: c.rCommunity || '', rStartDate: c.rStartDate || '', rpDriveUrl: '', rpRenewals: c.renewals || [] }];
+        }
+        rProps.forEach(function(p, i){ all.push({ type:'租案', label: p.rAddr || p.rCommunity || '租案物件 '+(i+1), url: p.rpDriveUrl || '', urlKey:'rpDriveUrl', src:'rProperties', idx:i, prop:p }); });
     }
-    rProps.forEach(function(p, i){ all.push({ type:'租案', label: p.rAddr || p.rCommunity || '租案物件 '+(i+1), url: p.rpDriveUrl || '', urlKey:'rpDriveUrl', src:'rProperties', idx:i, prop:p }); });
     // 庫存（含同房東聯動）
-    var sProps = c.sProperties || [];
-    if (!sProps.length && hasType(c, '租案管理')) {
-        var _md = getMergedLandlordData(c, '庫存屋主');
-        if (_md && _md.sProperties) sProps = _md.sProperties;
+    if (cTypes.includes('庫存屋主') || hasType(c, '租案管理')) {
+        var sProps = c.sProperties || [];
+        if (!sProps.length && hasType(c, '租案管理')) {
+            var _md = getMergedLandlordData(c, '庫存屋主');
+            if (_md && _md.sProperties) sProps = _md.sProperties;
+        }
+        sProps.forEach(function(p, i){ all.push({ type:'庫存', label: p.addr || p.community || '庫存物件 '+(i+1), url: p.spDriveUrl || '', urlKey:'spDriveUrl', src:'sProperties', idx:i, prop:p }); });
     }
-    sProps.forEach(function(p, i){ all.push({ type:'庫存', label: p.addr || p.community || '庫存物件 '+(i+1), url: p.spDriveUrl || '', urlKey:'spDriveUrl', src:'sProperties', idx:i, prop:p }); });
     // 買方（含同房東聯動）
     var _hasBuyer = cTypes.includes('經營買方');
     if (!_hasBuyer && hasType(c, '租案管理')) {
@@ -6062,24 +6066,28 @@ function _getAllDriveProps(c) {
         all.push({ type:'買方', label: c.bName || '買方', url: c.bDriveUrl || '', urlKey:'bDriveUrl', src:'_client', idx:0, prop:c });
     }
     // 成交（每筆成交物件各一個）
-    var deals = c.deals || [];
-    deals.forEach(function(d, i) {
-        var label = (d.role||'') + ' ' + (d.addr || d.community || '成交物件 '+(i+1));
-        all.push({ type:'成交', label: label, url: d.dealDriveUrl || '', urlKey:'dealDriveUrl', src:'deals', idx:i, prop:d });
-    });
-    // 成交通用（無成交物件時或額外）
-    if (!deals.length && cTypes.includes('成交客戶')) {
-        all.push({ type:'成交', label: c.cName || '成交客戶', url: c.cDriveUrl || '', urlKey:'cDriveUrl', src:'_client', idx:0, prop:c });
+    if (cTypes.includes('成交客戶')) {
+        var deals = c.deals || [];
+        deals.forEach(function(d, i) {
+            var label = (d.role||'') + ' ' + (d.addr || d.community || '成交物件 '+(i+1));
+            all.push({ type:'成交', label: label, url: d.dealDriveUrl || '', urlKey:'dealDriveUrl', src:'deals', idx:i, prop:d });
+        });
+        // 成交通用（無成交物件時或額外）
+        if (!deals.length) {
+            all.push({ type:'成交', label: c.cName || '成交客戶', url: c.cDriveUrl || '', urlKey:'cDriveUrl', src:'_client', idx:0, prop:c });
+        }
     }
     // 商機（每筆物件各一個）
-    var dAddrs = c.dAddrs || [];
-    dAddrs.forEach(function(d, i) {
-        var label = (d.addr || d.community || '商機物件 '+(i+1));
-        all.push({ type:'商機', label: label, url: d.dAddrDriveUrl || '', urlKey:'dAddrDriveUrl', src:'dAddrs', idx:i, prop:d });
-    });
-    // 商機通用（無物件時）
-    if (!dAddrs.length && cTypes.includes('商機募集')) {
-        all.push({ type:'商機', label: c.dName || '商機', url: c.dDriveUrl || '', urlKey:'dDriveUrl', src:'_client', idx:0, prop:c });
+    if (cTypes.includes('商機募集')) {
+        var dAddrs = c.dAddrs || [];
+        dAddrs.forEach(function(d, i) {
+            var label = (d.addr || d.community || '商機物件 '+(i+1));
+            all.push({ type:'商機', label: label, url: d.dAddrDriveUrl || '', urlKey:'dAddrDriveUrl', src:'dAddrs', idx:i, prop:d });
+        });
+        // 商機通用（無物件時）
+        if (!dAddrs.length) {
+            all.push({ type:'商機', label: c.dName || '商機', url: c.dDriveUrl || '', urlKey:'dDriveUrl', src:'_client', idx:0, prop:c });
+        }
     }
     // 租客：從連結的房東取得對應租案物件
     if (cTypes.includes('租客') && c.linkedLandlordId) {
@@ -8767,7 +8775,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zzs';
+var APP_VERSION = '20260403zzt';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
