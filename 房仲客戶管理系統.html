@@ -1826,8 +1826,10 @@ function loadTagFields(tagType, d) {
         if (d.dBasicAddrs && d.dBasicAddrs.length) d.dBasicAddrs.forEach(function(a){ addBuyerAddrRow('dBasicAddrList',a); });
         clearDContactTabs();
         if (d.dPersons && d.dPersons.length) {
+            console.log('dPersons載入偵錯:', JSON.stringify(d.dPersons), 'dName:', d.dName);
             // dPersons[0] 是基本聯絡人本人（saveClient 會塞入），跳過
             d.dPersons.forEach(function(p, i) {
+                console.log('  ['+i+']', JSON.stringify(p), i===0&&p.name===d.dName?'→跳過(基本)':'→載入');
                 if (i === 0 && p.name && p.name === d.dName) return;
                 if (!p.name && !p.phone) return;
                 addDPersonTabbed(p);
@@ -8909,7 +8911,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404i';
+var APP_VERSION = '20260404j';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
