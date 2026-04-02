@@ -6676,11 +6676,8 @@ function applyTypePicker() {
     // 只顯示當前頁面的表單區段
     document.querySelectorAll('.type-sec').forEach(el => el.classList.remove('on'));
     if (activeView) { var sec=document.getElementById('s-'+activeView); if(sec) sec.classList.add('on'); }
-    // 基本欄位顯示邏輯 — 所有類型都用各自獨立欄位，隱藏共用列
-    document.getElementById('statusGroup').style.display = 'none';
-    document.getElementById('flcGroup').style.display = 'none';
-    document.getElementById('namePhoneIdRow').classList.add('hidden');
-    // emailSourceRow 已整合到固定基本聯絡人區塊
+    // 基本欄位：固定基本聯絡人區塊永遠顯示
+    document.getElementById('namePhoneIdRow').classList.remove('hidden');
     // 房東/租客已是獨立類型，不需要子頁籤切換
     // 自動帶入基本資料
     syncBasicInfo();
@@ -9007,7 +9004,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405c';
+var APP_VERSION = '20260405d';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
