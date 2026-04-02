@@ -3785,14 +3785,14 @@ function typeDetail(origC, viewAs) {
         var rows = [];
         var lls = c.rLandlords || (c.rLandlord ? [{name:c.rLandlord,phone:c.rLandlordPhone}] : []);
         var tts = c.rTenants || (c.rTenant ? [{name:c.rTenant,phone:c.rTenantPhone}] : []);
-        lls.forEach(function(p){
+        lls.slice(1).forEach(function(p){
             var lines = '<div style="font-weight:600">' + esc(p.name||'') + '</div>';
             if (p.phone) lines += '<div>' + esc(p.phone) + '</div>';
             if (p.idNo) lines += '<div>' + esc(p.idNo) + '</div>';
             if (p.occupation) lines += '<div>' + esc(p.occupation) + '</div>';
             rows.push('<div class="det-row"><span class="det-key">房東</span><span class="det-val" style="font-weight:400">' + lines + '</span></div>');
         });
-        tts.forEach(function(p){
+        tts.slice(1).forEach(function(p){
             var lines = '<div style="font-weight:600">' + esc(p.name||'') + '</div>';
             if (p.phone) lines += '<div>' + esc(p.phone) + '</div>';
             if (p.idNo) lines += '<div>' + esc(p.idNo) + '</div>';
@@ -3900,17 +3900,19 @@ function typeDetail(origC, viewAs) {
     }
     if (c.type==='成交客戶') {
         var rows = [];
-        // 合併聯絡人：cContacts + cBirthdays 去重
+        // 合併聯絡人：cContacts + cBirthdays 去重，跳過基本聯絡人
+        var _cBasicName = (c.cName || c.name || '').trim();
         var _cPeople = [];
         var _cSeen = {};
         if (c.cContacts&&c.cContacts.length) c.cContacts.forEach(function(ct){
             var key = (ct.name||'').trim();
+            if (key === _cBasicName) return;
             _cSeen[key] = true;
             _cPeople.push({ name:ct.name, phone:ct.phone, idNo:ct.idNo, birthday:ct.birthday, occupation:ct.occupation });
         });
         if (c.cBirthdays&&c.cBirthdays.length) c.cBirthdays.forEach(function(b){
             var key = (b.who||'').trim();
-            if (_cSeen[key]) return;
+            if (_cSeen[key] || key === _cBasicName) return;
             _cPeople.push({ name:b.who, birthday:b.date });
         });
         _cPeople.forEach(function(ct){
@@ -8909,7 +8911,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404zs';
+var APP_VERSION = '20260404zt';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
