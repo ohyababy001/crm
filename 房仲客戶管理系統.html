@@ -3942,29 +3942,7 @@ function typeDetail(origC, viewAs) {
     }
     if (c.type==='成交客戶') {
         var rows = [];
-        // 合併聯絡人：cContacts + cBirthdays 去重，跳過基本聯絡人
-        var _cBasicName = (c.cName || c.name || '').trim();
-        var _cPeople = [];
-        var _cSeen = {};
-        if (c.cContacts&&c.cContacts.length) c.cContacts.forEach(function(ct){
-            var key = (ct.name||'').trim();
-            if (key === _cBasicName) return;
-            _cSeen[key] = true;
-            _cPeople.push({ name:ct.name, phone:ct.phone, idNo:ct.idNo, birthday:ct.birthday, occupation:ct.occupation });
-        });
-        if (c.cBirthdays&&c.cBirthdays.length) c.cBirthdays.forEach(function(b){
-            var key = (b.who||'').trim();
-            if (_cSeen[key] || key === _cBasicName) return;
-            _cPeople.push({ name:b.who, birthday:b.date });
-        });
-        _cPeople.forEach(function(ct){
-            var lines = '<div style="font-weight:600">' + esc(ct.name||'') + '</div>';
-            if (ct.phone) lines += '<div>' + esc(ct.phone) + '</div>';
-            if (ct.idNo) lines += '<div>' + esc(ct.idNo) + '</div>';
-            if (ct.birthday) lines += '<div>生日 ' + esc(isoToROC(ct.birthday)) + '</div>';
-            if (ct.occupation) lines += '<div>' + esc(ct.occupation) + '</div>';
-            rows.push('<div class="det-row"><span class="det-key">聯絡人</span><span class="det-val" style="font-weight:400">' + lines + '</span></div>');
-        });
+        // 聯絡人已統一在上方顯示
         if (c.cAddrs&&c.cAddrs.length) c.cAddrs.forEach(function(a){
             rows.push(dRow(a.type||'地址',(a.zip?a.zip+' ':'')+a.addr));
         });
@@ -4080,7 +4058,7 @@ function showDet(id, viewAs) {
                 if (bank || bankAccount) info.push(dRow('銀行', (bank?bank:'')+(bankCode?' ('+bankCode+')':'')+(bankAccount?' '+bankAccount:'')));
                 // 其他聯絡人直接接在後面
                 if (c.contacts && c.contacts.length) {
-                    c.contacts.forEach(function(p) {
+                    c.contacts.forEach(function(p, idx) {
                         var lines = '<div style="font-weight:600">' + esc(p.name||'') + '</div>';
                         if (p.phone) lines += '<div>' + esc(p.phone) + '</div>';
                         if (p.idNo) lines += '<div>' + esc(p.idNo) + '</div>';
@@ -4089,7 +4067,7 @@ function showDet(id, viewAs) {
                         if (p.email) lines += '<div>' + esc(p.email) + '</div>';
                         if (p.addr) lines += '<div>' + esc((p.zip?p.zip+' ':'')+p.addr) + '</div>';
                         if (p.bank||p.bankAccount) lines += '<div>銀行 ' + esc((p.bank||'')+(p.bankCode?' ('+p.bankCode+')':'')+(p.bankAccount?' '+p.bankAccount:'')) + '</div>';
-                        info.push('<div class="det-row"><span class="det-key">'+ esc(p._src||'聯絡人') +'</span><span class="det-val" style="font-weight:400">'+lines+'</span></div>');
+                        info.push('<div class="det-row"><span class="det-key">聯絡人'+(idx+1)+'</span><span class="det-val" style="font-weight:400">'+lines+'</span></div>');
                     });
                 }
                 return info.length ? '<div style="border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:8px">'+info.join('')+'</div>' : '';
@@ -8994,7 +8972,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405o';
+var APP_VERSION = '20260405p';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
