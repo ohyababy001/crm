@@ -851,6 +851,8 @@
 
             <!-- 基本資料 -->
             <div class="sec-title" style="margin-top:18px">基本資料</div>
+            <div style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9">
+            <div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px">基本聯絡人</div>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px" id="namePhoneIdRow">
                 <div class="fg" id="nameGroup" style="margin-bottom:0">
                     <label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'buyer')">帶入</button></label>
@@ -894,6 +896,7 @@
                 <div class="fg" style="margin-bottom:0"><label>銀行名稱</label><input id="f-bank" placeholder="" onblur="autoBankCode(this)"></div>
                 <div class="fg" style="margin-bottom:0"><label>銀行代碼</label><input id="f-bankCode" placeholder=""></div>
                 <div class="fg" style="margin-bottom:0"><label>銀行帳號</label><input id="f-bankAccount" placeholder="" onblur="formatBankAccount(this)"></div>
+            </div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px" id="statusFlcRow">
                 <div class="fg" id="statusGroup" style="margin-bottom:0">
@@ -9004,7 +9007,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405d';
+var APP_VERSION = '20260405e';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
