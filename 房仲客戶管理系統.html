@@ -3339,6 +3339,18 @@ function renderCard(c) {
                     szDisp += ` <span style="color:#64748B">+${esc(_pk)}${_pkPrice ? ' ' + esc(_pkPrice) + (_pkPrice.includes('萬')?'':'萬') : ''}</span>`;
                 }
                 meta += `<div class="cmeta-row"><span class="cmeta-k">登記</span><span class="cmeta-v">${szDisp}</span></div>`;
+            } else {
+                // 無建物坪數：顯示土地坪數及土地單價
+                var _landSz = parseFloat(cc.sBaseLand||sp0.baseLand)||0;
+                if (_landSz) {
+                    const priceNum = parseFloat(String(_sPrice||'').replace(/[萬,]/g,'')) || 0;
+                    let landDisp = _landSz + '坪';
+                    if (priceNum) {
+                        const landUnit = (priceNum / _landSz).toFixed(2);
+                        landDisp += ` <span style="color:#6366F1;font-weight:600">@${landUnit}萬</span>`;
+                    }
+                    meta += `<div class="cmeta-row"><span class="cmeta-k">土地</span><span class="cmeta-v">${landDisp}</span></div>`;
+                }
             }
             if (_sPrice) {
                 let priceDisp = esc(_sPrice) + (_sPrice&&!_sPrice.includes('萬')?'萬':'');
@@ -8968,7 +8980,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405zv';
+var APP_VERSION = '20260405zw';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
