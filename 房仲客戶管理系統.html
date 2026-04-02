@@ -3785,7 +3785,13 @@ function typeDetail(origC, viewAs) {
         var rows = [];
         var lls = c.rLandlords || (c.rLandlord ? [{name:c.rLandlord,phone:c.rLandlordPhone}] : []);
         var tts = c.rTenants || (c.rTenant ? [{name:c.rTenant,phone:c.rTenantPhone}] : []);
-        lls.forEach(function(p){ rows.push(dRow('房東', (p.name||'')+(p.phone?'　'+p.phone:'')+(p.idNo?'　'+p.idNo:'')+(p.occupation?'　'+p.occupation:''))); });
+        lls.forEach(function(p){
+            var lines = '<div style="font-weight:600">' + esc(p.name||'') + '</div>';
+            if (p.phone) lines += '<div>' + esc(p.phone) + '</div>';
+            if (p.idNo) lines += '<div>' + esc(p.idNo) + '</div>';
+            if (p.occupation) lines += '<div>' + esc(p.occupation) + '</div>';
+            rows.push('<div class="det-row"><span class="det-key">房東</span><span class="det-val" style="font-weight:400">' + lines + '</span></div>');
+        });
         tts.forEach(function(p){ rows.push(dRow('租客', (p.name||'')+(p.phone?'　'+p.phone:'')+(p.idNo?'　'+p.idNo:'')+(p.occupation?'　'+p.occupation:''))); });
         rows.push(dRow('來源',c.rSource));
         rows.push(dRow('房東條件', [c.rSubsidy?'租補':'',c.rSocialHouse?'社宅':'',c.rRegister?'設籍':'',c.rTax?'報稅':'',c.rPet?'寵物':'',c.rAltar?'神桌':'',c.rGoodCitizen?'良民':'',c.rNotarize?'公證':''].filter(Boolean).join('、')));
@@ -3889,7 +3895,12 @@ function typeDetail(origC, viewAs) {
     if (c.type==='成交客戶') {
         var rows = [];
         if (c.cContacts&&c.cContacts.length) c.cContacts.forEach(function(ct){
-            rows.push(dRow('聯絡人', (ct.name||'') + (ct.phone ? '　' + ct.phone : '') + (ct.idNo ? '　' + ct.idNo : '') + (ct.birthday ? '　生日 ' + isoToROC(ct.birthday) : '')));
+            var lines = '<div style="font-weight:600">' + esc(ct.name||'') + '</div>';
+            if (ct.phone) lines += '<div>' + esc(ct.phone) + '</div>';
+            if (ct.idNo) lines += '<div>' + esc(ct.idNo) + '</div>';
+            if (ct.birthday) lines += '<div>生日 ' + esc(isoToROC(ct.birthday)) + '</div>';
+            if (ct.occupation) lines += '<div>' + esc(ct.occupation) + '</div>';
+            rows.push('<div class="det-row"><span class="det-key">聯絡人</span><span class="det-val" style="font-weight:400">' + lines + '</span></div>');
         });
         if (c.cBirthdays&&c.cBirthdays.length) c.cBirthdays.forEach(function(b){
             rows.push(dRow('生日',(b.who?b.who+'：':'')+isoToROC(b.date)));
@@ -8858,7 +8869,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404zp';
+var APP_VERSION = '20260404zq';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
