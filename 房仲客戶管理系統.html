@@ -1898,7 +1898,8 @@ function verifySyncResult(status) {
             var localCnt = DB.length;
             if (cnt >= localCnt - 3) {
                 // 雲端筆數 >= 本地，確認上傳成功
-                if (status) status.textContent = '☁️ 已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + cnt + '筆）';
+                var _dispCnt = data.filter(function(c){ return !c.__perfRecords && !c._system; }).length;
+                if (status) status.textContent = '☁️ 已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + _dispCnt + '筆）';
                 _localDirtyUntil = 0;
                 _lastSyncJSON = JSON.stringify(DB);
             } else {
@@ -2063,7 +2064,7 @@ function autoFetchCloud() {
                     localStorage.setItem('perfRecords', JSON.stringify(_perfRecords));
                 }
                 var status = document.getElementById('cloudStatus');
-                if (status) status.textContent = '☁️ 已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + DB.length + '筆）';
+                if (status) status.textContent = '☁️ 已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + DB.filter(function(c){return !c._system;}).length + '筆）';
             }
         } catch(e) {}
     };
@@ -8758,7 +8759,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zzo';
+var APP_VERSION = '20260403zzp';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
