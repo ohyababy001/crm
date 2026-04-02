@@ -423,21 +423,17 @@
             [data-addr-row] > .fg:nth-child(3) { grid-column: 1 / 5; }
             [data-addr-row] > .btn-ic,
             [data-addr-row] > button.c-del { grid-column: 5; grid-row: 2; align-self: end; margin-bottom: 4px; }
-            /* 基本聯絡人區塊內欄位重排（同新增聯絡人） */
-            .basic-contact-box > div[style*="1fr 1fr 1fr"] { grid-template-columns: 1fr 1fr !important; }
-            .basic-contact-box > div[style*="1fr 1fr 1fr 1fr"] > .fg[style*="span 2"] { grid-column: span 2 !important; }
-            /* 生日/Email/來源行：客戶來源移到生日右側，Email 移到最後滿版 */
-            .basic-contact-box > div:has(> .fg[style*="span 2"]) > .fg:nth-child(1) { order: 1; }
-            .basic-contact-box > div:has(> .fg[style*="span 2"]) > .fg:nth-child(4) { order: 2; }
-            .basic-contact-box > div:has(> .fg[style*="span 2"]) > .fg[style*="span 2"] { order: 3; }
-            /* 新增聯絡人區塊內欄位也重排 */
-            .person-block > div[style*="1fr 1fr 1fr"] { grid-template-columns: 1fr 1fr !important; }
-            .person-block > div[style*="1fr 1fr 1fr 1fr"] > .fg[style*="span 2"] { grid-column: span 2 !important; }
-            .person-block > div:has(> .fg[style*="span 2"]) > .fg:nth-child(1) { order: 1; }
-            .person-block > div:has(> .fg[style*="span 2"]) > .fg:nth-child(4) { order: 2; }
-            .person-block > div:has(> .fg[style*="span 2"]) > .fg[style*="span 2"] { order: 3; }
-            .person-block [data-addr-row] > .fg:nth-child(1) { grid-column: 1 / 2; }
-            .person-block [data-addr-row] > .fg:nth-child(2) { grid-column: 2 / 3; }
+            /* 手機版：基本聯絡人和新增聯絡人 4欄→2欄 */
+            #namePhoneIdRow { grid-template-columns: 1fr 1fr !important; }
+            div[style*="1fr 1fr 1fr 1fr"] { grid-template-columns: 1fr 1fr !important; }
+            /* Email 全寬 */
+            .fg[style*="span 2"] { grid-column: 1 / -1 !important; }
+            /* 銀行帳號全寬 */
+            div[style*="3fr 1fr 4fr"] { grid-template-columns: 1fr !important; }
+            /* 新增聯絡人區塊 */
+            .person-block > div[style*="1fr 1fr 1fr 1fr"] { grid-template-columns: 1fr 1fr !important; }
+            .person-block .fg[style*="span 2"] { grid-column: 1 / -1 !important; }
+            .person-block div[style*="3fr 2fr 6fr"] { grid-template-columns: 1fr !important; }
             .person-block [data-addr-row] > .fg:nth-child(3) { grid-column: 1 / 5; }
 
             /* 標題列隱藏，改用 placeholder */
@@ -8982,7 +8978,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405z';
+var APP_VERSION = '20260405za';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
