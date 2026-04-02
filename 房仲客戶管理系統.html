@@ -876,13 +876,13 @@
                     <label>生日</label>
                     <div class="roc-date-wrap"><input id="f-birthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>
                 </div>
-                <div class="fg" id="emailGroup" style="margin-bottom:0;grid-column:span 2">
-                    <label>Email</label>
-                    <input id="fe" type="email" placeholder="">
-                </div>
                 <div class="fg" id="sourceGroup" style="margin-bottom:0">
                     <label>客戶來源</label>
                     <input id="fso" placeholder="">
+                </div>
+                <div class="fg" id="emailGroup" style="margin-bottom:0;grid-column:span 2">
+                    <label>Email</label>
+                    <input id="fe" type="email" placeholder="">
                 </div>
             </div>
             <div data-addr-row style="display:grid;grid-template-columns:2fr 2fr 10fr auto;gap:6px;margin-bottom:6px;align-items:end">
@@ -5597,8 +5597,8 @@ function addPersonBlock(listId, data) {
         '</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">' +
             '<div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input data-f="birthday" type="text" value="'+esc(bdVal)+'" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
-            '<div class="fg" style="margin-bottom:0;grid-column:span 2"><label>Email</label><input data-f="email" type="email" value="'+esc(d.email||'')+'" placeholder=""></div>' +
             '<div class="fg" style="margin-bottom:0"><label>客戶來源</label><input data-f="source" value="'+esc(d.source||'')+'" placeholder=""></div>' +
+            '<div class="fg" style="margin-bottom:0;grid-column:span 2"><label>Email</label><input data-f="email" type="email" value="'+esc(d.email||'')+'" placeholder=""></div>' +
         '</div>' +
         '<div data-addr-row style="display:grid;grid-template-columns:2fr 2fr 10fr auto;gap:6px;margin-bottom:6px;align-items:end">' +
             '<div class="fg" style="margin-bottom:0"><label>類型</label>'+typeHtml+'</div>' +
@@ -8982,7 +8982,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405y';
+var APP_VERSION = '20260405z';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
