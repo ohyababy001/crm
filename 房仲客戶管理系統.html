@@ -5514,18 +5514,18 @@ function addPersonBlock(listId, data) {
         : '<select data-f="addrType" onchange="onAddrTypeChange(this)"><option value="住家"'+(d.addrType==='住家'?' selected':'')+'>住家</option><option value="公司"'+(d.addrType==='公司'?' selected':'')+'>公司</option><option value="自訂"'+(d.addrType==='自訂'?' selected':'')+'>自訂</option></select>';
     var html = '<div class="person-block" id="pb-'+personBlockId+'" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;position:relative;background:#FAFAF9">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:700;color:#8B7355">聯絡人 '+localNum+'</span><button type="button" class="c-del" onclick="this.parentElement.parentElement.remove()">✕</button></div>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:4px">' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">' +
             '<div class="fg" style="margin-bottom:0"><label>姓名 <button type="button" class="btn-fill" onclick="fillPersonBlock(this)" style="font-size:11px">帶入</button></label><input data-f="name" value="'+esc(d.name||'')+'" placeholder=""></div>' +
             '<div class="fg" style="margin-bottom:0"><label>電話</label><input data-f="phone" value="'+esc(d.phone||'')+'" placeholder="" onblur="autoPhone(this)"></div>' +
             '<div class="fg" style="margin-bottom:0"><label>身份證字號</label><input data-f="idNo" value="'+esc(d.idNo||'')+'" placeholder=""></div>' +
             '<div class="fg" style="margin-bottom:0"><label>職業</label><input data-f="occupation" value="'+esc(d.occupation||'')+'" placeholder=""></div>' +
         '</div>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:4px">' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">' +
             '<div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input data-f="birthday" type="text" value="'+esc(bdVal)+'" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
             '<div class="fg" style="margin-bottom:0;grid-column:span 2"><label>Email</label><input data-f="email" type="email" value="'+esc(d.email||'')+'" placeholder=""></div>' +
             '<div class="fg" style="margin-bottom:0"><label>客戶來源</label><input data-f="source" value="'+esc(d.source||'')+'" placeholder=""></div>' +
         '</div>' +
-        '<div data-addr-row style="display:grid;grid-template-columns:2fr 2fr 10fr auto;gap:6px;margin-bottom:4px;align-items:end">' +
+        '<div data-addr-row style="display:grid;grid-template-columns:2fr 2fr 10fr auto;gap:6px;margin-bottom:6px;align-items:end">' +
             '<div class="fg" style="margin-bottom:0"><label>類型</label>'+typeHtml+'</div>' +
             '<div class="fg" style="margin-bottom:0"><label>郵遞區號</label><input data-f="zip" value="'+esc(d.zip||'')+'" placeholder="" style="min-width:0"></div>' +
             '<div class="fg" style="margin-bottom:0"><label>地址</label><input data-f="addr" value="'+esc(d.addr||'')+'" placeholder="" onblur="autoZip(this)"></div>' +
@@ -8915,7 +8915,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404q';
+var APP_VERSION = '20260404r';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
