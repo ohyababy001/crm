@@ -3498,11 +3498,13 @@ function editNoteInline(id, el, noteType) {
     }
     const ta = document.createElement('textarea');
     ta.className = 'notes-edit-area';
-    ta.value = original;
+    var _now = new Date();
+    var _rocDate = (_now.getFullYear()-1911) + String(_now.getMonth()+1).padStart(2,'0') + String(_now.getDate()).padStart(2,'0');
+    ta.value = original ? _rocDate + ' \n' + original : _rocDate + ' ';
     ta.rows = 2;
     el.replaceWith(ta);
     ta.focus();
-    ta.setSelectionRange(ta.value.length, ta.value.length);
+    ta.setSelectionRange(_rocDate.length + 1, _rocDate.length + 1);
 
     var _saved = false;
     function save() {
@@ -8799,7 +8801,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404zg';
+var APP_VERSION = '20260404zh';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
