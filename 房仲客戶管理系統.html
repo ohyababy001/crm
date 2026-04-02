@@ -658,10 +658,33 @@
             white-space: nowrap; border-radius: 6px; text-align: center;
         }
         .mobile-nav button.active { color: var(--deep); font-weight: 800; background: var(--bg); }
+
+        /* Toast 提示 */
+        .toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:#292524; color:#FAFAF9; padding:12px 24px; border-radius:12px; font-size:14px; font-weight:600; z-index:9999; box-shadow:0 4px 16px rgba(0,0,0,0.2); opacity:0; transition:opacity 0.3s; pointer-events:none; white-space:nowrap; }
+        .toast.show { opacity:1; pointer-events:auto; }
+        .toast.toast-error { background:#DC2626; }
+        .toast.toast-warn { background:#D97706; }
+
+        /* Undo 刪除列 */
+        .undo-bar { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#1F2937; color:#FAFAF9; padding:12px 20px; border-radius:12px; font-size:14px; font-weight:600; z-index:9999; box-shadow:0 6px 24px rgba(0,0,0,0.25); display:flex; align-items:center; gap:12px; }
+        .undo-bar button { background:#FAFAF9; color:#1F2937; border:none; padding:6px 16px; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; }
+        .undo-bar button:hover { background:#E5E7EB; }
+        .undo-bar .undo-timer { font-size:12px; color:rgba(250,250,249,0.6); }
+        /* 下拉刷新 */
+        .ptr-indicator { position:fixed; top:0; left:50%; transform:translateX(-50%) translateY(-50px); z-index:999; background:var(--deep); color:white; padding:8px 18px; border-radius:0 0 12px 12px; font-size:13px; font-weight:600; transition:transform 0.2s; pointer-events:none; }
+        .ptr-indicator.pulling { transform:translateX(-50%) translateY(0); }
+        .ptr-indicator.refreshing { transform:translateX(-50%) translateY(0); }
+
+        /* 社區自動完成 */
+        .ac-list { position:absolute; z-index:9999; background:white; border:1px solid var(--border); border-radius:8px; box-shadow:0 4px 16px rgba(0,0,0,0.12); max-height:180px; overflow-y:auto; width:100%; left:0; top:100%; }
+        .ac-item { padding:8px 12px; font-size:14px; cursor:pointer; }
+        .ac-item:hover, .ac-item.active { background:var(--bg); }
+        .ac-item b { color:var(--deep); }
     </style>
 </head>
 <body>
 
+<div id="ptrIndicator" class="ptr-indicator">↓ 下拉刷新</div>
 
 <header class="header">
     <div class="header-title">🏠 客戶管理</div>
@@ -731,6 +754,7 @@
         <button class="btn-export" onclick="document.getElementById('csvImportInput2').click()">📥 匯入 CSV</button>
         <input type="file" id="csvImportInput2" accept=".csv" style="display:none" onchange="importCSV(this.files[0])">
         <div id="importTime" style="text-align:center;font-size:10px;color:var(--muted);padding:0 10px"></div>
+        <button class="btn-export" onclick="runDataCheck()" style="margin-top:4px">🔍 資料健檢</button>
         <div id="cloudStatus" style="text-align:center;font-size:11px;color:var(--muted);margin-top:4px;padding:0 10px">☁️ 自動同步中</div>
     </aside>
 
@@ -813,6 +837,7 @@
             </div>
         </div>
 
+        <div id="activeFilterBar" style="display:none;padding:6px 12px;margin-bottom:8px;background:#FFFBEB;border:1px solid #F59E0B;border-radius:10px;font-size:13px;color:#92400E;display:none;align-items:center;gap:6px;flex-wrap:wrap"></div>
         <div id="grid" class="grid"></div>
     </main>
 </div>
@@ -1368,6 +1393,9 @@
     <div id="calYearPicker" style="display:none;padding:8px 12px;max-height:200px;overflow-y:auto"></div>
 </div>
 
+<!-- ============================================================ -->
+<!-- 區塊 1：基礎資料（區域、郵遞區號、地址自動帶入）               -->
+<!-- ============================================================ -->
 <script>
 window.onerror = function(msg, url, line, col, err) { if (msg === 'Script error.' && line === 0) return true; alert('JS錯誤: ' + msg + '\n行號: ' + line); };
 // ── 區域資料 ──
@@ -1428,6 +1456,10 @@ var ZIP_BY_CITY = {};
     ];
     entries.forEach(function(e){ ZIP_BY_CITY[e[0]] = e[1]; });
 })();
+// 反查表：區名 → 郵遞區號（支援省略縣市名）
+var _ZIP_BY_DIST = {};
+(function(){ for(var city in ZIP_BY_CITY){ var dists=ZIP_BY_CITY[city]; for(var d in dists){ if(!_ZIP_BY_DIST[d]) _ZIP_BY_DIST[d]=dists[d]; } } })();
+
 function autoZip(addrInput) {
     var addr = addrInput.value.trim();
     var row = addrInput.closest('[data-addr-row]') || addrInput.parentElement.parentElement;
@@ -1436,18 +1468,20 @@ function autoZip(addrInput) {
     if (!addr) { zipInput.value = ''; return; }
     // 正規化：臺→台
     var norm = addr.replace(/臺/g,'台');
-    // 必須同時包含正確的縣市+區域才填入
+    // 1. 有縣市名 → 精確比對
     for (var city in ZIP_BY_CITY) {
         if (norm.includes(city)) {
             var dists = ZIP_BY_CITY[city];
             for (var dist in dists) {
                 if (norm.includes(dist)) { zipInput.value = dists[dist]; return; }
             }
-            // 有縣市但區域不對，清空郵遞區號
             zipInput.value = ''; return;
         }
     }
-    // 沒有縣市名稱，不自動填入
+    // 2. 省略縣市名 → 從區名反查（例如直接輸入「板橋區...」）
+    for (var dist in _ZIP_BY_DIST) {
+        if (norm.includes(dist)) { zipInput.value = _ZIP_BY_DIST[dist]; return; }
+    }
     zipInput.value = '';
 }
 function loadAddrType(id, val) {
@@ -1501,25 +1535,26 @@ function showCustomDistDialog(city) {
         '<input type="text" id="customDistInput" placeholder="例：八里區" style="width:100%;padding:8px 11px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box;margin-bottom:12px">' +
         '<div style="display:flex;gap:8px;justify-content:flex-end">' +
             '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
-            '<button type="button" onclick="confirmCustomDist(\''+city+'\')" style="padding:8px 16px;border:none;border-radius:8px;background:var(--deep);color:white;cursor:pointer;font-size:14px">確定</button>' +
+            '<button type="button" id="confirmCustomDistBtn" style="padding:8px 16px;border:none;border-radius:8px;background:var(--deep);color:white;cursor:pointer;font-size:14px">確定</button>' +
         '</div>';
     overlay.appendChild(box);
     overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
     document.body.appendChild(overlay);
+    document.getElementById('confirmCustomDistBtn').onclick = function(){ confirmCustomDist(city); };
     setTimeout(function(){ document.getElementById('customDistInput').focus(); }, 100);
 }
 function confirmCustomDist(city) {
     var input = document.getElementById('customDistInput');
     var name = input ? input.value.trim() : '';
     if (!name) return;
-    document.querySelector('.fill-overlay').remove();
+    var _ov = document.querySelector('.fill-overlay'); if(_ov) _ov.remove();
     _insertCustomDist(city, name, true);
 }
 function _insertCustomDist(city, name, autoSelect) {
     if (!name.endsWith('區') && !name.endsWith('鄉') && !name.endsWith('鎮') && !name.endsWith('市')) name += '區';
     var grid = document.getElementById('dg-'+city);
     if (!grid) return;
-    var existing = grid.querySelector('[data-dist="'+name+'"]');
+    var existing = Array.from(grid.children).find(function(el){ return el.getAttribute('data-dist')===name; });
     if (existing) return;
     var addBtn = grid.querySelector('[onclick*="addCustomDist"]');
     var btn = document.createElement('button');
@@ -1532,7 +1567,7 @@ function _insertCustomDist(city, name, autoSelect) {
     btn.addEventListener('pointerdown', function(){ holdTimer = setTimeout(function(){ deleteCustomDist(btn, name); }, 800); });
     btn.addEventListener('pointerup', function(){ clearTimeout(holdTimer); });
     btn.addEventListener('pointerleave', function(){ clearTimeout(holdTimer); });
-    grid.insertBefore(btn, addBtn);
+    if (addBtn) grid.insertBefore(btn, addBtn); else grid.appendChild(btn);
     if (autoSelect) toggleDist(btn, name);
 }
 function deleteCustomDist(btn, name) {
@@ -1558,8 +1593,19 @@ function deleteCustomDist(btn, name) {
     };
 }
 
+</script>
+
+<!-- ============================================================ -->
+<!-- 區塊 2：資料庫初始化、遷移、角色資料系統                       -->
+<!-- ============================================================ -->
+<script>
 // ── State ──
-let DB = JSON.parse(localStorage.getItem('reCRM') || '[]');
+let DB;
+try { DB = JSON.parse(localStorage.getItem('reCRM') || '[]'); } catch(e) { console.error('DB載入失敗:', e); DB = []; }
+var _dbMap = {};
+function rebuildDbMap(){ _dbMap={}; DB.forEach(function(c){ _dbMap[c.id]=c; }); }
+function dbById(id){ return _dbMap[id] || DB.find(function(x){return x.id===id;}); }
+rebuildDbMap();
 // 資料遷移：type → types 陣列
 // 資料遷移
 var RENAME_MAP = {'租件管理':'租案管理','潛在開發':'商機募集'};
@@ -1813,14 +1859,17 @@ function extractTagFields(tagType) {
     }
     return {};
 }
+function _clearPopulateAddrs(listId, addrs) {
+    var el = document.getElementById(listId); if(el) el.innerHTML='';
+    if (addrs && addrs.length) addrs.forEach(function(a){ addBuyerAddrRow(listId, a); });
+}
 function loadTagFields(tagType, d) {
     if (!d) return;
     var sv = function(id, v){ var el=document.getElementById(id); if(el) el.value = v||''; };
     if (tagType === '經營買方') {
         sv('f-bGrade',d.bGrade); sv('f-bName',d.bName); sv('f-bPhone',d.bPhone); sv('f-bIdNo',d.bIdNo); sv('f-bOccupation',d.bOccupation); sv('f-bBirthday',d.bBirthday?isoToROC(d.bBirthday):''); sv('f-bEmail',d.bEmail); sv('f-bSource',d.bSource); sv('f-bZip',d.bZip); sv('f-bAddr',d.bAddr);
         if (d.bAddrType) { var at=document.getElementById('f-bAddrType'); if(at) at.value=d.bAddrType; }
-        document.getElementById('bBasicAddrList').innerHTML='';
-        if (d.bBasicAddrs && d.bBasicAddrs.length) d.bBasicAddrs.forEach(function(a){ addBuyerAddrRow('bBasicAddrList',a); });
+        _clearPopulateAddrs('bBasicAddrList', d.bBasicAddrs);
         clearPersonBlocks('bPersonList');
         if (d.bPersons && d.bPersons.length) d.bPersons.forEach(function(p){ addBPersonRow(p); });
         clearBuyerDemands();
@@ -1833,8 +1882,7 @@ function loadTagFields(tagType, d) {
     if (tagType === '庫存屋主') {
         sv('f-sGrade',d.sGrade); sv('f-sName',d.sName); sv('f-sPhone',d.sPhone); sv('f-sIdNo',d.sIdNo); sv('f-sOccupation',d.sOccupation); sv('f-sBirthday',d.sBirthday?isoToROC(d.sBirthday):''); sv('f-sEmail',d.sEmail); sv('f-sSource',d.sSource); sv('f-sZip',d.sZip); sv('f-sOwnerAddr',d.sOwnerAddr);
         if (d.sAddrType) { var at=document.getElementById('f-sAddrType'); if(at) at.value=d.sAddrType; }
-        document.getElementById('sBasicAddrList').innerHTML='';
-        if (d.sBasicAddrs && d.sBasicAddrs.length) d.sBasicAddrs.forEach(function(a){ addBuyerAddrRow('sBasicAddrList',a); });
+        _clearPopulateAddrs('sBasicAddrList', d.sBasicAddrs);
         clearPersonBlocks('sPersonList');
         if (d.sPersons && d.sPersons.length) d.sPersons.forEach(function(p){ addPersonBlock('sPersonList',p); });
         clearSellerProperties();
@@ -1843,8 +1891,7 @@ function loadTagFields(tagType, d) {
     if (tagType === '成交客戶') {
         sv('f-cName',d.cName); sv('f-cPhone',d.cPhone); sv('f-cIdNo',d.cIdNo); sv('f-cOccupation',d.cOccupation); sv('f-cBirthday',d.cBirthday?isoToROC(d.cBirthday):''); sv('f-cEmail',d.cEmail); sv('f-cSource',d.cSource); sv('f-cZip',d.cZip); sv('f-cAddr',d.cAddr);
         if (d.cAddrType) { var at=document.getElementById('f-cAddrType'); if(at) at.value=d.cAddrType; }
-        document.getElementById('cBasicAddrList').innerHTML='';
-        if (d.cBasicAddrs && d.cBasicAddrs.length) d.cBasicAddrs.forEach(function(a){ addBuyerAddrRow('cBasicAddrList',a); });
+        _clearPopulateAddrs('cBasicAddrList', d.cBasicAddrs);
         clearCRows();
         if (d.cContacts && d.cContacts.length) d.cContacts.forEach(function(p){ addCContactRow(p); });
         if (d.cAddrs && d.cAddrs.length) d.cAddrs.forEach(function(a){ addCAddrRow(a); });
@@ -1854,8 +1901,7 @@ function loadTagFields(tagType, d) {
     if (tagType === '商機募集') {
         sv('f-dName',d.dName); sv('f-dPhone',d.dPhone); sv('f-dIdNo',d.dIdNo); sv('f-dOccupation',d.dOccupation); sv('f-dBirthday',d.dBirthday?isoToROC(d.dBirthday):''); sv('f-dEmail',d.dEmail); sv('f-dSource',d.dSource); sv('f-dZip',d.dZip); sv('f-dAddr',d.dAddr);
         if (d.dAddrType) { var at=document.getElementById('f-dAddrType'); if(at) at.value=d.dAddrType; }
-        document.getElementById('dBasicAddrList').innerHTML='';
-        if (d.dBasicAddrs && d.dBasicAddrs.length) d.dBasicAddrs.forEach(function(a){ addBuyerAddrRow('dBasicAddrList',a); });
+        _clearPopulateAddrs('dBasicAddrList', d.dBasicAddrs);
         clearDPersons();
         if (d.dPersons && d.dPersons.length) d.dPersons.forEach(function(p){ addDPersonRow(p); });
         clearDAddrs();
@@ -1884,6 +1930,12 @@ var TYPE_DISPLAY = {'經營買方':'買方','庫存屋主':'庫存','房東':'�
 const TYPES = ['經營買方','庫存屋主','房東','租客','成交客戶','商機募集'];
 var _ctEls = {}, _caEls = {};
 
+</script>
+
+<!-- ============================================================ -->
+<!-- 區塊 3：雲端同步、離線偵測、封存功能                           -->
+<!-- ============================================================ -->
+<script>
 var CLOUD_URL = 'https://script.google.com/macros/s/AKfycbyKZfyP9__lWhLjsEtSvwrfZha-7mxeYzrfFCX0fDV7je4UPPOTAEJ1b1Gl0Q2rejpf/exec';
 var _syncTimer = null;
 function persist() {
@@ -1920,7 +1972,7 @@ function autoSync() {
     // Fallback timeout
     setTimeout(function() {
         if (status && status.textContent === '☁️ 同步中…') {
-            status.textContent = '☁️ 等待同步…';
+            _onSyncFail(status);
         }
     }, 30000);
 }
@@ -1949,8 +2001,12 @@ function verifySyncResult(status) {
         }
     };
     vScript.src = CLOUD_URL + '?callback=' + vCb + '&t=' + Date.now();
-    vScript.onerror = function() { delete window[vCb]; if (vScript.parentNode) vScript.parentNode.removeChild(vScript); };
+    vScript.onerror = function() { delete window[vCb]; if (vScript.parentNode) vScript.parentNode.removeChild(vScript); _onSyncFail(status); };
     document.body.appendChild(vScript);
+}
+function _onSyncFail(status) {
+    if (status) status.innerHTML = '❌ 同步失敗 <button onclick="autoSync()" style="background:none;border:1px solid var(--border);border-radius:6px;padding:2px 8px;cursor:pointer;font-size:11px;margin-left:4px">重試</button>';
+    showToast('⚠️ 雲端同步失敗', 'warn', 3000);
 }
 function syncViaIframe(payload, status) {
     var iframe = document.createElement('iframe');
@@ -1979,7 +2035,7 @@ function syncViaIframe(payload, status) {
         cleanup();
     };
     iframe.onerror = function() {
-        if (status) status.textContent = '☁️ 同步失敗';
+        _onSyncFail(status);
         cleanup();
     };
     form.submit();
@@ -2017,9 +2073,11 @@ function autoFetchCloud() {
                     if (raw) {
                         try { var obj = JSON.parse(raw); if (obj && obj.payload) raw = obj.payload; } catch(e) {}
                         if (raw.indexOf('\\"') >= 0) raw = raw.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
-                        var parsed = JSON.parse(raw);
-                        if (Array.isArray(parsed)) { cloudData = parsed; }
-                        else if (parsed && parsed.db && Array.isArray(parsed.db)) { cloudData = parsed.db; cloudPerf = Array.isArray(parsed.perfRecords) ? parsed.perfRecords : null; }
+                        try {
+                            var parsed = JSON.parse(raw);
+                            if (Array.isArray(parsed)) { cloudData = parsed; }
+                            else if (parsed && parsed.db && Array.isArray(parsed.db)) { cloudData = parsed.db; cloudPerf = Array.isArray(parsed.perfRecords) ? parsed.perfRecords : null; }
+                        } catch(e2) { console.error('雲端資料解析失敗:', e2); }
                     }
                 }
             }
@@ -2110,6 +2168,20 @@ function autoFetchCloud() {
     document.body.appendChild(script);
 }
 startAutoCheck();
+window.addEventListener('beforeunload', function() { if(_checkTimer) clearInterval(_checkTimer); if(_syncTimer) clearTimeout(_syncTimer); });
+
+// ── 離線/上線偵測：恢復網路時自動同步 ──
+window.addEventListener('online', function() {
+    var status = document.getElementById('cloudStatus');
+    if (status) status.textContent = '☁️ 網路恢復，同步中…';
+    showToast('📶 網路已恢復，正在同步…');
+    setTimeout(autoSync, 1000);
+});
+window.addEventListener('offline', function() {
+    var status = document.getElementById('cloudStatus');
+    if (status) status.textContent = '📵 離線模式（資料已存本機）';
+    showToast('📵 目前離線，資料會存在本機', 'warn', 3000);
+});
 
 // ── 封存 ──
 var ARCHIVE_REASONS = {
@@ -2164,6 +2236,12 @@ function toggleShowArchived() {
     render();
 }
 
+</script>
+
+<!-- ============================================================ -->
+<!-- 區塊 4：工具函式（日期、日曆、電話、驗證、健檢、esc）         -->
+<!-- ============================================================ -->
+<script>
 // ── 民國時間 ──
 // ISO → 民國文字
 function isoToROC(isoStr) {
@@ -2252,6 +2330,7 @@ function openCal(btn) {
     popup.style.display = 'block';
     // 點外面關閉日曆（用 capture 確保不被 stopPropagation 攔截）
     setTimeout(function() {
+        document.removeEventListener('pointerdown', _calOutsideClose, true);
         document.addEventListener('pointerdown', _calOutsideClose, true);
     }, 0);
 }
@@ -2453,10 +2532,12 @@ function showHistory(id) {
             '<input type="checkbox" data-hist-idx="'+realIdx+'" style="width:16px;height:16px;flex-shrink:0;margin-top:2px">' +
             '<div style="flex:1"><div class="history-time">' + esc(time) + '</div>' + details + '</div></div>';
     }).join('');
-    listEl.addEventListener('change', function _hc() {
+    if (listEl._hcHandler) listEl.removeEventListener('change', listEl._hcHandler);
+    listEl._hcHandler = function() {
         var checked = listEl.querySelectorAll('input[data-hist-idx]:checked').length;
         document.getElementById('btnHistDel').style.display = checked ? 'flex' : 'none';
-    });
+    };
+    listEl.addEventListener('change', listEl._hcHandler);
     document.getElementById('hModal').style.display = 'flex';
 }
 function closeHistory() { document.getElementById('hModal').style.display = 'none'; }
@@ -2502,6 +2583,99 @@ function relTime(dateStr) {
     if (diffDay < 365) return Math.floor(diffDay/30) + '個月前';
     return Math.floor(diffDay/365) + '年前';
 }
+
+// ── Toast 提示 ──
+function showToast(msg, type, duration) {
+    var el = document.getElementById('_toast');
+    if (!el) { el = document.createElement('div'); el.id = '_toast'; el.className = 'toast'; document.body.appendChild(el); }
+    el.textContent = msg;
+    el.className = 'toast' + (type === 'error' ? ' toast-error' : type === 'warn' ? ' toast-warn' : '');
+    void el.offsetWidth; // 強制 reflow
+    el.classList.add('show');
+    clearTimeout(el._timer);
+    el._timer = setTimeout(function() { el.classList.remove('show'); }, duration || 2000);
+}
+
+// ── 電話號碼正規化（搜尋比對用）──
+function normalizePhone(p) { return String(p||'').replace(/[\s\-\(\)＋+]/g, ''); }
+
+// ── 社區名自動完成 ──
+function _getCommunityList() {
+    var set = {};
+    DB.forEach(function(c) {
+        if (c._deleted || c._system) return;
+        [c.community, c.rCommunity].forEach(function(v) { if (v) set[v] = true; });
+        if (c.sProperties) c.sProperties.forEach(function(sp) { if (sp.community) set[sp.community] = true; });
+        if (c.rProperties) c.rProperties.forEach(function(rp) { if (rp.rCommunity) set[rp.rCommunity] = true; });
+        if (c.deals) c.deals.forEach(function(d) { if (d.community) set[d.community] = true; });
+        if (c.dAddrs) c.dAddrs.forEach(function(da) { if (da.community) set[da.community] = true; });
+    });
+    return Object.keys(set).sort();
+}
+function initCommunityAC(input) {
+    if (input._acInit) return;
+    input._acInit = true;
+    input.parentElement.style.position = 'relative';
+    var list = null;
+    function show(q) {
+        var all = _getCommunityList();
+        var filtered = q ? all.filter(function(n) { return n.toLowerCase().includes(q.toLowerCase()); }) : [];
+        if (!filtered.length) { hide(); return; }
+        if (!list) { list = document.createElement('div'); list.className = 'ac-list'; input.parentElement.appendChild(list); }
+        list.innerHTML = filtered.slice(0, 8).map(function(n) {
+            var hl = n.replace(new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi'), '<b>$1</b>');
+            return '<div class="ac-item">' + hl + '</div>';
+        }).join('');
+        list.querySelectorAll('.ac-item').forEach(function(item) {
+            item.onmousedown = function(e) { e.preventDefault(); input.value = item.textContent; hide(); };
+        });
+        list.style.display = '';
+    }
+    function hide() { if (list) list.style.display = 'none'; }
+    input.addEventListener('input', function() { show(this.value.trim()); });
+    input.addEventListener('focus', function() { if (this.value.trim()) show(this.value.trim()); });
+    input.addEventListener('blur', function() { setTimeout(hide, 150); });
+}
+// 自動初始化所有社區輸入欄位
+document.addEventListener('focusin', function(e) {
+    var el = e.target;
+    if (!el || el.tagName !== 'INPUT') return;
+    var id = el.id || '';
+    var df = el.getAttribute('data-f') || '';
+    if (id === 'f-community' || df === 'community' || df === 'rCommunity' || id === 'f-dCommunity') {
+        initCommunityAC(el);
+    }
+});
+
+// ── 台灣身份證/居留證驗證 ──
+function validateTWID(id) {
+    if (!id) return true;
+    id = id.trim().toUpperCase();
+    // 台灣身份證：1英文+9數字（第2碼 1 或 2）
+    // 新式居留證：1英文+9數字（第2碼 8 或 9）
+    // 舊式居留證：1英文+1英文+8數字
+    if (!/^[A-Z][12689]\d{8}$/.test(id) && !/^[A-Z][A-Z]\d{8}$/.test(id)) return false;
+    var letterMap = {A:10,B:11,C:12,D:13,E:14,F:15,G:16,H:17,I:34,J:18,K:19,L:20,M:21,N:22,O:35,P:23,Q:24,R:25,S:26,T:27,U:28,V:29,W:32,X:30,Y:31,Z:33};
+    var n1 = letterMap[id[0]];
+    if (!n1) return false;
+    var digits = [Math.floor(n1/10), n1%10];
+    // 第2碼如果是英文（舊式居留證），轉數字
+    if (/[A-Z]/.test(id[1])) {
+        var n2 = letterMap[id[1]];
+        if (!n2) return false;
+        digits.push(n2%10);
+        for (var i=2; i<10; i++) digits.push(parseInt(id[i]));
+    } else {
+        for (var i=1; i<10; i++) digits.push(parseInt(id[i]));
+    }
+    var weights = [1,9,8,7,6,5,4,3,2,1,1];
+    var sum = 0;
+    for (var i=0; i<digits.length && i<weights.length; i++) sum += digits[i] * weights[i];
+    return sum % 10 === 0;
+}
+
+// ── 價格驗證 ──
+function validatePrice(val) { if (!val) return true; return !isNaN(parseFloat(String(val).replace(/[,，]/g, ''))); }
 
 function stripCity(s) {
     return s ? s.replace(/^(新北市|台北市)/, '') : s;
@@ -2588,7 +2762,92 @@ function autoBankCode(el) {
         }
     }
 }
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+// ── 資料健檢 ──
+function runDataCheck() {
+    var issues = [];
+    var liveDB = DB.filter(function(c) { return !c._deleted && !c._system; });
+    // 1. 電話重複偵測
+    var phoneMap = {};
+    liveDB.forEach(function(c) {
+        var phones = [c.phone, c.bPhone, c.sPhone, c.llPhone, c.ttPhone, c.cPhone, c.dPhone];
+        phones.forEach(function(p) {
+            var np = normalizePhone(p);
+            if (!np || np.length < 8) return;
+            if (!phoneMap[np]) phoneMap[np] = [];
+            if (!phoneMap[np].some(function(x) { return x.id === c.id; })) {
+                phoneMap[np].push({ id: c.id, name: c.name || c.llName || c.ttName || '未命名' });
+            }
+        });
+    });
+    Object.keys(phoneMap).forEach(function(p) {
+        if (phoneMap[p].length > 1) {
+            var names = phoneMap[p].map(function(x) { return x.name; });
+            issues.push({ type: 'dup-phone', severity: 'warn', phone: p, clients: phoneMap[p], msg: '📞 電話 ' + p + ' 重複：' + names.join('、') });
+        }
+    });
+    // 2. 身份證驗證
+    liveDB.forEach(function(c) {
+        var ids = [
+            { val: c.idNo, label: '基本' }, { val: c.bIdNo, label: '買方' },
+            { val: c.sIdNo, label: '庫存' }, { val: c.llIdNo, label: '房東' },
+            { val: c.ttIdNo, label: '租客' }, { val: c.cIdNo, label: '成交' }, { val: c.dIdNo, label: '商機' }
+        ];
+        ids.forEach(function(item) {
+            if (item.val && !validateTWID(item.val)) {
+                issues.push({ type: 'bad-id', severity: 'error', clientId: c.id, clientName: c.name || '未命名', msg: '🪪 「' + (c.name||'未命名') + '」的' + item.label + '身份證「' + item.val + '」格式錯誤' });
+            }
+        });
+    });
+    // 3. 缺電話的客戶
+    liveDB.forEach(function(c) {
+        var hasPhone = c.phone || c.bPhone || c.sPhone || c.llPhone || c.ttPhone;
+        if (!hasPhone) {
+            issues.push({ type: 'no-phone', severity: 'info', clientId: c.id, clientName: c.name || '未命名', msg: '📵 「' + (c.name||'未命名') + '」沒有電話號碼' });
+        }
+    });
+    // 4. 缺姓名的客戶
+    liveDB.forEach(function(c) {
+        if (!c.name && !c.bName && !c.sName && !c.llName && !c.ttName) {
+            issues.push({ type: 'no-name', severity: 'info', clientId: c.id, msg: '👤 有一筆客戶沒有姓名（ID: ' + c.id.slice(0,8) + '）' });
+        }
+    });
+    // 顯示結果
+    _showDataCheckResult(issues);
+}
+function _showDataCheckResult(issues) {
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.cssText = 'padding:16px;width:90vw;max-width:520px;max-height:80vh;display:flex;flex-direction:column';
+    var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">' +
+        '<span style="font-weight:700;font-size:16px">🔍 資料健檢結果</span>' +
+        '<button onclick="this.closest(\'.fill-overlay\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)">✕</button></div>';
+    if (!issues.length) {
+        html += '<div style="text-align:center;padding:30px 0;color:#059669;font-size:15px;font-weight:600">✅ 所有資料正常，沒有發現問題！</div>';
+    } else {
+        var errs = issues.filter(function(i) { return i.severity === 'error'; });
+        var warns = issues.filter(function(i) { return i.severity === 'warn'; });
+        var infos = issues.filter(function(i) { return i.severity === 'info'; });
+        html += '<div style="font-size:13px;color:var(--muted);margin-bottom:10px">發現 ' + issues.length + ' 個問題（' + errs.length + ' 個錯誤、' + warns.length + ' 個警告、' + infos.length + ' 個提示）</div>';
+        html += '<div style="overflow-y:auto;flex:1">';
+        issues.forEach(function(issue) {
+            var color = issue.severity === 'error' ? '#DC2626' : issue.severity === 'warn' ? '#D97706' : '#6B7280';
+            var bg = issue.severity === 'error' ? '#FEF2F2' : issue.severity === 'warn' ? '#FFFBEB' : '#F9FAFB';
+            var clickAttr = '';
+            if (issue.clientId) clickAttr = ' onclick="this.closest(\'.fill-overlay\').remove();openEdit(\''+esc(issue.clientId)+'\')" style="cursor:pointer"';
+            else if (issue.clients && issue.clients[0]) clickAttr = ' onclick="this.closest(\'.fill-overlay\').remove();openEdit(\''+esc(issue.clients[0].id)+'\')" style="cursor:pointer"';
+            html += '<div'+clickAttr+' style="padding:8px 10px;margin-bottom:6px;border-radius:8px;background:'+bg+';border-left:3px solid '+color+';font-size:13px;color:#1F2937;'+(clickAttr?'cursor:pointer':'')+'">'+esc(issue.msg)+'</div>';
+        });
+        html += '</div>';
+    }
+    box.innerHTML = html;
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 // 分類備註
 var _NOTE_LABELS = {'經營買方':'買方備註','庫存屋主':'庫存備註','房東':'房東備註','租客':'租客備註','成交客戶':'成交備註','商機募集':'商機備註'};
 var _VALID_NOTE_TYPES = {'經營買方':1,'庫存屋主':1,'房東':1,'租客':1,'成交客戶':1,'商機募集':1};
@@ -2644,6 +2903,12 @@ function collectTypeNotes() {
     return tn;
 }
 
+</script>
+
+<!-- ============================================================ -->
+<!-- 區塊 5：渲染引擎（篩選、排序、Dashboard、卡片渲染、備註編輯） -->
+<!-- ============================================================ -->
+<script>
 // ── Sidebar filter ──
 function setFilter(type, btn) {
     curFilter = type;
@@ -2713,6 +2978,7 @@ function showThisMonth() {
 // ── Render ──
 function getData() {
     const q = document.getElementById('searchInput').value.trim().toLowerCase();
+    var qPhone = normalizePhone(q); // 電話正規化搜尋用
     // 排除已刪除的資料
     var activeDB = DB.filter(function(c){ return !c._deleted && !c._system; });
     // 本月新增模式
@@ -2749,7 +3015,7 @@ function getData() {
         }
         // 租客連結的房東物件（只搜對應的那間）
         if (c.linkedLandlordId) {
-            var _llS = DB.find(function(x){ return x.id === c.linkedLandlordId && !x._deleted; });
+            var _llS = dbById(c.linkedLandlordId); if(_llS&&_llS._deleted) _llS=null;
             if (_llS && _llS.rProperties && _llS.rProperties.length) {
                 var _lpS = _llS.rProperties[c.linkedPropertyIdx||0];
                 if (_lpS && (((_lpS.rCommunity||'').toLowerCase().includes(q)) || ((_lpS.rAddr||'').toLowerCase().includes(q)))) return true;
@@ -2783,20 +3049,21 @@ function getData() {
             if (ttHas) { matched = matched || (c.ttName||'').toLowerCase().includes(q) || (c.ttPhone||'').includes(q) || (c.rTenants||[]).slice(1).some(function(p){ return (p.name||'').toLowerCase().includes(q) || (p.phone||'').includes(q); }); }
             return matched;
         }
-        // 總覽或其他：搜全部（含新增聯絡人）
+        // 總覽或其他：搜全部（含新增聯絡人，電話正規化比對）
+        function _phoneMatch(p) { return qPhone && normalizePhone(p).includes(qPhone); }
         if (c.name.toLowerCase().includes(q) ||
-            (c.phone||'').includes(q) ||
+            _phoneMatch(c.phone) ||
             (c.llName||'').toLowerCase().includes(q) ||
             (c.ttName||'').toLowerCase().includes(q) ||
-            (c.llPhone||'').includes(q) ||
-            (c.ttPhone||'').includes(q) ||
+            _phoneMatch(c.llPhone) ||
+            _phoneMatch(c.ttPhone) ||
             (c.sName||'').toLowerCase().includes(q) ||
             (c.bName||'').toLowerCase().includes(q) ||
             (c.cName||'').toLowerCase().includes(q) ||
             (c.dName||'').toLowerCase().includes(q)) return true;
         // 搜尋聯絡人的姓名和電話（統一 contacts + 向下相容舊欄位）
         var _persons = (c.contacts||[]).concat(c.bPersons||[], c.sPersons||[], c.cContacts||[], c.dPersons||[], (c.rLandlords||[]).slice(1), (c.rTenants||[]).slice(1));
-        return _persons.some(function(p){ return (p.name||'').toLowerCase().includes(q) || (p.phone||'').includes(q); });
+        return _persons.some(function(p){ return (p.name||'').toLowerCase().includes(q) || _phoneMatch(p.phone); });
     });
     // Buyer filters
     if (curFilter === '經營買方') {
@@ -2835,7 +3102,7 @@ function getData() {
                     // 房東：從物件取最早到期日
                     if (c.rProperties && c.rProperties.length) return c.rProperties.reduce(function(min,rp){ var d=rp.rEndDate||'9999-12-31'; return d<min?d:min; },'9999-12-31');
                     // 租客：從連結的房東物件取
-                    if (c.linkedLandlordId) { var _ll=DB.find(function(x){return x.id===c.linkedLandlordId&&!x._deleted;}); if(_ll&&_ll.rProperties&&_ll.rProperties.length){ var _rp=_ll.rProperties[c.linkedPropertyIdx||0]; if(_rp&&_rp.rEndDate) return _rp.rEndDate; } }
+                    if (c.linkedLandlordId) { var _ll=dbById(c.linkedLandlordId); if(_ll&&!_ll._deleted&&_ll.rProperties&&_ll.rProperties.length){ var _rp=_ll.rProperties[c.linkedPropertyIdx||0]; if(_rp&&_rp.rEndDate) return _rp.rEndDate; } }
                     return '9999-12-31';
                 }
                 return _getRentalEnd(a).localeCompare(_getRentalEnd(b));
@@ -2950,7 +3217,7 @@ function subline(c) {
     }
     if (t.includes('庫存屋主')) return [c.sAddr,c.sPrice].filter(Boolean).join(' · ');
     if (t.includes('房東')) { var _rp=(c.rProperties&&c.rProperties[0])||{}; return [_rp.rCommunity||c.rCommunity,_rp.rAddr||c.rAddr,_rp.rent||c.rent].filter(Boolean).join(' · '); }
-    if (t.includes('租客')) { var _llR2=c.linkedLandlordId?DB.find(function(x){return x.id===c.linkedLandlordId&&!x._deleted;}):null; if(_llR2&&_llR2.rProperties&&_llR2.rProperties.length){ var _lpR2=_llR2.rProperties[c.linkedPropertyIdx||0]||_llR2.rProperties[0]; return [_lpR2.rCommunity,_lpR2.rAddr,_lpR2.rent].filter(Boolean).join(' · '); } return ''; }
+    if (t.includes('租客')) { var _llR2=c.linkedLandlordId?dbById(c.linkedLandlordId):null; if(_llR2&&!_llR2._deleted&&_llR2.rProperties&&_llR2.rProperties.length){ var _lpR2=_llR2.rProperties[c.linkedPropertyIdx||0]||_llR2.rProperties[0]; return [_lpR2.rCommunity,_lpR2.rAddr,_lpR2.rent].filter(Boolean).join(' · '); } return ''; }
     if (t.includes('租案管理')) return [c.rCommunity,c.rAddr,c.rent].filter(Boolean).join(' · ');
     if (t.includes('成交客戶')) {
         var d0 = (c.deals && c.deals[0]) || {};
@@ -3002,34 +3269,32 @@ function renderDashboard() {
             '<div class="dash-label">' + item.label + '</div></div>';
     }).join('');
 
+    // 共用到期卡片渲染函式（DRY 重構）
+    function _renderExpireCards(items, dateField, infoFn, emptyMsg) {
+        return items.length ? items.map(function(c) {
+            var d = daysUntilExpire(c[dateField]);
+            var label = d < 0 ? '已過期'+Math.abs(d)+'天' : d===0 ? '今天到期' : '剩'+d+'天';
+            return '<div class="dash-item" onclick="showDet(\''+c.id+'\')" style="cursor:pointer">' +
+                '<span class="dash-item-info" style="color:'+(d<=0?'#EF4444':'')+'">'+label+'</span>' +
+                '<span class="dash-item-name">'+esc(c.name)+'<span style="font-weight:400;color:#64748B"> · '+esc(infoFn(c))+'</span></span></div>';
+        }).join('') : '<div class="dash-empty">'+emptyMsg+'</div>';
+    }
     // 庫存合約即將到期（15天內）
     var expSeller = DB.filter(function(c) {
         return !c._system && !c._deleted && !c.archived && hasType(c,'庫存屋主') && c.contractEnd && daysUntilExpire(c.contractEnd)<=15;
     }).sort(function(a,b) { return (a.contractEnd||'').localeCompare(b.contractEnd||''); });
-    document.getElementById('dashExpiringSeller').innerHTML = expSeller.length ? expSeller.map(function(c) {
-        var d = daysUntilExpire(c.contractEnd);
-        var label = d < 0 ? '已過期'+Math.abs(d)+'天' : d===0 ? '今天到期' : '剩'+d+'天';
-        return '<div class="dash-item" onclick="showDet(\''+c.id+'\')" style="cursor:pointer">' +
-            '<span class="dash-item-info" style="color:'+(d<=0?'#EF4444':'')+'">'+label+'</span>' +
-            '<span class="dash-item-name">'+esc(c.name)+'<span style="font-weight:400;color:#64748B"> · '+esc(c.community||c.sAddr||'')+'</span></span></div>';
-    }).join('') : '<div class="dash-empty">目前沒有即將到期的庫存合約</div>';
+    document.getElementById('dashExpiringSeller').innerHTML = _renderExpireCards(expSeller, 'contractEnd', function(c){ return c.community||c.sAddr||''; }, '目前沒有即將到期的庫存合約');
 
     // 租案合約即將到期（到期月前一個月1號起）
     var expRental = DB.filter(function(c) {
         return !c._system && !c._deleted && !c.archived && hasType(c,'房東') && c.rEndDate && isRentalExpiring(c.rEndDate);
     }).sort(function(a,b) { return (a.rEndDate||'').localeCompare(b.rEndDate||''); });
-    document.getElementById('dashExpiringRental').innerHTML = expRental.length ? expRental.map(function(c) {
-        var d = daysUntilExpire(c.rEndDate);
-        var label = d < 0 ? '已過期'+Math.abs(d)+'天' : d===0 ? '今天到期' : '剩'+d+'天';
-        return '<div class="dash-item" onclick="showDet(\''+c.id+'\')" style="cursor:pointer">' +
-            '<span class="dash-item-info" style="color:'+(d<=0?'#EF4444':'')+'">'+label+'</span>' +
-            '<span class="dash-item-name">'+esc(c.name)+'<span style="font-weight:400;color:#64748B"> · '+esc(c.rCommunity||c.rAddr||'')+'</span></span></div>';
-    }).join('') : '<div class="dash-empty">目前沒有即將到期的租案合約</div>';
+    document.getElementById('dashExpiringRental').innerHTML = _renderExpireCards(expRental, 'rEndDate', function(c){ return c.rCommunity||c.rAddr||''; }, '目前沒有即將到期的租案合約');
 
     // 近期行程（15天內）
     var schedList = [];
     DB.forEach(function(c) {
-        if (c._system || c.archived || !c.schedules) return;
+        if (c._deleted || c._system || c.archived || !c.schedules) return;
         c.schedules.forEach(function(s) {
             if (!s.date) return;
             var diff = daysUntilExpire(s.date);
@@ -3051,10 +3316,10 @@ function renderDashboard() {
             : '<span class="dash-item-name" style="cursor:pointer" onclick="showDet(\''+s.id+'\')">'+esc(s.name)+(s.community?'<span style="font-weight:400;color:#64748B"> · '+esc(s.community)+'</span>':'')+'</span>';
         var editBtn = s.personal
             ? '<button class="btn-ic" onclick="editPersonalSchedule('+s.psIdx+')" title="編輯" style="font-size:13px;padding:2px 4px">✏️</button>'
-            : '<button class="btn-ic" onclick="editDashSchedule(\''+s.id+'\',\''+s.date+'\',\''+s.time+'\',this)" title="編輯" style="font-size:13px;padding:2px 4px">✏️</button>';
+            : '<button class="btn-ic" onclick="editDashSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\',this)" title="編輯" style="font-size:13px;padding:2px 4px">✏️</button>';
         var doneBtn = s.personal
             ? '<button class="btn-ic" onclick="completePersonalSchedule('+s.psIdx+')" title="完成" style="font-size:13px;padding:2px 4px">✅</button>'
-            : '<button class="btn-ic" onclick="completeSchedule(\''+s.id+'\',\''+s.date+'\',\''+s.time+'\')" title="完成" style="font-size:13px;padding:2px 4px">✅</button>';
+            : '<button class="btn-ic" onclick="completeSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="完成" style="font-size:13px;padding:2px 4px">✅</button>';
         var memoHtml = s.memo ? '<div class="dash-sched-memo"'+(s.personal?' style="color:#0891B2"':'')+'>'+esc(s.memo)+'</div>' : (s.personal ? '<div class="dash-sched-memo" style="color:#0891B2">個人行程</div>' : '');
         return '<div class="dash-item dash-sched-item">' +
             '<div class="dash-sched-row1">' +
@@ -3063,7 +3328,7 @@ function renderDashboard() {
                 '<span style="display:flex;gap:2px;flex-shrink:0">' + editBtn + doneBtn +
                 (s.personal
                     ? '<button class="btn-ic" onclick="deletePersonalSchedule('+s.psIdx+')" title="刪除" style="font-size:13px;padding:2px 4px">🗑️</button>'
-                    : '<button class="btn-ic" onclick="deleteSchedule(\''+s.id+'\',\''+s.date+'\',\''+s.time+'\')" title="刪除" style="font-size:13px;padding:2px 4px">🗑️</button>') +
+                    : '<button class="btn-ic" onclick="deleteSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="刪除" style="font-size:13px;padding:2px 4px">🗑️</button>') +
                 '</span>' +
             '</div>' + memoHtml +
         '</div>';
@@ -3090,12 +3355,22 @@ function renderDashboard() {
     }
     DB.forEach(function(c) {
         if (c._system || c._deleted || c.archived) return;
+        // 基本聯絡人生日
+        if (c.birthday) checkBday(c.id, c.name, '', c.birthday);
+        // 買方
+        if (c.bBirthday) checkBday(c.id, c.name, c.bName||'', c.bBirthday);
+        // 庫存屋主
+        if (c.sBirthday) checkBday(c.id, c.name, c.sName||'', c.sBirthday);
+        // 房東
+        if (c.llBirthday) checkBday(c.id, c.name, c.llName||'', c.llBirthday);
+        // 租客
+        if (c.ttBirthday) checkBday(c.id, c.name, c.ttName||'', c.ttBirthday);
+        // 共用聯絡人
+        if (c.contacts) c.contacts.forEach(function(ct){ if(ct.birthday) checkBday(c.id, c.name, ct.name||'', ct.birthday); });
         // 舊格式 cBirthdays
         if (c.cBirthdays) c.cBirthdays.forEach(function(b){ checkBday(c.id, c.name, b.who, b.date); });
-        // 新格式 cContacts 裡的 birthday
-        if (c.cContacts) c.cContacts.forEach(function(ct){ if(ct.birthday) checkBday(c.id, c.name, ct.name, ct.birthday); });
-        // 庫存屋主 sBirthday
-        if (c.sBirthday) checkBday(c.id, c.name, '', c.sBirthday);
+        // 成交聯絡人
+        if (c.cContacts) c.cContacts.forEach(function(ct){ if(ct.birthday) checkBday(c.id, c.name, ct.name||'', ct.birthday); });
     });
     bdayList.sort(function(a,b){ return a.days - b.days; });
     document.getElementById('dashBirthday').innerHTML = bdayList.length ? bdayList.map(function(b) {
@@ -3125,6 +3400,7 @@ function renderDashboard() {
 }
 
 function render() {
+    rebuildDbMap();
     var liveDB = DB.filter(function(c){ return !c._deleted && !c._system; });
     document.getElementById('ct-all').textContent = liveDB.filter(c=>!c.archived).length;
     var trashN = DB.filter(function(c){ return c._deleted && !c._system; }).length;
@@ -3181,24 +3457,55 @@ function render() {
     }
 
     const list = getData();
+    updateActiveFilterBar();
     const grid = document.getElementById('grid');
     if (!list.length) {
         grid.innerHTML = `<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">尚無客戶資料</div><div>點右上角「＋ 新增客戶」開始建立</div></div>`;
         return;
     }
+    // 預計算同房東關聯數量（避免 renderCard 內 O(n²) 重複掃描）
+    var _llCountMap = {};
+    DB.forEach(function(x) {
+        if (x._deleted || !hasType(x,'租案管理')) return;
+        var xll = (x.rLandlords && x.rLandlords[0]) || {name:x.rLandlord||x.llName, phone:x.rLandlordPhone||x.llPhone};
+        var k = ((xll.name||'') + '_' + (xll.phone||'')).toLowerCase();
+        if (k && k !== '_') _llCountMap[k] = (_llCountMap[k]||0) + 1;
+    });
+    window._llCountMap = _llCountMap;
+    // 分批載入（每批 30 張，滾動到底自動載入更多）
+    var PAGE_SIZE = 30;
+    window._renderList = list;
+    window._renderIdx = 0;
+    grid.innerHTML = '';
+    _renderBatch(grid, list);
+    window._cardListOrder = list.map(function(c){ return { id:c.id, viewAs:c._viewAs||'' }; });
+}
+function _renderBatch(grid, list) {
+    var end = Math.min(window._renderIdx + 30, list.length);
     var html = '';
-    for (var i = 0; i < list.length; i++) {
+    for (var i = window._renderIdx; i < end; i++) {
         var c = list[i];
         var next = list[i + 1];
         if (c._viewAs === 'landlord' && next && next.id === c.id && next._viewAs === 'tenant') {
             html += '<div class="rental-group">' + renderCard(c) + renderCard(next) + '</div>';
-            i++;
+            i++; end = Math.min(end + 1, list.length); // 租案配對算一組
         } else {
             html += renderCard(c);
         }
     }
-    grid.innerHTML = html;
-    window._cardListOrder = list.map(function(c){ return { id:c.id, viewAs:c._viewAs||'' }; });
+    window._renderIdx = end;
+    grid.insertAdjacentHTML('beforeend', html);
+    // 如果還有剩，顯示「載入更多」
+    var oldBtn = document.getElementById('_loadMoreBtn');
+    if (oldBtn) oldBtn.remove();
+    if (end < list.length) {
+        var btn = document.createElement('div');
+        btn.id = '_loadMoreBtn';
+        btn.style.cssText = 'text-align:center;padding:16px;color:var(--muted);font-size:14px;cursor:pointer;font-weight:600';
+        btn.textContent = '顯示更多（剩餘 ' + (list.length - end) + ' 筆）';
+        btn.onclick = function() { _renderBatch(grid, list); };
+        grid.after(btn);
+    }
 }
 
 function renderCard(c) {
@@ -3251,19 +3558,18 @@ function renderCard(c) {
         const dateLabel = c.lastContact ? '📞 '+relTime(c.lastContact) : '';
         const createdLabel = c.created ? '建檔 '+isoToROC((c.created||'').slice(0,10)) : '';
 
-        // 到期提醒標籤（只在對應分類頁面顯示）
+        // 到期提醒標籤（只在對應分類頁面顯示，同時到期時用 += 串接）
         let expireTag = '';
+        function _mkExpTag(dLeft, label) {
+            if (dLeft < 0) return `<span class="tag tag-expired">${label}已過期${Math.abs(dLeft)}天</span>`;
+            if (dLeft === 0) return `<span class="tag tag-expiring">${label}今天到期</span>`;
+            return `<span class="tag tag-expiring">${label}剩${dLeft}天到期</span>`;
+        }
         if ((curFilter==='庫存屋主'||curFilter==='all') && (cTypes.includes('庫存屋主') || displayTypes.includes('庫存屋主')) && (cc.contractEnd || c.contractEnd) && daysUntilExpire(cc.contractEnd || c.contractEnd)<=15) {
-            const dLeft = daysUntilExpire(cc.contractEnd || c.contractEnd);
-            if (dLeft < 0) expireTag = `<span class="tag tag-expired">已過期${Math.abs(dLeft)}天</span>`;
-            else if (dLeft === 0) expireTag = `<span class="tag tag-expiring">今天到期</span>`;
-            else expireTag = `<span class="tag tag-expiring">剩${dLeft}天到期</span>`;
+            expireTag += _mkExpTag(daysUntilExpire(cc.contractEnd || c.contractEnd), curFilter==='all'?'庫存':'');
         }
         if ((curFilter==='房東'||curFilter==='all') && (cTypes.includes('房東')||cTypes.includes('租案管理')) && c.rEndDate && isRentalExpiring(c.rEndDate)) {
-            const dLeft = daysUntilExpire(c.rEndDate);
-            if (dLeft < 0) expireTag = `<span class="tag tag-expired">已過期${Math.abs(dLeft)}天</span>`;
-            else if (dLeft === 0) expireTag = `<span class="tag tag-expiring">今天到期</span>`;
-            else expireTag = `<span class="tag tag-expiring">剩${dLeft}天到期</span>`;
+            expireTag += _mkExpTag(daysUntilExpire(c.rEndDate), curFilter==='all'?'租案':'');
         }
 
         // 房東物件數（提前計算供名字徽章使用）
@@ -3400,12 +3706,12 @@ function renderCard(c) {
                 meta += `<div class="cmeta-row"><span class="cmeta-k">租金</span><span class="cmeta-v">${_rentDisp}</span></div>`;
             }
             if (c.linkedTenantIds && c.linkedTenantIds.length) {
-                var _ttNames = c.linkedTenantIds.map(function(tid){ var _t=DB.find(function(x){return x.id===tid&&!x._deleted;}); return _t?(_t.ttName||_t.name||''):''; }).filter(Boolean);
+                var _ttNames = c.linkedTenantIds.map(function(tid){ var _t=dbById(tid); return (_t&&!_t._deleted)?(_t.ttName||_t.name||''):''; }).filter(Boolean);
                 if (_ttNames.length) meta += `<div class="cmeta-row"><span class="cmeta-k">租客</span><span class="cmeta-v">${esc(_ttNames.join('、'))}</span></div>`;
             }
         } else if (showType==='租客') {
             if (c.linkedLandlordId) {
-                var _llC = DB.find(function(x){ return x.id === c.linkedLandlordId && !x._deleted; });
+                var _llC = dbById(c.linkedLandlordId); if(_llC&&_llC._deleted) _llC=null;
                 if (_llC) {
                     var _llRp = (_llC.rProperties && _llC.rProperties.length) ? (_llC.rProperties[c.linkedPropertyIdx||0] || _llC.rProperties[0]) : {};
                     var _ttEnd = _llRp.rEndDate || _llC.rEndDate || '';
@@ -3494,14 +3800,11 @@ function renderCard(c) {
             cardPhone = ll.phone || c.phone || '';
             cardClass = ' landlord-card';
             nameSuffix = '<span style="font-size:13px;font-weight:600;color:#0891B2;margin-left:2px">房東</span>';
-            // 同房東關聯
+            // 同房東關聯（使用預計算的 _llCountMap，O(1) 查詢）
             var llKey = (cardName + '_' + cardPhone).toLowerCase();
-            var relatedCount = DB.filter(function(x) {
-                if (x._deleted || x.id === c.id || !hasType(x,'租案管理')) return false;
-                var xll = (x.rLandlords && x.rLandlords[0]) || {name:x.rLandlord||x.llName, phone:x.rLandlordPhone||x.llPhone};
-                return ((xll.name||'') + '_' + (xll.phone||'')).toLowerCase() === llKey;
-            }).length;
-            if (relatedCount > 0) sameLL = '<span style="font-size:13px;padding:2px 8px;border-radius:8px;background:#CFFAFE;color:#0E7490;font-weight:600;margin-left:4px;cursor:pointer;white-space:nowrap" onclick="event.stopPropagation();showSameLandlord(\''+esc(cardName)+'\',\''+esc(cardPhone)+'\',\''+c.id+'\')">同房東 '+(relatedCount+1)+'筆</span>';
+            var relatedCount = ((window._llCountMap||{})[llKey]||0) - 1; // 減掉自己
+            if (relatedCount < 0) relatedCount = 0;
+            if (relatedCount > 0) sameLL = '<span style="font-size:13px;padding:2px 8px;border-radius:8px;background:#CFFAFE;color:#0E7490;font-weight:600;margin-left:4px;cursor:pointer;white-space:nowrap" onclick="event.stopPropagation();showSameLandlord(\''+esc(cardName)+'\',\''+esc(cardPhone)+'\',\''+esc(c.id)+'\')">同房東 '+(relatedCount+1)+'筆</span>';
         } else if (c._viewAs === 'tenant') {
             var tt = (c.rTenants && c.rTenants[0]) || {name:c.rTenant, phone:c.rTenantPhone};
             cardName = tt.name || c.name;
@@ -3510,7 +3813,8 @@ function renderCard(c) {
             nameSuffix = '<span style="font-size:13px;font-weight:600;color:#DB2777;margin-left:2px">租客</span>';
         }
 
-        return `<div class="card${c.archived?' archived':''}${cardClass}" onclick="showDetByView('${c.id}','${c._viewAs||''}')">
+        var _eid = esc(c.id), _eva = esc(c._viewAs||'');
+        return `<div class="card${c.archived?' archived':''}${cardClass}" onclick="showDetByView('${_eid}','${_eva}')">
             <div class="card-main">
                 <div class="card-name">${esc(cardName)}${c._viewAs!=='tenant'&&cTypes.includes('成交客戶')&&c.deals&&c.deals.length?`<span class="deal-count">${c.deals.length}</span>`:''}${(showType==='房東'&&_objCount>1)?`<span style="font-size:12px;padding:1px 7px;border-radius:10px;background:#CFFAFE;color:#0E7490;font-weight:700;margin-left:4px;white-space:nowrap">${_objCount}間</span>`:''}${nameSuffix}${sameLL}</div>
                 <div class="card-phone">${esc(cardPhone)}</div>
@@ -3524,19 +3828,19 @@ function renderCard(c) {
             ${meta ? `<div class="card-divider"></div><div class="card-meta">${meta}</div>` : ''}
             <div class="card-divider"></div>
             <div class="card-notes-col" onclick="event.stopPropagation()">
-                <div class="notes-inline${notesText?'':' empty-note'}" onclick="editNoteInline('${c.id}',this,'${esc(showType)}')">${notesText ? esc(notesText) : '點擊新增備註…'}</div>
+                <div class="notes-inline${notesText?'':' empty-note'}" onclick="editNoteInline('${_eid}',this,'${esc(showType)}')">${notesText ? esc(notesText) : '點擊新增備註…'}</div>
                 <div class="card-contact">
                     ${dateLabel ? `<span>${esc(dateLabel)}</span>` : ''}
-                    ${c.history && c.history.length ? `<button class="btn-history" onclick="event.stopPropagation();showHistory('${c.id}')">歷程</button>` : ''}
+                    ${c.history && c.history.length ? `<button class="btn-history" onclick="event.stopPropagation();showHistory('${_eid}')">歷程</button>` : ''}
                 </div>
             </div>
             <div class="card-bottom-right">
                 <div style="display:flex;gap:6px">
-                    <button class="btn-ic" onclick="event.stopPropagation();quickSchedule('${c.id}')" title="預排行程">📅</button>
-                    <button class="btn-ic" onclick="event.stopPropagation();openDriveFolder('${c.id}','${c._viewAs||''}')" title="雲端資料夾">${getRpDriveIcon(c)}</button>
-                    <button class="btn-ic" onclick="event.stopPropagation();openEdit('${c.id}','${c._viewAs||''}')" title="編輯">✏️</button>
+                    <button class="btn-ic" onclick="event.stopPropagation();quickSchedule('${_eid}')" title="預排行程">📅</button>
+                    <button class="btn-ic" onclick="event.stopPropagation();openDriveFolder('${_eid}','${_eva}')" title="雲端資料夾">${getRpDriveIcon(c)}</button>
+                    <button class="btn-ic" onclick="event.stopPropagation();openEdit('${_eid}','${_eva}')" title="編輯">✏️</button>
                     ${archBtn}
-                    <button class="btn-ic del" onclick="event.stopPropagation();del('${c.id}')" title="刪除">🗑️</button>
+                    <button class="btn-ic del" onclick="event.stopPropagation();del('${_eid}')" title="刪除">🗑️</button>
                 </div>
                 ${createdLabel ? `<div style="margin-top:auto;padding-top:16px">${esc(createdLabel)}</div>` : ''}
             </div>
@@ -3591,6 +3895,12 @@ function editNoteInline(id, el, noteType) {
     });
 }
 
+</script>
+
+<!-- ============================================================ -->
+<!-- 區塊 6：詳細資料頁面（預覽卡片）                               -->
+<!-- ============================================================ -->
+<script>
 // ── Detail ──
 function dRow(k,v){ return v?`<div class="det-row"><span class="det-key">${k}</span><span class="det-val">${esc(v)}</span></div>`:''; }
 
@@ -3799,7 +4109,7 @@ function typeDetail(origC, viewAs) {
         // 未連結到特定物件的租客
         var unlinkedTenants = DB.filter(function(t) { return !t._deleted && t.linkedLandlordId === c.id && (!rps || !rps[t.linkedPropertyIdx||0]); });
         if (!rps && c.linkedTenantIds && c.linkedTenantIds.length) {
-            unlinkedTenants = c.linkedTenantIds.map(function(tid) { return DB.find(function(x){return x.id===tid&&!x._deleted;}); }).filter(Boolean);
+            unlinkedTenants = c.linkedTenantIds.map(function(tid) { var _t=dbById(tid); return (_t&&!_t._deleted)?_t:null; }).filter(Boolean);
         }
         if (unlinkedTenants.length) {
             rows.push('<div style="border-top:1px solid var(--bg);margin:8px 0"></div>');
@@ -3814,7 +4124,7 @@ function typeDetail(origC, viewAs) {
         var rows = [];
         rows.push(dRow('租客條件', [c.rSubsidy2?'租補':'',c.rSocialHouse2?'社宅':'',c.rRegister2?'設籍':'',c.rTax2?'報稅':'',c.rPet2?'寵物':'',c.rAltar2?'神桌':'',c.rGoodCitizen2?'良民':'',c.rNotarize2?'公證':''].filter(Boolean).join('、')));
         if (c.linkedLandlordId) {
-            var _ll = DB.find(function(x){return x.id===c.linkedLandlordId&&!x._deleted;});
+            var _ll = dbById(c.linkedLandlordId); if(_ll&&_ll._deleted) _ll=null;
             if (_ll) {
                 rows.push(dRow('連結房東', (_ll.llName||_ll.name)+(_ll.llPhone?' '+_ll.llPhone:'')));
                 if (_ll.rProperties && _ll.rProperties.length) {
@@ -3916,7 +4226,7 @@ function typeDetail(origC, viewAs) {
                     var rll = (r.rLandlords && r.rLandlords[0]) || {name:r.rLandlord||''};
                     var rtt = (r.rTenants && r.rTenants[0]) || {name:r.rTenant||''};
                     var label = '房東：'+(rll.name||'未填')+'　租客：'+(rtt.name||'未填');
-                    rows.push('<div style="padding:8px 12px;margin-bottom:4px;background:#F5F3FF;border-radius:8px;cursor:pointer;font-size:13px" onclick="closeDet();setTimeout(function(){showDetByView(\''+r.id+'\',\'\')},100)">' +
+                    rows.push('<div style="padding:8px 12px;margin-bottom:4px;background:#F5F3FF;border-radius:8px;cursor:pointer;font-size:13px" onclick="closeDet();setTimeout(function(){showDetByView(\''+esc(r.id)+'\',\'\')},100)">' +
                         '<div style="font-weight:600;color:#6366F1">'+esc(label)+'</div>' +
                         (r.rent ? '<div style="color:var(--muted);font-size:12px;margin-top:2px">租金 '+esc(r.rent)+(r.rent.includes('元')?'':'元')+(r.rEndDate?' ・到期 '+isoToROC(r.rEndDate):'')+'</div>' : '') +
                     '</div>');
@@ -3944,7 +4254,7 @@ function typeDetail(origC, viewAs) {
                 relatedLL.forEach(function(r) {
                     var rtt = (r.rTenants && r.rTenants[0]) || {name:r.rTenant||''};
                     var label = '租客：'+(rtt.name||'未填')+(r.rAddr?' ・'+r.rAddr:'');
-                    rows.push('<div style="padding:8px 12px;margin-bottom:4px;background:#FFFBEB;border-radius:8px;cursor:pointer;font-size:13px" onclick="closeDet();setTimeout(function(){showDetByView(\''+r.id+'\',\'\')},100)">' +
+                    rows.push('<div style="padding:8px 12px;margin-bottom:4px;background:#FFFBEB;border-radius:8px;cursor:pointer;font-size:13px" onclick="closeDet();setTimeout(function(){showDetByView(\''+esc(r.id)+'\',\'\')},100)">' +
                         '<div style="font-weight:600;color:#D97706">'+esc(label)+'</div>' +
                         (r.rent ? '<div style="color:var(--muted);font-size:12px;margin-top:2px">租金 '+esc(r.rent)+(r.rent.includes('元')?'':'元')+(r.rEndDate?' ・到期 '+isoToROC(r.rEndDate):'')+'</div>' : '') +
                     '</div>');
@@ -4179,6 +4489,12 @@ function navDet(dir) {
 }
 var currentDetId = null;
 
+</script>
+
+<!-- ============================================================ -->
+<!-- 區塊 7：物件管理（庫存、租案、買方需求、設備、成交、商機）     -->
+<!-- ============================================================ -->
+<script>
 // ── 庫存屋主 helpers ──
 function pickContract(btn, type) {
     document.querySelectorAll('#contractTypePicker .rm-btn').forEach(b => b.classList.remove('on'));
@@ -4416,7 +4732,7 @@ function renewSpContract(btn) {
     popup.style.left = Math.min(rect.right + 4, window.innerWidth - 310) + 'px';
     popup.style.top = rect.top + 'px';
     popup.style.display = 'block';
-    setTimeout(function(){ document.addEventListener('pointerdown', _calOutsideClose, true); }, 0);
+    setTimeout(function(){ document.removeEventListener('pointerdown', _calOutsideClose, true); document.addEventListener('pointerdown', _calOutsideClose, true); }, 0);
 
     var origCalPick = window.calPick;
     window.calPick = function(iso) {
@@ -4692,7 +5008,7 @@ function saveDetailSz() {
     // 車位坪數顯示
     var label = document.getElementById('parkingSzLabel');
     if (label) label.textContent = parking > 0 ? '(' + parking + '坪)' : '';
-    document.querySelector('.fill-overlay').remove();
+    var _ov2 = document.querySelector('.fill-overlay'); if(_ov2) _ov2.remove();
 }
 
 // ── 權狀坪數（卡片查看） ──
@@ -4806,6 +5122,7 @@ function renewContract() {
 
     // 用 setTimeout 觸發日曆外部關閉監聽
     setTimeout(function() {
+        document.removeEventListener('pointerdown', _calOutsideClose, true);
         document.addEventListener('pointerdown', _calOutsideClose, true);
     }, 0);
 }
@@ -5075,7 +5392,7 @@ function loadEquipData(data) {
             var id = 'eq_' + name.replace(/[^a-zA-Z\u4e00-\u9fff]/g,'');
             var chk = document.getElementById(id+'_chk');
             var num = document.getElementById(id+'_num');
-            if (chk && data[name] !== undefined) { chk.checked = true; num.value = data[name]; chk.closest('.equip-item').classList.add('eq-checked'); }
+            if (chk && num && data[name] !== undefined) { chk.checked = true; num.value = data[name]; chk.closest('.equip-item').classList.add('eq-checked'); }
         });
     });
     loadCustomEquips(data);
@@ -5411,7 +5728,7 @@ function getRpEquipData(block) {
         var chk = item.querySelector('input[type="checkbox"]');
         var name = chk ? chk.getAttribute('data-eq-name') : '';
         var num = item.querySelector('input[type="number"]');
-        if (chk && chk.checked && name) result[name] = parseInt(num.value) || 1;
+        if (chk && chk.checked && name && num) result[name] = parseInt(num.value) || 1;
     });
     // 自訂設備
     block.querySelectorAll('.rp-equip-custom .equip-item').forEach(function(item) {
@@ -5419,7 +5736,7 @@ function getRpEquipData(block) {
         var nameInput = item.querySelector('input[type="text"]');
         var numInput = item.querySelector('input[type="number"]');
         var name = nameInput ? nameInput.value.trim() : '';
-        if (chk && chk.checked && name) result[name] = parseInt(numInput.value) || 1;
+        if (chk && chk.checked && name && numInput) result[name] = parseInt(numInput.value) || 1;
     });
     return result;
 }
@@ -5812,6 +6129,12 @@ function getSchedules() {
 }
 function clearSchedules() { document.getElementById('scheduleList').innerHTML = ''; schedId = 0; }
 
+</script>
+
+<!-- ============================================================ -->
+<!-- 區塊 8：行程管理、個人行程、雲端資料夾                         -->
+<!-- ============================================================ -->
+<script>
 // ── 卡片一鍵預排行程 ──
 function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo) {
     var c = DB.find(function(x){ return x.id === clientId; });
@@ -5907,7 +6230,7 @@ function _getPSRecord() {
     var rec = DB.find(function(c){ return c.id === '_personalSchedules'; });
     if (!rec) {
         // 從 localStorage 遷移舊資料
-        var old = JSON.parse(localStorage.getItem('_personalSchedules') || '[]');
+        var old; try { old = JSON.parse(localStorage.getItem('_personalSchedules') || '[]'); } catch(e) { old = []; }
         rec = { id:'_personalSchedules', _system:true, schedules:old };
         DB.push(rec);
         if (old.length) persist();
@@ -6016,7 +6339,7 @@ function _getAllFutureSchedules() {
     var todayISO = localDateISO();
     var all = [];
     DB.forEach(function(c) {
-        if (c._system || c.archived || !c.schedules) return;
+        if (c._deleted || c._system || c.archived || !c.schedules) return;
         c.schedules.forEach(function(s) {
             if (!s.date || s.date < todayISO) return;
             all.push({ clientId:c.id, clientName:c.name, date:s.date, time:s.time||'', memo:s.memo||'', personal:false });
@@ -6070,10 +6393,10 @@ function filterAllSchedList() {
         var memoText = s.personal ? '' : (s.memo ? ' <span style="color:#475569">/ '+esc(s.memo)+'</span>' : '');
         var editBtn = s.personal
             ? '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();editPersonalSchedule('+s.psIdx+')" title="編輯" style="font-size:14px;padding:4px 8px">✏️</button>'
-            : '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();editDashSchedule(\''+s.clientId+'\',\''+s.date+'\',\''+s.time+'\')" title="編輯" style="font-size:14px;padding:4px 8px">✏️</button>';
+            : '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();editDashSchedule(\''+esc(s.clientId)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="編輯" style="font-size:14px;padding:4px 8px">✏️</button>';
         var doneBtn = s.personal
             ? '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();completePersonalSchedule('+s.psIdx+')" title="完成" style="font-size:14px;padding:4px 8px">✅</button>'
-            : '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();completeSchedule(\''+s.clientId+'\',\''+s.date+'\',\''+s.time+'\')" title="完成" style="font-size:14px;padding:4px 8px">✅</button>';
+            : '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();completeSchedule(\''+esc(s.clientId)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="完成" style="font-size:14px;padding:4px 8px">✅</button>';
         return separator + '<div style="padding:8px 0;border-bottom:1px solid #F1F5F9;display:flex;align-items:center;gap:8px">' +
             '<div style="flex:1">' +
                 '<div style="font-size:14px;color:#334155;font-weight:600">'+esc(isoToMDW(s.date,true))+(s.time?' '+s.time:'')+'</div>' +
@@ -6082,7 +6405,7 @@ function filterAllSchedList() {
             '<span style="display:flex;gap:2px;flex-shrink:0">' + editBtn + doneBtn +
             (s.personal
                 ? '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();deletePersonalSchedule('+s.psIdx+')" title="刪除" style="font-size:14px;padding:4px 8px">🗑️</button>'
-                : '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();deleteSchedule(\''+s.clientId+'\',\''+s.date+'\',\''+s.time+'\')" title="刪除" style="font-size:14px;padding:4px 8px">🗑️</button>') +
+                : '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();deleteSchedule(\''+esc(s.clientId)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="刪除" style="font-size:14px;padding:4px 8px">🗑️</button>') +
             '</span>' +
         '</div>';
     }).join('') : '<div style="text-align:center;color:var(--muted);padding:20px;font-size:14px">'+(q?'沒有符合的行程':'目前沒有未來行程')+'</div>';
@@ -6283,7 +6606,7 @@ function _getAllDriveProps(c) {
     }
     // 租客：從連結的房東取得對應租案物件
     if (cTypes.includes('租客') && c.linkedLandlordId) {
-        var _llDrive = DB.find(function(x){ return x.id === c.linkedLandlordId && !x._deleted; });
+        var _llDrive = dbById(c.linkedLandlordId); if(_llDrive&&_llDrive._deleted) _llDrive=null;
         if (_llDrive && _llDrive.rProperties && _llDrive.rProperties.length) {
             var _pIdx = c.linkedPropertyIdx || 0;
             var _lp = _llDrive.rProperties[_pIdx];
@@ -6600,6 +6923,12 @@ function clearDeals() {
     dealCounter = 0;
 }
 
+</script>
+
+<!-- ============================================================ -->
+<!-- 區塊 9：表單元件（類型選擇、房型、等級、區域、帶入、房東連結） -->
+<!-- ============================================================ -->
+<script>
 // ── Form: Type Picker ──
 var selectedTypes = [];
 var activeView = '';
@@ -7004,6 +7333,27 @@ function clearBfSGrade() {
     document.querySelector('#sellerFilter .bf-chip[onclick*="clearBfSGrade"]').classList.add('on');
     render();
 }
+// ── 篩選條件顯示 ──
+function updateActiveFilterBar() {
+    var bar = document.getElementById('activeFilterBar');
+    if (!bar) return;
+    var tags = [];
+    if (curFilter === '經營買方') {
+        if (bfGrade) tags.push(bfGrade + '級');
+        if (bfRooms.length) tags.push(bfRooms.join('、'));
+    }
+    if (curFilter === '庫存屋主' && bfSGrade) tags.push(bfSGrade + '級');
+    if (!tags.length) { bar.style.display = 'none'; return; }
+    bar.style.display = 'flex';
+    bar.innerHTML = '<span style="font-weight:700">🔍 篩選中：</span>' +
+        tags.map(function(t) { return '<span style="background:#FEF3C7;padding:2px 10px;border-radius:12px;font-weight:600">' + esc(t) + '</span>'; }).join('') +
+        '<span style="margin-left:auto;cursor:pointer;text-decoration:underline" onclick="clearAllFilters()">清除</span>';
+}
+function clearAllFilters() {
+    if (curFilter === '經營買方') { clearBfRoom(); clearBfGrade(); updateBfAllBtn(); }
+    if (curFilter === '庫存屋主') { clearBfSGrade(); }
+    render();
+}
 function pickGrade(btn, grade, inputId) {
     var targetId = inputId || 'f-bGrade';
     var input = document.getElementById(targetId);
@@ -7075,6 +7425,12 @@ function getAreaDisplay() {
     return cities.join('、');
 }
 
+</script>
+
+<!-- ============================================================ -->
+<!-- 區塊 10：表單系統（重置、載入編輯、儲存客戶、刪除回收）       -->
+<!-- ============================================================ -->
+<script>
 // ── Form: Reset ──
 const SIMPLE_FIELDS = ['fn','fp','f-idNo','f-occupation','f-birthday','fe','fs','flc','fso','f-addrType','f-zip','f-addr','f-bank','f-bankCode','f-bankAccount','fnotes',
     'f-bName','f-bPhone','f-bIdNo','f-bOccupation','f-bBirthday','f-bZip','f-bAddr','f-bEmail','f-bSource',
@@ -7162,6 +7518,7 @@ function resetForm() {
 function pickLandlord() {
     var landlords = DB.filter(function(c) { return !c._deleted && hasType(c, '房東'); });
     if (!landlords.length) { alert('尚無房東記錄，請先新增房東'); return; }
+    document.querySelectorAll('.fill-overlay').forEach(function(m){ m.remove(); });
     var overlay = document.createElement('div');
     overlay.className = 'fill-overlay';
     var box = document.createElement('div');
@@ -7173,8 +7530,8 @@ function pickLandlord() {
     landlords.forEach(function(c) {
         var props = c.rProperties || [];
         var propInfo = props.length ? (props[0].rAddr || props[0].rCommunity || '') : '';
-        html += '<button type="button" class="ll-pick-item" data-search="'+(c.llName||c.name||'').toLowerCase()+' '+(c.llPhone||c.phone||'')+'" onclick="selectLandlord(\''+c.id+'\')" style="display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:4px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px">';
-        html += '<div style="font-weight:700">'+(c.llName||c.name||'未填姓名')+' <span style="color:var(--muted);font-weight:400">'+(c.llPhone||c.phone||'')+'</span></div>';
+        html += '<button type="button" class="ll-pick-item" data-search="'+esc((c.llName||c.name||'').toLowerCase()+' '+(c.llPhone||c.phone||''))+'" data-llid="'+esc(c.id)+'" style="display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:4px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px">';
+        html += '<div style="font-weight:700">'+esc(c.llName||c.name||'未填姓名')+' <span style="color:var(--muted);font-weight:400">'+esc(c.llPhone||c.phone||'')+'</span></div>';
         if (propInfo) html += '<div style="font-size:12px;color:var(--muted);margin-top:2px">📍 '+esc(propInfo)+'</div>';
         if (props.length > 1) html += '<div style="font-size:11px;color:#0891B2">共 '+props.length+' 筆物件</div>';
         html += '</button>';
@@ -7182,6 +7539,7 @@ function pickLandlord() {
     html += '</div>';
     html += '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="display:block;width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;margin-top:8px">取消</button>';
     box.innerHTML = html;
+    box.querySelectorAll('.ll-pick-item').forEach(function(btn){ btn.onclick = function(){ selectLandlord(btn.getAttribute('data-llid')); }; });
     overlay.appendChild(box);
     overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
     document.body.appendChild(overlay);
@@ -7260,7 +7618,7 @@ function showLinkedTenants(landlordId) {
     if (rec && rec.linkedTenantIds) {
         rec.linkedTenantIds.forEach(function(tid) {
             if (!tenants.some(function(t) { return t.id === tid; })) {
-                var t = DB.find(function(x) { return x.id === tid && !x._deleted; });
+                var t = dbById(tid); if(t&&t._deleted) t=null;
                 if (t) tenants.push(t);
             }
         });
@@ -7475,7 +7833,7 @@ function openEdit(id, viewAs) {
     // 載入連結房東
     clearLinkedLandlord();
     if (c.linkedLandlordId) {
-        var _llRec = DB.find(function(x){ return x.id === c.linkedLandlordId && !x._deleted; });
+        var _llRec = dbById(c.linkedLandlordId); if(_llRec&&_llRec._deleted) _llRec=null;
         if (_llRec) selectLandlord(c.linkedLandlordId, c.linkedPropertyIdx || 0);
         else document.getElementById('f-linkedLandlordId').value = c.linkedLandlordId;
     }
@@ -7698,28 +8056,50 @@ function saveClient() {
         nameTypes = ['租案管理'].concat(curRoleTypes);
         types.forEach(function(t) { if (t !== '租案管理' && !allRT.includes(t) && !nameTypes.includes(t)) nameTypes.push(t); });
     }
-    // 從固定基本欄位讀取
-    var name = document.getElementById('fn').value.trim();
-    var phone = document.getElementById('fp').value.trim();
-    var _basicIdNo = document.getElementById('f-idNo').value.trim();
-    var _basicOcc = document.getElementById('f-occupation').value.trim();
-    var _basicBday = rocToISO(document.getElementById('f-birthday').value.trim());
-    var _basicEmail = document.getElementById('fe').value.trim();
-    var _basicSource = document.getElementById('fso').value.trim();
-    var _basicAddrType = document.getElementById('f-addrType').value;
-    var _basicAddr = document.getElementById('f-addr').value.trim();
-    var _basicZip = document.getElementById('f-zip').value.trim();
-    var _basicBank = document.getElementById('f-bank').value.trim();
-    var _basicBankCode = document.getElementById('f-bankCode').value.trim();
-    var _basicBankAccount = document.getElementById('f-bankAccount').value.trim();
+    // 安全讀取表單欄位（防止 DOM 元素不存在時崩潰）
+    const _gv=id=>{const el=document.getElementById(id);return el?el.value.trim():'';};
+    var name = _gv('fn');
+    var phone = _gv('fp');
+    var _basicIdNo = _gv('f-idNo');
+    var _basicOcc = _gv('f-occupation');
+    var _basicBday = rocToISO(_gv('f-birthday'));
+    var _basicEmail = _gv('fe');
+    var _basicSource = _gv('fso');
+    var _basicAddrType = _gv('f-addrType');
+    var _basicAddr = _gv('f-addr');
+    var _basicZip = _gv('f-zip');
+    var _basicBank = _gv('f-bank');
+    var _basicBankCode = _gv('f-bankCode');
+    var _basicBankAccount = _gv('f-bankAccount');
     if(!name){alert('請輸入姓名');return;}
     if(!phone){alert('請輸入電話');return;}
+    // 電話格式驗證（至少 8 碼純數字）
+    var _phoneDigits = normalizePhone(phone);
+    if (!/^\d{8,}$/.test(_phoneDigits)) { alert('電話格式不正確，請輸入至少 8 碼數字'); return; }
+    // 電話重複偵測
+    var _dupClient = DB.find(function(x) {
+        if (x._deleted || x.id === editId) return false;
+        var phones = [normalizePhone(x.phone), normalizePhone(x.bPhone), normalizePhone(x.sPhone),
+            normalizePhone(x.llPhone), normalizePhone(x.ttPhone), normalizePhone(x.cPhone), normalizePhone(x.dPhone)];
+        return phones.some(function(p) { return p && p === _phoneDigits; });
+    });
+    if (_dupClient && !confirm('⚠️ 此電話與「' + (_dupClient.name||'') + '」重複，確定要儲存？')) return;
+    // 身份證字號驗證
+    if (_basicIdNo && !validateTWID(_basicIdNo)) {
+        if (!confirm('⚠️ 身份證字號「' + _basicIdNo + '」格式不正確，確定要儲存？')) return;
+    }
+    // 價格欄位驗證（僅在有值時檢查）
+    var _priceFields = [['f-sPrice','開價'],['f-sFloorPrice','底價']];
+    for (var _pi=0; _pi<_priceFields.length; _pi++) {
+        var _pv = _gv(_priceFields[_pi][0]);
+        if (_pv && !validatePrice(_pv)) { alert(_priceFields[_pi][1] + '請輸入數字'); return; }
+    }
 
     // 格局自動轉換
     const layoutEl = document.getElementById('f-layout');
     if (layoutEl) layoutEl.value = formatLayout(layoutEl.value);
 
-    const get=id=>{const el=document.getElementById(id);return el?el.value.trim():'';}
+    const get=_gv;
 
     // 處理買方需求（從 bDemands 區塊收集）
     var bDemands = getBuyerDemands();
@@ -7782,22 +8162,22 @@ function saveClient() {
         rLandlordTypes:rLandlordTypes.slice(), rTenantTypes:rTenantTypes.slice(),
         rEquipment:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rEquipment:{}; })(),
         rProperties: getRentalProperties(),
-        rSubsidy:document.getElementById('f-rSubsidy').checked,
-        rSocialHouse:document.getElementById('f-rSocialHouse').checked,
-        rRegister:document.getElementById('f-rRegister').checked,
-        rTax:document.getElementById('f-rTax').checked,
-        rPet:document.getElementById('f-rPet').checked,
-        rAltar:document.getElementById('f-rAltar').checked,
-        rSubsidy2:document.getElementById('f-rSubsidy2').checked,
-        rSocialHouse2:document.getElementById('f-rSocialHouse2').checked,
-        rRegister2:document.getElementById('f-rRegister2').checked,
-        rTax2:document.getElementById('f-rTax2').checked,
-        rPet2:document.getElementById('f-rPet2').checked,
-        rAltar2:document.getElementById('f-rAltar2').checked,
-        rGoodCitizen:document.getElementById('f-rGoodCitizen').checked,
-        rGoodCitizen2:document.getElementById('f-rGoodCitizen2').checked,
-        rNotarize:document.getElementById('f-rNotarize').checked,
-        rNotarize2:document.getElementById('f-rNotarize2').checked,
+        rSubsidy:(document.getElementById('f-rSubsidy')||{}).checked||false,
+        rSocialHouse:(document.getElementById('f-rSocialHouse')||{}).checked||false,
+        rRegister:(document.getElementById('f-rRegister')||{}).checked||false,
+        rTax:(document.getElementById('f-rTax')||{}).checked||false,
+        rPet:(document.getElementById('f-rPet')||{}).checked||false,
+        rAltar:(document.getElementById('f-rAltar')||{}).checked||false,
+        rSubsidy2:(document.getElementById('f-rSubsidy2')||{}).checked||false,
+        rSocialHouse2:(document.getElementById('f-rSocialHouse2')||{}).checked||false,
+        rRegister2:(document.getElementById('f-rRegister2')||{}).checked||false,
+        rTax2:(document.getElementById('f-rTax2')||{}).checked||false,
+        rPet2:(document.getElementById('f-rPet2')||{}).checked||false,
+        rAltar2:(document.getElementById('f-rAltar2')||{}).checked||false,
+        rGoodCitizen:(document.getElementById('f-rGoodCitizen')||{}).checked||false,
+        rGoodCitizen2:(document.getElementById('f-rGoodCitizen2')||{}).checked||false,
+        rNotarize:(document.getElementById('f-rNotarize')||{}).checked||false,
+        rNotarize2:(document.getElementById('f-rNotarize2')||{}).checked||false,
         // 向下相容：取第一組物件的值
         rCommunity:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rCommunity:''; })(),
         rAddr:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rAddr:''; })(),
@@ -7809,7 +8189,7 @@ function saveClient() {
         rMgmtCar:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rMgmtCar:''; })(),
         rMgmtMoto:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rMgmtMoto:''; })(),
         rMgmtOther:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rMgmtOther:''; })(),
-        rMgmtFee:(function(){ var rps=getRentalProperties(); if(!rps[0]) return ''; var rp=rps[0]; return String((parseFloat(rp.rMgmtBuilding)||0)+(parseFloat(rp.rMgmtCar)||0)+(parseFloat(rp.rMgmtMoto)||0)+(parseFloat(rp.rMgmtOther)||0)||''); })(),
+        rMgmtFee:(function(){ var rps=getRentalProperties(); if(!rps[0]) return ''; var rp=rps[0]; var _s=(parseFloat(rp.rMgmtBuilding)||0)+(parseFloat(rp.rMgmtCar)||0)+(parseFloat(rp.rMgmtMoto)||0)+(parseFloat(rp.rMgmtOther)||0); return _s?String(_s):''; })(),
         rParking:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rParking:''; })(),
         rParkingNo:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rParkingNo:''; })(),
         rStartDate:(function(){ var rps=getRentalProperties(); return rps[0]?rps[0].rStartDate:''; })(),
@@ -7844,13 +8224,12 @@ function saveClient() {
     } else {
         data.contacts = [];
     }
-    // 向下相容：同步固定基本欄位到各類型欄位
-    data.bName=name; data.bPhone=phone; data.bIdNo=_basicIdNo; data.bOccupation=_basicOcc; data.bBirthday=_basicBday; data.bEmail=_basicEmail; data.bSource=_basicSource; data.bAddrType=_basicAddrType; data.bZip=_basicZip; data.bAddr=_basicAddr;
-    data.sName=name; data.sPhone=phone; data.sIdNo=_basicIdNo; data.sOccupation=_basicOcc; data.sBirthday=_basicBday; data.sEmail=_basicEmail; data.sSource=_basicSource; data.sAddrType=_basicAddrType; data.sZip=_basicZip; data.sOwnerAddr=_basicAddr;
-    data.cName=name; data.cPhone=phone; data.cIdNo=_basicIdNo; data.cOccupation=_basicOcc; data.cBirthday=_basicBday; data.cEmail=_basicEmail; data.cSource=_basicSource; data.cAddrType=_basicAddrType; data.cZip=_basicZip; data.cAddr=_basicAddr;
-    data.dName=name; data.dPhone=phone; data.dIdNo=_basicIdNo; data.dOccupation=_basicOcc; data.dBirthday=_basicBday; data.dEmail=_basicEmail; data.dSource=_basicSource; data.dAddrType=_basicAddrType; data.dZip=_basicZip; data.dAddr=_basicAddr;
-    data.llName=name; data.llPhone=phone; data.llIdNo=_basicIdNo; data.llOccupation=_basicOcc; data.llBirthday=_basicBday; data.llEmail=_basicEmail;
-    data.ttName=name; data.ttPhone=phone; data.ttIdNo=_basicIdNo; data.ttOccupation=_basicOcc; data.ttBirthday=_basicBday; data.ttEmail=_basicEmail;
+    // 向下相容：同步固定基本欄位到各類型欄位（DRY 重構）
+    var _syncBase = {Name:name, Phone:phone, IdNo:_basicIdNo, Occupation:_basicOcc, Birthday:_basicBday, Email:_basicEmail};
+    var _syncFull = Object.assign({}, _syncBase, {Source:_basicSource, AddrType:_basicAddrType, Zip:_basicZip});
+    ['b','c','d'].forEach(function(p){ Object.keys(_syncFull).forEach(function(k){ data[p+k]=_syncFull[k]; }); data[p==='b'?'bAddr':p==='c'?'cAddr':'dAddr']=_basicAddr; });
+    Object.keys(_syncFull).forEach(function(k){ data['s'+k]=_syncFull[k]; }); data.sOwnerAddr=_basicAddr;
+    ['ll','tt'].forEach(function(p){ Object.keys(_syncBase).forEach(function(k){ data[p+k]=_syncBase[k]; }); });
     // 向下相容：把 contacts 寫回各類型舊欄位（只在有共用聯絡人時覆蓋）
     var _allContacts = data.contacts || [];
     var _basicPerson = {name:name,phone:phone,idNo:_basicIdNo,birthday:_basicBday};
@@ -7990,14 +8369,34 @@ function saveClient() {
         }
     }
     persist(); closeForm(true); render();
+    showToast('✅ 已儲存「' + name + '」');
 }
 
+var _undoTimer = null, _undoBar = null;
 function del(id) {
     const c=DB.find(x=>x.id===id); if(!c) return;
     if(!confirm(`確定要將「${c.name}」移至資源回收桶？`)) return;
     c._deleted = true;
     c._deletedAt = new Date().toISOString();
     persist(); render(); closeDet();
+    // 顯示 undo 列（5 秒內可復原）
+    _showUndoBar(id, c.name);
+}
+function _showUndoBar(id, name) {
+    if (_undoBar) _undoBar.remove();
+    clearTimeout(_undoTimer);
+    _undoBar = document.createElement('div');
+    _undoBar.className = 'undo-bar';
+    var _sec = 5;
+    _undoBar.innerHTML = '已刪除「'+esc(name)+'」<button onclick="_undoDel(\''+esc(id)+'\')">復原</button><span class="undo-timer">'+_sec+'s</span>';
+    document.body.appendChild(_undoBar);
+    var _ti = setInterval(function() { _sec--; var sp=_undoBar.querySelector('.undo-timer'); if(sp) sp.textContent=_sec+'s'; if(_sec<=0) clearInterval(_ti); }, 1000);
+    _undoTimer = setTimeout(function() { if(_undoBar) _undoBar.remove(); _undoBar=null; clearInterval(_ti); }, 5000);
+}
+function _undoDel(id) {
+    var c = DB.find(function(x){return x.id===id;});
+    if (c) { delete c._deleted; delete c._deletedAt; persist(); render(); showToast('✅ 已復原'); }
+    if (_undoBar) _undoBar.remove(); _undoBar=null; clearTimeout(_undoTimer);
 }
 function restoreFromTrash(id) {
     var c = DB.find(function(x){ return x.id===id; });
@@ -8013,8 +8412,15 @@ function permanentDel(id) {
     DB = DB.filter(function(x){ return x.id !== id; });
     persist(); renderTrash();
 }
+</script>
+
+<!-- ============================================================ -->
+<!-- 區塊 11：業績儀表板                                           -->
+<!-- ============================================================ -->
+<script>
 // ── 業績儀表板 ──
-var _perfRecords = JSON.parse(localStorage.getItem('perfRecords') || '[]');
+var _perfRecords;
+try { _perfRecords = JSON.parse(localStorage.getItem('perfRecords') || '[]'); } catch(e) { console.error('業績資料載入失敗:', e); _perfRecords = []; }
 function openPerformance() {
     renderPerformance();
     document.getElementById('perfModal').style.display = 'flex';
@@ -8509,6 +8915,12 @@ function renderTrash() {
     }).join('');
 }
 
+</script>
+
+<!-- ============================================================ -->
+<!-- 區塊 12：匯出匯入、通訊錄、雲端還原                           -->
+<!-- ============================================================ -->
+<script>
 // ── Export ──
 function exportCSV() {
     if(!DB.length){alert('目前沒有資料');return;}
@@ -8967,12 +9379,61 @@ document.addEventListener('DOMContentLoaded', function() {
         clearTimeout(_resizeTimer);
         _resizeTimer = setTimeout(function(){ if(document.getElementById('dashboard').style.display!=='none') renderDashboard(); }, 200);
     }, { passive: true });
+    // 滾動到底部自動載入更多卡片
+    var _scrollDebounce;
+    window.addEventListener('scroll', function() {
+        clearTimeout(_scrollDebounce);
+        _scrollDebounce = setTimeout(function() {
+            var btn = document.getElementById('_loadMoreBtn');
+            if (!btn) return;
+            var rect = btn.getBoundingClientRect();
+            if (rect.top < window.innerHeight + 200) btn.click();
+        }, 100);
+    }, { passive: true });
     // 所有日期欄位 blur 時自動格式化
     document.addEventListener('focusout', function(e) {
         if (e.target && e.target.tagName === 'INPUT' && e.target.closest('.roc-date-wrap')) {
             autoFormatDate(e.target);
         }
     });
+    // 手機下拉刷新
+    var _ptrY0 = null, _ptrActive = false;
+    document.addEventListener('touchstart', function(e) {
+        if (window.scrollY === 0 && !e.target.closest('.overlay,.modal,.fill-overlay,.fill-menu')) {
+            _ptrY0 = e.touches[0].clientY;
+        } else { _ptrY0 = null; }
+    }, { passive: true });
+    document.addEventListener('touchmove', function(e) {
+        if (_ptrY0 === null) return;
+        var dy = e.touches[0].clientY - _ptrY0;
+        var ind = document.getElementById('ptrIndicator');
+        if (dy > 60 && window.scrollY === 0) {
+            ind.textContent = '↑ 放開刷新';
+            ind.classList.add('pulling');
+            _ptrActive = true;
+        } else if (dy > 10 && window.scrollY === 0) {
+            ind.textContent = '↓ 下拉刷新';
+            ind.classList.add('pulling');
+            _ptrActive = false;
+        } else {
+            ind.classList.remove('pulling');
+            _ptrActive = false;
+        }
+    }, { passive: true });
+    document.addEventListener('touchend', function() {
+        var ind = document.getElementById('ptrIndicator');
+        if (_ptrActive) {
+            ind.textContent = '☁️ 同步中…';
+            ind.classList.add('refreshing');
+            autoSync();
+            autoFetchCloud();
+            setTimeout(function() { ind.classList.remove('pulling','refreshing'); render(); showToast('✅ 已刷新'); }, 3000);
+        } else {
+            ind.classList.remove('pulling');
+        }
+        _ptrY0 = null; _ptrActive = false;
+    }, { passive: true });
+
     // 手機手勢左右滑切換功能
     var _swipeX0 = null, _swipeY0 = null, _swipeT0 = 0;
     var _swipeTabs = ['all','經營買方','庫存屋主','房東','租客','成交客戶','商機募集'];
@@ -9017,7 +9478,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405zx';
+var APP_VERSION = '20260406zh';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
