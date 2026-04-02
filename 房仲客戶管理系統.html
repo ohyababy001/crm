@@ -898,21 +898,9 @@
                 <div class="fg" style="margin-bottom:0"><label>銀行帳號</label><input id="f-bankAccount" placeholder="" onblur="formatBankAccount(this)"></div>
             </div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px" id="statusFlcRow">
-                <div class="fg" id="statusGroup" style="margin-bottom:0">
-                    <label>跟進狀態</label>
-                    <select id="fs">
-                        <option>待聯絡</option>
-                        <option>跟進中</option>
-                        <option>已成交</option>
-                        <option>暫停</option>
-                        <option>已放棄</option>
-                    </select>
-                </div>
-                <div class="fg" id="flcGroup" style="margin-bottom:0">
-                    <label>最後聯絡日期</label>
-                    <div class="roc-date-wrap"><input id="flc" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>
-                </div>
+            <div id="statusFlcRow" style="display:none">
+                <select id="fs"><option>待聯絡</option></select>
+                <input id="flc" type="hidden">
             </div>
 
             <!-- 共用聯絡人 -->
@@ -4086,12 +4074,12 @@ function showDet(id, viewAs) {
                 if (email) info.push(dRow('Email', email));
                 if (source) info.push(dRow('客戶來源', source));
                 if (addr) info.push(dRow('地址', (zip?zip+' ':'')+addr));
-                // 房東銀行帳號
-                if (hasType(c,'房東') || hasType(c,'租案管理')) {
-                    var ll0 = (c.rLandlords && c.rLandlords[0]) || {};
-                    var bank = ll0.bank || ''; var bankCode = ll0.bankCode || ''; var bankAccount = ll0.bankAccount || '';
-                    if (bank || bankAccount) info.push(dRow('銀行', (bank?bank:'')+(bankCode?' '+bankCode:'')+(bankAccount?' '+bankAccount:'')));
-                }
+                // 銀行帳號
+                var _ll0 = (c.rLandlords && c.rLandlords[0]) || {};
+                var bank = c.bank || _ll0.bank || '';
+                var bankCode = c.bankCode || _ll0.bankCode || '';
+                var bankAccount = c.bankAccount || _ll0.bankAccount || '';
+                if (bank || bankAccount) info.push(dRow('銀行', (bank?bank:'')+(bankCode?' '+bankCode:'')+(bankAccount?' '+bankAccount:'')));
                 return info.length ? '<div style="border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:8px">'+info.join('')+'</div>' : '';
             })()}
             ${(function(){
@@ -9010,7 +8998,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405h';
+var APP_VERSION = '20260405i';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
