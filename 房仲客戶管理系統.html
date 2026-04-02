@@ -4045,9 +4045,9 @@ function showDet(id, viewAs) {
                 if (addr) info.push(dRow('地址', (zip?zip+' ':'')+addr));
                 // 銀行帳號
                 var _ll0 = (c.rLandlords && c.rLandlords[0]) || {};
-                var bank = c.bank || _ll0.bank || '';
-                var bankCode = c.bankCode || _ll0.bankCode || '';
-                var bankAccount = c.bankAccount || _ll0.bankAccount || '';
+                var bank = c.bank || _ll0.bank || c.llBank || '';
+                var bankCode = c.bankCode || _ll0.bankCode || c.llBankCode || '';
+                var bankAccount = c.bankAccount || _ll0.bankAccount || c.llBankAccount || '';
                 if (bank || bankAccount) info.push(dRow('銀行', (bank?bank:'')+(bankCode?' ('+bankCode+')':'')+(bankAccount?' '+bankAccount:'')));
                 // 其他聯絡人直接接在後面
                 if (c.contacts && c.contacts.length) {
@@ -7304,9 +7304,9 @@ function openEdit(id, viewAs) {
     setVal('f-addr', c.bAddr||c.sOwnerAddr||c.cAddr||c.dAddr||c.llAddr||c.ttAddr||'');
     setVal('f-zip', c.bZip||c.sZip||c.cZip||c.dZip||c.llZip||c.ttZip||'');
     var _ll0 = (c.rLandlords&&c.rLandlords[0])||{};
-    setVal('f-bank', _ll0.bank||c.bank||'');
-    setVal('f-bankCode', _ll0.bankCode||c.bankCode||'');
-    setVal('f-bankAccount', _ll0.bankAccount||c.bankAccount||'');
+    setVal('f-bank', _ll0.bank||c.llBank||c.bank||'');
+    setVal('f-bankCode', _ll0.bankCode||c.llBankCode||c.bankCode||'');
+    setVal('f-bankAccount', _ll0.bankAccount||c.llBankAccount||c.bankAccount||'');
     setVal('fs',c.status||'待聯絡'); setVal('flc',isoToROC(c.lastContact)); setVal('fnotes',c.notes);
     renderTypeNotes(c);
     // 買方需求區塊
@@ -8986,7 +8986,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405zh';
+var APP_VERSION = '20260405zi';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
