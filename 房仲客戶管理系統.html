@@ -3403,14 +3403,14 @@ function renderCard(c) {
                 if (_next) meta += `<div class="cmeta-row"><span class="cmeta-k">行程</span><span class="cmeta-v" style="color:#1E40AF">${esc(isoToMDW(_next.date))}${_next.time?' '+_next.time:''}${_next.memo?' '+esc(_next.memo):''}</span></div>`;
             }
             if (cc.dAddrs && cc.dAddrs.length) {
-                cc.dAddrs.forEach(function(a) {
-                    if (a.devType) meta += `<div class="cmeta-row"><span class="cmeta-k">類別</span><span class="cmeta-v">${esc(a.devType)}</span></div>`;
-                    if (a.community || a.addr) meta += `<div class="cmeta-row"><span class="cmeta-k">${a.community?'社區':'地址'}</span><span class="cmeta-v full">${a.community?esc(a.community)+' ':''}${esc(a.addr||'')}</span></div>`;
-                    var _szParts = [];
-                    if (a.bldgSz) _szParts.push(esc(a.bldgSz) + '坪');
-                    if (a.parking && a.parking !== '無車位') _szParts.push(esc(a.parking));
-                    if (_szParts.length) meta += `<div class="cmeta-row"><span class="cmeta-k">${a.bldgSz?'坪數':'車位'}</span><span class="cmeta-v">${_szParts.join(' / ')}</span></div>`;
-                });
+                if (cc.dAddrs.length > 1) meta += `<div class="cmeta-row"><span class="cmeta-k">物件數</span><span class="cmeta-v" style="color:#92400E;font-weight:700">${cc.dAddrs.length} 間物件</span></div>`;
+                var a = cc.dAddrs[0];
+                if (a.devType) meta += `<div class="cmeta-row"><span class="cmeta-k">類別</span><span class="cmeta-v">${esc(a.devType)}</span></div>`;
+                if (a.community || a.addr) meta += `<div class="cmeta-row"><span class="cmeta-k">${a.community?'社區':'地址'}</span><span class="cmeta-v full">${a.community?esc(a.community)+' ':''}${esc(a.addr||'')}</span></div>`;
+                var _szParts = [];
+                if (a.bldgSz) _szParts.push(esc(a.bldgSz) + '坪');
+                if (a.parking && a.parking !== '無車位') _szParts.push(esc(a.parking));
+                if (_szParts.length) meta += `<div class="cmeta-row"><span class="cmeta-k">${a.bldgSz?'坪數':'車位'}</span><span class="cmeta-v">${_szParts.join(' / ')}</span></div>`;
             } else {
                 if (cc.devType) meta += `<div class="cmeta-row"><span class="cmeta-k">類別</span><span class="cmeta-v">${esc(cc.devType)}</span></div>`;
                 if (cc.dCommunity) meta += `<div class="cmeta-row"><span class="cmeta-k">社區</span><span class="cmeta-v">${esc(cc.dCommunity)}</span></div>`;
@@ -5612,7 +5612,7 @@ function addDAddrRow(data) {
     var parkOpts = ['','坡道平面','坡道機械','升降平面','升降機械','塔式車位','其他車位'];
     var parkHtml = parkOpts.map(function(p){ return '<option value="'+p+'"'+(d.parking===p?' selected':'')+'>'+(p||'選擇')+'</option>'; }).join('');
     var html = '<div class="person-block" id="da-'+dAddrId+'" style="border:1px solid var(--border);border-left:4px solid #92400E;border-radius:10px;padding:10px;margin-bottom:8px;background:#FAFAF9">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:700;color:#92400E">物件 '+localNum+'</span><button type="button" class="c-del" onclick="this.parentElement.parentElement.remove()">✕</button></div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:700;color:#92400E">物件 '+localNum+'</span><span style="display:flex;gap:4px;align-items:center"><button type="button" class="btn-ic" onclick="moveDAddr(this,-1)" title="上移" style="font-size:12px;padding:2px 6px">↑</button><button type="button" class="btn-ic" onclick="moveDAddr(this,1)" title="下移" style="font-size:12px;padding:2px 6px">↓</button><button type="button" class="c-del" onclick="this.closest(\'.person-block\').remove();renumberDAddrs()">✕</button></span></div>' +
         // 出售/出租 + 社區 + 地址
         '<div class="da-row1" style="display:grid;grid-template-columns:auto 1fr 2fr;gap:8px;margin-bottom:6px">' +
             '<div class="fg da-devtype" style="margin-bottom:0"><label style="font-size:12px">出售/出租</label><select data-f="devType" style="width:100%"><option value="出售"'+(d.devType==='出售'?' selected':'')+'>出售</option><option value="出租"'+(d.devType==='出租'?' selected':'')+'>出租</option></select></div>' +
@@ -5642,6 +5642,21 @@ function getDAddrs() {
     return r;
 }
 function clearDAddrs() { document.getElementById('dAddrList').innerHTML = ''; dAddrId = 0; }
+function moveDAddr(btn, dir) {
+    var block = btn.closest('.person-block');
+    var list = block.parentElement;
+    var blocks = Array.from(list.querySelectorAll('.person-block'));
+    var idx = blocks.indexOf(block);
+    if (dir === -1 && idx > 0) list.insertBefore(block, blocks[idx-1]);
+    else if (dir === 1 && idx < blocks.length-1) list.insertBefore(blocks[idx+1], block);
+    renumberDAddrs();
+}
+function renumberDAddrs() {
+    document.querySelectorAll('#dAddrList .person-block').forEach(function(b, i) {
+        var label = b.querySelector('span[style*="color:#92400E"]');
+        if (label) label.textContent = '物件 ' + (i+1);
+    });
+}
 
 var schedId = 0;
 function addScheduleRow(data) {
@@ -8777,7 +8792,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260403zzw';
+var APP_VERSION = '20260403zzx';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
