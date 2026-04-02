@@ -2181,9 +2181,10 @@ function isoToMDW(isoStr, showYear) {
     var p = isoStr.split('-');
     if (p.length !== 3) return isoStr;
     var year = parseInt(p[0]);
-    var d = new Date(year, parseInt(p[1])-1, parseInt(p[2]));
+    var thisYear = new Date().getFullYear();
+    var d = new Date(thisYear, parseInt(p[1])-1, parseInt(p[2]));
     var w = ['日','一','二','三','四','五','六'][d.getDay()];
-    var prefix = (showYear && year !== new Date().getFullYear()) ? (year-1911)+'年' : '';
+    var prefix = (showYear && year !== thisYear) ? (year-1911)+'年' : '';
     return prefix+parseInt(p[1])+'月'+parseInt(p[2])+'日 週'+w;
 }
 // 民國文字 → ISO
@@ -8993,7 +8994,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405n';
+var APP_VERSION = '20260405o';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
