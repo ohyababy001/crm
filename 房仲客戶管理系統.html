@@ -4077,22 +4077,21 @@ function showDet(id, viewAs) {
                 var bankCode = c.bankCode || _ll0.bankCode || '';
                 var bankAccount = c.bankAccount || _ll0.bankAccount || '';
                 if (bank || bankAccount) info.push(dRow('銀行', (bank?bank:'')+(bankCode?' ('+bankCode+')':'')+(bankAccount?' '+bankAccount:'')));
+                // 其他聯絡人直接接在後面
+                if (c.contacts && c.contacts.length) {
+                    c.contacts.forEach(function(p) {
+                        var lines = '<div style="font-weight:600">' + esc(p.name||'') + '</div>';
+                        if (p.phone) lines += '<div>' + esc(p.phone) + '</div>';
+                        if (p.idNo) lines += '<div>' + esc(p.idNo) + '</div>';
+                        if (p.birthday) lines += '<div>生日 ' + esc(p.birthday.includes('-')?isoToROC(p.birthday):p.birthday) + '</div>';
+                        if (p.occupation) lines += '<div>' + esc(p.occupation) + '</div>';
+                        if (p.email) lines += '<div>' + esc(p.email) + '</div>';
+                        if (p.addr) lines += '<div>' + esc((p.zip?p.zip+' ':'')+p.addr) + '</div>';
+                        if (p.bank||p.bankAccount) lines += '<div>銀行 ' + esc((p.bank||'')+(p.bankCode?' ('+p.bankCode+')':'')+(p.bankAccount?' '+p.bankAccount:'')) + '</div>';
+                        info.push('<div class="det-row"><span class="det-key">'+ esc(p._src||'聯絡人') +'</span><span class="det-val" style="font-weight:400">'+lines+'</span></div>');
+                    });
+                }
                 return info.length ? '<div style="border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:8px">'+info.join('')+'</div>' : '';
-            })()}
-            ${(function(){
-                if (!c.contacts || !c.contacts.length) return '';
-                var others = c.contacts.map(function(p) {
-                    var lines = '<div style="font-weight:600">' + esc(p.name||'') + '</div>';
-                    if (p.phone) lines += '<div>' + esc(p.phone) + '</div>';
-                    if (p.idNo) lines += '<div>' + esc(p.idNo) + '</div>';
-                    if (p.birthday) lines += '<div>生日 ' + esc(p.birthday.includes('-')?isoToROC(p.birthday):p.birthday) + '</div>';
-                    if (p.occupation) lines += '<div>' + esc(p.occupation) + '</div>';
-                    if (p.email) lines += '<div>' + esc(p.email) + '</div>';
-                    if (p.addr) lines += '<div>' + esc((p.zip?p.zip+' ':'')+p.addr) + '</div>';
-                    if (p.bank||p.bankAccount) lines += '<div>銀行 ' + esc((p.bank||'')+(p.bankCode?' '+p.bankCode:'')+(p.bankAccount?' '+p.bankAccount:'')) + '</div>';
-                    return '<div class="det-row"><span class="det-key">'+ esc(p._src||'聯絡人') +'</span><span class="det-val" style="font-weight:400">'+lines+'</span></div>';
-                }).join('');
-                return '<div style="border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:8px"><div style="font-weight:700;font-size:12px;color:#475569;margin-bottom:4px">其他聯絡人</div>'+others+'</div>';
             })()}
             ${allTd}
             ${(function(){
@@ -8994,7 +8993,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405m';
+var APP_VERSION = '20260405n';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
