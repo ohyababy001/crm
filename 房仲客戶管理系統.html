@@ -919,7 +919,7 @@
                     <button type="button" class="grade-btn grade-c" onclick="pickGrade(this,'C','f-bGrade')" data-grade="C">C級</button>
                     <input type="hidden" id="f-bGrade" value="">
                 </div>
-                <div class="basic-contact-box" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9">
+                <div class="basic-contact-box" style="display:none;border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9">
                 <div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px">基本聯絡人</div>
                 <div id="bRow1" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'buyer')">帶入</button></label><input id="f-bName" placeholder=""></div>
@@ -940,8 +940,7 @@
                 </div>
                 <div id="bBasicAddrList"></div>
                 </div>
-                <div id="bPersonList"></div>
-                <button type="button" class="add-row-btn" onclick="addBPersonRow()" style="margin-bottom:10px">＋ 新增聯絡人</button>
+                <div id="bPersonList" style="display:none"></div>
                 <div id="bDemandList"></div>
                 <button type="button" class="add-row-btn" onclick="addBuyerDemand()" style="margin-bottom:6px">＋ 新增買方需求</button>
                 <div id="bAddrList" style="display:none"></div>
@@ -951,7 +950,7 @@
             <div class="type-sec" id="s-庫存屋主">
                 <!-- 屋主基本資料 -->
                 <input type="hidden" id="f-sGrade" value="">
-                <div class="basic-contact-box" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9">
+                <div class="basic-contact-box" style="display:none;border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9">
                 <div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px">基本聯絡人</div>
                 <div id="sellerBasicRow1" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'seller')">帶入</button></label><input id="f-sName" placeholder=""></div>
@@ -972,8 +971,7 @@
                 </div>
                 <div id="sBasicAddrList"></div>
                 </div>
-                <div id="sPersonList"></div>
-                <button type="button" class="add-row-btn" onclick="addPersonBlock('sPersonList')" style="margin-bottom:10px">＋ 新增聯絡人</button>
+                <div id="sPersonList" style="display:none"></div>
 
                 <div class="sec-title" style="margin-top:4px">庫存物件</div>
                 <div id="sellerFixedProperty" style="display:none">
@@ -1075,7 +1073,7 @@
                             <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rNotarize')" style="padding:4px 12px;font-size:13px">公證</button>
                         </div>
                     </div>
-                    <div class="basic-contact-box" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9"><div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px">基本聯絡人</div>
+                    <div class="basic-contact-box" style="display:none;border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9"><div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px">基本聯絡人</div>
                     <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                         <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'landlord')">帶入</button></label><input id="f-llName" placeholder=""></div>
                         <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-llPhone" placeholder="" onblur="autoPhone(this)"></div>
@@ -1100,8 +1098,7 @@
                         <div class="fg" style="margin-bottom:0"><label>銀行帳號</label><input id="f-llBankAccount" placeholder="" onblur="formatBankAccount(this)"></div>
                     </div>
                     </div>
-                    <div id="rLandlordList"></div>
-                    <div style="display:flex;gap:8px;align-items:center"><button type="button" class="add-row-btn" onclick="addRPersonRow('rLandlordList','房東')">＋ 新增聯絡人</button></div>
+                    <div id="rLandlordList" style="display:none"></div>
                 <input type="hidden" id="f-rSource" value="">
                 <div class="sec-title" style="margin-top:8px">租案物件</div>
                 <div id="rPropertyList"></div>
@@ -1136,7 +1133,7 @@
                             <button type="button" class="bf-chip cond-btn" onclick="toggleCondBtn(this,'f-rNotarize2')" style="padding:4px 12px;font-size:13px">公證</button>
                         </div>
                     </div>
-                    <div class="basic-contact-box" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9"><div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px">基本聯絡人</div>
+                    <div class="basic-contact-box" style="display:none;border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9"><div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px">基本聯絡人</div>
                     <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                         <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'tenant')">帶入</button></label><input id="f-ttName" placeholder=""></div>
                         <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-ttPhone" placeholder="" onblur="autoPhone(this)"></div>
@@ -1156,8 +1153,7 @@
                     </div>
                     <div id="ttBasicAddrList"></div>
                     </div>
-                    <div id="rTenantList"></div>
-                    <div style="display:flex;gap:8px;align-items:center"><button type="button" class="add-row-btn" onclick="addRPersonRow('rTenantList','租客')">＋ 新增聯絡人</button></div>
+                    <div id="rTenantList" style="display:none"></div>
                     <!-- 指定房東 -->
                     <div style="border:1px solid var(--border);border-left:4px solid #0891B2;border-radius:10px;padding:10px;margin-top:10px;background:#F0FDFA">
                         <div style="font-size:12px;font-weight:700;color:#0E7490;margin-bottom:6px">連結房東</div>
@@ -1174,7 +1170,7 @@
 
             <!-- 成交 -->
             <div class="type-sec" id="s-成交客戶">
-                <div class="basic-contact-box" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;margin-top:4px;background:#FAFAF9"><div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px">基本聯絡人</div>
+                <div class="basic-contact-box" style="display:none;border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;margin-top:4px;background:#FAFAF9"><div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px">基本聯絡人</div>
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'closed')">帶入</button></label><input id="f-cName" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-cPhone" placeholder="" onblur="autoPhone(this)"></div>
@@ -1194,8 +1190,7 @@
                 </div>
                 <div id="cBasicAddrList"></div>
                 </div>
-                <div id="cContactList"></div>
-                <button type="button" class="add-row-btn" onclick="addCContactRow()" style="margin-bottom:6px">＋ 新增聯絡人</button>
+                <div id="cContactList" style="display:none"></div>
                 <div id="cAddrList" style="display:none"></div>
 
                 <div class="sec-title" style="margin-top:10px">成交物件</div>
@@ -1205,7 +1200,7 @@
 
             <!-- 商機募集 -->
             <div class="type-sec" id="s-商機募集">
-                <div class="basic-contact-box" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;margin-top:4px;background:#FAFAF9"><div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px">基本聯絡人</div>
+                <div class="basic-contact-box" style="display:none;border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;margin-top:4px;background:#FAFAF9"><div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px">基本聯絡人</div>
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <span class="req">*</span> <button type="button" class="btn-fill" onclick="showFillMenu(this,'dev')">帶入</button></label><input id="f-dName" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>電話 <span class="req">*</span></label><input id="f-dPhone" placeholder="" onblur="autoPhone(this)"></div>
@@ -1225,8 +1220,7 @@
                 </div>
                 <div id="dBasicAddrList"></div>
                 </div>
-                <div id="dPersonList"></div>
-                <button type="button" class="add-row-btn" onclick="addDPersonRow()" style="margin-bottom:6px">＋ 新增聯絡人</button>
+                <div id="dPersonList" style="display:none"></div>
                 <div class="sec-title" style="margin-top:10px">開發物件</div>
                 <div id="dAddrList"></div>
                 <button type="button" class="add-row-btn" onclick="addDAddrRow()">＋ 新增物件</button>
@@ -8997,7 +8991,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405k';
+var APP_VERSION = '20260405l';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
