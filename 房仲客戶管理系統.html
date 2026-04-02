@@ -1828,7 +1828,8 @@ function loadTagFields(tagType, d) {
         if (d.dPersons && d.dPersons.length) {
             // dPersons[0] 是基本聯絡人本人（saveClient 會塞入），跳過
             d.dPersons.forEach(function(p, i) {
-                if (i === 0 && p.name === d.dName && p.phone === d.dPhone) return;
+                if (i === 0 && p.name && p.name === d.dName) return;
+                if (!p.name && !p.phone) return;
                 addDPersonTabbed(p);
             });
         }
@@ -5612,6 +5613,7 @@ function clearBPersons() { clearPersonBlocks('bPersonList'); }
 // ── 商機募集：屋主多筆（頁籤式） ──
 var dPersonId = 0;
 var _dContactTabIdx = 0;
+var _dContactTabCounter = 0;
 function addDPersonRow(data) { addPersonBlock('dPersonList', data); }
 function getDPersons() {
     var r = [];
@@ -5637,8 +5639,9 @@ function clearDPersons() { clearPersonBlocks('dPersonList'); dPersonId = 0; }
 function addDPersonTabbed(data) {
     // 先在隱藏的 dPersonList 新增一個 person block
     addDPersonRow(data);
+    _dContactTabCounter++;
+    var idx = _dContactTabCounter;
     var blocks = document.querySelectorAll('#dPersonList .person-block');
-    var idx = blocks.length; // 1-based (基本是0)
     var name = (data && data.name) ? data.name : '聯絡人' + idx;
     // 新增頁籤按鈕
     var tabs = document.getElementById('dContactTabs');
@@ -5708,6 +5711,7 @@ function clearDContactTabs() {
     });
     document.getElementById('dPersonList').innerHTML = '';
     dPersonId = 0;
+    _dContactTabCounter = 0;
     switchDContactTab(0);
 }
 
@@ -8905,7 +8909,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404h';
+var APP_VERSION = '20260404i';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
