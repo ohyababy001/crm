@@ -8824,7 +8824,7 @@ document.addEventListener('DOMContentLoaded', function() {
         main.style.transform = 'translateX(0)';
         main.style.opacity = '1';
         requestAnimationFrame(function() {
-            main.style.transition = 'transform 0.15s ease-out, opacity 0.15s';
+            main.style.transition = 'transform 0.08s ease-out, opacity 0.08s';
             main.style.transform = 'translateX(' + dir + '30px)';
             main.style.opacity = '0.3';
             setTimeout(function() {
@@ -8832,17 +8832,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 main.style.transition = 'none';
                 main.style.transform = 'translateX(' + (dx < 0 ? '' : '-') + '30px)';
                 requestAnimationFrame(function() {
-                    main.style.transition = 'transform 0.15s ease-out, opacity 0.15s';
+                    main.style.transition = 'transform 0.08s ease-out, opacity 0.08s';
                     main.style.transform = 'translateX(0)';
                     main.style.opacity = '1';
                 });
-            }, 150);
+            }, 80);
         });
     }, { passive: true });
 });
 </script>
 <script>
-var APP_VERSION = '20260404zk';
+var APP_VERSION = '20260404zl';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
