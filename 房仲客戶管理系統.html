@@ -1567,9 +1567,10 @@ function migrateDB() {
         if (RENAME_MAP[c.type]) c.type = RENAME_MAP[c.type];
         c.types = c.types.map(function(t){ return RENAME_MAP[t] || t; });
         delete c.attachments;
-        // 確保 typeNotes 存在，清除純數字的舊 notes
+        // 確保 typeNotes 存在
         if (!c.typeNotes) c.typeNotes = {};
-        if (c.notes && /^\d+$/.test(c.notes.trim())) c.notes = '';
+        // 舊 notes 如果是純數字或 typeNotes 已有內容，清掉 c.notes 避免重複顯示
+        if (c.notes && (/^\d+$/.test(c.notes.trim()) || Object.keys(c.typeNotes).some(function(k){return c.typeNotes[k];}))) c.notes = '';
         // 聯絡人合併
         var _all = [], _seen = {};
         var _bn = (c.bName||c.sName||c.cName||c.dName||c.llName||c.ttName||c.name||'').trim();
@@ -2618,7 +2619,7 @@ function renderTypeNotes(c) {
     if (!types.length) types = ['備註'];
     var tn = (c && c.typeNotes) || {};
     // 向下相容：舊 notes 遷移
-    if (c && c.notes && !Object.keys(tn).some(function(k){return tn[k];})) {
+    if (c && c.notes && !(/^\d+$/.test(c.notes.trim())) && !Object.keys(tn).some(function(k){return tn[k];})) {
         var firstType = types.find(function(t){ return _VALID_NOTE_TYPES[t]; }) || types[0];
         tn[firstType] = c.notes;
     }
@@ -4078,7 +4079,7 @@ function showDet(id, viewAs) {
                         return '<div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:2px">'+(_nLabels[k]||k)+'</div><div style="font-size:14px;white-space:pre-wrap;line-height:1.6;margin-bottom:8px">'+esc(c.typeNotes[k])+'</div>';
                     }).join('');
                 }
-                var _fn = c.notes && !(/^\d+$/.test(c.notes.trim())) ? c.notes : '';
+                var _fn = c.notes && c.notes.trim() && !(/^\d+$/.test(c.notes.trim())) ? c.notes : '';
                 return _fn?'<div class="det-sec">備註 / 跟進記錄</div><div style="font-size:14px;white-space:pre-wrap;line-height:1.6">'+esc(_fn)+'</div>':'';
             })()}
         </div>`;
@@ -8985,7 +8986,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405zg';
+var APP_VERSION = '20260405zh';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
