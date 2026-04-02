@@ -3734,7 +3734,7 @@ function typeDetail(origC, viewAs) {
     if (c.type==='房東') {
         var rows = [];
         rows.push(dRow('房東條件', [c.rSubsidy?'租補':'',c.rSocialHouse?'社宅':'',c.rRegister?'設籍':'',c.rTax?'報稅':'',c.rPet?'寵物':'',c.rAltar?'神桌':'',c.rGoodCitizen?'良民':'',c.rNotarize?'公證':''].filter(Boolean).join('、')));
-        rows.push(dRow('銀行', [c.llBank,c.llBankCode,c.llBankAccount].filter(Boolean).join(' ')));
+        // 銀行已在上方基本聯絡人顯示
         var rps = c.rProperties && c.rProperties.length ? c.rProperties : null;
         if (rps) {
             rps.forEach(function(rp, idx) {
@@ -8986,7 +8986,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405zk';
+var APP_VERSION = '20260405zl';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
