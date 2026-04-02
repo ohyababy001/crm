@@ -1190,7 +1190,7 @@
                 <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;align-items:center" id="dContactTabs">
                     <button type="button" class="bf-chip on" data-tab-idx="0" onclick="switchDContactTab(0,this)">基本聯絡人</button>
                 </div>
-                <button type="button" class="add-row-btn" onclick="addDPersonTabbed()" style="margin-bottom:8px;display:inline-block;width:auto;padding:4px 12px">＋ 新增聯絡人</button>
+                <button type="button" class="bf-chip" onclick="addDPersonTabbed()" style="margin-bottom:8px">＋ 新增聯絡人</button>
                 <div id="dContactPanels">
                     <div class="d-contact-panel" data-panel="0" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9">
                 <div style="font-size:12px;font-weight:700;color:#8B7355;margin-bottom:6px">基本聯絡人</div>
@@ -8910,7 +8910,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404n';
+var APP_VERSION = '20260404o';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
