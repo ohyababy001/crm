@@ -2964,28 +2964,32 @@ function renderDashboard() {
             '<div class="dash-label">' + item.label + '</div></div>';
     }).join('');
 
-    // 庫存合約即將到期（30天內）
+    // 庫存合約即將到期（15天內）
     var expSeller = DB.filter(function(c) {
-        return !c.archived && hasType(c,'庫存屋主') && c.contractEnd && daysUntilExpire(c.contractEnd)<=15;
+        if (c.archived || !hasType(c,'庫存屋主') || !c.contractEnd || daysUntilExpire(c.contractEnd)>15) return false;
+        return !_isDismissed('seller_'+c.id+'_'+c.contractEnd);
     }).sort(function(a,b) { return (a.contractEnd||'').localeCompare(b.contractEnd||''); });
     document.getElementById('dashExpiringSeller').innerHTML = expSeller.length ? expSeller.map(function(c) {
         var d = daysUntilExpire(c.contractEnd);
         var label = d < 0 ? '已過期'+Math.abs(d)+'天' : d===0 ? '今天到期' : '剩'+d+'天';
-        return '<div class="dash-item" onclick="showDet(\''+c.id+'\')" style="cursor:pointer">' +
+        return '<div class="dash-item" style="cursor:pointer">' +
             '<span class="dash-item-info" style="color:'+(d<=0?'#EF4444':'')+'">'+label+'</span>' +
-            '<span class="dash-item-name">'+esc(c.name)+'<span style="font-weight:400;color:#64748B"> · '+esc(c.community||c.sAddr||'')+'</span></span></div>';
+            '<span class="dash-item-name" onclick="showDet(\''+c.id+'\')">'+esc(c.name)+'<span style="font-weight:400;color:#64748B"> · '+esc(c.community||c.sAddr||'')+'</span></span>' +
+            '<button class="btn-ic" onclick="event.stopPropagation();_dismissAlert(\'seller_'+c.id+'_'+c.contractEnd+'\')" title="已處理" style="font-size:13px;padding:2px 4px;flex-shrink:0">✅</button></div>';
     }).join('') : '<div class="dash-empty">目前沒有即將到期的庫存合約</div>';
 
     // 租案合約即將到期（到期月前一個月1號起）
     var expRental = DB.filter(function(c) {
-        return !c.archived && hasType(c,'房東') && c.rEndDate && isRentalExpiring(c.rEndDate);
+        if (c.archived || !hasType(c,'房東') || !c.rEndDate || !isRentalExpiring(c.rEndDate)) return false;
+        return !_isDismissed('rental_'+c.id+'_'+c.rEndDate);
     }).sort(function(a,b) { return (a.rEndDate||'').localeCompare(b.rEndDate||''); });
     document.getElementById('dashExpiringRental').innerHTML = expRental.length ? expRental.map(function(c) {
         var d = daysUntilExpire(c.rEndDate);
         var label = d < 0 ? '已過期'+Math.abs(d)+'天' : d===0 ? '今天到期' : '剩'+d+'天';
-        return '<div class="dash-item" onclick="showDet(\''+c.id+'\')" style="cursor:pointer">' +
+        return '<div class="dash-item" style="cursor:pointer">' +
             '<span class="dash-item-info" style="color:'+(d<=0?'#EF4444':'')+'">'+label+'</span>' +
-            '<span class="dash-item-name">'+esc(c.name)+'<span style="font-weight:400;color:#64748B"> · '+esc(c.rCommunity||c.rAddr||'')+'</span></span></div>';
+            '<span class="dash-item-name" onclick="showDet(\''+c.id+'\')">'+esc(c.name)+'<span style="font-weight:400;color:#64748B"> · '+esc(c.rCommunity||c.rAddr||'')+'</span></span>' +
+            '<button class="btn-ic" onclick="event.stopPropagation();_dismissAlert(\'rental_'+c.id+'_'+c.rEndDate+'\')" title="已處理" style="font-size:13px;padding:2px 4px;flex-shrink:0">✅</button></div>';
     }).join('') : '<div class="dash-empty">目前沒有即將到期的租案合約</div>';
 
     // 近期行程（15天內）
@@ -3041,7 +3045,9 @@ function renderDashboard() {
             var key = id + '_' + (who||'') + '_' + parts[1] + parts[2];
             if (_bdayDedup[key]) return;
             _bdayDedup[key] = true;
-            bdayList.push({ id:id, name:clientName, who:who, date:dateStr, days:diff });
+            var dismissKey = 'bday_'+id+'_'+(who||'')+'_'+now.getFullYear();
+            if (_isDismissed(dismissKey)) return;
+            bdayList.push({ id:id, name:clientName, who:who, date:dateStr, days:diff, dismissKey:dismissKey });
         }
     }
     DB.forEach(function(c) {
@@ -3056,9 +3062,10 @@ function renderDashboard() {
     bdayList.sort(function(a,b){ return a.days - b.days; });
     document.getElementById('dashBirthday').innerHTML = bdayList.length ? bdayList.map(function(b) {
         var label = b.days === 0 ? '今天生日！' : b.days + '天後';
-        return '<div class="dash-item" onclick="showDet(\''+b.id+'\')" style="cursor:pointer">' +
+        return '<div class="dash-item" style="cursor:pointer">' +
             '<span class="dash-item-info" style="color:'+(b.days===0?'#EF4444':'')+'">'+esc(isoToMDW(b.date))+'</span>' +
-            '<span class="dash-item-name">'+(b.who?esc(b.who)+'<span style="font-weight:400;color:#64748B">（'+esc(b.name)+'）</span>':esc(b.name))+'<span style="font-size:12px;color:#292524;margin-left:6px">'+esc(isoToROC(b.date))+'</span></span></div>';
+            '<span class="dash-item-name" onclick="showDet(\''+b.id+'\')">'+(b.who?esc(b.who)+'<span style="font-weight:400;color:#64748B">（'+esc(b.name)+'）</span>':esc(b.name))+'<span style="font-size:12px;color:#292524;margin-left:6px">'+esc(isoToROC(b.date))+'</span></span>' +
+            '<button class="btn-ic" onclick="event.stopPropagation();_dismissAlert(\''+b.dismissKey+'\')" title="已祝福" style="font-size:13px;padding:2px 4px;flex-shrink:0">✅</button></div>';
     }).join('') : '<div class="dash-empty">近7天內沒有客戶生日</div>';
 
     // 手機版：依最近期日期排序提醒區塊（有提醒的在上，無提醒的在下）
@@ -5793,6 +5800,15 @@ function _getPSRecord() {
 }
 function _getPS() { return _getPSRecord().schedules || []; }
 function _savePS(arr) { _getPSRecord().schedules = arr; persist(); }
+function _getDismissed() { return _getPSRecord().dismissed || {}; }
+function _dismissAlert(key) {
+    var rec = _getPSRecord();
+    if (!rec.dismissed) rec.dismissed = {};
+    rec.dismissed[key] = true;
+    persist();
+    render();
+}
+function _isDismissed(key) { return !!(_getPSRecord().dismissed || {})[key]; }
 function _getDoneSchedules() { return _getPSRecord().doneSchedules || []; }
 function _addDoneSchedule(item) {
     var rec = _getPSRecord();
@@ -8842,7 +8858,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404zl';
+var APP_VERSION = '20260404zm';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
