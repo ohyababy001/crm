@@ -1192,7 +1192,7 @@
                 </div>
                 <button type="button" class="bf-chip" onclick="addDPersonTabbed()" style="margin-bottom:8px">＋ 新增聯絡人</button>
                 <div id="dContactPanels">
-                    <div class="d-contact-panel" data-panel="0" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9;min-height:200px">
+                    <div class="d-contact-panel" data-panel="0" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:700;color:#8B7355">基本聯絡人</span><span style="font-size:12px;visibility:hidden">✕</span></div>
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                     <div class="fg" style="margin-bottom:0"><label>姓名 <button type="button" class="btn-fill" onclick="showFillMenu(this,'dev')">帶入</button></label><input id="f-dName" placeholder="" oninput="updateDBasicTab()"></div>
@@ -5647,7 +5647,7 @@ function addDPersonTabbed(data) {
     btn.setAttribute('data-tab-idx', idx);
     tabs.appendChild(btn);
     // 跟基本聯絡人完全一樣的 HTML
-    var html = '<div class="d-contact-panel" data-panel="'+idx+'" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9;display:none;min-height:200px">' +
+    var html = '<div class="d-contact-panel" data-panel="'+idx+'" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9;display:none">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:700;color:#8B7355" data-dp-title>'+esc(name)+'</span><button type="button" class="c-del" onclick="removeDContactTab('+idx+')" style="color:#EF4444;font-size:12px" title="刪除此聯絡人">✕</button></div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">' +
             '<div class="fg" style="margin-bottom:0"><label>姓名 <button type="button" class="btn-fill" onclick="fillPersonBlock(this)">帶入</button></label><input data-f="name" value="'+esc(d.name||'')+'" placeholder=""></div>' +
@@ -5700,7 +5700,14 @@ function switchDContactTab(idx, btn) {
         var btns = document.querySelectorAll('#dContactTabs .bf-chip');
         btns.forEach(function(b){ if (parseInt(b.getAttribute('data-tab-idx')||'0') === idx) b.classList.add('on'); });
     }
-    document.querySelectorAll('#dContactPanels .d-contact-panel').forEach(function(p){
+    var panels = document.querySelectorAll('#dContactPanels .d-contact-panel');
+    // 先全部顯示，量最大高度
+    var maxH = 0;
+    panels.forEach(function(p){ p.style.display = ''; p.style.minHeight = ''; });
+    panels.forEach(function(p){ if (p.offsetHeight > maxH) maxH = p.offsetHeight; });
+    // 鎖定高度後只顯示目標
+    panels.forEach(function(p){
+        p.style.minHeight = maxH + 'px';
         p.style.display = parseInt(p.getAttribute('data-panel')) === idx ? '' : 'none';
     });
 }
@@ -8925,7 +8932,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404za';
+var APP_VERSION = '20260404zb';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
