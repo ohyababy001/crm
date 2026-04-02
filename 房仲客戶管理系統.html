@@ -1572,8 +1572,8 @@ DB.forEach(function(c) {
     c.types = c.types.map(function(t){ return RENAME_MAP[t] || t; });
     // 清理舊附件資料
     delete c.attachments;
-    // 聯絡人合併遷移：把各類型額外聯絡人合併到 contacts
-    if (!c.contacts) {
+    // 聯絡人合併：每次載入都從各類型重新合併到 contacts
+    {
         var _all = [], _seen = {};
         var _basicName = (c.bName||c.sName||c.cName||c.dName||c.llName||c.ttName||c.name||'').trim();
         function _addC(p, src) {
@@ -1589,6 +1589,9 @@ DB.forEach(function(c) {
             obj._src = src;
             _all.push(obj);
         }
+        // 先加入現有 contacts（共用聯絡人區塊儲存的）
+        if (c.contacts) c.contacts.forEach(function(p){ _addC(p, p._src||'聯絡人'); });
+        // 再從各類型舊欄位合併（去重）
         if (c.bPersons) c.bPersons.forEach(function(p){ _addC(p,'買方'); });
         if (c.sPersons) c.sPersons.forEach(function(p){ _addC(p,'庫存'); });
         if (c.cContacts) c.cContacts.forEach(function(p){ _addC(p,'成交'); });
@@ -8991,7 +8994,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405l';
+var APP_VERSION = '20260405m';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
