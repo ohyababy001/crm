@@ -1825,10 +1825,8 @@ function loadTagFields(tagType, d) {
         document.getElementById('dBasicAddrList').innerHTML='';
         if (d.dBasicAddrs && d.dBasicAddrs.length) d.dBasicAddrs.forEach(function(a){ addBuyerAddrRow('dBasicAddrList',a); });
         clearDContactTabs();
+        alert('dName='+d.dName+'\ndPersons='+(d.dPersons?d.dPersons.length:'無')+'\n'+(d.dPersons?d.dPersons.map(function(p,i){return '['+i+'] '+p.name+' / '+p.phone;}).join('\n'):''));
         if (d.dPersons && d.dPersons.length) {
-            var _dbg = 'dPersons共'+d.dPersons.length+'筆, dName='+d.dName+'\n';
-            d.dPersons.forEach(function(p,i){ _dbg += '['+i+'] name='+p.name+' phone='+p.phone + (i===0&&p.name===d.dName?' →跳過':' →載入') + '\n'; });
-            alert(_dbg);
             // dPersons[0] 是基本聯絡人本人（saveClient 會塞入），跳過
             d.dPersons.forEach(function(p, i) {
                 if (i === 0 && p.name && p.name === d.dName) return;
@@ -8912,7 +8910,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404k';
+var APP_VERSION = '20260404l';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
