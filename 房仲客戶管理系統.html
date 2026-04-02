@@ -5717,7 +5717,9 @@ function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo) {
     document.body.appendChild(overlay);
     // 儲存
     document.getElementById('qs-save').onclick = function() {
-        var date = rocToISO(document.getElementById('qs-date').value);
+        var dateVal = document.getElementById('qs-date').value.trim();
+        var date = rocToISO(dateVal);
+        if (!date && prefillDate && dateVal === isoToROC(prefillDate)) date = prefillDate;
         var time = document.getElementById('qs-time').value;
         var memo = document.getElementById('qs-memo').value.trim();
         if (!date) { alert('請選擇日期'); return; }
@@ -8854,7 +8856,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404zn';
+var APP_VERSION = '20260404zo';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
