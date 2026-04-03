@@ -3609,7 +3609,7 @@ function renderCard(c) {
                 if (_schedFilter && s.schedType && s.schedType !== _schedFilter) return false;
                 return true;
             }).sort(function(a,b){ return (a.date+(a.time||'')).localeCompare(b.date+(b.time||'')); })[0];
-            if (_nextSched) meta += `<div class="cmeta-row"><span class="cmeta-k">行程</span><span class="cmeta-v full" style="color:#1E40AF;font-weight:700;white-space:normal;word-break:break-word">${esc(isoToMDW(_nextSched.date))}${_nextSched.time?' '+_nextSched.time:''}${_nextSched.memo?' '+esc(_nextSched.memo):''}</span></div>`;
+            if (_nextSched) meta += `<div style="margin-bottom:3px;font-size:14px;line-height:1.4"><span style="color:var(--muted)">行程</span> <span style="color:#1E40AF;font-weight:700">${esc(isoToMDW(_nextSched.date))}${_nextSched.time?' '+_nextSched.time:''}</span>${_nextSched.memo?'<div style="color:#1E40AF;font-weight:700;word-break:break-word">'+esc(_nextSched.memo)+'</div>':''}</div>`;
         }
         if (showType==='經營買方') {
             // 選擇要顯示的需求：有篩選時顯示符合的需求，否則顯示第一組
