@@ -373,7 +373,7 @@
             .main { padding: 10px 8px; padding-bottom: 70px; }
 
             /* 卡片 */
-            .card { padding: 10px 12px; gap: 8px; flex-wrap: wrap; position: relative; }
+            .card { padding: 10px 12px; gap: 8px; flex-wrap: wrap; position: relative; overflow: hidden; max-width: 100%; box-sizing: border-box; }
             .avatar { width: 40px; height: 40px; font-size: 16px; }
             .card-main { width: auto; flex: 1; min-width: 80px; }
             .card-name { font-size: 20px; }
@@ -381,10 +381,9 @@
             .card-phone { font-size: 16px; }
             .tag { font-size: 14px; padding: 4px 12px; }
             .card-divider { display: none; }
-            .card-meta { width: auto; flex: 1 1 100%; min-width: 0; max-width: 100%; }
-            .cmeta-row { font-size: 15px; margin-bottom: 5px; min-width: 0; max-width: 100%; }
-            .cmeta-v { max-width: calc(100% - 40px); }
-            .cmeta-v.full { white-space: normal; word-break: break-word; overflow-wrap: break-word; max-width: calc(100% - 40px); }
+            .card-meta { width: auto; flex: 1 1 100%; min-width: 0; }
+            .cmeta-row { font-size: 15px; margin-bottom: 5px; overflow: hidden; }
+            .cmeta-v.full { white-space: normal !important; word-break: break-word !important; overflow-wrap: break-word !important; display: block !important; }
             .card-notes-col { display: block; width: 100%; margin-top: 4px; }
             .card-right { display: none; }
             .card-bottom-right { position: absolute; top: 6px; right: 8px; align-items: flex-end; gap: 0; }
