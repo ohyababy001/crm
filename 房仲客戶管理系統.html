@@ -795,7 +795,7 @@
                     <button class="bf-chip" onclick="toggleBfRoom(this,'四房')">四房</button>
                     <button class="bf-chip" onclick="toggleBfRoom(this,'公寓')">公寓</button>
                     <button class="bf-chip" onclick="toggleBfRoom(this,'透天')">透天</button>
-                    <button class="bf-chip" onclick="toggleBfRoom(this,'店面辦公')">店辦</button>
+                    <button class="bf-chip" onclick="toggleBfRoom(this,'店辦豪土')">店辦豪土</button>
                 </div>
             </div>
         </div>
@@ -5225,7 +5225,7 @@ function addBuyerDemand(data) {
     var selDists = d.areaDists || [];
     var selRooms = (d.roomTypes||'').split(',').filter(Boolean);
     var cities = ['新北市','台北市','其他縣市'];
-    var rooms = ['套房','二房','三房','四房','公寓','店面','辦公','透天'];
+    var rooms = ['套房','二房','三房','四房','公寓','透天','店辦豪土'];
     // 區域 HTML
     var distHtml = '';
     Object.keys(DISTRICTS).forEach(function(city){
