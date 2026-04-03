@@ -881,8 +881,7 @@
                 </div>
                 <div class="fg" id="phoneGroup" style="margin-bottom:0">
                     <label>電話 <span class="req">*</span></label>
-                    <div style="display:flex;gap:4px"><input id="fp" placeholder="" onblur="autoPhone(this)" style="flex:1;min-width:0"><button type="button" class="btn-ic" onclick="addExtraPhone('basicExtraPhones')" title="新增電話" style="font-size:14px;padding:4px 6px;flex-shrink:0">＋</button></div>
-                    <div id="basicExtraPhones"></div>
+                    <input id="fp" placeholder="" onblur="autoPhone(this)">
                 </div>
                 <div class="fg" id="idNoGroup" style="margin-bottom:0">
                     <label>身份證字號</label>
@@ -2597,48 +2596,6 @@ function showToast(msg, type, duration) {
     el._timer = setTimeout(function() { el.classList.remove('show'); }, duration || 2000);
 }
 
-// ── 額外電話管理 ──
-function addExtraPhone(containerId, data) {
-    var container = document.getElementById(containerId);
-    if (!container) {
-        // person-block 的容器用 class 找
-        container = document.querySelector('#' + containerId);
-        if (!container) return;
-    }
-    var d = data || {};
-    var row = document.createElement('div');
-    row.style.cssText = 'display:flex;gap:4px;align-items:center;margin-top:4px';
-    row.innerHTML =
-        '<select data-ep="label" style="flex:0 0 60px;padding:6px 4px;border:1px solid var(--border);border-radius:6px;font-size:12px">' +
-            '<option value="手機"' + (d.label === '手機' ? ' selected' : '') + '>手機</option>' +
-            '<option value="市話"' + (d.label === '市話' ? ' selected' : '') + '>市話</option>' +
-            '<option value="公司"' + (d.label === '公司' ? ' selected' : '') + '>公司</option>' +
-            '<option value="其他"' + (d.label === '其他' ? ' selected' : '') + '>其他</option>' +
-        '</select>' +
-        '<input data-ep="phone" value="' + esc(d.phone || '') + '" placeholder="" onblur="autoPhone(this)" style="flex:1;min-width:0;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:14px">' +
-        '<button type="button" class="c-del" onclick="this.parentElement.remove()" style="flex-shrink:0">✕</button>';
-    container.appendChild(row);
-}
-function getExtraPhones(containerId) {
-    var container = document.getElementById(containerId);
-    if (!container) return [];
-    var phones = [];
-    container.querySelectorAll('div').forEach(function(row) {
-        var label = row.querySelector('[data-ep="label"]');
-        var phone = row.querySelector('[data-ep="phone"]');
-        if (label && phone && phone.value.trim()) {
-            phones.push({ label: label.value, phone: phone.value.trim() });
-        }
-    });
-    return phones;
-}
-function loadExtraPhones(containerId, phones) {
-    var container = document.getElementById(containerId);
-    if (!container) return;
-    container.innerHTML = '';
-    if (phones && phones.length) phones.forEach(function(p) { addExtraPhone(containerId, p); });
-}
-
 // ── 電話號碼正規化（搜尋比對用）──
 function normalizePhone(p) { return String(p||'').replace(/[\s\-\(\)＋+]/g, ''); }
 
@@ -2813,7 +2770,6 @@ function runDataCheck() {
     var phoneMap = {};
     liveDB.forEach(function(c) {
         var phones = [c.phone, c.bPhone, c.sPhone, c.llPhone, c.ttPhone, c.cPhone, c.dPhone];
-        if (c.extraPhones) c.extraPhones.forEach(function(ep){ phones.push(ep.phone); });
         phones.forEach(function(p) {
             var np = normalizePhone(p);
             if (!np || np.length < 8) return;
@@ -3105,8 +3061,6 @@ function getData() {
             (c.bName||'').toLowerCase().includes(q) ||
             (c.cName||'').toLowerCase().includes(q) ||
             (c.dName||'').toLowerCase().includes(q)) return true;
-        // 搜尋額外電話
-        if (c.extraPhones && c.extraPhones.some(function(ep){ return _phoneMatch(ep.phone); })) return true;
         // 搜尋聯絡人的姓名和電話（統一 contacts + 向下相容舊欄位）
         var _persons = (c.contacts||[]).concat(c.bPersons||[], c.sPersons||[], c.cContacts||[], c.dPersons||[], (c.rLandlords||[]).slice(1), (c.rTenants||[]).slice(1));
         return _persons.some(function(p){ return (p.name||'').toLowerCase().includes(q) || _phoneMatch(p.phone); });
@@ -4399,7 +4353,6 @@ function showDet(id, viewAs) {
             <div style="width:100%;flex:1;display:flex;flex-direction:column;justify-content:center">
                 <div class="det-name">${esc(detName)}${detViewAs==='landlord'?'<span style="font-size:14px;color:#0891B2;margin-left:4px">房東</span>':''}${detViewAs==='tenant'?'<span style="font-size:14px;color:#DB2777;margin-left:4px">租客</span>':''}</div>
                 <div class="det-phone">${esc(detPhone)}</div>
-                ${c.extraPhones&&c.extraPhones.length?c.extraPhones.map(function(ep){return '<div style="font-size:14px;color:var(--muted);margin-top:2px;text-align:center">'+esc(ep.label)+'：'+esc(ep.phone)+'</div>';}).join(''):''}
             </div>
         </div>
         <div class="det-body">
@@ -7568,7 +7521,6 @@ function resetForm() {
     clearBPersons();
     clearBuyerBasicAddrs();
     ['basicAddrList','sBasicAddrList','llBasicAddrList','ttBasicAddrList','cBasicAddrList','dBasicAddrList'].forEach(function(id){ var el=document.getElementById(id); if(el) el.innerHTML=''; });
-    var _epEl = document.getElementById('basicExtraPhones'); if(_epEl) _epEl.innerHTML='';
     clearPersonBlocks('sPersonList');
     clearSellerProperties();
     document.getElementById('sellerFixedProperty').style.display = 'none';
@@ -7819,7 +7771,6 @@ function openEdit(id, viewAs) {
     setVal('f-bank', _ll0.bank||c.llBank||c.bank||'');
     setVal('f-bankCode', _ll0.bankCode||c.llBankCode||c.bankCode||'');
     setVal('f-bankAccount', _ll0.bankAccount||c.llBankAccount||c.bankAccount||'');
-    loadExtraPhones('basicExtraPhones', c.extraPhones);
     setVal('fs',c.status||'待聯絡'); setVal('flc',isoToROC(c.lastContact)); setVal('fnotes',c.notes);
     renderTypeNotes(c);
     // 買方需求區塊
@@ -8168,12 +8119,11 @@ function saveClient() {
     // 電話格式驗證（至少 8 碼純數字）
     var _phoneDigits = normalizePhone(phone);
     if (!/^\d{8,}$/.test(_phoneDigits)) { alert('電話格式不正確，請輸入至少 8 碼數字'); return; }
-    // 電話重複偵測（含額外電話）
+    // 電話重複偵測
     var _dupClient = DB.find(function(x) {
         if (x._deleted || x.id === editId) return false;
         var phones = [normalizePhone(x.phone), normalizePhone(x.bPhone), normalizePhone(x.sPhone),
             normalizePhone(x.llPhone), normalizePhone(x.ttPhone), normalizePhone(x.cPhone), normalizePhone(x.dPhone)];
-        if (x.extraPhones) x.extraPhones.forEach(function(ep){ phones.push(normalizePhone(ep.phone)); });
         return phones.some(function(p) { return p && p === _phoneDigits; });
     });
     if (_dupClient && !confirm('⚠️ 此電話與「' + (_dupClient.name||'') + '」重複，確定要儲存？')) return;
@@ -8213,7 +8163,6 @@ function saveClient() {
         source: _basicSource, occupation: _basicOcc, birthday: _basicBday,
         addrType: _basicAddrType, addr: _basicAddr, zip: _basicZip, basicAddrs: getBasicAddrs('basicAddrList'),
         bank: _basicBank, bankCode: _basicBankCode, bankAccount: _basicBankAccount,
-        extraPhones: getExtraPhones('basicExtraPhones'),
         typeNotes:collectTypeNotes(), notes:(function(){ var tn=collectTypeNotes(); return Object.keys(tn).map(function(k){return tn[k];}).join('\n'); })(),
         // 經營買方
         bGrade:get('f-bGrade'),
