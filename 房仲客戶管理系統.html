@@ -4355,17 +4355,13 @@ function showDet(id, viewAs) {
         var td = typeDetail(c, detViewAs);
         c.type = origType;
         if (!td) return;
-        var isPrimary = idx === 0;
+        var isOpen = (curFilter !== 'all' && idx === 0);
         var typeColor = {'經營買方':'#5C4A32','庫存屋主':'#3B5E3B','房東':'#0E7490','租客':'#9D174D','租案管理':'#4A3D5E','成交客戶':'#7A5C30','商機募集':'#5E4A3E'}[t] || '#475569';
         var typeBg = {'經營買方':'#EDE8E0','庫存屋主':'#E0EBE0','房東':'#CFFAFE','租客':'#FCE7F3','租案管理':'#E8E3ED','成交客戶':'#F0E6D6','商機募集':'#EAE3DE'}[t] || '#F5F5F4';
-        if (isPrimary) {
-            allTd += `<div class="det-sec" style="background:${typeBg};color:${typeColor};padding:8px 10px;border-radius:6px;margin:-2px -4px 10px;border:none">${TYPE_DISPLAY[t]||t}資料</div>${td}`;
-        } else {
-            var collapseId = 'collapse_' + idx;
-            allTd += `<div class="det-sec" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:${typeBg};color:${typeColor};padding:8px 10px;border-radius:6px;margin:-2px -4px 6px;border:none;opacity:0.8" onclick="var el=document.getElementById('${collapseId}');var ar=this.querySelector('.collapse-arrow');if(el.style.display==='none'){el.style.display='';ar.textContent='▼';this.style.opacity='1'}else{el.style.display='none';ar.textContent='▶';this.style.opacity='0.8'}">
-                <span>${TYPE_DISPLAY[t]||t}資料（點擊展開）</span><span class="collapse-arrow" style="font-size:11px">▶</span>
-            </div><div id="${collapseId}" style="display:none">${td}</div>`;
-        }
+        var collapseId = 'collapse_' + idx;
+        allTd += `<div class="det-sec" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:${typeBg};color:${typeColor};padding:8px 10px;border-radius:6px;margin:-2px -4px 6px;border:none;opacity:${isOpen?'1':'0.8'}" onclick="var el=document.getElementById('${collapseId}');var ar=this.querySelector('.collapse-arrow');if(el.style.display==='none'){el.style.display='';ar.textContent='▼';this.style.opacity='1'}else{el.style.display='none';ar.textContent='▶';this.style.opacity='0.8'}">
+            <span>${TYPE_DISPLAY[t]||t}資料${isOpen?'':'（點擊展開）'}</span><span class="collapse-arrow" style="font-size:11px">${isOpen?'▼':'▶'}</span>
+        </div><div id="${collapseId}" style="display:${isOpen?'':'none'}">${td}</div>`;
     });
     document.getElementById('detContent').innerHTML = `
         <div class="det-head" style="flex-direction:column;gap:6px">
