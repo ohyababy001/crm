@@ -5836,7 +5836,7 @@ function clearRentalProperties() { document.getElementById('rPropertyList').inne
 function buildTimeOptions(sel) {
     var opts = '<option value="">時間</option>';
     for (var h = 7; h <= 21; h++) {
-        for (var m = 0; m < 60; m += 30) {
+        for (var m = 0; m < 60; m += 15) {
             var val = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
             opts += '<option value="'+val+'"'+(val===sel?' selected':'')+'>'+val+'</option>';
         }
