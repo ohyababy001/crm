@@ -2,7 +2,8 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="房仲客戶管理系統 — 買方、庫存屋主、房東、租客、成交、商機一站式 CRM 管理工具">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="房仲CRM">
@@ -40,7 +41,7 @@
         .filter-btn.active { background: linear-gradient(135deg, #F5F5F4, #E7E5E4); color: var(--deep); font-weight: 700; border-color: #A8A29E; box-shadow: 0 1px 4px rgba(87,83,78,0.1); }
         .filter-overview { font-size: 20px; background: linear-gradient(135deg, #292524, #44403C); color: #FAFAF9 !important; border-radius: 12px; }
         .filter-overview:hover { background: linear-gradient(135deg, #44403C, #57534E); }
-        .filter-overview.active { background: linear-gradient(135deg, #292524, #44403C); color: #FAFAF9 !important; box-shadow: 0 2px 8px rgba(41,37,36,0.3); }
+        .filter-overview.active { color: #FAFAF9 !important; box-shadow: 0 2px 8px rgba(41,37,36,0.3); }
         .filter-overview .cnt { background: rgba(255,255,255,0.2) !important; color: #FAFAF9 !important; }
         .filter-left { display: flex; align-items: center; gap: 8px; }
         .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
@@ -63,11 +64,10 @@
         /* Buyer filter bar */
         .buyer-filter { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; margin-bottom: 14px; display: none; }
         .buyer-filter.on { display: block; }
-        .bf-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+        .bf-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
         .bf-row:last-child { margin-bottom: 0; }
         .bf-label { font-size: 14px; font-weight: 700; color: var(--muted); white-space: nowrap; width: 52px; }
         .bf-grid-wrap { display:flex; flex-direction:column; gap:6px; }
-        .bf-row { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
         .bf-chip { padding: 6px 16px; border-radius: 20px; border: 1.5px solid var(--border); background: white; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--muted); transition: all 0.12s; line-height:1.2; font-family:inherit; box-sizing:border-box; }
         .bf-chip:hover { border-color: #94A3B8; color: var(--text); }
         .bf-chip.on { background: #EDE8E0; border-color: #8B7355; color: #5C4A32; }
@@ -264,23 +264,20 @@
         .tp-closed.selected  { background: #D97706; border-color: #D97706; color: white; font-weight: 800; }
         .tp-potential.selected { background: #DC2626; border-color: #DC2626; color: white; font-weight: 800; }
 
+        /* Picker buttons 共用基類 */
+        .rm-btn, .city-btn, .dist-btn { border: 1.5px solid var(--border); background: white; font-weight: 600; cursor: pointer; color: var(--muted); transition: all 0.12s; font-family: inherit; }
+        .rm-btn:hover, .city-btn:hover, .dist-btn:hover { border-color: #94A3B8; color: var(--text); }
+        .rm-btn.on, .city-btn.on, .dist-btn.on { background: #EDE8E0; border-color: #8B7355; color: #5C4A32; }
         /* Room type picker */
         .room-picker { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
-        .rm-btn { padding: 6px 12px; border-radius: 8px; border: 1.5px solid var(--border); background: white; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--muted); transition: all 0.12s; font-family: inherit; }
-        .rm-btn:hover { border-color: #94A3B8; color: var(--text); }
-        .rm-btn.on { background: #EDE8E0; border-color: #8B7355; color: #5C4A32; }
-
+        .rm-btn { padding: 6px 12px; border-radius: 8px; font-size: 13px; }
         /* Area picker */
         .city-picker { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
-        .city-btn { padding: 6px 14px; border-radius: 8px; border: 1.5px solid var(--border); background: white; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--muted); transition: all 0.12s; font-family: inherit; }
-        .city-btn:hover { border-color: #94A3B8; color: var(--text); }
-        .city-btn.on { background: #EDE8E0; border-color: #8B7355; color: #5C4A32; }
+        .city-btn { padding: 6px 14px; border-radius: 8px; font-size: 13px; }
         .dist-area { display: none; margin-bottom: 10px; }
         .dist-area.on { display: block; }
         .dist-grid { display: flex; flex-wrap: wrap; gap: 5px; }
-        .dist-btn { padding: 4px 10px; border-radius: 6px; border: 1.5px solid var(--border); background: white; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--muted); transition: all 0.12s; font-family: inherit; }
-        .dist-btn:hover { border-color: #94A3B8; color: var(--text); }
-        .dist-btn.on { background: #EDE8E0; border-color: #8B7355; color: #5C4A32; }
+        .dist-btn { padding: 4px 10px; border-radius: 6px; font-size: 12px; }
 
         /* Detail */
         .det-head { padding: 14px 22px; display: flex; gap: 14px; align-items: center; border-bottom: 1px solid var(--border); position:sticky; top:0; background:white; z-index:1; border-radius:18px 18px 0 0; min-height:70px; }
@@ -401,7 +398,6 @@
             #buyerDetailRow { grid-template-columns: 1fr !important; }
             /* 需求區域按鈕和房型一樣大 */
             .city-picker { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 6px !important; }
-            .city-picker .city-btn { width: 100% !important; text-align: center; padding: 8px 4px !important; }
             .fg.full { grid-column: 1; }
             #namePhoneIdRow { grid-template-columns: 1fr 1fr !important; }
             #namePhoneIdRow.hidden { display: none !important; }
@@ -424,8 +420,7 @@
             [data-addr-row] > .fg:nth-child(3) { grid-column: 1 / 5; }
             [data-addr-row] > .btn-ic,
             [data-addr-row] > button.c-del { grid-column: 5; grid-row: 2; align-self: end; margin-bottom: 4px; }
-            /* 手機版：基本聯絡人和新增聯絡人 4欄→2欄 */
-            #namePhoneIdRow { grid-template-columns: 1fr 1fr !important; }
+            /* 手機版：4欄→2欄（#namePhoneIdRow 已在上方定義） */
             div[style*="1fr 1fr 1fr 1fr"] { grid-template-columns: 1fr 1fr !important; }
             /* Email 全寬 */
             .fg[style*="span 2"] { grid-column: 1 / -1 !important; }
@@ -461,14 +456,14 @@
             #rentalAddrRow { grid-template-columns: 1fr !important; }
             #rentalAddrRow > .fg:first-child { width: 50% !important; }
 
+            /* 手機版 picker 按鈕共用：滿版+置中 */
+            .room-picker .rm-btn, .city-picker .city-btn, .dist-grid .dist-btn { width: 100% !important; text-align: center; padding: 8px 4px !important; }
+            .dist-grid .dist-btn { font-size: 13px !important; }
             /* 房型需求：每排 4 個 */
             .room-picker { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 6px !important; }
-            .room-picker .rm-btn { width: 100% !important; text-align: center; padding: 8px 4px !important; }
             .dist-grid { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 6px !important; }
-            .dist-grid .dist-btn { width: 100% !important; text-align: center; padding: 8px 4px !important; font-size: 13px !important; }
 
-            /* 附屬設備改三欄 */
-            .equip-item { width: calc(50% - 6px) !important; }
+            /* 附屬設備改兩欄 — 統一在下方設定 */
 
 
             /* 庫存坪數並排/車位獨立 */
@@ -547,9 +542,8 @@
             .deal-f-addr { order: 2; grid-column: span 2 !important; }
             .deal-f-price { order: 3; }
 
-            /* 附屬設備 grid 改三欄 */
+            /* 附屬設備 grid 間距 */
             .equip-grid { gap: 4px 8px !important; }
-            .equip-item { width: calc(50% - 6px) !important; }
 
             /* 租案租金/坪數/車位改兩欄 */
             #rentalInfoRow { grid-template-columns: 1fr 1fr !important; }
@@ -691,7 +685,7 @@
     <div class="header-title">🏠 客戶管理</div>
     <div class="search-wrap">
         <span class="search-icon">🔍</span>
-        <input type="text" id="searchInput" placeholder="搜尋姓名、電話、社區、地址、備註…" oninput="render()">
+        <input type="text" id="searchInput" placeholder="搜尋姓名、電話、社區、地址、備註…" oninput="debouncedRender()">
     </div>
     <div class="mobile-cloud">
         <button onclick="openPerformance()">📊 業績</button>
@@ -792,8 +786,7 @@
                 <div class="bf-row">
                     <button class="bf-chip" onclick="toggleBfRoom(this,'套房')">套房</button>
                     <button class="bf-chip" onclick="toggleBfRoom(this,'二房')">二房</button>
-                    <button class="bf-chip" onclick="toggleBfRoom(this,'三房')">三房</button>
-                    <button class="bf-chip" onclick="toggleBfRoom(this,'四房')">四房</button>
+                    <button class="bf-chip" onclick="toggleBfRoom(this,'三房+')">三房+</button>
                     <button class="bf-chip" onclick="toggleBfRoom(this,'公寓')">公寓</button>
                     <button class="bf-chip" onclick="toggleBfRoom(this,'透天')">透天</button>
                     <button class="bf-chip" onclick="toggleBfRoom(this,'店辦豪土')">店辦豪土</button>
@@ -1400,7 +1393,13 @@
 <!-- 區塊 1：基礎資料（區域、郵遞區號、地址自動帶入）               -->
 <!-- ============================================================ -->
 <script>
-window.onerror = function(msg, url, line, col, err) { if (msg === 'Script error.' && line === 0) return true; alert('JS錯誤: ' + msg + '\n行號: ' + line); };
+window.onerror = function(msg, url, line, col, err) { if (msg === 'Script error.' && line === 0) return true; console.error('JS錯誤:', msg, '行號:', line, err); try { showToast('⚠️ 系統發生錯誤，請重新整理', 'error', 4000); } catch(e) {} };
+// ── 搜尋 debounce（避免每鍵觸發完整 render）──
+var _searchTimer = null;
+function debouncedRender() {
+    if (_searchTimer) clearTimeout(_searchTimer);
+    _searchTimer = setTimeout(function() { _searchTimer = null; render(); }, 300);
+}
 // ── 區域資料 ──
 const DISTRICTS = {
     '新北市': ['板橋','三重','中和','永和','新莊','新店','蘆洲','土城','五股','泰山','樹林','三峽','林口','鶯歌','淡水','汐止'],
@@ -1518,8 +1517,8 @@ Object.entries(DISTRICTS).forEach(([city, dists]) => {
     const el = document.getElementById('dg-' + city);
     if (!el) return;
     el.innerHTML = dists.map(d =>
-        `<button type="button" class="dist-btn" onclick="toggleDist(this,'${d}區')" data-dist="${d}區">${d}區</button>`
-    ).join('') + (city === '台北市' ? '' : `<button type="button" class="dist-btn" onclick="addCustomDist('${city}')" style="color:var(--muted);border-style:dashed">＋ 自訂</button>`);
+        `<button type="button" class="dist-btn" onclick="toggleDist(this,'${esc(d)}區')" data-dist="${esc(d)}區">${esc(d)}區</button>`
+    ).join('') + (city === '台北市' ? '' : `<button type="button" class="dist-btn" onclick="addCustomDist('${esc(city)}')" style="color:var(--muted);border-style:dashed">＋ 自訂</button>`);
 });
 function addCustomDist(city, presetName) {
     if (presetName) {
@@ -1648,7 +1647,7 @@ function migrateDB() {
     DB.forEach(function(c){ if (c._system) return; if (c.status === '待聯絡') c.status = ''; });
 }
 migrateDB();
-localStorage.setItem('reCRM', JSON.stringify(DB));
+try { localStorage.setItem('reCRM', JSON.stringify(DB)); } catch(e) { console.error('localStorage寫入失敗', e); }
 
 // Migration: 租案管理 → 房東 + 租客 (six independent types)
 function migrateAfterRestore() {
@@ -1749,7 +1748,7 @@ function _doMigrateRental() {
     });
     DB = DB.filter(function(c) { return !idsToRemove[c.id]; });
     newRecords.forEach(function(r) { DB.push(r); });
-    localStorage.setItem('reCRM', JSON.stringify(DB));
+    try { localStorage.setItem('reCRM', JSON.stringify(DB)); } catch(e) { console.error('localStorage寫入失敗', e); }
     localStorage.setItem('migrated_six_types_v3', '1');
 }
 // 清除所有殘留的「租案管理」標籤
@@ -1771,7 +1770,7 @@ function _cleanupRentalTags() {
     }
     if (!localStorage.getItem('migrated_six_types_v3')) _doMigrateRental();
     _cleanupRentalTags();
-    localStorage.setItem('reCRM', JSON.stringify(DB));
+    try { localStorage.setItem('reCRM', JSON.stringify(DB)); } catch(e) { console.error('localStorage寫入失敗', e); }
 })();
 // 待聯絡清除已在 migrateDB() 中處理
 
@@ -1942,8 +1941,8 @@ var _ctEls = {}, _caEls = {};
 var CLOUD_URL = 'https://script.google.com/macros/s/AKfycbyKZfyP9__lWhLjsEtSvwrfZha-7mxeYzrfFCX0fDV7je4UPPOTAEJ1b1Gl0Q2rejpf/exec';
 var _syncTimer = null;
 function persist() {
-    try { localStorage.setItem('reCRM', JSON.stringify(DB)); } catch(e) { console.error('localStorage寫入失敗', e); }
     _lastSyncJSON = JSON.stringify(DB);
+    try { localStorage.setItem('reCRM', _lastSyncJSON); } catch(e) { console.error('localStorage寫入失敗', e); }
     // 標記本機有變更，30秒內不接受雲端覆蓋（等上傳完成）
     _localDirtyUntil = Date.now() + 30000;
     // 自動雲端同步（延遲3秒，避免連續操作重複上傳）
@@ -2050,8 +2049,8 @@ var _lastSyncJSON = JSON.stringify(DB);
 var _localDirtyUntil = 0; // 本機有未上傳的變更時，暫停拉雲端
 function startAutoCheck() {
     if (_checkTimer) clearInterval(_checkTimer);
-    // 頁面載入3秒後自動拉雲端
-    setTimeout(autoFetchCloud, 3000);
+    // 頁面載入5秒後自動拉雲端（避免和 autoSync 的 3 秒延遲競爭）
+    setTimeout(autoFetchCloud, 5000);
     _checkTimer = setInterval(autoFetchCloud, 5 * 60 * 1000);
 }
 function autoFetchCloud() {
@@ -2154,21 +2153,23 @@ function autoFetchCloud() {
                 DB = cloudData;
                 migrateDB();
                 _lastSyncJSON = JSON.stringify(DB);
-                localStorage.setItem('reCRM', _lastSyncJSON);
+                try { localStorage.setItem('reCRM', _lastSyncJSON); } catch(e) { console.error('localStorage寫入失敗', e); }
                 render();
                 // 同步業績紀錄
                 if (cloudPerf) {
                     _perfRecords = cloudPerf;
-                    localStorage.setItem('perfRecords', JSON.stringify(_perfRecords));
+                    try { localStorage.setItem('perfRecords', JSON.stringify(_perfRecords)); } catch(e) { console.error('localStorage寫入失敗', e); }
                 }
                 var status = document.getElementById('cloudStatus');
                 if (status) status.textContent = '☁️ 已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + DB.filter(function(c){return !c._system;}).length + '筆）';
             }
-        } catch(e) {}
+        } catch(e) { console.error('雲端同步解析失敗:', e); }
     };
     script.src = CLOUD_URL + '?callback=' + cbName + '&t=' + Date.now();
     script.onerror = function() { delete window[cbName]; if (script.parentNode) script.parentNode.removeChild(script); };
     document.body.appendChild(script);
+    // 逾時清理：避免 JSONP 掛起導致 callback 閉包永久洩漏
+    setTimeout(function() { if (window[cbName]) { delete window[cbName]; if (script.parentNode) script.parentNode.removeChild(script); } }, 30000);
 }
 startAutoCheck();
 window.addEventListener('beforeunload', function() { if(_checkTimer) clearInterval(_checkTimer); if(_syncTimer) clearTimeout(_syncTimer); });
@@ -2626,7 +2627,8 @@ function initCommunityAC(input) {
         if (!filtered.length) { hide(); return; }
         if (!list) { list = document.createElement('div'); list.className = 'ac-list'; input.parentElement.appendChild(list); }
         list.innerHTML = filtered.slice(0, 8).map(function(n) {
-            var hl = n.replace(new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi'), '<b>$1</b>');
+            var safe = esc(n);
+            var hl = safe.replace(new RegExp('(' + esc(q).replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi'), '<b>$1</b>');
             return '<div class="ac-item">' + hl + '</div>';
         }).join('');
         list.querySelectorAll('.ac-item').forEach(function(item) {
@@ -2753,7 +2755,8 @@ function formatBankAccount(el) {
 function autoBankCode(el) {
     var name = el.value.trim();
     if (!name) return;
-    var codeEl = el.closest('div[style*="grid"]').querySelector('[id*="bankCode"],[id*="BankCode"],[data-f="bankCode"]');
+    var gridEl = el.closest('div[style*="grid"]'); if (!gridEl) return;
+    var codeEl = gridEl.querySelector('[id*="bankCode"],[id*="BankCode"],[data-f="bankCode"]');
     if (!codeEl) return;
     for (var i = 0; i < BANK_MAP.length; i++) {
         var row = BANK_MAP[i];
@@ -3258,16 +3261,27 @@ function renderDashboard() {
     var today = localDateISO(now);
     var thisMonth = today.slice(0,7);
 
-    // 數據卡片
+    // 數據卡片（單次遍歷計算所有類型數量）
     var dashDB = DB.filter(function(c){ return !c._deleted && !c.archived && !c._system; });
+    var _dc = {'經營買方':0,'庫存屋主':0,'房東':0,'租客':0,'成交客戶':0,'商機募集':0,'thisMonth':0};
+    dashDB.forEach(function(c) {
+        var t = getTypes(c);
+        if (t.includes('經營買方')) _dc['經營買方']++;
+        if (t.includes('庫存屋主')) _dc['庫存屋主']++;
+        if (t.includes('房東')) _dc['房東']++;
+        if (t.includes('租客')) _dc['租客']++;
+        if (t.includes('成交客戶')) _dc['成交客戶']++;
+        if (t.includes('商機募集')) _dc['商機募集']++;
+        if ((c.created||'').slice(0,7)===thisMonth) _dc['thisMonth']++;
+    });
     var counts = [
-        { label:'買方', num: dashDB.filter(c=>hasType(c,'經營買方')).length, color:'#1D4ED8', filter:'經營買方' },
-        { label:'庫存', num: dashDB.filter(c=>hasType(c,'庫存屋主')).length, color:'#065F46', filter:'庫存屋主' },
-        { label:'房東', num: dashDB.filter(c=>hasType(c,'房東')).length, color:'#0E7490', filter:'房東' },
-        { label:'租客', num: dashDB.filter(c=>hasType(c,'租客')).length, color:'#9D174D', filter:'租客' },
-        { label:'成交', num: dashDB.filter(c=>hasType(c,'成交客戶')).length, color:'#92400E', filter:'成交客戶' },
-        { label:'商機', num: dashDB.filter(c=>hasType(c,'商機募集')).length, color:'#991B1B', filter:'商機募集' },
-        { label:'本月新增', num: dashDB.filter(c=>(c.created||'').slice(0,7)===thisMonth).length, color:'#0891B2', filter:'', action:'thisMonth' }
+        { label:'買方', num:_dc['經營買方'], color:'#1D4ED8', filter:'經營買方' },
+        { label:'庫存', num:_dc['庫存屋主'], color:'#065F46', filter:'庫存屋主' },
+        { label:'房東', num:_dc['房東'], color:'#0E7490', filter:'房東' },
+        { label:'租客', num:_dc['租客'], color:'#9D174D', filter:'租客' },
+        { label:'成交', num:_dc['成交客戶'], color:'#92400E', filter:'成交客戶' },
+        { label:'商機', num:_dc['商機募集'], color:'#991B1B', filter:'商機募集' },
+        { label:'本月新增', num:_dc['thisMonth'], color:'#0891B2', filter:'', action:'thisMonth' }
     ];
     document.getElementById('dashCards').innerHTML = counts.map(function(item) {
         var click = '';
@@ -3286,7 +3300,7 @@ function renderDashboard() {
         return items.length ? items.map(function(c) {
             var d = daysUntilExpire(c[dateField]);
             var label = d < 0 ? '已過期'+Math.abs(d)+'天' : d===0 ? '今天到期' : '剩'+d+'天';
-            return '<div class="dash-item" onclick="showDet(\''+c.id+'\')" style="cursor:pointer">' +
+            return '<div class="dash-item" onclick="showDet(\''+esc(c.id)+'\')" style="cursor:pointer">' +
                 '<span class="dash-item-info" style="color:'+(d<=0?'#EF4444':'')+'">'+label+'</span>' +
                 '<span class="dash-item-name">'+esc(c.name)+'<span style="font-weight:400;color:#64748B"> · '+esc(infoFn(c))+'</span></span></div>';
         }).join('') : '<div class="dash-empty">'+emptyMsg+'</div>';
@@ -3325,7 +3339,7 @@ function renderDashboard() {
         var dayLabel = s.days === 0 ? '今天' : s.days + '天後';
         var nameHtml = s.personal
             ? '<span style="flex:1"></span>'
-            : '<span class="dash-item-name" style="cursor:pointer" onclick="showDet(\''+s.id+'\')">'+esc(s.name)+(s.community?'<span style="font-weight:400;color:#64748B"> · '+esc(s.community)+'</span>':'')+'</span>';
+            : '<span class="dash-item-name" style="cursor:pointer" onclick="showDet(\''+esc(s.id)+'\')">'+esc(s.name)+(s.community?'<span style="font-weight:400;color:#64748B"> · '+esc(s.community)+'</span>':'')+'</span>';
         var editBtn = s.personal
             ? '<button class="btn-ic" onclick="editPersonalSchedule('+s.psIdx+')" title="編輯" style="font-size:13px;padding:2px 4px">✏️</button>'
             : '<button class="btn-ic" onclick="editDashSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\',this)" title="編輯" style="font-size:13px;padding:2px 4px">✏️</button>';
@@ -3391,9 +3405,9 @@ function renderDashboard() {
         if (b.date) { var by = parseInt(b.date.substring(0,4)); if(by>0) { age = '（'+(now.getFullYear()-by)+'歲）'; } }
         return '<div class="dash-item" style="cursor:pointer;flex-wrap:nowrap">' +
             '<span class="dash-item-info" style="color:'+(b.days===0?'#EF4444':'')+'">'+esc(isoToMDW(b.date))+'</span>' +
-            '<span class="dash-item-name" onclick="showDet(\''+b.id+'\')" style="white-space:nowrap">'+(b.who?esc(b.who)+'<span style="font-weight:400;color:#64748B">（'+esc(b.name)+'）</span>':esc(b.name))+'</span>' +
+            '<span class="dash-item-name" onclick="showDet(\''+esc(b.id)+'\')" style="white-space:nowrap">'+(b.who?esc(b.who)+'<span style="font-weight:400;color:#64748B">（'+esc(b.name)+'）</span>':esc(b.name))+'</span>' +
             '<span style="font-size:12px;color:#64748B;white-space:nowrap;flex-shrink:0">'+esc(isoToROC(b.date))+esc(age)+'</span>' +
-            '<button class="btn-ic" onclick="event.stopPropagation();_dismissAlert(\''+b.dismissKey+'\')" title="已祝福" style="font-size:13px;padding:2px 4px;flex-shrink:0">✅</button></div>';
+            '<button class="btn-ic" onclick="event.stopPropagation();_dismissAlert(\''+esc(b.dismissKey)+'\')" title="已祝福" style="font-size:13px;padding:2px 4px;flex-shrink:0">✅</button></div>';
     }).join('') : '<div class="dash-empty">近7天內沒有客戶生日</div>';
 
     // 手機版：近期行程固定最上面，其餘依最近期日期排序
@@ -3419,20 +3433,29 @@ function renderDashboard() {
 
 function render() {
     rebuildDbMap();
-    var liveDB = DB.filter(function(c){ return !c._deleted && !c._system; });
-    document.getElementById('ct-all').textContent = liveDB.filter(c=>!c.archived).length;
-    var trashN = DB.filter(function(c){ return c._deleted && !c._system; }).length;
-    document.getElementById('trashCount').textContent = trashN ? '('+trashN+')' : '';
+    // 單次遍歷計算所有計數（避免 TYPES.length * 2 次重複 filter）
+    var _allActive = 0, _trashN = 0;
+    var _typeActive = {}, _typeArch = {};
+    TYPES.forEach(function(t){ _typeActive[t]=0; _typeArch[t]=0; });
+    DB.forEach(function(c) {
+        if (c._system) return;
+        if (c._deleted) { _trashN++; return; }
+        var types = getTypes(c);
+        if (!c.archived) { _allActive++; types.forEach(function(t){ if(_typeActive[t]!==undefined) _typeActive[t]++; }); }
+        else { types.forEach(function(t){ if(_typeArch[t]!==undefined) _typeArch[t]++; }); }
+    });
+    document.getElementById('ct-all').textContent = _allActive;
+    document.getElementById('trashCount').textContent = _trashN ? '('+_trashN+')' : '';
     TYPES.forEach(t => {
-        var active = liveDB.filter(c => hasType(c,t) && !c.archived).length;
-        var arch = liveDB.filter(c => hasType(c,t) && c.archived).length;
+        var active = _typeActive[t];
+        var arch = _typeArch[t];
         var ctEl = _ctEls[t] || (_ctEls[t] = document.getElementById('ct-'+t));
         if (ctEl) ctEl.textContent = active;
         var archEl = _caEls[t] || (_caEls[t] = document.getElementById('ca-'+t));
         if (archEl) archEl.textContent = arch ? '（封存 '+arch+'）' : '';
     });
     // 封存切換按鈕：僅在可封存的類型頁面顯示
-    var showToggle = ARCHIVABLE.includes(curFilter) && DB.some(c => hasType(c,curFilter) && c.archived);
+    var showToggle = ARCHIVABLE.includes(curFilter) && (_typeArch[curFilter] || 0) > 0;
     document.getElementById('archiveToggle').style.display = showToggle ? '' : 'none';
 
     // 總覽 vs 列表切換
@@ -3448,11 +3471,11 @@ function render() {
     var expiring = [];
     if (curFilter === '庫存屋主') {
         expiring = DB.filter(function(c) {
-            return !c.archived && hasType(c,'庫存屋主') && c.contractEnd && daysUntilExpire(c.contractEnd)<=15;
+            return !c._deleted && !c._system && !c.archived && hasType(c,'庫存屋主') && c.contractEnd && daysUntilExpire(c.contractEnd)<=15;
         });
     } else if (curFilter === '房東') {
         expiring = DB.filter(function(c) {
-            return !c.archived && hasType(c,'房東') && c.rEndDate && isRentalExpiring(c.rEndDate);
+            return !c._deleted && !c._system && !c.archived && hasType(c,'房東') && c.rEndDate && isRentalExpiring(c.rEndDate);
         });
     }
     var banner = document.getElementById('expireBanner');
@@ -3465,7 +3488,7 @@ function render() {
             var days = daysUntilExpire(endDate);
             var label = days < 0 ? '已過期 ' + Math.abs(days) + ' 天' : days === 0 ? '今天到期' : '剩餘 ' + days + ' 天';
             var info = isRent ? (c.rCommunity || c.rAddr || '') : (c.community || c.sAddr || '');
-            return '<div class="expire-item" onclick="showDet(\'' + c.id + '\')">' +
+            return '<div class="expire-item" onclick="showDet(\'' + esc(c.id) + '\')">' +
                 esc(c.name) + '（' + esc(info) + '）— ' + label +
                 '（到期日：' + esc(isoToROC(endDate)) + '）</div>';
         }).join('');
@@ -3558,7 +3581,7 @@ function renderCard(c) {
 
         // 標籤渲染（使用 cc 取得合併後的等級資料）
         const typeTags = displayTypes.map(t => {
-            if (t === '經營買方' && (cc.bGrade || c.bGrade)) { var _bg = cc.bGrade || c.bGrade; return `<span class="tag grade-tag-${_bg.toLowerCase()}">${_bg}級買方</span>`; }
+            if (t === '經營買方' && (cc.bGrade || c.bGrade)) { var _bg = cc.bGrade || c.bGrade; return `<span class="tag grade-tag-${esc(_bg).toLowerCase()}">${esc(_bg)}級買方</span>`; }
             if (t === '庫存屋主') {
                 var _spG = '';
                 var _spSrc = cc.sProperties || c.sProperties;
@@ -3567,11 +3590,11 @@ function renderCard(c) {
                     else { var _go = {A:0,B:1,C:2}; var _sorted = _spSrc.slice().sort(function(a,b){ return ((_go[a.grade]!==undefined?_go[a.grade]:3))-((_go[b.grade]!==undefined?_go[b.grade]:3)); }); _spG = _sorted[0].grade || ''; }
                 }
                 if (!_spG) _spG = cc.sGrade || c.sGrade || '';
-                if (_spG) return `<span class="tag grade-tag-${_spG.toLowerCase()}">${_spG}級庫存</span>`;
+                if (_spG) return `<span class="tag grade-tag-${esc(_spG).toLowerCase()}">${esc(_spG)}級庫存</span>`;
             }
-            return `<span class="tag t-${TC[t]||'buyer'}">${TYPE_DISPLAY[t]||t}</span>`;
+            return `<span class="tag t-${TC[t]||'buyer'}">${esc(TYPE_DISPLAY[t]||t)}</span>`;
         }).join('');
-        const statusTag = !cTypes.includes('經營買方') && c.status ? `<span class="tag s-${c.status}">${c.status}</span>` : '';
+        const statusTag = !cTypes.includes('經營買方') && c.status ? `<span class="tag s-${esc(c.status)}">${esc(c.status)}</span>` : '';
         const notesText = (getTypeNote(c, showType) || (curFilter==='all' ? getAllNotes(c) : getTypeNote(c, curFilter)) || '').trim();
         const dateLabel = c.lastContact ? '📞 '+relTime(c.lastContact) : '';
         const createdLabel = c.created ? '建檔 '+isoToROC((c.created||'').slice(0,10)) : '';
@@ -3812,8 +3835,8 @@ function renderCard(c) {
         const archivedTag = c.archived ? `<span class="tag tag-archived">${esc(c.archiveReason || '已封存')}</span>` : '';
         const archBtn = cTypes.some(t => ARCHIVABLE.includes(t))
             ? (c.archived
-                ? `<button class="btn-ic" onclick="event.stopPropagation();unarchiveClient('${c.id}')" title="解除封存">📤</button>`
-                : `<button class="btn-ic" onclick="event.stopPropagation();archiveClient('${c.id}')" title="封存">📥</button>`)
+                ? `<button class="btn-ic" onclick="event.stopPropagation();unarchiveClient('${esc(c.id)}')" title="解除封存">📤</button>`
+                : `<button class="btn-ic" onclick="event.stopPropagation();archiveClient('${esc(c.id)}')" title="封存">📥</button>`)
             : '';
 
         // 租案卡片：根據 _viewAs 顯示不同名字和標籤
@@ -3940,7 +3963,7 @@ function typeDetail(origC, viewAs) {
     }
     if (c.type==='經營買方') {
         var rows = [
-            (c.bGrade ? `<div class="det-row"><span class="det-key">客戶等級</span><span class="det-val"><span class="tag grade-tag-${c.bGrade.toLowerCase()}" style="font-size:14px;padding:3px 12px">${c.bGrade}級</span></span></div>` : '')
+            (c.bGrade ? `<div class="det-row"><span class="det-key">客戶等級</span><span class="det-val"><span class="tag grade-tag-${esc(c.bGrade).toLowerCase()}" style="font-size:14px;padding:3px 12px">${esc(c.bGrade)}級</span></span></div>` : '')
         ];
         var demands = c.bDemands && c.bDemands.length ? c.bDemands : null;
         function _renderBd(bd) {
@@ -3984,7 +4007,7 @@ function typeDetail(origC, viewAs) {
         // 渲染單間物件區塊
         function renderSpBlock(sp) {
             var r = [];
-            if (sp.grade) r.push('<div class="det-row"><span class="det-key">物件等級</span><span class="det-val"><span class="tag grade-tag-'+sp.grade.toLowerCase()+'" style="font-size:14px;padding:3px 12px">'+sp.grade+'級</span></span></div>');
+            if (sp.grade) r.push('<div class="det-row"><span class="det-key">物件等級</span><span class="det-val"><span class="tag grade-tag-'+esc(sp.grade).toLowerCase()+'" style="font-size:14px;padding:3px 12px">'+esc(sp.grade)+'級</span></span></div>');
             r.push(dRow('約種',sp.contractType||''));
             r.push(dRow('社區大樓',sp.community||''));
             r.push(dRow('物件地址',sp.addr||''));
@@ -4337,8 +4360,8 @@ function showDet(id, viewAs) {
     var detDisplayTypes = cTypes.slice();
     var primaryType = detDisplayTypes[0] || cTypes[0];
     const tc = TC[primaryType]||'buyer';
-    const statusTag = !cTypes.includes('經營買方') && c.status ? `<span class="tag s-${c.status}">${c.status}</span>` : '';
-    const detTypeTags = detDisplayTypes.map(t => `<span class="tag t-${TC[t]||'buyer'}">${TYPE_DISPLAY[t]||t}</span>`).join('');
+    const statusTag = !cTypes.includes('經營買方') && c.status ? `<span class="tag s-${esc(c.status)}">${esc(c.status)}</span>` : '';
+    const detTypeTags = detDisplayTypes.map(t => `<span class="tag t-${TC[t]||'buyer'}">${esc(TYPE_DISPLAY[t]||t)}</span>`).join('');
     // 為每個類型產生詳細資料（當前篩選的類型排前面）
     var orderedTypes = (detViewAs === 'tenant' || detViewAs === 'landlord') ? detDisplayTypes.slice() : cTypes.slice();
     if (curFilter !== 'all' && orderedTypes.includes(curFilter)) {
@@ -4359,7 +4382,7 @@ function showDet(id, viewAs) {
         var typeBg = {'經營買方':'#EDE8E0','庫存屋主':'#E0EBE0','房東':'#CFFAFE','租客':'#FCE7F3','租案管理':'#E8E3ED','成交客戶':'#F0E6D6','商機募集':'#EAE3DE'}[t] || '#F5F5F4';
         var collapseId = 'collapse_' + idx;
         allTd += `<div class="det-sec" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:${typeBg};color:${typeColor};padding:8px 10px;border-radius:6px;margin:-2px -4px 6px;border:none;opacity:${isOpen?'1':'0.8'}" onclick="var el=document.getElementById('${collapseId}');var ar=this.querySelector('.collapse-arrow');if(el.style.display==='none'){el.style.display='';ar.textContent='▼';this.style.opacity='1'}else{el.style.display='none';ar.textContent='▶';this.style.opacity='0.8'}">
-            <span>${TYPE_DISPLAY[t]||t}資料${isOpen?'':'（點擊展開）'}</span><span class="collapse-arrow" style="font-size:11px">${isOpen?'▼':'▶'}</span>
+            <span>${esc(TYPE_DISPLAY[t]||t)}資料${isOpen?'':'（點擊展開）'}</span><span class="collapse-arrow" style="font-size:11px">${isOpen?'▼':'▶'}</span>
         </div><div id="${collapseId}" style="display:${isOpen?'':'none'}">${td}</div>`;
     });
     document.getElementById('detContent').innerHTML = `
@@ -4733,7 +4756,7 @@ function renewSpContract(btn) {
     var block = btn.closest('.person-block'); if (!block) return;
     var endInput = block.querySelector('[data-f="contractEnd"]');
     var startInput = block.querySelector('[data-f="contractStart"]');
-    if (!endInput || !endInput.value.trim()) { alert('請先填寫到期日'); return; }
+    if (!endInput || !endInput.value.trim()) { showToast('請先填寫到期日', 'warn'); return; }
     var oldEnd = endInput.value.trim();
     var oldEndISO = rocToISO(oldEnd);
 
@@ -5068,7 +5091,7 @@ function showDetailSzView(id) {
 var sRenewals = [];
 function renewContract() {
     var oldEnd = document.getElementById('f-contractEnd').value;
-    if (!oldEnd) { alert('請先填寫到期日'); return; }
+    if (!oldEnd) { showToast('請先填寫到期日', 'warn'); return; }
 
     // 用一個隱藏的 input 當 calTarget
     var fakeInput = document.createElement('input');
@@ -5224,7 +5247,7 @@ function addBuyerDemand(data) {
     var selDists = d.areaDists || [];
     var selRooms = (d.roomTypes||'').split(',').filter(Boolean);
     var cities = ['新北市','台北市','其他縣市'];
-    var rooms = ['套房','二房','三房','四房','公寓','透天','店辦豪土'];
+    var rooms = ['套房','二房','三房+','公寓','透天','店辦豪土'];
     // 區域 HTML
     var distHtml = '';
     Object.keys(DISTRICTS).forEach(function(city){
@@ -5235,7 +5258,7 @@ function addBuyerDemand(data) {
             '<div class="dist-grid">';
         dists.forEach(function(dist){
             var dn = dist+'區';
-            distHtml += '<button type="button" class="dist-btn'+(selDists.includes(dn)?' on':'')+'" data-dist="'+dn+'" onclick="toggleBdDist(this)">'+dn+'</button>';
+            distHtml += '<button type="button" class="dist-btn'+(selDists.includes(dn)?' on':'')+'" data-dist="'+esc(dn)+'" onclick="toggleBdDist(this)">'+esc(dn)+'</button>';
         });
         distHtml += '</div></div>';
     });
@@ -5247,13 +5270,13 @@ function addBuyerDemand(data) {
         // 需求區域
         '<div class="fg full" style="margin-bottom:6px">' +
             '<label style="font-size:12px;margin-bottom:6px">需求區域</label>' +
-            '<div class="city-picker">'+cities.map(function(c){ return '<button type="button" class="city-btn'+(selCities.includes(c)?' on':'')+'" onclick="pickBdCity(this,\''+c+'\')">'+c+'</button>'; }).join('')+'</div>' +
+            '<div class="city-picker">'+cities.map(function(c){ return '<button type="button" class="city-btn'+(selCities.includes(c)?' on':'')+'" onclick="pickBdCity(this,\''+esc(c)+'\')">'+esc(c)+'</button>'; }).join('')+'</div>' +
             distHtml +
         '</div>' +
         // 房型需求
         '<div class="fg full" style="margin-bottom:6px">' +
             '<label style="font-size:12px;margin-bottom:6px">房型需求（可複選）</label>' +
-            '<div class="room-picker">'+rooms.map(function(r){ return '<button type="button" class="rm-btn'+(selRooms.includes(r)?' on':'')+'" onclick="toggleBdRoom(this)">'+r+'</button>'; }).join('')+'</div>' +
+            '<div class="room-picker">'+rooms.map(function(r){ return '<button type="button" class="rm-btn'+(selRooms.includes(r)?' on':'')+'" onclick="toggleBdRoom(this)">'+esc(r)+'</button>'; }).join('')+'</div>' +
         '</div>' +
         // 預算
         '<div style="display:flex;gap:6px;align-items:end;margin-bottom:6px;min-width:0">' +
@@ -5332,8 +5355,10 @@ function addBAddrRow(data) {
 function getBAddrs() {
     var r = [];
     document.querySelectorAll('#bAddrList .c-row').forEach(function(row) {
-        var type = row.querySelector('select').value;
-        var addr = row.querySelector('input').value.trim();
+        var selEl = row.querySelector('select');
+        var inpEl = row.querySelector('input');
+        var type = selEl ? selEl.value : '';
+        var addr = inpEl ? inpEl.value.trim() : '';
         if (addr) r.push({ type:type, addr:addr });
     });
     return r;
@@ -5438,7 +5463,7 @@ function addCustomEquip(data) {
     var html = '<div class="c-row" id="ceq-'+customEquipId+'" style="width:calc(33.3% - 3px)">' +
         '<input type="checkbox" style="width:13px;height:13px;accent-color:var(--wood);flex-shrink:0" ' + (d.checked?'checked':'') + '>' +
         '<input type="text" style="flex:1;min-width:0;padding:3px 6px;font-size:12px" value="'+esc(d.name||'')+'">' +
-        '<input type="number" min="0" value="'+(d.qty||'')+'" style="width:36px;min-width:36px;flex-shrink:0;padding:3px 2px;border:1px solid var(--border);border-radius:4px;font-size:11px;text-align:center">' +
+        '<input type="number" min="0" value="'+esc(d.qty||'')+'" style="width:36px;min-width:36px;flex-shrink:0;padding:3px 2px;border:1px solid var(--border);border-radius:4px;font-size:11px;text-align:center">' +
         '<input type="text" style="width:30px;min-width:0;padding:3px 4px;font-size:11px" value="'+esc(d.unit||'')+'">' +
         '<button type="button" class="c-del" onclick="this.parentElement.remove()" style="font-size:11px">✕</button></div>';
     var el = document.getElementById('equipCustomList'); if(el) el.insertAdjacentHTML('beforeend', html);
@@ -5704,7 +5729,7 @@ function buildRpEquipHtml(equipData) {
         checked.concat(unchecked).forEach(function(item) {
             var name = item[0], unit = item[1];
             var isChecked = ed[name] !== undefined;
-            html += '<div class="equip-item'+(isChecked?' eq-checked':'')+'"><input type="checkbox" data-eq-name="'+esc(name)+'"'+(isChecked?' checked':'')+' onchange="toggleEqHighlight(this);sortRpEquipCat(this)"><span>'+esc(name)+'</span><input type="number" min="0" value="'+(isChecked?ed[name]:'')+'" placeholder="" style="width:28px" oninput="updateRpEquipSummary(this)"><span style="color:var(--muted);font-size:11px">'+esc(unit)+'</span></div>';
+            html += '<div class="equip-item'+(isChecked?' eq-checked':'')+'"><input type="checkbox" data-eq-name="'+esc(name)+'"'+(isChecked?' checked':'')+' onchange="toggleEqHighlight(this);sortRpEquipCat(this)"><span>'+esc(name)+'</span><input type="number" min="0" value="'+esc(isChecked?ed[name]:'')+'" placeholder="" style="width:28px" oninput="updateRpEquipSummary(this)"><span style="color:var(--muted);font-size:11px">'+esc(unit)+'</span></div>';
         });
         html += '</div>';
     });
@@ -5727,7 +5752,7 @@ function addRpCustomEquip(btn, data) {
     var html = '<div class="equip-item'+(d.checked?' eq-checked':'')+'">' +
         '<input type="checkbox" onchange="toggleEqHighlight(this)"'+(d.checked?' checked':'')+'>' +
         '<input type="text" placeholder="項目名稱" value="'+esc(d.name||'')+'" style="width:80px;min-width:60px;padding:4px 6px;font-size:13px;border:1px solid var(--border);border-radius:6px">' +
-        '<input type="number" min="0" value="'+(d.qty||'')+'" style="width:36px;min-width:36px;padding:4px 2px;border:1px solid var(--border);border-radius:6px;font-size:13px;text-align:center;-moz-appearance:textfield;appearance:textfield" oninput="updateRpEquipSummary(this)">' +
+        '<input type="number" min="0" value="'+esc(d.qty||'')+'" style="width:36px;min-width:36px;padding:4px 2px;border:1px solid var(--border);border-radius:6px;font-size:13px;text-align:center;-moz-appearance:textfield;appearance:textfield" oninput="updateRpEquipSummary(this)">' +
         '<input type="text" placeholder="單位" value="'+esc(d.unit||'')+'" style="width:40px;min-width:40px;padding:4px 4px;font-size:11px;color:var(--muted);border:1px solid var(--border);border-radius:6px;text-align:center" oninput="updateRpEquipSummary(this)">' +
         '<button type="button" class="c-del" onclick="var p=this.parentElement;var b=p.closest(\'.person-block\');p.remove();updateRpEquipSummary(b)" style="font-size:11px;flex-shrink:0">✕</button></div>';
     list.insertAdjacentHTML('beforeend', html);
@@ -5774,7 +5799,7 @@ function renewRpContract(btn) {
     var block = btn.closest('.person-block'); if (!block) return;
     var endInput = block.querySelector('[data-f="endDate"]');
     var startInput = block.querySelector('[data-f="startDate"]');
-    if (!endInput || !endInput.value.trim()) { alert('請先填寫到期日'); return; }
+    if (!endInput || !endInput.value.trim()) { showToast('請先填寫到期日', 'warn'); return; }
     var oldEnd = endInput.value.trim();
     var oldEndISO = rocToISO(oldEnd);
     var oldStart = startInput.value.trim();
@@ -5903,8 +5928,12 @@ function openTimePicker(inputEl) {
     function highlightCol(wrap) {
         var mid = wrap.scrollTop + 90;
         var items = wrap.querySelectorAll('[data-val]');
-        items.forEach(function(el) {
-            var top = el.offsetTop, bot = top + itemH;
+        // 批量讀取 offsetTop（避免 Layout Thrashing）
+        var tops = [];
+        items.forEach(function(el) { tops.push(el.offsetTop); });
+        // 批量寫入 style
+        items.forEach(function(el, i) {
+            var top = tops[i], bot = top + itemH;
             if (top <= mid && bot > mid) {
                 el.style.background = '#E0F2FE'; el.style.fontWeight = '700'; el.style.color = '#0891B2';
             } else {
@@ -5914,8 +5943,10 @@ function openTimePicker(inputEl) {
     }
     buildCol(hWrap, 24, selH);
     buildCol(mWrap, 60, selM);
-    hWrap.addEventListener('scroll', function() { highlightCol(hWrap); });
-    mWrap.addEventListener('scroll', function() { highlightCol(mWrap); });
+    var _hlRaf = null;
+    function throttledHighlight(wrap) { if (_hlRaf) return; _hlRaf = requestAnimationFrame(function() { _hlRaf = null; highlightCol(wrap); }); }
+    hWrap.addEventListener('scroll', function() { throttledHighlight(hWrap); }, { passive: true });
+    mWrap.addEventListener('scroll', function() { throttledHighlight(mWrap); }, { passive: true });
     hWrap.addEventListener('click', function(e) { var v = e.target.closest('[data-val]'); if (v) { hWrap.scrollTo({top: parseInt(v.dataset.val)*itemH-(180-itemH)/2, behavior:'smooth'}); } });
     mWrap.addEventListener('click', function(e) { var v = e.target.closest('[data-val]'); if (v) { mWrap.scrollTo({top: parseInt(v.dataset.val)*itemH-(180-itemH)/2, behavior:'smooth'}); } });
     function getVal(wrap) {
@@ -6196,7 +6227,7 @@ function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo, prefillT
         if (!date && prefillDate && dateVal === isoToROC(prefillDate)) date = prefillDate;
         var time = document.getElementById('qs-time').value;
         var memo = document.getElementById('qs-memo').value.trim();
-        if (!date) { alert('請選擇日期'); return; }
+        if (!date) { showToast('請選擇日期', 'warn'); return; }
         if (!c.schedules) c.schedules = [];
         // 如果是編輯模式（有 prefillDate），先移除舊的
         if (prefillDate) {
@@ -6204,7 +6235,7 @@ function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo, prefillT
                 return !(s.date === prefillDate && (s.time||'') === (prefillTime||''));
             });
         }
-        var _qsType = document.getElementById('qs-type') ? document.getElementById('qs-type').value : '';
+        var _qsTypeEl = document.getElementById('qs-type'); var _qsType = _qsTypeEl ? _qsTypeEl.value : '';
         c.schedules.push({ date:date, time:time, memo:memo, schedType:_qsType });
         persist();
         overlay.remove();
@@ -6315,7 +6346,7 @@ function addPersonalSchedule(prefillIdx) {
         var date = rocToISO(document.getElementById('ps-date').value);
         var time = document.getElementById('ps-time').value;
         var memo = document.getElementById('ps-memo').value.trim();
-        if (!date) { alert('請選擇日期'); return; }
+        if (!date) { showToast('請選擇日期', 'warn'); return; }
         var arr = _getPS();
         if (editing) { arr[prefillIdx] = { date:date, time:time, memo:memo }; }
         else { arr.push({ date:date, time:time, memo:memo }); }
@@ -6406,7 +6437,7 @@ function showAllSchedules() {
 }
 
 function filterAllSchedList() {
-    var q = (document.getElementById('all-sched-search') ? document.getElementById('all-sched-search').value : '').trim().toLowerCase();
+    var _asEl = document.getElementById('all-sched-search'); var q = (_asEl ? _asEl.value : '').trim().toLowerCase();
     var all = _getAllFutureSchedules();
     var filtered = q ? all.filter(function(s) {
         return (s.clientName||'').toLowerCase().includes(q) || (s.memo||'').toLowerCase().includes(q);
@@ -6465,7 +6496,7 @@ function showDoneSchedules() {
 }
 
 function filterDoneList() {
-    var q = (document.getElementById('done-search') ? document.getElementById('done-search').value : '').trim().toLowerCase();
+    var _dsEl = document.getElementById('done-search'); var q = (_dsEl ? _dsEl.value : '').trim().toLowerCase();
     var list = _getDoneSchedules();
     var filtered = q ? list.filter(function(d) {
         return (d.clientName||'').toLowerCase().includes(q) || (d.memo||'').toLowerCase().includes(q);
@@ -6664,7 +6695,7 @@ function openDriveFolder(clientId, viewAs) {
         all = all.filter(function(a){ return allowTypes.includes(a.type); });
     }
     if (!all.length) {
-        alert('此客戶尚無物件資料，請先新增物件');
+        showToast('此客戶尚無物件資料，請先新增物件', 'warn');
         return;
     }
     var withUrl = all.filter(function(a){ return a.url; });
@@ -6685,11 +6716,11 @@ function openDriveFolder(clientId, viewAs) {
         if (a.url) {
             html += '<div style="display:flex;gap:6px;margin-bottom:6px">' +
                 '<button type="button" style="flex:1;text-align:left;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px" onclick="window.open(\''+esc(a.url)+'\',\'_blank\')">📂 '+tag+esc(a.label)+'</button>' +
-                '<button type="button" style="padding:10px 8px;border:1px solid var(--border);border-radius:8px;background:var(--bg);cursor:pointer;font-size:11px;color:var(--muted)" onclick="cardSetDriveFolder(\''+esc(clientId)+'\',\''+a.src+'\','+a.idx+')">重設</button>' +
-                '<button type="button" style="padding:10px 8px;border:1px solid var(--border);border-radius:8px;background:var(--bg);cursor:pointer;font-size:11px;color:#EF4444" onclick="cardDelDriveFolder(\''+esc(clientId)+'\',\''+a.src+'\','+a.idx+',\''+esc(a.urlKey)+'\')">刪除</button>' +
+                '<button type="button" style="padding:10px 8px;border:1px solid var(--border);border-radius:8px;background:var(--bg);cursor:pointer;font-size:11px;color:var(--muted)" onclick="cardSetDriveFolder(\''+esc(clientId)+'\',\''+esc(a.src)+'\','+parseInt(a.idx)||0+')">重設</button>' +
+                '<button type="button" style="padding:10px 8px;border:1px solid var(--border);border-radius:8px;background:var(--bg);cursor:pointer;font-size:11px;color:#EF4444" onclick="cardDelDriveFolder(\''+esc(clientId)+'\',\''+esc(a.src)+'\','+parseInt(a.idx)||0+',\''+esc(a.urlKey)+'\')">刪除</button>' +
             '</div>';
         } else {
-            html += '<button type="button" style="display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:6px;border:1px dashed var(--border);border-radius:8px;background:var(--bg);cursor:pointer;font-size:13px;color:var(--muted)" onclick="cardSetDriveFolder(\''+esc(clientId)+'\',\''+a.src+'\','+a.idx+')">📁 '+tag+esc(a.label)+' — 點擊設定</button>';
+            html += '<button type="button" style="display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:6px;border:1px dashed var(--border);border-radius:8px;background:var(--bg);cursor:pointer;font-size:13px;color:var(--muted)" onclick="cardSetDriveFolder(\''+esc(clientId)+'\',\''+esc(a.src)+'\','+(parseInt(a.idx)||0)+')">📁 '+tag+esc(a.label)+' — 點擊設定</button>';
         }
     });
     html += '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="display:block;width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;margin-top:4px">關閉</button>';
@@ -6775,7 +6806,7 @@ function cardSetDriveFolder(clientId, src, propIdx) {
     document.getElementById('cardFolderSaveBtn').onclick = function() {
         var url = document.getElementById('cardFolderUrl').value.trim();
         if (url && url.indexOf('drive.google.com') === -1 && url.indexOf('docs.google.com') === -1 && url.indexOf('onedrive') === -1 && url.indexOf('sharepoint') === -1) {
-            alert('請貼上有效的雲端資料夾連結');
+            showToast('請貼上有效的雲端資料夾連結', 'warn');
             return;
         }
         prop[urlKey] = url;
@@ -6820,7 +6851,7 @@ function showSameLandlord(llName, llPhone, currentId) {
         if (c.rProperties && c.rProperties.length) addr = c.rProperties[0].rAddr || c.rProperties[0].rCommunity || '';
         if (!addr) addr = c.rAddr || c.rCommunity || '';
         var isCurrent = c.id === currentId;
-        html += '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;margin-bottom:6px;border:1px solid '+(isCurrent?'#0891B2':'var(--border)')+';border-radius:8px;background:'+(isCurrent?'#ECFEFF':'white')+';cursor:pointer;font-size:13px" onclick="this.closest(\'.fill-overlay\').remove();showDetByView(\''+c.id+'\',\'landlord\')">' +
+        html += '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;margin-bottom:6px;border:1px solid '+(isCurrent?'#0891B2':'var(--border)')+';border-radius:8px;background:'+(isCurrent?'#ECFEFF':'white')+';cursor:pointer;font-size:13px" onclick="this.closest(\'.fill-overlay\').remove();showDetByView(\''+esc(c.id)+'\',\'landlord\')">' +
             '<div style="flex:1">' +
                 '<div style="font-weight:600">'+esc(ttName)+' <span style="color:#DB2777;font-size:11px">租客</span>'+(isCurrent?' <span style="color:#0891B2;font-size:11px">（目前）</span>':'')+'</div>' +
                 (addr?'<div style="color:var(--muted);font-size:12px;margin-top:2px">'+esc(addr)+'</div>':'') +
@@ -6901,9 +6932,10 @@ function getCContacts() { return getPersonBlocks('cContactList'); }
 function getCAddrs() {
     var r=[];
     document.querySelectorAll('#cAddrList .c-row').forEach(function(row) {
-        var type = row.querySelector('select').value;
+        var selEl = row.querySelector('select');
+        var type = selEl ? selEl.value : '';
         var inputs = row.querySelectorAll('input[type="text"]');
-        var zip = inputs[0].value.trim();
+        var zip = inputs[0] ? inputs[0].value.trim() : '';
         var addr = inputs[1] ? inputs[1].value.trim() : '';
         if (addr) r.push({ type:type, addr:addr, zip:zip });
     });
@@ -7597,7 +7629,7 @@ function resetForm() {
 // ── 租客：指定房東 ──
 function pickLandlord() {
     var landlords = DB.filter(function(c) { return !c._deleted && hasType(c, '房東'); });
-    if (!landlords.length) { alert('尚無房東記錄，請先新增房東'); return; }
+    if (!landlords.length) { showToast('尚無房東記錄，請先新增房東', 'warn'); return; }
     document.querySelectorAll('.fill-overlay').forEach(function(m){ m.remove(); });
     var overlay = document.createElement('div');
     overlay.className = 'fill-overlay';
@@ -7649,7 +7681,7 @@ function selectLandlord(id, propIdx) {
             var addr = p.rAddr || p.rCommunity || '未填地址';
             var rent = p.rent ? '月租 ' + p.rent : '';
             var period = p.rStartDate || p.rEndDate ? (isoToROC(p.rStartDate||'') + ' ~ ' + isoToROC(p.rEndDate||'')) : '';
-            html += '<button type="button" onclick="selectLandlord(\'' + id + '\',' + i + ')" style="display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:4px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px">';
+            html += '<button type="button" onclick="selectLandlord(\'' + esc(id) + '\',' + i + ')" style="display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:4px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px">';
             html += '<div style="font-weight:700">📍 ' + esc(addr) + '</div>';
             if (rent) html += '<div style="font-size:12px;color:var(--muted)">' + esc(rent) + '</div>';
             if (period) html += '<div style="font-size:12px;color:var(--muted)">' + esc(period) + '</div>';
@@ -7727,7 +7759,7 @@ function showLinkedTenants(landlordId) {
         if (propInfo) details.push('物件：' + esc(propInfo));
         if (details.length) html += '<div style="font-size:12px;color:var(--muted)">' + details.join(' / ') + '</div>';
         html += '</div>';
-        html += '<button type="button" onclick="openEdit(\'' + t.id + '\')" class="btn-ic" title="編輯租客" style="font-size:14px;padding:4px 8px">✏️</button>';
+        html += '<button type="button" onclick="openEdit(\'' + esc(t.id) + '\')" class="btn-ic" title="編輯租客" style="font-size:14px;padding:4px 8px">✏️</button>';
         html += '</div>';
     });
     list.innerHTML = html;
@@ -7754,7 +7786,7 @@ function openAdd() {
     document.getElementById('editClientName').textContent = '';
     document.getElementById('fModal').style.display='flex';
     document.querySelector('#fModal .modal').scrollTop = 0;
-  } catch(e) { alert('新增錯誤: ' + e.message); }
+  } catch(e) { console.error('新增錯誤:', e); showToast('新增發生錯誤，請重試', 'error', 4000); }
 }
 
 var _editViewAs = '';
@@ -8024,7 +8056,7 @@ function openEdit(id, viewAs) {
     // 額外屋主（跳過第一筆，已載入固定欄位）
     if (c.dPersons && c.dPersons.length > 1) c.dPersons.slice(1).forEach(function(p){ addDPersonRow(p); });
     if (c.dAddrs && c.dAddrs.length) c.dAddrs.forEach(function(a){ addDAddrRow(a); });
-    else if (c.dCommunity || c.dAddr) addDAddrRow({devType:c.devType||'出售', community:c.dCommunity, addr:c.dAddr});
+    else if (!c.dAddrs && (c.dCommunity || c.dAddr)) addDAddrRow({devType:c.devType||'出售', community:c.dCommunity, addr:c.dAddr});
     if (c.schedules && c.schedules.length) c.schedules.slice().sort(function(a,b){ return (a.date+(a.time||'')).localeCompare(b.date+(b.time||'')); }).forEach(function(s){ addScheduleRow(s); });
 
     // 共用聯絡人
@@ -8062,7 +8094,7 @@ function openEdit(id, viewAs) {
     document.getElementById('fModal').style.display='flex';
     document.querySelector('#fModal .modal').scrollTop = 0;
     updateEditNav();
-  } catch(e) { alert('編輯錯誤: ' + e.message + '\n' + e.stack); }
+  } catch(e) { console.error('編輯錯誤:', e); showToast('編輯發生錯誤，請重試', 'error', 4000); }
 }
 
 function closeForm(skipConfirm){ if(!skipConfirm && !confirm('確定關閉？未儲存的資料將會遺失')) return; document.getElementById('fModal').style.display='none'; }
@@ -8110,7 +8142,7 @@ function updateEditNav() {
 }
 
 function saveClient() {
-    if(!selectedTypes.length){alert('請選擇至少一個客戶類型');return;}
+    if(!selectedTypes.length){showToast('請選擇至少一個客戶類型','warn');return;}
     // 有租案時，確保 selectedTypes 中的主要標籤都歸屬到某個角色
     if (selectedTypes.includes('租案管理')) {
         var allRT = rLandlordTypes.concat(rTenantTypes);
@@ -8151,11 +8183,11 @@ function saveClient() {
     var _basicBank = _gv('f-bank');
     var _basicBankCode = _gv('f-bankCode');
     var _basicBankAccount = _gv('f-bankAccount');
-    if(!name){alert('請輸入姓名');return;}
-    if(!phone){alert('請輸入電話');return;}
+    if(!name){showToast('請輸入姓名','warn');return;}
+    if(!phone){showToast('請輸入電話','warn');return;}
     // 電話格式驗證（至少 8 碼純數字）
     var _phoneDigits = normalizePhone(phone);
-    if (!/^\d{8,}$/.test(_phoneDigits)) { alert('電話格式不正確，請輸入至少 8 碼數字'); return; }
+    if (!/^\d{8,}$/.test(_phoneDigits)) { showToast('電話格式不正確，請輸入至少 8 碼數字', 'warn'); return; }
     // 電話重複偵測
     var _dupClient = DB.find(function(x) {
         if (x._deleted || x.id === editId) return false;
@@ -8172,7 +8204,7 @@ function saveClient() {
     var _priceFields = [['f-sPrice','開價'],['f-sFloorPrice','底價']];
     for (var _pi=0; _pi<_priceFields.length; _pi++) {
         var _pv = _gv(_priceFields[_pi][0]);
-        if (_pv && !validatePrice(_pv)) { alert(_priceFields[_pi][1] + '請輸入數字'); return; }
+        if (_pv && !validatePrice(_pv)) { showToast(_priceFields[_pi][1] + '請輸入數字', 'warn'); return; }
     }
 
     // 格局自動轉換
@@ -8288,7 +8320,7 @@ function saveClient() {
         dBirthday:rocToISO(get('f-dBirthday')), dEmail:get('f-dEmail'), dSource:get('f-dSource'),
         dPersons: (function(){ var arr=[]; if(get('f-dName')||get('f-dPhone')) arr.push({name:get('f-dName'),phone:get('f-dPhone'),idNo:get('f-dIdNo')}); return arr.concat(getDPersons()); })(), dAddrs:getDAddrs(),
         devType: (function(){ var types=[]; getDAddrs().forEach(function(a){ if(a.devType&&types.indexOf(a.devType)<0) types.push(a.devType); }); return types.join('、'); })(),
-        dCommunity:(getDAddrs()[0]||{}).community||'', dAddr:(getDAddrs()[0]||{}).addr||'',
+        dCommunity:getDAddrs().length?(getDAddrs()[0].community||''):'', dAddr:getDAddrs().length?(getDAddrs()[0].addr||''):'',
         schedules:getSchedules(),
         // 保留雲端資料夾連結
         bDriveUrl: editId ? (DB.find(function(x){return x.id===editId;})||{}).bDriveUrl||'' : '',
@@ -8462,21 +8494,23 @@ function del(id) {
     // 顯示 undo 列（5 秒內可復原）
     _showUndoBar(id, c.name);
 }
+var _undoInterval = null;
 function _showUndoBar(id, name) {
     if (_undoBar) _undoBar.remove();
     clearTimeout(_undoTimer);
+    if (_undoInterval) clearInterval(_undoInterval);
     _undoBar = document.createElement('div');
     _undoBar.className = 'undo-bar';
     var _sec = 5;
     _undoBar.innerHTML = '已刪除「'+esc(name)+'」<button onclick="_undoDel(\''+esc(id)+'\')">復原</button><span class="undo-timer">'+_sec+'s</span>';
     document.body.appendChild(_undoBar);
-    var _ti = setInterval(function() { _sec--; var sp=_undoBar.querySelector('.undo-timer'); if(sp) sp.textContent=_sec+'s'; if(_sec<=0) clearInterval(_ti); }, 1000);
-    _undoTimer = setTimeout(function() { if(_undoBar) _undoBar.remove(); _undoBar=null; clearInterval(_ti); }, 5000);
+    _undoInterval = setInterval(function() { _sec--; var sp=_undoBar?_undoBar.querySelector('.undo-timer'):null; if(sp) sp.textContent=_sec+'s'; if(_sec<=0) clearInterval(_undoInterval); }, 1000);
+    _undoTimer = setTimeout(function() { if(_undoBar) _undoBar.remove(); _undoBar=null; clearInterval(_undoInterval); }, 5000);
 }
 function _undoDel(id) {
     var c = DB.find(function(x){return x.id===id;});
     if (c) { delete c._deleted; delete c._deletedAt; persist(); render(); showToast('✅ 已復原'); }
-    if (_undoBar) _undoBar.remove(); _undoBar=null; clearTimeout(_undoTimer);
+    if (_undoBar) _undoBar.remove(); _undoBar=null; clearTimeout(_undoTimer); if(_undoInterval) clearInterval(_undoInterval);
 }
 function restoreFromTrash(id) {
     var c = DB.find(function(x){ return x.id===id; });
@@ -8849,7 +8883,7 @@ function setPerfRange(range) {
 }
 function perfGoClient(id) {
     var c = DB.find(function(x){ return x.id === id && !x._deleted; });
-    if (!c) { alert('找不到此客戶，可能已被刪除'); return; }
+    if (!c) { showToast('找不到此客戶，可能已被刪除', 'warn'); return; }
     document.getElementById('perfModal').style.display = 'none';
     _detFromPerf = true;
     // 從業績表進入時，用單筆客戶作為列表，避免左右切換異常
@@ -8904,9 +8938,9 @@ function addPerfRecord() {
     _perfSelectedCase = '買賣案';
     _perfSelectedCat = '';
     document.getElementById('perfSaveBtn').onclick = function() {
-        if (!_perfSelectedCat) { alert('請選擇項目'); return; }
+        if (!_perfSelectedCat) { showToast('請選擇項目', 'warn'); return; }
         var date = rocToISO(document.getElementById('perfDate').value);
-        if (!date) { alert('請填寫成交日期'); return; }
+        if (!date) { showToast('請填寫成交日期', 'warn'); return; }
         var client = document.getElementById('perfClient').value.trim();
         var clientId = document.getElementById('perfClientId').value || '';
         var feeTax = document.getElementById('perfFeeTax').value.trim();
@@ -8944,7 +8978,7 @@ function setPerfCase(caseType) {
         if (btn) { btn.style.borderColor = t===caseType?'#D97706':'var(--border)'; btn.style.background = t===caseType?'#FEF3C7':'white'; btn.style.color = t===caseType?'#92400E':'var(--text)'; btn.style.fontWeight = t===caseType?'700':'600'; }
     });
     var cats = caseType === '買賣案' ? ['買方','庫存','中人'] : ['租客','房東','中人'];
-    var html = cats.map(function(c) { return '<button type="button" id="perfCat-'+c+'" onclick="setPerfCat(\''+c+'\')" style="flex:1;padding:8px;border:2px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;font-weight:600">'+c+'</button>'; }).join('');
+    var html = cats.map(function(c) { return '<button type="button" id="perfCat-'+esc(c)+'" onclick="setPerfCat(\''+esc(c)+'\')" style="flex:1;padding:8px;border:2px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;font-weight:600">'+esc(c)+'</button>'; }).join('');
     document.getElementById('perfCatBtns').innerHTML = html;
     _perfSelectedCat = '';
 }
@@ -8991,7 +9025,7 @@ function editPerfRecord(idx) {
     var cats = caseType === '買賣案' ? ['買方','庫存','中人'] : ['租客','房東','中人'];
     var catBtnsHtml = cats.map(function(c) {
         var isSel = c === r.category;
-        return '<button type="button" class="epCatBtn" data-cat="'+c+'" style="flex:1;padding:8px;border:2px solid '+(isSel?'#8B5CF6':'var(--border)')+';border-radius:8px;background:'+(isSel?'#EDE9FE':'white')+';color:'+(isSel?'#5B21B6':'var(--text)')+';cursor:pointer;font-size:13px;font-weight:'+(isSel?'700':'600')+'">'+c+'</button>';
+        return '<button type="button" class="epCatBtn" data-cat="'+esc(c)+'" style="flex:1;padding:8px;border:2px solid '+(isSel?'#8B5CF6':'var(--border)')+';border-radius:8px;background:'+(isSel?'#EDE9FE':'white')+';color:'+(isSel?'#5B21B6':'var(--text)')+';cursor:pointer;font-size:13px;font-weight:'+(isSel?'700':'600')+'">'+esc(c)+'</button>';
     }).join('');
     box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">修改業績紀錄</div>' +
         '<div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">案件類型</label>' +
@@ -9039,7 +9073,7 @@ function editPerfRecord(idx) {
             document.querySelectorAll('.epCaseBtn').forEach(function(b){ b.style.borderColor='var(--border)'; b.style.background='white'; b.style.color='var(--text)'; b.style.fontWeight='600'; });
             this.style.borderColor='#D97706'; this.style.background='#FEF3C7'; this.style.color='#92400E'; this.style.fontWeight='700';
             var cs = ct === '買賣案' ? ['買方','庫存','中人'] : ['租客','房東','中人'];
-            document.getElementById('epCatBtns').innerHTML = cs.map(function(c){ return '<button type="button" class="epCatBtn" data-cat="'+c+'" style="flex:1;padding:8px;border:2px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;font-weight:600">'+c+'</button>'; }).join('');
+            document.getElementById('epCatBtns').innerHTML = cs.map(function(c){ return '<button type="button" class="epCatBtn" data-cat="'+esc(c)+'" style="flex:1;padding:8px;border:2px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;font-weight:600">'+esc(c)+'</button>'; }).join('');
             bindCatBtns();
         };
     });
@@ -9048,9 +9082,9 @@ function editPerfRecord(idx) {
         document.querySelectorAll('.epCaseBtn').forEach(function(b){ if(b.style.fontWeight==='700') selCase = b.getAttribute('data-case'); });
         var selCat = '';
         document.querySelectorAll('.epCatBtn').forEach(function(b){ if(b.style.fontWeight==='700') selCat = b.getAttribute('data-cat'); });
-        if (!selCat) { alert('請選擇項目'); return; }
+        if (!selCat) { showToast('請選擇項目', 'warn'); return; }
         var date = rocToISO(document.getElementById('epDate').value);
-        if (!date) { alert('請填寫成交日期'); return; }
+        if (!date) { showToast('請填寫成交日期', 'warn'); return; }
         r.caseType = selCase;
         r.category = selCat;
         r.date = date;
@@ -9081,7 +9115,7 @@ function closeTrash() {
 }
 function emptyTrash() {
     var trashCount = DB.filter(function(c){ return c._deleted; }).length;
-    if (!trashCount) { alert('回收桶是空的'); return; }
+    if (!trashCount) { showToast('回收桶是空的'); return; }
     if (!confirm('確定要清空回收桶？共 '+trashCount+' 筆資料將永久刪除！')) return;
     DB = DB.filter(function(c){ return !c._deleted; });
     persist(); renderTrash();
@@ -9099,8 +9133,8 @@ function renderTrash() {
         return '<div style="display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid var(--border)">' +
             '<div style="flex:1"><div style="font-weight:700;font-size:14px">'+esc(c.name)+'</div>' +
             '<div style="font-size:12px;color:var(--muted)">'+esc(types)+' · '+esc(c.phone||'')+' · 刪除於 '+esc(delDate)+'</div></div>' +
-            '<button class="btn-ic" onclick="restoreFromTrash(\''+c.id+'\')" title="還原" style="font-size:16px;padding:4px 10px">♻️</button>' +
-            '<button class="btn-ic del" onclick="permanentDel(\''+c.id+'\')" title="永久刪除" style="font-size:16px;padding:4px 10px">🗑️</button>' +
+            '<button class="btn-ic" onclick="restoreFromTrash(\''+esc(c.id)+'\')" title="還原" style="font-size:16px;padding:4px 10px">♻️</button>' +
+            '<button class="btn-ic del" onclick="permanentDel(\''+esc(c.id)+'\')" title="永久刪除" style="font-size:16px;padding:4px 10px">🗑️</button>' +
             '</div>';
     }).join('');
 }
@@ -9113,7 +9147,7 @@ function renderTrash() {
 <script>
 // ── Export ──
 function exportCSV() {
-    if(!DB.length){alert('目前沒有資料');return;}
+    if(!DB.length){showToast('目前沒有資料','warn');return;}
     const H=['姓名','電話','Email','類型','跟進狀態','來源','最後聯絡',
         '預算','房型需求','需求區域','樓層','其他需求',
         '物件地址(賣)','開價','底價','土地坪數','建物坪數','格局',
@@ -9166,7 +9200,7 @@ function importCSV(file) {
         // 移除 BOM
         if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
         var lines = parseCSVLines(text);
-        if (lines.length < 2) { alert('CSV 檔案沒有資料'); return; }
+        if (lines.length < 2) { showToast('CSV 檔案沒有資料', 'warn'); return; }
         // 找業績紀錄分隔標記
         var perfStartIdx = -1;
         for (var p = 0; p < lines.length; p++) {
@@ -9258,7 +9292,7 @@ function importCSV(file) {
         if (count || skip) msg += '客戶 ' + count + ' 筆' + (skip ? '（跳過 ' + skip + ' 筆重複）' : '');
         if (perfCount) msg += (count || skip ? '，' : '') + '業績 ' + perfCount + ' 筆';
         if (!count && !skip && !perfCount) msg += '無新增資料';
-        alert(msg);
+        showMsg('匯入結果', msg);
     };
     reader.readAsText(file, 'UTF-8');
     // 清除 input 以便再次選同一檔案
@@ -9343,7 +9377,7 @@ function importVCF(input) {
     var reader = new FileReader();
     reader.onload = function(e) {
         vcfContacts = parseVCF(e.target.result);
-        if (!vcfContacts.length) { alert('找不到聯絡人資料'); input.value=''; return; }
+        if (!vcfContacts.length) { showToast('找不到聯絡人資料', 'warn'); input.value=''; return; }
         renderVcfList();
         document.getElementById('vcfModal').style.display = 'flex';
         input.value = '';
@@ -9401,7 +9435,7 @@ function confirmVcfImport() {
     persist();
     render();
     closeVcfModal();
-    alert('成功匯入 ' + count + ' 筆聯絡人');
+    showMsg('匯入完成', '成功匯入 ' + count + ' 筆聯絡人');
 }
 
 function closeVcfModal() {
@@ -9442,7 +9476,7 @@ function doCloudRestore() {
                 var rp = Array.isArray(meta.records) ? meta.records : [];
                 _perfRecords = rp;
                 _perfRestoredCount = rp.length;
-                localStorage.setItem('perfRecords', JSON.stringify(_perfRecords));
+                try { localStorage.setItem('perfRecords', JSON.stringify(_perfRecords)); } catch(e) { console.error('localStorage寫入失敗', e); }
                 return arr.filter(function(c){ return !c.__perfRecords; });
             }
             return arr;
@@ -9458,7 +9492,7 @@ function doCloudRestore() {
             // 相容過渡期物件格式 {db, perfRecords}
             if (data.db && Array.isArray(data.db)) {
                 DB = data.db;
-                if (Array.isArray(data.perfRecords)) { _perfRecords = data.perfRecords; _perfRestoredCount = data.perfRecords.length; localStorage.setItem('perfRecords', JSON.stringify(_perfRecords)); }
+                if (Array.isArray(data.perfRecords)) { _perfRecords = data.perfRecords; _perfRestoredCount = data.perfRecords.length; try { localStorage.setItem('perfRecords', JSON.stringify(_perfRecords)); } catch(e) { console.error('localStorage寫入失敗', e); } }
             } else {
                 var raw = data.payload ? String(data.payload) : JSON.stringify(data);
                 var restored = parseRaw(raw);
@@ -9466,7 +9500,7 @@ function doCloudRestore() {
                     DB = extractPerf(restored);
                 } else if (restored && restored.db && Array.isArray(restored.db)) {
                     DB = restored.db;
-                    if (Array.isArray(restored.perfRecords)) { _perfRecords = restored.perfRecords; _perfRestoredCount = restored.perfRecords.length; localStorage.setItem('perfRecords', JSON.stringify(_perfRecords)); }
+                    if (Array.isArray(restored.perfRecords)) { _perfRecords = restored.perfRecords; _perfRestoredCount = restored.perfRecords.length; try { localStorage.setItem('perfRecords', JSON.stringify(_perfRecords)); } catch(e) { console.error('localStorage寫入失敗', e); } }
                 } else {
                     throw new Error('資料格式錯誤');
                 }
@@ -9515,7 +9549,7 @@ function doCloudRestore() {
         try { processRestore(data); }
         catch(err) {
             if (statusEl) statusEl.textContent = '❌ 還原失敗：' + err.message;
-            alert('還原失敗：' + err.message);
+            console.error('還原失敗:', err); showToast('還原失敗，請重試', 'error', 4000);
         }
         if (btnEl) btnEl.disabled = false;
         delete window[cbName];
@@ -9527,7 +9561,7 @@ function doCloudRestore() {
         done = true;
         if (statusEl) statusEl.textContent = '❌ 連線失敗';
         if (btnEl) btnEl.disabled = false;
-        alert('連線失敗，請檢查網路後重試');
+        showToast('連線失敗，請檢查網路後重試', 'error', 4000);
         delete window[cbName];
         if (script.parentNode) script.parentNode.removeChild(script);
     };
@@ -9538,7 +9572,7 @@ function doCloudRestore() {
         done = true;
         if (statusEl) statusEl.textContent = '⚠️ 還原逾時，請重試';
         if (btnEl) btnEl.disabled = false;
-        alert('還原逾時，請確認網路後重試');
+        showToast('還原逾時，請確認網路後重試', 'error', 4000);
         delete window[cbName];
         if (script.parentNode) script.parentNode.removeChild(script);
     }, 30000);
@@ -9668,7 +9702,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260406zh';
+var APP_VERSION = '20260404p10';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
