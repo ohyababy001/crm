@@ -4388,7 +4388,7 @@ function showDet(id, viewAs) {
                 // 其他聯絡人
                 if (c.contacts && c.contacts.length) {
                     c.contacts.forEach(function(p, idx) {
-                        info.push(dRow('聯絡人'+(idx+1), p.name||''));
+                        info.push('<div style="font-size:13px;font-weight:700;color:#8B7355;margin:8px 0 4px">聯絡人 '+(idx+1)+'：'+esc(p.name||'')+'</div>');
                         if (p.phone) info.push(dRow('電話', p.phone));
                         if (p.idNo) info.push(dRow('身份證', p.idNo));
                         if (p.birthday) info.push(dRow('生日', p.birthday.includes('-')?isoToROC(p.birthday):p.birthday));
