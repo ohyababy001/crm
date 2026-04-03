@@ -3586,6 +3586,12 @@ function renderCard(c) {
         }
         // 中間欄 type-specific info
         let meta = '';
+        // 所有類型共用：顯示最近一筆預排行程（置頂）
+        if (c.schedules && c.schedules.length) {
+            var _todayISO = localDateISO();
+            var _nextSched = c.schedules.filter(function(s){ return s.date >= _todayISO; }).sort(function(a,b){ return (a.date+(a.time||'')).localeCompare(b.date+(b.time||'')); })[0];
+            if (_nextSched) meta += `<div class="cmeta-row"><span class="cmeta-k">行程</span><span class="cmeta-v" style="color:#1E40AF;font-weight:700">${esc(isoToMDW(_nextSched.date))}${_nextSched.time?' '+_nextSched.time:''}${_nextSched.memo?' '+esc(_nextSched.memo):''}</span></div>`;
+        }
         if (showType==='經營買方') {
             // 選擇要顯示的需求：有篩選時顯示符合的需求，否則顯示第一組
             var _bd = null;
@@ -3768,11 +3774,6 @@ function renderCard(c) {
                 if (d.price) meta += `<div class="cmeta-row"><span class="cmeta-k">價格</span><span class="cmeta-v">${esc(d.price)}${d.price.includes('萬')?'':'萬'}</span></div>`;
             }
         } else if (showType==='商機募集') {
-            if (c.schedules && c.schedules.length) {
-                var _todayISO = localDateISO();
-                var _next = c.schedules.filter(function(s){ return s.date >= _todayISO; }).sort(function(a,b){ return (a.date+a.time).localeCompare(b.date+b.time); })[0];
-                if (_next) meta += `<div class="cmeta-row"><span class="cmeta-k">行程</span><span class="cmeta-v" style="color:#1E40AF">${esc(isoToMDW(_next.date))}${_next.time?' '+_next.time:''}${_next.memo?' '+esc(_next.memo):''}</span></div>`;
-            }
             if (cc.dAddrs && cc.dAddrs.length) {
                 if (cc.dAddrs.length > 1) meta += `<div class="cmeta-row"><span class="cmeta-k">物件數</span><span class="cmeta-v" style="color:#92400E;font-weight:700">${cc.dAddrs.length} 間物件</span></div>`;
                 var a = cc.dAddrs[0];
