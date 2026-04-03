@@ -3395,17 +3395,20 @@ function renderDashboard() {
             '<button class="btn-ic" onclick="event.stopPropagation();_dismissAlert(\''+b.dismissKey+'\')" title="已祝福" style="font-size:13px;padding:2px 4px;flex-shrink:0">✅</button></div>';
     }).join('') : '<div class="dash-empty">近7天內沒有客戶生日</div>';
 
-    // 手機版：依最近期日期排序提醒區塊（有提醒的在上，無提醒的在下）
+    // 手機版：近期行程固定最上面，其餘依最近期日期排序
     if (window.innerWidth <= 768) {
-        var sectionOrder = [
+        var container = document.querySelector('.dash-sections');
+        // 行程固定第一
+        var schedEl = document.getElementById('dashSchedule').parentElement;
+        container.insertBefore(schedEl, container.firstChild);
+        // 其餘按日期排
+        var restOrder = [
             { id: 'dashExpiringSeller', minDays: expSeller.length ? daysUntilExpire(expSeller[0].contractEnd) : Infinity },
             { id: 'dashExpiringRental', minDays: expRental.length ? daysUntilExpire(expRental[0].rEndDate) : Infinity },
-            { id: 'dashSchedule', minDays: schedList.length ? schedList[0].days : Infinity },
             { id: 'dashBirthday', minDays: bdayList.length ? bdayList[0].days : Infinity }
         ];
-        sectionOrder.sort(function(a, b) { return a.minDays !== b.minDays ? a.minDays - b.minDays : a.id.localeCompare(b.id); });
-        var container = document.querySelector('.dash-sections');
-        sectionOrder.forEach(function(s) {
+        restOrder.sort(function(a, b) { return a.minDays !== b.minDays ? a.minDays - b.minDays : a.id.localeCompare(b.id); });
+        restOrder.forEach(function(s) {
             var el = document.getElementById(s.id).parentElement;
             container.appendChild(el);
         });
