@@ -8475,15 +8475,21 @@ function renderPerformance() {
     var thisMonth = now.getMonth();
     // 篩選按鈕
     var range = _perfRange || 'month';
-    var tabs = ['month','quarter','year','all','history'];
-    var tabLabels = {month:'本月',quarter:'本季',year:'本年',all:'全部',history:'歷史查詢'};
+    var tabs = ['month','quarter','year','all','history','dealAnalysis'];
+    var tabLabels = {month:'本月',quarter:'本季',year:'本年',all:'全部',history:'歷史查詢',dealAnalysis:'成交分析'};
     var html = '<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">';
     tabs.forEach(function(t) {
         html += '<button type="button" class="perf-tab" data-range="'+t+'" onclick="setPerfRange(\''+t+'\')" style="padding:6px 14px;border:1px solid var(--border);border-radius:8px;background:'+(range===t?'var(--deep)':'white')+';color:'+(range===t?'white':'var(--text)')+';cursor:pointer;font-size:13px;font-weight:600">'+tabLabels[t]+'</button>';
     });
     html += '<div style="flex:1"></div>' +
-        '<button type="button" onclick="addPerfRecord()" style="padding:6px 14px;border:none;border-radius:8px;background:#8B5CF6;color:white;cursor:pointer;font-size:13px;font-weight:600">＋ 新增紀錄</button>' +
+        (range !== 'dealAnalysis' ? '<button type="button" onclick="addPerfRecord()" style="padding:6px 14px;border:none;border-radius:8px;background:#8B5CF6;color:white;cursor:pointer;font-size:13px;font-weight:600">＋ 新增紀錄</button>' : '') +
     '</div>';
+    // 成交分析頁籤
+    if (range === 'dealAnalysis') {
+        document.getElementById('perfFixed').innerHTML = html;
+        document.getElementById('perfBody').innerHTML = renderDealAnalysis();
+        return;
+    }
     // 歷史查詢：年月 / 區間選擇器
     if (range === 'history') {
         html += '<div style="display:flex;gap:6px;margin-bottom:8px">' +
@@ -8683,8 +8689,6 @@ function renderPerfList(filtered) {
             '</div>';
         });
     }
-    // 成交總價分析
-    html += renderDealAnalysis();
     document.getElementById('perfBody').innerHTML = html;
 }
 // ── 成交總價分析 ──
@@ -8700,9 +8704,9 @@ function renderDealAnalysis() {
             });
         }
     });
-    if (!allDeals.length) return '';
+    if (!allDeals.length) return '<div style="text-align:center;color:var(--muted);padding:30px;font-size:14px">尚無成交物件資料</div>';
 
-    var html = '<div style="border-top:2px solid var(--border);margin-top:16px;padding-top:16px">' +
+    var html = '<div style="padding:4px 0">' +
         '<div style="font-size:16px;font-weight:800;color:var(--deep);margin-bottom:12px">📊 成交總價分析</div>';
 
     // 1. 年度成交統計
