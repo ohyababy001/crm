@@ -3093,10 +3093,11 @@ function getData() {
     const s = document.getElementById('sortSel').value;
     if (s === 'nextSchedule') {
         var _today = localDateISO();
+        var _30d = localDateISO(new Date(Date.now() + 30*86400000));
         var _sf = (curFilter && curFilter !== 'all') ? curFilter : '';
         list.forEach(function(c) {
             var next = (c.schedules||[]).filter(function(x){
-                if (x.date < _today) return false;
+                if (x.date < _today || x.date > _30d) return false;
                 if (_sf && x.schedType && x.schedType !== _sf) return false;
                 return true;
             }).sort(function(x,y){return x.date.localeCompare(y.date);})[0];
@@ -3597,9 +3598,10 @@ function renderCard(c) {
         // 所有類型共用：顯示最近一筆預排行程（置頂，依頁籤篩選）
         if (c.schedules && c.schedules.length) {
             var _todayISO = localDateISO();
+            var _30d = localDateISO(new Date(Date.now() + 30*86400000));
             var _schedFilter = (curFilter && curFilter !== 'all') ? curFilter : '';
             var _nextSched = c.schedules.filter(function(s){
-                if (s.date < _todayISO) return false;
+                if (s.date < _todayISO || s.date > _30d) return false;
                 if (_schedFilter && s.schedType && s.schedType !== _schedFilter) return false;
                 return true;
             }).sort(function(a,b){ return (a.date+(a.time||'')).localeCompare(b.date+(b.time||'')); })[0];
