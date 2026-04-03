@@ -768,7 +768,7 @@
                 <option value="oldest">最早加入</option>
                 <option value="name">姓名排序</option>
                 <option value="lastContact">最近聯絡</option>
-                <option value="nextSchedule">預計時間</option>
+                <option value="nextSchedule">預計行程</option>
             </select>
         </div>
 
@@ -2926,14 +2926,16 @@ const titles = { all:'總覽','經營買方':'買方','庫存屋主':'庫存','�
     // 動態更新排序選項
     var sel = document.getElementById('sortSel');
     var sortOpts = '';
-    if (type === '庫存屋主' || isRentalType) {
-        sortOpts = '<option value="expireDate">到期時間</option><option value="lastContact">最近聯絡</option><option value="name">姓名排序</option><option value="newest">最新加入</option>';
+    if (type === '經營買方') {
+        sortOpts = '<option value="nextSchedule">預計行程</option><option value="lastContact">最近聯絡</option><option value="name">姓名排序</option><option value="newest">最新加入</option>';
+    } else if (type === '庫存屋主' || isRentalType) {
+        sortOpts = '<option value="nextSchedule">預計行程</option><option value="expireDate">到期時間</option><option value="lastContact">最近聯絡</option><option value="name">姓名排序</option><option value="newest">最新加入</option>';
     } else if (type === '成交客戶') {
-        sortOpts = '<option value="dealCount">成交次數</option><option value="dealDate">成交時間</option><option value="lastContact">最近聯絡</option><option value="name">姓名排序</option><option value="newest">最新加入</option>';
+        sortOpts = '<option value="nextSchedule">預計行程</option><option value="dealCount">成交次數</option><option value="dealDate">成交時間</option><option value="lastContact">最近聯絡</option><option value="name">姓名排序</option><option value="newest">最新加入</option>';
     } else if (type === '商機募集') {
-        sortOpts = '<option value="nextSchedule">預計時間</option><option value="lastContact">最近聯絡</option><option value="name">姓名排序</option><option value="newest">最新加入</option>';
+        sortOpts = '<option value="nextSchedule">預計行程</option><option value="devCount">商機件數</option><option value="lastContact">最近聯絡</option><option value="name">姓名排序</option><option value="newest">最新加入</option>';
     } else {
-        sortOpts = '<option value="lastContact">最近聯絡</option><option value="name">姓名排序</option><option value="newest">最新加入</option><option value="oldest">最早加入</option>';
+        sortOpts = '<option value="nextSchedule">預計行程</option><option value="lastContact">最近聯絡</option><option value="name">姓名排序</option><option value="newest">最新加入</option>';
     }
     sel.innerHTML = sortOpts;
     render();
@@ -3116,6 +3118,7 @@ function getData() {
         }
         if (s==='dealCount') { var _dc = (b.deals||[]).length - (a.deals||[]).length; if (_dc !== 0) return _dc; var _adl=(a.deals&&a.deals.length)?a.deals.reduce(function(m,d){return d.date>m?d.date:m;},''):''; var _bdl=(b.deals&&b.deals.length)?b.deals.reduce(function(m,d){return d.date>m?d.date:m;},''):''; return (_bdl||'').localeCompare(_adl||''); }
         if (s==='dealDate') { var _ad=(a.deals&&a.deals.length)?a.deals.reduce(function(m,d){return d.date>m?d.date:m;},''):''; var _bd=(b.deals&&b.deals.length)?b.deals.reduce(function(m,d){return d.date>m?d.date:m;},''):''; return (_bd||'').localeCompare(_ad||''); }
+        if (s==='devCount') { return ((b.dAddrs||[]).length) - ((a.dAddrs||[]).length); }
         if (s==='newest') return (b.created||'').localeCompare(a.created||'');
         if (s==='oldest') return (a.created||'').localeCompare(b.created||'');
         if (s==='name')   return a.name.localeCompare(b.name,'zh');
