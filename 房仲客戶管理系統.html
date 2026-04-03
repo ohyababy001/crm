@@ -4386,7 +4386,6 @@ function showDet(id, viewAs) {
                 if (bank || bankAccount) info.push(dRow('銀行', (bank?bank:'')+(bankCode?' ('+bankCode+')':'')+(bankAccount?' '+bankAccount:'')));
                 // 其他聯絡人
                 if (c.contacts && c.contacts.length) {
-                    info.push('<div class="det-sec" style="margin-top:10px">其他聯絡人</div>');
                     c.contacts.forEach(function(p, idx) {
                         info.push('<div style="font-size:13px;font-weight:700;color:#8B7355;margin:8px 0 4px">聯絡人 '+(idx+1)+'：'+esc(p.name||'')+'</div>');
                         if (p.phone) info.push(dRow('電話', p.phone));
