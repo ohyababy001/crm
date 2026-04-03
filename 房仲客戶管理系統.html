@@ -6164,9 +6164,12 @@ function clearSchedules() { document.getElementById('scheduleList').innerHTML = 
 <!-- ============================================================ -->
 <script>
 // ── 卡片一鍵預排行程 ──
-function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo) {
+function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo, prefillType) {
     var c = DB.find(function(x){ return x.id === clientId; });
     if (!c) return;
+    var _qsTypeVal = prefillType || (curFilter && curFilter !== 'all' ? curFilter : '');
+    var _stOpts = [['','不限'],['經營買方','買方'],['庫存屋主','庫存'],['房東','房東'],['租客','租客'],['成交客戶','成交'],['商機募集','商機']];
+    var _stHtml = _stOpts.map(function(o){ return '<option value="'+o[0]+'"'+(_qsTypeVal===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('');
     var overlay = document.createElement('div');
     overlay.className = 'fill-overlay';
     var box = document.createElement('div');
@@ -6174,6 +6177,7 @@ function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo) {
     box.style.padding = '16px'; box.style.minWidth = '300px'; box.style.maxWidth = '360px';
     box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">📅 預排行程 — '+esc(c.name)+'</div>' +
         '<div style="display:flex;gap:8px;margin-bottom:10px">' +
+            '<select id="qs-type" style="width:70px;padding:8px 4px;border:1px solid var(--border);border-radius:8px;font-size:13px">'+_stHtml+'</select>' +
             '<div class="roc-date-wrap" style="flex:1"><input id="qs-date" type="text" placeholder="日期" value="'+(prefillDate?esc(isoToROC(prefillDate)):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>' +
             '<select id="qs-time" style="width:90px;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px">' + buildTimeOptions(prefillTime||'') + '</select>' +
         '</div>' +
@@ -6199,7 +6203,7 @@ function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo) {
                 return !(s.date === prefillDate && (s.time||'') === (prefillTime||''));
             });
         }
-        var _qsType = curFilter && curFilter !== 'all' ? curFilter : '';
+        var _qsType = document.getElementById('qs-type') ? document.getElementById('qs-type').value : '';
         c.schedules.push({ date:date, time:time, memo:memo, schedType:_qsType });
         persist();
         overlay.remove();
@@ -6251,7 +6255,7 @@ function editDashSchedule(clientId, date, time) {
     var s = c.schedules.find(function(s) {
         return s.date === date && (s.time||'') === (time||'');
     });
-    quickSchedule(clientId, date, time, s ? s.memo : '');
+    quickSchedule(clientId, date, time, s ? s.memo : '', s ? s.schedType||'' : '');
 }
 
 // ── 個人行程 ──
