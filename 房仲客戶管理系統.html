@@ -4388,15 +4388,16 @@ function showDet(id, viewAs) {
                 // 其他聯絡人
                 if (c.contacts && c.contacts.length) {
                     c.contacts.forEach(function(p, idx) {
-                        info.push('<div style="font-size:13px;font-weight:700;color:#8B7355;margin:8px 0 4px">聯絡人 '+(idx+1)+'：'+esc(p.name||'')+'</div>');
-                        if (p.phone) info.push(dRow('電話', p.phone));
-                        if (p.idNo) info.push(dRow('身份證', p.idNo));
-                        if (p.birthday) info.push(dRow('生日', p.birthday.includes('-')?isoToROC(p.birthday):p.birthday));
-                        if (p.occupation) info.push(dRow('職業', p.occupation));
-                        if (p.email) info.push(dRow('Email', p.email));
-                        if (p.addr) info.push(dRow(p.addrType||'地址', (p.zip?p.zip+' ':'')+p.addr));
-                        if (p.extraAddrs) p.extraAddrs.forEach(function(a){ if(a.addr) info.push(dRow(a.addrType||'地址', (a.zip?a.zip+' ':'')+a.addr)); });
-                        if (p.bank||p.bankAccount) info.push(dRow('銀行', (p.bank||'')+(p.bankCode?' ('+p.bankCode+')':'')+(p.bankAccount?' '+p.bankAccount:'')));
+                        var lines = '<div style="font-weight:600">' + esc(p.name||'') + '</div>';
+                        if (p.phone) lines += '<div>' + esc(p.phone) + '</div>';
+                        if (p.idNo) lines += '<div>' + esc(p.idNo) + '</div>';
+                        if (p.birthday) lines += '<div>生日 ' + esc(p.birthday.includes('-')?isoToROC(p.birthday):p.birthday) + '</div>';
+                        if (p.occupation) lines += '<div>' + esc(p.occupation) + '</div>';
+                        if (p.email) lines += '<div>' + esc(p.email) + '</div>';
+                        if (p.addr) lines += '<div>' + esc((p.zip?p.zip+' ':'')+p.addr) + '</div>';
+                        if (p.extraAddrs) p.extraAddrs.forEach(function(a){ if(a.addr) lines += '<div>' + esc((a.zip?a.zip+' ':'')+a.addr) + '</div>'; });
+                        if (p.bank||p.bankAccount) lines += '<div>銀行 ' + esc((p.bank||'')+(p.bankCode?' ('+p.bankCode+')':'')+(p.bankAccount?' '+p.bankAccount:'')) + '</div>';
+                        info.push('<div class="det-row"><span class="det-key">聯絡人'+(idx+1)+'</span><span class="det-val" style="font-weight:400">'+lines+'</span></div>');
                     });
                 }
                 return info.length ? '<div style="border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:8px">'+info.join('')+'</div>' : '';
