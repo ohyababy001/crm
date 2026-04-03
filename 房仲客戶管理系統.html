@@ -7221,41 +7221,83 @@ function fillSearchDB(val, target, overlay) {
 }
 
 // ── 新增聯絡人的帶入 ──
+function _applyFillToBlock(block, s, overlay) {
+    function _sv(f,v){ var el=block.querySelector('[data-f="'+f+'"]'); if(el&&v) el.value=v; }
+    _sv('name',s.name); _sv('phone',s.phone); _sv('idNo',s.idNo);
+    _sv('occupation',s.occupation); _sv('birthday',s.birthday);
+    _sv('email',s.email); _sv('source',s.source);
+    _sv('zip',s.zip); _sv('addr',s.addr);
+    if (s.addrType) { var atEl = block.querySelector('[data-f="addrType"]'); if(atEl) atEl.value = s.addrType; }
+    overlay.remove();
+}
 function fillPersonBlock(btn) {
     var block = btn.closest('.person-block'); if (!block) return;
     var sources = collectPersonSources('');
-    if (!sources.length) { alert('沒有可帶入的資料'); return; }
     var overlay = document.createElement('div');
     overlay.className = 'fill-overlay';
     var menu = document.createElement('div');
     menu.className = 'fill-menu';
+    menu.style.maxHeight = '70vh'; menu.style.overflowY = 'auto';
     var title = document.createElement('div');
     title.className = 'fill-menu-title';
     title.textContent = '選擇要帶入的資料';
     menu.appendChild(title);
+    // 同客戶的其他類型
     sources.forEach(function(s) {
         var item = document.createElement('div');
         item.className = 'fill-menu-item';
         item.innerHTML = '<span>' + esc(s.name) + (s.phone ? ' ' + esc(s.phone) : '') + '</span><span class="fill-src">' + esc(s.src) + '</span>';
-        item.onclick = function(e) {
-            e.stopPropagation();
-            // 帶入到 person-block 的各欄位
-            function _sv(f,v){ var el=block.querySelector('[data-f="'+f+'"]'); if(el&&v) el.value=v; }
-            _sv('name',s.name); _sv('phone',s.phone); _sv('idNo',s.idNo);
-            _sv('occupation',s.occupation); _sv('birthday',s.birthday);
-            _sv('email',s.email); _sv('source',s.source);
-            _sv('zip',s.zip); _sv('addr',s.addr);
-            if (s.addrType) {
-                var atEl = block.querySelector('[data-f="addrType"]');
-                if (atEl) atEl.value = s.addrType;
-            }
-            overlay.remove();
-        };
+        item.onclick = function(e) { e.stopPropagation(); _applyFillToBlock(block, s, overlay); };
         menu.appendChild(item);
     });
+    // 從其他客戶搜尋帶入
+    var searchDiv = document.createElement('div');
+    searchDiv.style.cssText = 'margin-top:8px;padding-top:8px';
+    searchDiv.innerHTML =
+        '<input type="text" placeholder="搜尋其他客戶姓名或電話…" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;box-sizing:border-box;text-align:center">' +
+        '<div class="fill-search-results" style="margin-top:4px"></div>';
+    menu.appendChild(searchDiv);
+    var searchInput = searchDiv.querySelector('input');
+    var searchResults = searchDiv.querySelector('.fill-search-results');
+    searchInput.oninput = function() {
+        var val = this.value.trim().toLowerCase();
+        if (!val) { searchResults.innerHTML = ''; return; }
+        var matches = [];
+        DB.forEach(function(c) {
+            if (c._deleted || c._system || c.id === editId) return;
+            // 搜尋所有角色的姓名和電話
+            var people = [
+                {name:c.name,phone:c.phone,idNo:c.idNo,occupation:c.occupation,birthday:c.birthday?isoToROC(c.birthday):'',email:c.email,source:c.source,addrType:c.addrType,zip:c.zip,addr:c.addr,src:'基本'},
+                {name:c.bName,phone:c.bPhone,idNo:c.bIdNo,occupation:c.bOccupation,birthday:c.bBirthday?isoToROC(c.bBirthday):'',email:c.bEmail,source:c.bSource,src:'買方'},
+                {name:c.sName,phone:c.sPhone,idNo:c.sIdNo,occupation:c.sOccupation,birthday:c.sBirthday?isoToROC(c.sBirthday):'',email:c.sEmail,source:c.sSource,src:'庫存'},
+                {name:c.llName,phone:c.llPhone,idNo:c.llIdNo,occupation:c.llOccupation,birthday:c.llBirthday?isoToROC(c.llBirthday):'',email:c.llEmail,source:c.llSource,addrType:c.llAddrType,zip:c.llZip,addr:c.llAddr,src:'房東'},
+                {name:c.ttName,phone:c.ttPhone,idNo:c.ttIdNo,occupation:c.ttOccupation,birthday:c.ttBirthday?isoToROC(c.ttBirthday):'',email:c.ttEmail,source:c.ttSource,src:'租客'},
+                {name:c.cName,phone:c.cPhone,idNo:c.cIdNo,occupation:c.cOccupation,birthday:c.cBirthday?isoToROC(c.cBirthday):'',email:c.cEmail,source:c.cSource,src:'成交'},
+                {name:c.dName,phone:c.dPhone,idNo:c.dIdNo,occupation:c.dOccupation,birthday:c.dBirthday?isoToROC(c.dBirthday):'',email:c.dEmail,source:c.dSource,src:'商機'}
+            ];
+            people.forEach(function(p) {
+                if (!p.name) return;
+                var nameMatch = p.name.toLowerCase().includes(val);
+                var phoneMatch = p.phone && normalizePhone(p.phone).includes(normalizePhone(val));
+                if (nameMatch || phoneMatch) matches.push(p);
+            });
+        });
+        // 去重
+        var seen = {};
+        matches = matches.filter(function(m) { var k = m.name+'_'+m.phone; if(seen[k]) return false; seen[k]=true; return true; });
+        if (matches.length > 10) matches = matches.slice(0, 10);
+        searchResults.innerHTML = matches.length ? matches.map(function(s) {
+            return '<div class="fill-menu-item" style="cursor:pointer"><span>' + esc(s.name) + (s.phone ? ' ' + esc(s.phone) : '') + '</span><span class="fill-src">' + esc(s.src) + '</span></div>';
+        }).join('') : '<div style="padding:8px;color:var(--muted);font-size:12px;text-align:center">找不到符合的客戶</div>';
+        // 綁定點擊
+        searchResults.querySelectorAll('.fill-menu-item').forEach(function(el, idx) {
+            el.onclick = function(e) { e.stopPropagation(); _applyFillToBlock(block, matches[idx], overlay); };
+        });
+    };
     overlay.appendChild(menu);
     overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
     document.body.appendChild(overlay);
+    setTimeout(function() { searchInput.focus(); }, 100);
 }
 
 function applyFill(target, s) {
