@@ -2642,7 +2642,7 @@ document.addEventListener('focusin', function(e) {
     if (!el || el.tagName !== 'INPUT') return;
     var id = el.id || '';
     var df = el.getAttribute('data-f') || '';
-    if (id === 'f-community' || df === 'community' || df === 'rCommunity' || id === 'f-dCommunity') {
+    if (id === 'f-community' || df === 'community' || df === 'rCommunity' || id === 'f-dCommunity' || el.classList.contains('deal-community')) {
         initCommunityAC(el);
     }
 });
