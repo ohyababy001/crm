@@ -8761,20 +8761,28 @@ function renderDealAnalysis() {
         '</div>';
 
     // 3. 總價分佈
-    var low = allDeals.filter(function(d){return d.price<2000;});
-    var mid = allDeals.filter(function(d){return d.price>=2000 && d.price<=6000;});
-    var high = allDeals.filter(function(d){return d.price>6000;});
-    var maxBar = Math.max(low.length, mid.length, high.length, 1);
+    var _priceBands = [
+        { label:'2,000萬以下', min:0, max:2000, color:'#3B82F6' },
+        { label:'2,000萬~3,999萬', min:2000, max:4000, color:'#0891B2' },
+        { label:'4,000萬~5,999萬', min:4000, max:6000, color:'#F59E0B' },
+        { label:'6,000萬~7,999萬', min:6000, max:8000, color:'#F97316' },
+        { label:'8,000萬~9,999萬', min:8000, max:10000, color:'#EF4444' },
+        { label:'10,000萬以上', min:10000, max:Infinity, color:'#DC2626' }
+    ];
+    _priceBands.forEach(function(band) {
+        band.count = allDeals.filter(function(d){ return d.price>=band.min && d.price<band.max; }).length;
+    });
+    var maxBar = Math.max.apply(null, _priceBands.map(function(b){return b.count;}).concat([1]));
     function bar(count, color) {
         var pct = Math.round(count/maxBar*100);
         return '<div style="flex:1;background:#F1F5F9;border-radius:4px;height:20px;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:'+color+';border-radius:4px;min-width:'+(count?'8px':'0')+'"></div></div>';
     }
     html += '<div style="font-size:14px;font-weight:700;margin-bottom:6px">總價分佈</div>' +
-        '<div style="background:white;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:14px">' +
-            '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:13px;min-width:110px">2,000萬以下</span>'+bar(low.length,'#3B82F6')+'<span style="font-size:13px;font-weight:700;min-width:36px;text-align:right">'+low.length+' 件</span></div>' +
-            '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:13px;min-width:110px">2,000-6,000萬</span>'+bar(mid.length,'#F59E0B')+'<span style="font-size:13px;font-weight:700;min-width:36px;text-align:right">'+mid.length+' 件</span></div>' +
-            '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:13px;min-width:110px">6,000萬以上</span>'+bar(high.length,'#EF4444')+'<span style="font-size:13px;font-weight:700;min-width:36px;text-align:right">'+high.length+' 件</span></div>' +
-        '</div>';
+        '<div style="background:white;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:14px">';
+    _priceBands.forEach(function(band, i) {
+        html += '<div style="display:flex;align-items:center;gap:8px;'+(i<_priceBands.length-1?'margin-bottom:6px':'')+'"><span style="font-size:13px;min-width:130px">'+band.label+'</span>'+bar(band.count,band.color)+'<span style="font-size:13px;font-weight:700;min-width:36px;text-align:right">'+band.count+' 件</span></div>';
+    });
+    html += '</div>';
 
     // 4. 社區排行
     var commMap = {};
