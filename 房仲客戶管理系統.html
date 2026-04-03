@@ -4375,9 +4375,10 @@ function showDet(id, viewAs) {
                 if (occ) info.push(dRow('職業', occ));
                 if (email) info.push(dRow('Email', email));
                 if (source) info.push(dRow('客戶來源', source));
-                if (addr) info.push(dRow('地址', (zip?zip+' ':'')+addr));
+                var _addrType = c.addrType||c.bAddrType||c.sAddrType||c.llAddrType||c.ttAddrType||c.cAddrType||c.dAddrType||'地址';
+                if (addr) info.push(dRow(_addrType, (zip?zip+' ':'')+addr));
                 var _extraAddrs = c.basicAddrs||c.bBasicAddrs||c.sBasicAddrs||c.llBasicAddrs||c.ttBasicAddrs||c.cBasicAddrs||c.dBasicAddrs||[];
-                _extraAddrs.forEach(function(a){ if(a.addr) info.push(dRow('地址', (a.zip?a.zip+' ':'')+a.addr)); });
+                _extraAddrs.forEach(function(a){ if(a.addr) info.push(dRow(a.addrType||'地址', (a.zip?a.zip+' ':'')+a.addr)); });
                 // 銀行帳號
                 var _ll0 = (c.rLandlords && c.rLandlords[0]) || {};
                 var bank = c.bank || _ll0.bank || c.llBank || '';
@@ -4393,8 +4394,8 @@ function showDet(id, viewAs) {
                         if (p.birthday) info.push(dRow('生日', p.birthday.includes('-')?isoToROC(p.birthday):p.birthday));
                         if (p.occupation) info.push(dRow('職業', p.occupation));
                         if (p.email) info.push(dRow('Email', p.email));
-                        if (p.addr) info.push(dRow('地址', (p.zip?p.zip+' ':'')+p.addr));
-                        if (p.extraAddrs) p.extraAddrs.forEach(function(a){ if(a.addr) info.push(dRow('地址', (a.zip?a.zip+' ':'')+a.addr)); });
+                        if (p.addr) info.push(dRow(p.addrType||'地址', (p.zip?p.zip+' ':'')+p.addr));
+                        if (p.extraAddrs) p.extraAddrs.forEach(function(a){ if(a.addr) info.push(dRow(a.addrType||'地址', (a.zip?a.zip+' ':'')+a.addr)); });
                         if (p.bank||p.bankAccount) info.push(dRow('銀行', (p.bank||'')+(p.bankCode?' ('+p.bankCode+')':'')+(p.bankAccount?' '+p.bankAccount:'')));
                     });
                 }
