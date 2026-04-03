@@ -4384,8 +4384,9 @@ function showDet(id, viewAs) {
                 var bankCode = c.bankCode || _ll0.bankCode || c.llBankCode || '';
                 var bankAccount = c.bankAccount || _ll0.bankAccount || c.llBankAccount || '';
                 if (bank || bankAccount) info.push(dRow('銀行', (bank?bank:'')+(bankCode?' ('+bankCode+')':'')+(bankAccount?' '+bankAccount:'')));
-                // 其他聯絡人直接接在後面
+                // 其他聯絡人
                 if (c.contacts && c.contacts.length) {
+                    info.push('<div class="det-sec" style="margin-top:10px">其他聯絡人</div>');
                     c.contacts.forEach(function(p, idx) {
                         var lines = '<div style="font-weight:600">' + esc(p.name||'') + '</div>';
                         if (p.phone) lines += '<div>' + esc(p.phone) + '</div>';
