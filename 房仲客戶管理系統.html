@@ -7494,6 +7494,8 @@ function resetForm() {
     SIMPLE_FIELDS.forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
     document.getElementById('ft').value = '';
     document.getElementById('fs').value = '待聯絡';
+    // 所有地址類型預設回「住家」
+    ['f-addrType','f-bAddrType','f-sAddrType','f-llAddrType','f-ttAddrType','f-cAddrType','f-dAddrType'].forEach(function(id){ var el=document.getElementById(id); if(el&&el.tagName==='SELECT') el.value='住家'; });
     // statusGroup/flcGroup 已移除
     document.querySelectorAll('.type-sec').forEach(el=>el.classList.remove('on'));
     document.querySelectorAll('.tp-btn').forEach(b=>b.classList.remove('selected'));
