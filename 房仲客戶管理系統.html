@@ -4344,6 +4344,10 @@ function showDet(id, viewAs) {
     var orderedTypes = (detViewAs === 'tenant' || detViewAs === 'landlord') ? detDisplayTypes.slice() : cTypes.slice();
     if (curFilter !== 'all' && orderedTypes.includes(curFilter)) {
         orderedTypes = [curFilter].concat(orderedTypes.filter(function(t){ return t !== curFilter; }));
+    } else if (curFilter === 'all' && orderedTypes.length > 1) {
+        // 總覽時：把最重要的類型排前面（有行程 > 房東/庫存 > 其他 > 成交）
+        var _typePrio = {'房東':1,'庫存屋主':2,'經營買方':3,'租客':4,'商機募集':5,'成交客戶':6};
+        orderedTypes.sort(function(a,b){ return (_typePrio[a]||9) - (_typePrio[b]||9); });
     }
     var allTd = '';
     orderedTypes.forEach(function(t, idx) {
