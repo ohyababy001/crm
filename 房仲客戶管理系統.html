@@ -8683,7 +8683,105 @@ function renderPerfList(filtered) {
             '</div>';
         });
     }
+    // 成交總價分析
+    html += renderDealAnalysis();
     document.getElementById('perfBody').innerHTML = html;
+}
+// ── 成交總價分析 ──
+var _dealAnalysisYear = new Date().getFullYear();
+function renderDealAnalysis() {
+    // 收集所有成交物件
+    var allDeals = [];
+    DB.forEach(function(c) {
+        if (c._deleted || c._system) return;
+        if (c.deals && c.deals.length) {
+            c.deals.forEach(function(d) {
+                if (d.price) allDeals.push({ role:d.role||'', date:d.date||'', community:d.community||'', price:parseFloat(String(d.price).replace(/[,，萬]/g,''))||0, clientName:c.name||'' });
+            });
+        }
+    });
+    if (!allDeals.length) return '';
+
+    var html = '<div style="border-top:2px solid var(--border);margin-top:16px;padding-top:16px">' +
+        '<div style="font-size:16px;font-weight:800;color:var(--deep);margin-bottom:12px">📊 成交總價分析</div>';
+
+    // 1. 年度成交統計
+    var years = {};
+    allDeals.forEach(function(d) { if (d.date) { var y = parseInt(d.date.substring(0,4)); if(y) years[y]=true; } });
+    var yearList = Object.keys(years).map(Number).sort(function(a,b){return b-a;});
+    if (!yearList.length) yearList = [new Date().getFullYear()];
+    if (!yearList.includes(_dealAnalysisYear)) _dealAnalysisYear = yearList[0];
+
+    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">' +
+        '<span style="font-size:14px;font-weight:700">年度成交統計</span>' +
+        '<select onchange="_dealAnalysisYear=parseInt(this.value);renderPerformance()" style="padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-size:13px">';
+    yearList.forEach(function(y) {
+        html += '<option value="'+y+'"'+(_dealAnalysisYear===y?' selected':'')+'>'+(y-1911)+' 年（'+y+'）</option>';
+    });
+    html += '</select></div>';
+
+    var h1 = allDeals.filter(function(d){ var y=parseInt((d.date||'').substring(0,4)), m=parseInt((d.date||'').substring(5,7)); return y===_dealAnalysisYear && m>=1 && m<=6; });
+    var h2 = allDeals.filter(function(d){ var y=parseInt((d.date||'').substring(0,4)), m=parseInt((d.date||'').substring(5,7)); return y===_dealAnalysisYear && m>=7 && m<=12; });
+    var h1Count = h1.length, h1Sum = h1.reduce(function(s,d){return s+d.price;},0);
+    var h2Count = h2.length, h2Sum = h2.reduce(function(s,d){return s+d.price;},0);
+
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
+        '<div style="background:#FEF3C7;border-radius:8px;padding:8px 12px;text-align:center">' +
+            '<div style="font-size:12px;color:#92400E;font-weight:600;margin-bottom:4px">上半年（1-6月）</div>' +
+            '<div style="font-size:18px;font-weight:800;color:#B45309">'+h1Count+' <span style="font-size:12px;font-weight:600">件</span></div>' +
+            '<div style="font-size:14px;font-weight:700;color:#92400E">'+h1Sum.toLocaleString()+' <span style="font-size:11px">萬</span></div>' +
+        '</div>' +
+        '<div style="background:#EDE9FE;border-radius:8px;padding:8px 12px;text-align:center">' +
+            '<div style="font-size:12px;color:#5B21B6;font-weight:600;margin-bottom:4px">下半年（7-12月）</div>' +
+            '<div style="font-size:18px;font-weight:800;color:#7C3AED">'+h2Count+' <span style="font-size:12px;font-weight:600">件</span></div>' +
+            '<div style="font-size:14px;font-weight:700;color:#5B21B6">'+h2Sum.toLocaleString()+' <span style="font-size:11px">萬</span></div>' +
+        '</div>' +
+    '</div>' +
+    '<div style="background:#F0FDF4;border-radius:8px;padding:6px 12px;margin-bottom:14px;text-align:center">' +
+        '<span style="font-size:13px;font-weight:700;color:#065F46">年度合計：'+(h1Count+h2Count)+' 件 / '+(h1Sum+h2Sum).toLocaleString()+' 萬</span>' +
+    '</div>';
+
+    // 2. 買賣方累計（歷史全部）
+    var buyerDeals = allDeals.filter(function(d){return d.role==='買方';});
+    var sellerDeals = allDeals.filter(function(d){return d.role==='賣方';});
+    html += '<div style="font-size:14px;font-weight:700;margin-bottom:6px">買賣方累計</div>' +
+        '<div style="background:white;border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:14px">' +
+            '<div style="display:flex;justify-content:space-between;padding:3px 0"><span>買方</span><span style="font-weight:700">'+buyerDeals.length+' 件</span></div>' +
+            '<div style="display:flex;justify-content:space-between;padding:3px 0"><span>賣方</span><span style="font-weight:700">'+sellerDeals.length+' 件</span></div>' +
+            '<div style="display:flex;justify-content:space-between;padding:3px 0;border-top:1px solid var(--border);margin-top:2px;padding-top:5px"><span style="font-weight:600">合計</span><span style="font-weight:800">'+allDeals.length+' 件</span></div>' +
+        '</div>';
+
+    // 3. 總價分佈
+    var low = allDeals.filter(function(d){return d.price<2000;});
+    var mid = allDeals.filter(function(d){return d.price>=2000 && d.price<=6000;});
+    var high = allDeals.filter(function(d){return d.price>6000;});
+    var maxBar = Math.max(low.length, mid.length, high.length, 1);
+    function bar(count, color) {
+        var pct = Math.round(count/maxBar*100);
+        return '<div style="flex:1;background:#F1F5F9;border-radius:4px;height:20px;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:'+color+';border-radius:4px;min-width:'+(count?'8px':'0')+'"></div></div>';
+    }
+    html += '<div style="font-size:14px;font-weight:700;margin-bottom:6px">總價分佈</div>' +
+        '<div style="background:white;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:14px">' +
+            '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:13px;min-width:110px">2,000萬以下</span>'+bar(low.length,'#3B82F6')+'<span style="font-size:13px;font-weight:700;min-width:36px;text-align:right">'+low.length+' 件</span></div>' +
+            '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:13px;min-width:110px">2,000-6,000萬</span>'+bar(mid.length,'#F59E0B')+'<span style="font-size:13px;font-weight:700;min-width:36px;text-align:right">'+mid.length+' 件</span></div>' +
+            '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:13px;min-width:110px">6,000萬以上</span>'+bar(high.length,'#EF4444')+'<span style="font-size:13px;font-weight:700;min-width:36px;text-align:right">'+high.length+' 件</span></div>' +
+        '</div>';
+
+    // 4. 社區排行
+    var commMap = {};
+    allDeals.forEach(function(d) { if(d.community) commMap[d.community] = (commMap[d.community]||0)+1; });
+    var commList = Object.keys(commMap).map(function(k){return {name:k,count:commMap[k]};}).sort(function(a,b){return b.count-a.count;});
+    if (commList.length) {
+        html += '<div style="font-size:14px;font-weight:700;margin-bottom:6px">社區排行</div>' +
+            '<div style="background:white;border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin-bottom:8px">';
+        commList.slice(0, 10).forEach(function(item, i) {
+            html += '<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:14px"><span>'+(i+1)+'. '+esc(item.name)+'</span><span style="font-weight:700">'+item.count+' 件</span></div>';
+        });
+        html += '</div>';
+    }
+
+    html += '</div>';
+    return html;
 }
 var _perfRange = 'month';
 var _perfHistYear = new Date().getFullYear();
