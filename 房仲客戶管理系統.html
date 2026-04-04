@@ -3297,12 +3297,18 @@ function renderDashboard() {
 
     // 共用到期卡片渲染函式（DRY 重構）
     function _renderExpireCards(items, dateField, infoFn, emptyMsg) {
-        return items.length ? items.map(function(c) {
+        var visible = items.filter(function(c) {
+            var dk = 'expire_' + c.id + '_' + (c[dateField] || '');
+            return !_isDismissed(dk);
+        });
+        return visible.length ? visible.map(function(c) {
             var d = daysUntilExpire(c[dateField]);
             var label = d < 0 ? '已過期'+Math.abs(d)+'天' : d===0 ? '今天到期' : '剩'+d+'天';
-            return '<div class="dash-item" onclick="showDet(\''+esc(c.id)+'\')" style="cursor:pointer">' +
+            var dk = 'expire_' + c.id + '_' + (c[dateField] || '');
+            return '<div class="dash-item" style="cursor:pointer">' +
                 '<span class="dash-item-info" style="color:'+(d<=0?'#EF4444':'')+'">'+label+'</span>' +
-                '<span class="dash-item-name">'+esc(c.name)+'<span style="font-weight:400;color:#64748B"> · '+esc(infoFn(c))+'</span></span></div>';
+                '<span class="dash-item-name" onclick="showDet(\''+esc(c.id)+'\')">'+esc(c.name)+'<span style="font-weight:400;color:#64748B"> · '+esc(infoFn(c))+'</span></span>' +
+                '<button class="btn-ic" onclick="event.stopPropagation();_dismissAlert(\''+esc(dk)+'\',\'確定已處理「'+esc(c.name)+'」的到期提醒？\\n（續約後會重新出現）\')" title="已處理" style="font-size:13px;padding:2px 4px;flex-shrink:0">✅</button></div>';
         }).join('') : '<div class="dash-empty">'+emptyMsg+'</div>';
     }
     // 庫存合約即將到期（15天內）
@@ -3407,7 +3413,7 @@ function renderDashboard() {
             '<span class="dash-item-info" style="color:'+(b.days===0?'#EF4444':'')+'">'+esc(isoToMDW(b.date))+'</span>' +
             '<span class="dash-item-name" onclick="showDet(\''+esc(b.id)+'\')" style="white-space:nowrap">'+(b.who?esc(b.who)+'<span style="font-weight:400;color:#64748B">（'+esc(b.name)+'）</span>':esc(b.name))+'</span>' +
             '<span style="font-size:12px;color:#64748B;white-space:nowrap;flex-shrink:0">'+esc(isoToROC(b.date))+esc(age)+'</span>' +
-            '<button class="btn-ic" onclick="event.stopPropagation();_dismissAlert(\''+esc(b.dismissKey)+'\')" title="已祝福" style="font-size:13px;padding:2px 4px;flex-shrink:0">✅</button></div>';
+            '<button class="btn-ic" onclick="event.stopPropagation();_dismissAlert(\''+esc(b.dismissKey)+'\',\'確定已祝福「'+esc(b.who||b.name)+'」？\')" title="已祝福" style="font-size:13px;padding:2px 4px;flex-shrink:0">✅</button></div>';
     }).join('') : '<div class="dash-empty">近7天內沒有客戶生日</div>';
 
     // 手機版：近期行程固定最上面，其餘依最近期日期排序
@@ -6306,7 +6312,8 @@ function _getPSRecord() {
 function _getPS() { return _getPSRecord().schedules || []; }
 function _savePS(arr) { _getPSRecord().schedules = arr; persist(); }
 function _getDismissed() { return _getPSRecord().dismissed || {}; }
-function _dismissAlert(key) {
+function _dismissAlert(key, msg) {
+    if (msg && !confirm(msg)) return;
     var rec = _getPSRecord();
     if (!rec.dismissed) rec.dismissed = {};
     rec.dismissed[key] = true;
@@ -9702,7 +9709,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260404p10';
+var APP_VERSION = '20260404p11';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
