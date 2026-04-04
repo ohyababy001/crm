@@ -359,10 +359,10 @@
 
             /* Header */
             .header { padding: 10px 12px; gap: 6px; flex-wrap: wrap; }
-            .header-title { font-size: 16px; flex: 1 1 calc(50% - 4px); max-width: calc(50% - 4px); }
-            .mobile-cloud { flex: 1 1 calc(50% - 4px) !important; max-width: calc(50% - 4px); justify-content: flex-end; }
-            .search-wrap { order: 3; flex: 1 1 calc(50% - 4px); max-width: calc(50% - 4px); }
-            .btn-add { order: 4; flex: 1 1 calc(50% - 4px); max-width: calc(50% - 4px); padding: 10px 0; font-size: 14px; text-align: center; }
+            .header-title { display: none; }
+            .mobile-cloud { flex: 1 1 100% !important; max-width: 100%; justify-content: center; order: 1; }
+            .search-wrap { order: 2; flex: 1 1 calc(50% - 4px); max-width: calc(50% - 4px); }
+            .btn-add { order: 3; flex: 1 1 calc(50% - 4px); max-width: calc(50% - 4px); padding: 10px 0; font-size: 14px; text-align: center; }
 
             /* Layout */
             .sidebar { display: none; }
@@ -639,6 +639,10 @@
         .mobile-cloud button { background: rgba(255,255,255,0.15); border: none; color: #FAFAF9; padding: 6px 10px; border-radius: 8px; font-size: 12px; cursor: pointer; white-space: nowrap; }
         .mobile-cloud button:hover { background: rgba(255,255,255,0.25); }
         .mobile-cloud-status { font-size: 10px; color: rgba(250,250,249,0.6); }
+        .mobile-setting-menu { display:none; position:absolute; right:8px; top:100%; background:white; border-radius:10px; box-shadow:0 4px 16px rgba(0,0,0,0.18); z-index:200; min-width:140px; overflow:hidden; }
+        .mobile-setting-menu.show { display:block; }
+        .mobile-setting-menu button { display:block; width:100%; text-align:left; padding:12px 16px; border:none; background:none; font-size:14px; cursor:pointer; color:var(--text); }
+        .mobile-setting-menu button:hover { background:var(--bg); }
 
         /* 手機頂部導航列 */
         .mobile-nav {
@@ -689,15 +693,20 @@
     </div>
     <div class="mobile-cloud">
         <button onclick="openPerformance()">📊 業績</button>
-        <button onclick="cloudRestore()">📥 還原</button>
-        <button onclick="clearCache()">🔄 更新</button>
+        <button onclick="openTemplates()">📋 範本</button>
         <button onclick="openTrash()" style="color:#EF4444">🗑️ 回收</button>
+        <button onclick="toggleMobileSetting()" id="mobileSettingBtn">⚙️</button>
     </div>
     <button class="btn-add" onclick="openAdd()">＋ 新增客戶</button>
     <div class="header-tools" style="display:flex;gap:8px;align-items:center;margin-left:auto">
+        <button onclick="openTemplates()" style="background:white;border:1.5px solid #0891B2;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;font-weight:700;color:#0E7490;white-space:nowrap">📋 常用範本</button>
         <button onclick="openPerformance()" style="background:white;border:1.5px solid #8B5CF6;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;font-weight:700;color:#6D28D9;white-space:nowrap">📊 業績儀表板</button>
         <button onclick="openTrash()" style="background:white;border:1.5px solid #EF4444;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;font-weight:700;color:#DC2626;white-space:nowrap">🗑️ 資源回收桶<span id="trashCount" style="font-size:11px;margin-left:2px"></span></button>
         <button onclick="cloudRestore()" id="btnRestore" style="background:white;border:1.5px solid #3B82F6;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;font-weight:700;color:#1D4ED8;white-space:nowrap">☁️ 雲端還原</button>
+    </div>
+    <div class="mobile-setting-menu" id="mobileSettingMenu">
+        <button onclick="cloudRestore();closeMobileSetting()">📥 雲端還原</button>
+        <button onclick="clearCache();closeMobileSetting()">🔄 清除快取</button>
     </div>
 </header>
 <nav class="mobile-nav" id="mobileNav">
@@ -1378,6 +1387,20 @@
     </div>
 </div>
 
+<!-- 常用範本 -->
+<div id="tplModal" class="overlay" style="display:none" onmousedown="if(event.target===this)closeTemplates()">
+    <div class="modal" style="max-width:600px;height:90vh;display:flex;flex-direction:column" onclick="event.stopPropagation()">
+        <div class="modal-head">
+            <div class="modal-title">📋 常用範本</div>
+            <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+                <button onclick="addTemplate()" style="padding:5px 12px;border:none;border-radius:8px;background:#0891B2;color:white;cursor:pointer;font-size:12px;font-weight:600">＋ 新增</button>
+                <button class="btn-x" onclick="closeTemplates()">✕</button>
+            </div>
+        </div>
+        <div id="tplBody" class="modal-body" style="padding:12px 16px;flex:1;overflow-y:auto"></div>
+    </div>
+</div>
+
 <!-- 自製日曆 -->
 <div class="cal-popup" id="calPopup">
     <div class="cal-head" id="calDrag">
@@ -1957,7 +1980,7 @@ function persistPerf() {
 function autoSync() {
     var status = document.getElementById('cloudStatus');
     if (status) status.textContent = '☁️ 同步中…';
-    var syncData = DB.filter(function(c){ return !c.__perfRecords; }).concat([{__perfRecords: true, records: _perfRecords}]);
+    var syncData = DB.filter(function(c){ return !c.__perfRecords && !c.__templates; }).concat([{__perfRecords: true, records: _perfRecords}]).concat([{__templates: true, items: _templates}]);
     var payload = JSON.stringify(syncData);
     // 嘗試多種方式確保 POST 送達
     // 方式1: sendBeacon（最可靠的跨域 POST）
@@ -1986,11 +2009,11 @@ function verifySyncResult(status) {
         delete window[vCb];
         if (vScript.parentNode) vScript.parentNode.removeChild(vScript);
         if (Array.isArray(data) && data.length > 0) {
-            var cnt = data.filter(function(c){ return !c.__perfRecords; }).length;
+            var cnt = data.filter(function(c){ return !c.__perfRecords && !c.__templates; }).length;
             var localCnt = DB.length;
             if (cnt >= localCnt - 3) {
                 // 雲端筆數 >= 本地，確認上傳成功
-                var _dispCnt = data.filter(function(c){ return !c.__perfRecords && !c._system; }).length;
+                var _dispCnt = data.filter(function(c){ return !c.__perfRecords && !c.__templates && !c._system; }).length;
                 if (status) status.textContent = '☁️ 已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + _dispCnt + '筆）';
                 _localDirtyUntil = 0;
                 _lastSyncJSON = JSON.stringify(DB);
@@ -2094,6 +2117,10 @@ function autoFetchCloud() {
             } else {
                 cloudData = cloudData.filter(function(c){ return !c.__perfRecords; });
             }
+            // 提取範本資料
+            var tplMeta = cloudData.filter(function(c){ return c.__templates; })[0];
+            var cloudTpl = tplMeta && Array.isArray(tplMeta.items) ? tplMeta.items : null;
+            cloudData = cloudData.filter(function(c){ return !c.__templates; });
             var cloudJSON = JSON.stringify(cloudData);
             var localJSON = JSON.stringify(DB);
             // 資料不同才更新
@@ -2159,6 +2186,11 @@ function autoFetchCloud() {
                 if (cloudPerf) {
                     _perfRecords = cloudPerf;
                     try { localStorage.setItem('perfRecords', JSON.stringify(_perfRecords)); } catch(e) { console.error('localStorage寫入失敗', e); }
+                }
+                // 同步範本
+                if (cloudTpl) {
+                    _templates = cloudTpl;
+                    try { localStorage.setItem('crmTemplates', JSON.stringify(_templates)); } catch(e) { console.error('localStorage寫入失敗', e); }
                 }
                 var status = document.getElementById('cloudStatus');
                 if (status) status.textContent = '☁️ 已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + DB.filter(function(c){return !c._system;}).length + '筆）';
@@ -9494,9 +9526,13 @@ function doCloudRestore() {
                 _perfRecords = rp;
                 _perfRestoredCount = rp.length;
                 try { localStorage.setItem('perfRecords', JSON.stringify(_perfRecords)); } catch(e) { console.error('localStorage寫入失敗', e); }
-                return arr.filter(function(c){ return !c.__perfRecords; });
             }
-            return arr;
+            var tplMeta = arr.filter(function(c){ return c.__templates; })[0];
+            if (tplMeta && Array.isArray(tplMeta.items)) {
+                _templates = tplMeta.items;
+                try { localStorage.setItem('crmTemplates', JSON.stringify(_templates)); } catch(e) { console.error('localStorage寫入失敗', e); }
+            }
+            return arr.filter(function(c){ return !c.__perfRecords && !c.__templates; });
         }
         function parseRaw(raw) {
             try { var obj = JSON.parse(raw); if (obj && obj.payload && typeof obj.payload === 'string') raw = obj.payload; } catch(e) {}
@@ -9779,6 +9815,145 @@ function doClearCache() {
     } else {
         window.location.reload(true);
     }
+}
+
+// ── ⚙️ 手機設定選單 ──
+function toggleMobileSetting() {
+    var menu = document.getElementById('mobileSettingMenu');
+    menu.classList.toggle('show');
+}
+function closeMobileSetting() {
+    var menu = document.getElementById('mobileSettingMenu');
+    menu.classList.remove('show');
+}
+document.addEventListener('click', function(e) {
+    var menu = document.getElementById('mobileSettingMenu');
+    var btn = document.getElementById('mobileSettingBtn');
+    if (menu && btn && !menu.contains(e.target) && e.target !== btn) {
+        menu.classList.remove('show');
+    }
+});
+
+// ── 📋 常用範本 ──
+var _templates;
+var _defaultTemplates = [
+    { id: 'tpl_1', title: '租客詢問表', content: '👋您好，先麻煩您幫我填寫\n\n👤 身分背景與成員\n[怎麼稱呼您]:\n[您的手機]：\n[居住成員及關係]： \n[任職公司/職稱/年資]:\n\n🏠 生活習慣\n[有/無] 飼養寵物：\n[有/無] 抽菸習慣：\n[有/無] 供奉神明桌：\n\n📝 其他\n[有/無] 申請租補需求：\n[有/無] 報稅抵稅需求：\n[有/無] 遷入戶籍需求：\n[希望入住時間]:\n[特殊需求]:' },
+    { id: 'tpl_2', title: '房東應帶物品', content: '👨‍💼 房東應帶物品\n一、身分證正本\n\n二、印章\n\n三、房屋所有權證明(擇一)\n①建物所有權狀影本\n②最新一期房屋稅單\n\n四、房屋鑰匙\n①大門鑰匙\n②磁卡(扣)\n③電子鎖鑰匙\n④車道遙控器\n⑤信箱鑰匙\n\n五、銀行存摺影本\n\n．租約一式兩份我會準備。\n．當天協助結清度數。' },
+    { id: 'tpl_3', title: '租方應帶物品', content: '🙋‍♂️ 租方應帶物品\n一、身分證正本\n\n二、印章\n\n三、現金（或現場轉帳）\n①首月租金:\n②押金:\n③仲介服務費:\n④公證費:\n以上金額共計:\n\n四、相關證明\n①工作證明\n②學生證\n③良民證\n\n．租約一式兩份我會準備。\n．當天協助結清度數。' }
+];
+try {
+    var _savedTpl = localStorage.getItem('crmTemplates');
+    _templates = _savedTpl ? JSON.parse(_savedTpl) : JSON.parse(JSON.stringify(_defaultTemplates));
+} catch(e) { _templates = JSON.parse(JSON.stringify(_defaultTemplates)); }
+
+function persistTemplates() {
+    try { localStorage.setItem('crmTemplates', JSON.stringify(_templates)); } catch(e) { console.error('範本儲存失敗', e); }
+    if (_syncTimer) clearTimeout(_syncTimer);
+    _syncTimer = setTimeout(autoSync, 3000);
+}
+
+function openTemplates() {
+    renderTemplateList();
+    document.getElementById('tplModal').style.display = 'flex';
+}
+function closeTemplates() { document.getElementById('tplModal').style.display = 'none'; }
+
+function renderTemplateList() {
+    var html = '';
+    if (!_templates.length) {
+        html = '<div style="text-align:center;color:var(--muted);padding:30px;font-size:14px">尚無範本，點擊右上角「＋ 新增」建立</div>';
+    } else {
+        _templates.forEach(function(tpl, i) {
+            html += '<div style="border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:white">' +
+                '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">' +
+                    '<span style="font-size:15px;font-weight:700;flex:1">'+esc(tpl.title)+'</span>' +
+                    '<button type="button" onclick="copyTemplate('+i+')" style="padding:5px 12px;border:none;border-radius:6px;background:#0891B2;color:white;cursor:pointer;font-size:12px;font-weight:600">📋 複製</button>' +
+                    '<button type="button" onclick="editTemplate('+i+')" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:12px;color:var(--text)">✏️</button>' +
+                    '<button type="button" onclick="deleteTemplate('+i+')" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:12px;color:#EF4444">✕</button>' +
+                '</div>' +
+                '<pre style="white-space:pre-wrap;word-break:break-word;font-family:inherit;font-size:13px;color:var(--text);margin:0;background:var(--bg);padding:10px 12px;border-radius:8px;max-height:150px;overflow-y:auto;line-height:1.6">'+esc(tpl.content)+'</pre>' +
+            '</div>';
+        });
+    }
+    document.getElementById('tplBody').innerHTML = html;
+}
+
+function copyTemplate(idx) {
+    var tpl = _templates[idx];
+    if (!tpl) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(tpl.content).then(function() {
+            showToast('已複製「'+tpl.title+'」');
+        }).catch(function() { fallbackCopy(tpl); });
+    } else {
+        fallbackCopy(tpl);
+    }
+}
+function fallbackCopy(tpl) {
+    var ta = document.createElement('textarea');
+    ta.value = tpl.content;
+    ta.style.cssText = 'position:fixed;left:-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); showToast('已複製「'+tpl.title+'」'); } catch(e) { showToast('複製失敗，請手動複製', 'error'); }
+    document.body.removeChild(ta);
+}
+
+function addTemplate() {
+    showTemplateEditor(-1, '', '');
+}
+
+function editTemplate(idx) {
+    var tpl = _templates[idx];
+    if (!tpl) return;
+    showTemplateEditor(idx, tpl.title, tpl.content);
+}
+
+function showTemplateEditor(idx, title, content) {
+    var isNew = idx < 0;
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.cssText = 'padding:16px;width:min(500px,90vw);max-height:85vh;display:flex;flex-direction:column';
+    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">'+(isNew?'新增範本':'編輯範本')+'</div>' +
+        '<div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">範本名稱</label>' +
+        '<input id="tplEditTitle" type="text" value="'+esc(title)+'" placeholder="例如：租客詢問表" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box"></div>' +
+        '<div style="margin-bottom:12px;flex:1;display:flex;flex-direction:column"><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">範本內容</label>' +
+        '<textarea id="tplEditContent" placeholder="輸入範本內容…" style="width:100%;flex:1;min-height:200px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;line-height:1.6;resize:vertical;box-sizing:border-box">'+esc(content)+'</textarea></div>' +
+        '<div style="display:flex;gap:8px;justify-content:flex-end">' +
+            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px">取消</button>' +
+            '<button type="button" id="tplSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#0891B2;color:white;cursor:pointer;font-size:13px;font-weight:600">儲存</button>' +
+        '</div>';
+    overlay.appendChild(box);
+    overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+    document.body.appendChild(overlay);
+    document.getElementById('tplSaveBtn').onclick = function() {
+        var t = document.getElementById('tplEditTitle').value.trim();
+        var c = document.getElementById('tplEditContent').value;
+        if (!t) { showToast('請輸入範本名稱', 'warn'); return; }
+        if (!c) { showToast('請輸入範本內容', 'warn'); return; }
+        if (isNew) {
+            _templates.push({ id: 'tpl_' + Date.now(), title: t, content: c });
+        } else {
+            _templates[idx].title = t;
+            _templates[idx].content = c;
+        }
+        persistTemplates();
+        renderTemplateList();
+        overlay.remove();
+        showToast(isNew ? '已新增範本' : '已儲存修改');
+    };
+}
+
+function deleteTemplate(idx) {
+    var tpl = _templates[idx];
+    if (!tpl) return;
+    if (!confirm('確定刪除「'+tpl.title+'」？')) return;
+    _templates.splice(idx, 1);
+    persistTemplates();
+    renderTemplateList();
+    showToast('已刪除範本');
 }
 </script>
 </body>
