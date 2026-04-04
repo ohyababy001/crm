@@ -361,6 +361,7 @@
             .header { padding: 10px 12px; gap: 6px; flex-wrap: wrap; }
             .header-title { display: none; }
             .mobile-cloud { flex: 1 1 100% !important; max-width: 100%; justify-content: flex-start; order: 1; }
+            .mobile-cloud button.mc-main { flex: 1; max-width: calc(25% - 4px); text-align: center; }
             .search-wrap { order: 2; flex: 1 1 calc(50% - 4px); max-width: calc(50% - 4px); }
             .btn-add { order: 3; flex: 1 1 calc(50% - 4px); max-width: calc(50% - 4px); padding: 10px 0; font-size: 14px; text-align: center; }
 
@@ -692,8 +693,8 @@
         <input type="text" id="searchInput" placeholder="搜尋姓名、電話、社區、地址、備註…" oninput="debouncedRender()">
     </div>
     <div class="mobile-cloud">
-        <button onclick="openPerformance()">📊 業績</button>
-        <button onclick="openTemplates()">📋 範本</button>
+        <button class="mc-main" onclick="openPerformance()">📊 業績</button>
+        <button class="mc-main" onclick="openTemplates()">📋 範本</button>
         <span style="flex:1"></span>
         <button onclick="toggleMobileSetting()" id="mobileSettingBtn">⚙️</button>
     </div>
@@ -9756,7 +9757,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405c';
+var APP_VERSION = '20260405d';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
