@@ -8269,17 +8269,16 @@ function saveClient() {
     var _basicBankCode = _gv('f-bankCode');
     var _basicBankAccount = _gv('f-bankAccount');
     if(!name){showToast('請輸入姓名','warn');return;}
-    if(!phone){showToast('請輸入電話','warn');return;}
-    // 電話格式驗證（至少 8 碼純數字）
-    var _phoneDigits = normalizePhone(phone);
-    if (!/^\d{8,}$/.test(_phoneDigits)) { showToast('電話格式不正確，請輸入至少 8 碼數字', 'warn'); return; }
-    // 電話重複偵測
-    var _dupClient = DB.find(function(x) {
+    // 電話格式驗證（有填才檢查）
+    var _phoneDigits = phone ? normalizePhone(phone) : '';
+    if (phone && !/^\d{8,}$/.test(_phoneDigits)) { showToast('電話格式不正確，請輸入至少 8 碼數字', 'warn'); return; }
+    // 電話重複偵測（有填才檢查）
+    var _dupClient = _phoneDigits ? DB.find(function(x) {
         if (x._deleted || x.id === editId) return false;
         var phones = [normalizePhone(x.phone), normalizePhone(x.bPhone), normalizePhone(x.sPhone),
             normalizePhone(x.llPhone), normalizePhone(x.ttPhone), normalizePhone(x.cPhone), normalizePhone(x.dPhone)];
         return phones.some(function(p) { return p && p === _phoneDigits; });
-    });
+    }) : null;
     // 電話重複 & 身份證驗證（非同步置中彈窗）
     var _needDupConfirm = !!_dupClient;
     var _needIdConfirm = _basicIdNo && !validateTWID(_basicIdNo);
@@ -9807,7 +9806,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260406e';
+var APP_VERSION = '20260406f';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
