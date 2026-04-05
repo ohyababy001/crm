@@ -3905,7 +3905,7 @@ function renderCard(c) {
         var _mktTop = '';
         if (showType==='庫存屋主' && c.mktTemplates && c.mktTemplates.length) {
             c.mktTemplates.forEach(function(mt) {
-                _mktTop += `<div style="padding:6px 12px;background:#F0FDF4;border-bottom:1px solid #D1FAE5;cursor:pointer;font-size:14px;font-weight:600;color:#065F46" onclick="event.stopPropagation();copyMktDirect(this,'${esc(c.id)}','${esc(mt.title)}')">📋 ${esc(mt.title)}</div>`;
+                _mktTop += `<div style="flex:1 1 100%;padding:6px 12px;margin:-8px -18px 8px -18px;background:#F0FDF4;border-bottom:1px solid #D1FAE5;border-radius:14px 14px 0 0;cursor:pointer;font-size:14px;font-weight:600;color:#065F46" onclick="event.stopPropagation();copyMktDirect(this,'${esc(c.id)}','${esc(mt.title)}')">📋 ${esc(mt.title)}</div>`;
             });
         }
         return `<div class="card${c.archived?' archived':''}${cardClass}" onclick="showDetByView('${_eid}','${_eva}')">
@@ -9765,7 +9765,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405m';
+var APP_VERSION = '20260405n';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
