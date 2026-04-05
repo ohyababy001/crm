@@ -9777,7 +9777,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405u';
+var APP_VERSION = '20260405v';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
@@ -9841,7 +9841,8 @@ function doClearCache() {
 
 // ── ⚙️ 卡片更多選單 ──
 function openCardMenu(e, id, viewAs, isArchived) {
-    closeCardMenu();
+    var existing = document.getElementById('cardMenuPopup');
+    if (existing) { closeCardMenu(); return; }
     var menu = document.createElement('div');
     menu.className = 'card-menu-popup';
     menu.id = 'cardMenuPopup';
