@@ -17,7 +17,7 @@
             --text: #292524; --muted: #78716C; --border: #D6D3D1;
             --warm: #A8A29E; --wood: #57534E; --deep: #44403C;
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', 'PingFang TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', 'PingFang TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
 
         /* Header */
         .header { background: linear-gradient(135deg, #292524 0%, #44403C 50%, #57534E 100%); color: #FAFAF9; padding: 16px 28px; display: flex; align-items: center; gap: 16px; box-shadow: 0 4px 12px rgba(41,37,36,0.3); position: sticky; top: 0; z-index: 100; }
@@ -9806,7 +9806,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260406i';
+var APP_VERSION = '20260406j';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
