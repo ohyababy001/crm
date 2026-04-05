@@ -3694,6 +3694,12 @@ function renderCard(c) {
             var _want = _bd ? _bd.want : cc.want;
             if (_want) meta += `<div class="cmeta-row"><span class="cmeta-k">想要</span><span class="cmeta-v" style="color:#B45309">${esc(_want)}</span></div>`;
         } else if (showType==='庫存屋主') {
+            // 行銷範本直接顯示（點擊複製）
+            if (c.mktTemplates && c.mktTemplates.length) {
+                c.mktTemplates.forEach(function(mt) {
+                    meta += `<div class="cmeta-row" style="cursor:pointer" onclick="event.stopPropagation();copyMktDirect(this,'${esc(c.id)}','${esc(mt.title)}')" title="點擊複製"><span class="cmeta-k">📋</span><span class="cmeta-v" style="color:#0891B2">${esc(mt.title)}</span></div>`;
+                });
+            }
             // 根據等級篩選或優先度選擇顯示的物件
             var sp0 = {};
             var _spCount = (cc.sProperties && cc.sProperties.length) || 0;
@@ -9758,7 +9764,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405g';
+var APP_VERSION = '20260405h';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
@@ -10072,6 +10078,19 @@ function showMktEditor(idx, title, content) {
         overlay.remove();
         showToast(isNew ? '已新增行銷範本' : '已儲存修改');
     };
+}
+function copyMktDirect(el, clientId, title) {
+    var c = DB.find(function(x){ return x.id === clientId; });
+    if (!c || !c.mktTemplates) return;
+    var tpl = c.mktTemplates.find(function(t){ return t.title === title; });
+    if (!tpl) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(tpl.content).then(function() {
+            showToast('已複製「'+tpl.title+'」');
+        }).catch(function() { fallbackCopy(tpl); });
+    } else {
+        fallbackCopy(tpl);
+    }
 }
 function deleteMktTemplate(idx) {
     var c = DB.find(function(x){ return x.id === _mktClientId; });
