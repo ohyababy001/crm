@@ -801,7 +801,7 @@
         </div>
         <input type="file" id="csvImportInput2" accept=".csv" style="display:none" onchange="importCSV(this.files[0])">
         <div id="cloudStatus" style="text-align:center;font-size:11px;color:var(--muted);margin-top:12px;padding:0 10px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#22C55E;margin-right:4px;vertical-align:middle"></span>自動同步中</div>
-        <div style="text-align:center;font-size:9px;color:var(--muted);opacity:0.5;margin-top:8px;padding:0 10px" id="appVersion">v20260406y</div>
+        <div style="text-align:center;font-size:9px;color:var(--muted);opacity:0.5;margin-top:8px;padding:0 10px" id="appVersion">v20260406z</div>
     </aside>
 
     <!-- Main -->
@@ -3747,6 +3747,8 @@ function renderCard(c) {
             if (_budget)      meta += `<div class="cmeta-row"><span class="cmeta-k">預算</span><span class="cmeta-v">${esc(_budget)}${_budget.includes('萬')?'':'萬'}</span></div>`;
             var _want = _bd ? _bd.want : cc.want;
             if (_want) meta += `<div class="cmeta-row"><span class="cmeta-k">想要</span><span class="cmeta-v" style="color:#B45309">${esc(_want)}</span></div>`;
+            var _noWant = _bd ? _bd.noWant : cc.noWant;
+            if (_noWant) meta += `<div class="cmeta-row"><span class="cmeta-k">不想要</span><span class="cmeta-v" style="color:#EF4444">${esc(_noWant)}</span></div>`;
         } else if (showType==='庫存屋主') {
             // 根據等級篩選或優先度選擇顯示的物件
             var sp0 = {};
@@ -8991,6 +8993,30 @@ function renderDealAnalysis() {
         html += '</div>';
     }
 
+    // 5. 公寓成交排行（無社區大樓的成交，依路名分組）
+    var aptMap = {};
+    allDeals.forEach(function(d) {
+        if (d.community) return; // 有社區的跳過
+        var addr = d.addr || '';
+        // 從地址中提取路/街名
+        var m = addr.match(/([\u4e00-\u9fff]+(?:路|街|大道|巷))/);
+        if (!m) return;
+        var street = m[1];
+        // 嘗試提取區名
+        var distM = addr.match(/([\u4e00-\u9fff]+區)/);
+        var label = (distM ? distM[1] : '') + street + '公寓';
+        aptMap[label] = (aptMap[label] || 0) + 1;
+    });
+    var aptList = Object.keys(aptMap).map(function(k){ return {name:k, count:aptMap[k]}; }).sort(function(a,b){ return b.count - a.count; });
+    if (aptList.length) {
+        html += '<div style="font-size:14px;font-weight:700;margin-bottom:6px">公寓成交排行</div>' +
+            '<div style="background:white;border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin-bottom:8px">';
+        aptList.slice(0, 10).forEach(function(item, i) {
+            html += '<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:14px"><span>'+(i+1)+'. '+esc(item.name)+'</span><span style="font-weight:700">'+item.count+' 件</span></div>';
+        });
+        html += '</div>';
+    }
+
     html += '</div>';
     return html;
 }
@@ -9835,7 +9861,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260406y';
+var APP_VERSION = '20260406z';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
