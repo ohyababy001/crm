@@ -6895,18 +6895,19 @@ function cardSetDriveFolder(clientId, src, propIdx) {
     };
 }
 function cardDelDriveFolder(clientId, src, propIdx, urlKey) {
-    if (!confirm('確定刪除此雲端資料夾連結？')) return;
-    var c = DB.find(function(x){ return x.id === clientId; });
-    if (!c) return;
-    if (src === '_client') {
-        c[urlKey] = '';
-    } else {
-        if (!c[src] || !c[src][propIdx]) return;
-        c[src][propIdx][urlKey] = '';
-    }
-    persist(); render();
-    var overlay = document.querySelector('.fill-overlay');
-    if (overlay) overlay.remove();
+    confirmAction('確定刪除此雲端資料夾連結？', function() {
+        var c = DB.find(function(x){ return x.id === clientId; });
+        if (!c) return;
+        if (src === '_client') {
+            c[urlKey] = '';
+        } else {
+            if (!c[src] || !c[src][propIdx]) return;
+            c[src][propIdx][urlKey] = '';
+        }
+        persist(); render();
+        var overlay = document.querySelector('.fill-overlay');
+        if (overlay) overlay.remove();
+    });
 }
 
 // ── 同房東關聯 ──
@@ -8177,7 +8178,7 @@ function openEdit(id, viewAs) {
   } catch(e) { console.error('編輯錯誤:', e); showToast('編輯發生錯誤，請重試', 'error', 4000); }
 }
 
-function closeForm(skipConfirm){ if(!skipConfirm && !confirm('確定關閉？未儲存的資料將會遺失')) return; document.getElementById('fModal').style.display='none'; }
+function closeForm(skipConfirm){ if(!skipConfirm){ confirmAction('確定關閉？未儲存的資料將會遺失', function(){ document.getElementById('fModal').style.display='none'; }); return; } document.getElementById('fModal').style.display='none'; }
 
 // ── 編輯頁左右切換 ──
 var editListCache = [];
@@ -8275,11 +8276,10 @@ function saveClient() {
             normalizePhone(x.llPhone), normalizePhone(x.ttPhone), normalizePhone(x.cPhone), normalizePhone(x.dPhone)];
         return phones.some(function(p) { return p && p === _phoneDigits; });
     });
-    if (_dupClient && !confirm('⚠️ 此電話與「' + (_dupClient.name||'') + '」重複，確定要儲存？')) return;
-    // 身份證字號驗證
-    if (_basicIdNo && !validateTWID(_basicIdNo)) {
-        if (!confirm('⚠️ 身份證字號「' + _basicIdNo + '」格式不正確，確定要儲存？')) return;
-    }
+    // 電話重複 & 身份證驗證（非同步置中彈窗）
+    var _needDupConfirm = !!_dupClient;
+    var _needIdConfirm = _basicIdNo && !validateTWID(_basicIdNo);
+    function _continueSave() {
     // 價格欄位驗證（僅在有值時檢查）
     var _priceFields = [['f-sPrice','開價'],['f-sFloorPrice','底價']];
     for (var _pi=0; _pi<_priceFields.length; _pi++) {
@@ -8562,17 +8562,32 @@ function saveClient() {
     }
     persist(); closeForm(true); render();
     showToast('✅ 已儲存「' + name + '」');
+    } // end _continueSave
+    if (_needDupConfirm) {
+        confirmAction('⚠️ 此電話與「' + (_dupClient.name||'') + '」重複，確定要儲存？', function() {
+            if (_needIdConfirm) {
+                confirmAction('⚠️ 身份證字號「' + _basicIdNo + '」格式不正確，確定要儲存？', _continueSave);
+            } else { _continueSave(); }
+        });
+        return;
+    }
+    if (_needIdConfirm) {
+        confirmAction('⚠️ 身份證字號「' + _basicIdNo + '」格式不正確，確定要儲存？', _continueSave);
+        return;
+    }
+    _continueSave();
 }
 
 var _undoTimer = null, _undoBar = null;
 function del(id) {
     const c=DB.find(x=>x.id===id); if(!c) return;
-    if(!confirm(`確定要將「${c.name}」移至資源回收桶？`)) return;
-    c._deleted = true;
-    c._deletedAt = new Date().toISOString();
-    persist(); render(); closeDet();
-    // 顯示 undo 列（5 秒內可復原）
-    _showUndoBar(id, c.name);
+    confirmAction('確定要將「'+c.name+'」移至資源回收桶？', function() {
+        c._deleted = true;
+        c._deletedAt = new Date().toISOString();
+        persist(); render(); closeDet();
+        // 顯示 undo 列（5 秒內可復原）
+        _showUndoBar(id, c.name);
+    });
 }
 var _undoInterval = null;
 function _showUndoBar(id, name) {
@@ -8602,9 +8617,10 @@ function restoreFromTrash(id) {
 function permanentDel(id) {
     var c = DB.find(function(x){ return x.id===id; });
     if (!c) return;
-    if (!confirm('確定要永久刪除「'+c.name+'」？此操作無法復原！')) return;
-    DB = DB.filter(function(x){ return x.id !== id; });
-    persist(); renderTrash();
+    confirmAction('確定要永久刪除「'+c.name+'」？此操作無法復原！', function() {
+        DB = DB.filter(function(x){ return x.id !== id; });
+        persist(); renderTrash();
+    });
 }
 </script>
 
@@ -9013,7 +9029,7 @@ function addPerfRecord() {
             '<button type="button" id="perfSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#8B5CF6;color:white;cursor:pointer;font-size:14px;font-weight:600">儲存</button>' +
         '</div>';
     overlay.appendChild(box);
-    overlay.onclick = function(e){ if(e.target===overlay) { if(confirm('確定要關閉？尚未儲存的資料將會遺失')) overlay.remove(); } };
+    overlay.onclick = function(e){ if(e.target===overlay) { confirmAction('確定要關閉？尚未儲存的資料將會遺失', function(){ overlay.remove(); }); } };
     document.body.appendChild(overlay);
     _perfSelectedCase = '買賣案';
     _perfSelectedCat = '';
@@ -9136,7 +9152,7 @@ function editPerfRecord(idx) {
             '<button type="button" id="epSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#8B5CF6;color:white;cursor:pointer;font-size:14px;font-weight:600">儲存</button>' +
         '</div>';
     overlay.appendChild(box);
-    overlay.onclick = function(e){ if(e.target===overlay) { if(confirm('確定要關閉？尚未儲存的資料將會遺失')) overlay.remove(); } };
+    overlay.onclick = function(e){ if(e.target===overlay) { confirmAction('確定要關閉？尚未儲存的資料將會遺失', function(){ overlay.remove(); }); } };
     document.body.appendChild(overlay);
     function bindCatBtns() {
         document.querySelectorAll('.epCatBtn').forEach(function(b) {
@@ -9196,9 +9212,10 @@ function closeTrash() {
 function emptyTrash() {
     var trashCount = DB.filter(function(c){ return c._deleted; }).length;
     if (!trashCount) { showToast('回收桶是空的'); return; }
-    if (!confirm('確定要清空回收桶？共 '+trashCount+' 筆資料將永久刪除！')) return;
-    DB = DB.filter(function(c){ return !c._deleted; });
-    persist(); renderTrash();
+    confirmAction('確定要清空回收桶？共 '+trashCount+' 筆資料將永久刪除！', function() {
+        DB = DB.filter(function(c){ return !c._deleted; });
+        persist(); renderTrash();
+    });
 }
 function renderTrash() {
     var list = DB.filter(function(c){ return c._deleted; }).sort(function(a,b){ return (b._deletedAt||'').localeCompare(a._deletedAt||''); });
@@ -9786,7 +9803,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405w';
+var APP_VERSION = '20260405x';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
@@ -10045,11 +10062,12 @@ function deleteMktFromModal(clientId, idx) {
     var c = DB.find(function(x){ return x.id === clientId; });
     if (!c || !c.mktTemplates || !c.mktTemplates[idx]) return;
     var tpl = c.mktTemplates[idx];
-    if (!confirm('確定刪除「'+tpl.title+'」？')) return;
-    c.mktTemplates.splice(idx, 1);
-    persist();
-    renderStockTemplateList();
-    showToast('已刪除行銷範本');
+    confirmAction('確定刪除「'+tpl.title+'」？', function() {
+        c.mktTemplates.splice(idx, 1);
+        persist();
+        renderStockTemplateList();
+        showToast('已刪除行銷範本');
+    });
 }
 
 function copyTemplate(idx) {
@@ -10123,11 +10141,12 @@ function showTemplateEditor(idx, title, content) {
 function deleteTemplate(idx) {
     var tpl = _templates[idx];
     if (!tpl) return;
-    if (!confirm('確定刪除「'+tpl.title+'」？')) return;
-    _templates.splice(idx, 1);
-    persistTemplates();
-    renderTemplateList();
-    showToast('已刪除範本');
+    confirmAction('確定刪除「'+tpl.title+'」？', function() {
+        _templates.splice(idx, 1);
+        persistTemplates();
+        renderTemplateList();
+        showToast('已刪除範本');
+    });
 }
 
 // ── 📋 庫存行銷範本 ──
@@ -10261,12 +10280,13 @@ function deleteMktTemplate(idx) {
     var c = DB.find(function(x){ return x.id === _mktClientId; });
     if (!c || !c.mktTemplates || !c.mktTemplates[idx]) return;
     var tpl = c.mktTemplates[idx];
-    if (!confirm('確定刪除「'+tpl.title+'」？')) return;
-    c.mktTemplates.splice(idx, 1);
-    persist();
-    renderMktList();
-    render();
-    showToast('已刪除行銷範本');
+    confirmAction('確定刪除「'+tpl.title+'」？', function() {
+        c.mktTemplates.splice(idx, 1);
+        persist();
+        if (document.getElementById('mktBody')) renderMktList();
+        if (_tplTab === 'stock') renderStockTemplateList();
+        showToast('已刪除行銷範本');
+    });
 }
 </script>
 </body>
