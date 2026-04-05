@@ -3693,7 +3693,12 @@ function renderCard(c) {
             if (_budget)      meta += `<div class="cmeta-row"><span class="cmeta-k">預算</span><span class="cmeta-v">${esc(_budget)}${_budget.includes('萬')?'':'萬'}</span></div>`;
             var _want = _bd ? _bd.want : cc.want;
             if (_want) meta += `<div class="cmeta-row"><span class="cmeta-k">想要</span><span class="cmeta-v" style="color:#B45309">${esc(_want)}</span></div>`;
-        } else if (showType==='庫存屋主') {
+        // 庫存屋主：行銷範本按鈕（行程之後、物件資訊之前）
+        if (showType==='庫存屋主') {
+            var _mktCount = (c.mktTemplates && c.mktTemplates.length) || 0;
+            meta += `<div style="margin:4px 0"><button type="button" onclick="event.stopPropagation();openMktTemplates('${esc(c.id)}')" style="padding:3px 10px;border:1px dashed #0891B2;border-radius:6px;background:white;cursor:pointer;font-size:12px;color:#0891B2;font-weight:600">📋 行銷範本${_mktCount?' ('+_mktCount+')':''}</button></div>`;
+        }
+        if (showType==='庫存屋主') {
             // 根據等級篩選或優先度選擇顯示的物件
             var sp0 = {};
             var _spCount = (cc.sProperties && cc.sProperties.length) || 0;
@@ -9757,7 +9762,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405d';
+var APP_VERSION = '20260405e';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
@@ -9956,6 +9961,132 @@ function deleteTemplate(idx) {
     persistTemplates();
     renderTemplateList();
     showToast('已刪除範本');
+}
+
+// ── 📋 庫存行銷範本 ──
+var _mktClientId = '';
+function openMktTemplates(clientId) {
+    _mktClientId = clientId;
+    var c = DB.find(function(x){ return x.id === clientId; });
+    if (!c) return;
+    if (!c.mktTemplates) c.mktTemplates = [];
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    overlay.id = 'mktOverlay';
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.cssText = 'padding:16px;width:min(500px,90vw);max-height:85vh;display:flex;flex-direction:column';
+    box.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">' +
+        '<span style="font-weight:700;font-size:15px;flex:1">📋 行銷範本 — '+esc(c.sName||c.name)+'</span>' +
+        '<button type="button" onclick="addMktTemplate()" style="padding:4px 10px;border:none;border-radius:6px;background:#0891B2;color:white;cursor:pointer;font-size:12px;font-weight:600">＋ 新增</button>' +
+        '<button type="button" onclick="closeMktOverlay()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--muted)">✕</button>' +
+    '</div>' +
+    '<div id="mktBody" style="flex:1;overflow-y:auto"></div>';
+    overlay.appendChild(box);
+    overlay.onclick = function(e){ if(e.target===overlay) closeMktOverlay(); };
+    document.body.appendChild(overlay);
+    renderMktList();
+}
+function closeMktOverlay() {
+    var ov = document.getElementById('mktOverlay');
+    if (ov) ov.remove();
+}
+function renderMktList() {
+    var c = DB.find(function(x){ return x.id === _mktClientId; });
+    if (!c) return;
+    var list = c.mktTemplates || [];
+    var body = document.getElementById('mktBody');
+    if (!body) return;
+    var html = '';
+    if (!list.length) {
+        html = '<div style="text-align:center;color:var(--muted);padding:20px;font-size:13px">尚無行銷範本，點擊「＋ 新增」建立</div>';
+    } else {
+        list.forEach(function(tpl, i) {
+            html += '<div style="border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:white">' +
+                '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">' +
+                    '<span style="font-size:14px;font-weight:700;flex:1">'+esc(tpl.title)+'</span>' +
+                    '<button type="button" onclick="copyMktTemplate('+i+')" style="padding:4px 10px;border:none;border-radius:6px;background:#0891B2;color:white;cursor:pointer;font-size:11px;font-weight:600">📋 複製</button>' +
+                    '<button type="button" onclick="editMktTemplate('+i+')" style="padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:11px">✏️</button>' +
+                    '<button type="button" onclick="deleteMktTemplate('+i+')" style="padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:11px;color:#EF4444">✕</button>' +
+                '</div>' +
+                '<pre style="white-space:pre-wrap;word-break:break-word;font-family:inherit;font-size:12px;color:var(--text);margin:0;background:var(--bg);padding:8px 10px;border-radius:8px;max-height:120px;overflow-y:auto;line-height:1.5">'+esc(tpl.content)+'</pre>' +
+            '</div>';
+        });
+    }
+    body.innerHTML = html;
+}
+function copyMktTemplate(idx) {
+    var c = DB.find(function(x){ return x.id === _mktClientId; });
+    if (!c || !c.mktTemplates || !c.mktTemplates[idx]) return;
+    var tpl = c.mktTemplates[idx];
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(tpl.content).then(function() {
+            showToast('已複製「'+tpl.title+'」');
+        }).catch(function() { fallbackCopy(tpl); });
+    } else {
+        fallbackCopy(tpl);
+    }
+}
+function addMktTemplate() {
+    showMktEditor(-1, '', '');
+}
+function editMktTemplate(idx) {
+    var c = DB.find(function(x){ return x.id === _mktClientId; });
+    if (!c || !c.mktTemplates || !c.mktTemplates[idx]) return;
+    var tpl = c.mktTemplates[idx];
+    showMktEditor(idx, tpl.title, tpl.content);
+}
+function showMktEditor(idx, title, content) {
+    var isNew = idx < 0;
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    overlay.style.zIndex = '10001';
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.cssText = 'padding:16px;width:min(500px,90vw);max-height:85vh;display:flex;flex-direction:column';
+    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">'+(isNew?'新增行銷範本':'編輯行銷範本')+'</div>' +
+        '<div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">範本名稱</label>' +
+        '<input id="mktEditTitle" type="text" value="'+esc(title)+'" placeholder="例如：LINE 行銷文案" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box"></div>' +
+        '<div style="margin-bottom:12px;flex:1;display:flex;flex-direction:column"><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">範本內容</label>' +
+        '<textarea id="mktEditContent" placeholder="輸入行銷文案…" style="width:100%;flex:1;min-height:180px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;line-height:1.6;resize:vertical;box-sizing:border-box">'+esc(content)+'</textarea></div>' +
+        '<div style="display:flex;gap:8px;justify-content:flex-end">' +
+            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px">取消</button>' +
+            '<button type="button" id="mktSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#0891B2;color:white;cursor:pointer;font-size:13px;font-weight:600">儲存</button>' +
+        '</div>';
+    overlay.appendChild(box);
+    overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+    document.body.appendChild(overlay);
+    document.getElementById('mktSaveBtn').onclick = function() {
+        var t = document.getElementById('mktEditTitle').value.trim();
+        var ct = document.getElementById('mktEditContent').value;
+        if (!t) { showToast('請輸入範本名稱', 'warn'); return; }
+        if (!ct) { showToast('請輸入範本內容', 'warn'); return; }
+        var c = DB.find(function(x){ return x.id === _mktClientId; });
+        if (!c) return;
+        if (!c.mktTemplates) c.mktTemplates = [];
+        if (isNew) {
+            c.mktTemplates.push({ title: t, content: ct });
+        } else {
+            c.mktTemplates[idx].title = t;
+            c.mktTemplates[idx].content = ct;
+        }
+        persist();
+        renderMktList();
+        render();
+        overlay.remove();
+        showToast(isNew ? '已新增行銷範本' : '已儲存修改');
+    };
+}
+function deleteMktTemplate(idx) {
+    var c = DB.find(function(x){ return x.id === _mktClientId; });
+    if (!c || !c.mktTemplates || !c.mktTemplates[idx]) return;
+    var tpl = c.mktTemplates[idx];
+    if (!confirm('確定刪除「'+tpl.title+'」？')) return;
+    c.mktTemplates.splice(idx, 1);
+    persist();
+    renderMktList();
+    render();
+    showToast('已刪除行銷範本');
 }
 </script>
 </body>
