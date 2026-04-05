@@ -3694,12 +3694,6 @@ function renderCard(c) {
             var _want = _bd ? _bd.want : cc.want;
             if (_want) meta += `<div class="cmeta-row"><span class="cmeta-k">想要</span><span class="cmeta-v" style="color:#B45309">${esc(_want)}</span></div>`;
         } else if (showType==='庫存屋主') {
-            // 行銷範本直接顯示（點擊複製）
-            if (c.mktTemplates && c.mktTemplates.length) {
-                c.mktTemplates.forEach(function(mt) {
-                    meta += `<div class="cmeta-row" style="cursor:pointer" onclick="event.stopPropagation();copyMktDirect(this,'${esc(c.id)}','${esc(mt.title)}')" title="點擊複製"><span class="cmeta-k">📋</span><span class="cmeta-v" style="color:#065F46">${esc(mt.title)}</span></div>`;
-                });
-            }
             // 根據等級篩選或優先度選擇顯示的物件
             var sp0 = {};
             var _spCount = (cc.sProperties && cc.sProperties.length) || 0;
@@ -3908,7 +3902,14 @@ function renderCard(c) {
         }
 
         var _eid = esc(c.id), _eva = esc(c._viewAs||'');
+        var _mktTop = '';
+        if (showType==='庫存屋主' && c.mktTemplates && c.mktTemplates.length) {
+            c.mktTemplates.forEach(function(mt) {
+                _mktTop += `<div style="padding:6px 12px;background:#F0FDF4;border-bottom:1px solid #D1FAE5;cursor:pointer;font-size:14px;font-weight:600;color:#065F46" onclick="event.stopPropagation();copyMktDirect(this,'${esc(c.id)}','${esc(mt.title)}')">📋 ${esc(mt.title)}</div>`;
+            });
+        }
         return `<div class="card${c.archived?' archived':''}${cardClass}" onclick="showDetByView('${_eid}','${_eva}')">
+            ${_mktTop}
             <div class="card-main">
                 <div class="card-name">${esc(cardName)}${c._viewAs!=='tenant'&&cTypes.includes('成交客戶')&&c.deals&&c.deals.length?`<span class="deal-count">${c.deals.length}</span>`:''}${(showType==='房東'&&_objCount>1)?`<span style="font-size:12px;padding:1px 7px;border-radius:10px;background:#CFFAFE;color:#0E7490;font-weight:700;margin-left:4px;white-space:nowrap">${_objCount}間</span>`:''}${nameSuffix}${sameLL}</div>
                 <div class="card-phone">${esc(cardPhone)}</div>
@@ -9764,7 +9765,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405k';
+var APP_VERSION = '20260405m';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
