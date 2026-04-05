@@ -34,7 +34,7 @@
         .layout { display: flex; min-height: calc(100vh - 54px); }
 
         /* Sidebar */
-        .sidebar { width: 230px; background: #F5F3F0; border-right: 1px solid var(--border); padding: 18px 0; position: sticky; top: 58px; height: calc(100vh - 58px); overflow-y: auto; flex-shrink: 0; }
+        .sidebar { width: 230px; background: white; border-right: 1px solid var(--border); padding: 18px 0; position: sticky; top: 58px; height: calc(100vh - 58px); overflow-y: auto; flex-shrink: 0; }
         .sidebar-label { font-size: 18px; font-weight: 800; color: var(--deep); letter-spacing: 0.5px; padding: 0 20px; margin-bottom: 10px; text-align: center; }
         .filter-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 16px; border: 1px solid var(--border); background: white; border-radius: 10px; cursor: pointer; font-size: 27px; color: var(--text); transition: all 0.15s; text-align: center; margin: 2px 6px; width: calc(100% - 12px); }
         .filter-btn:hover { background: var(--bg); border-color: #94A3B8; }
@@ -9806,7 +9806,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260406m';
+var APP_VERSION = '20260406n';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
