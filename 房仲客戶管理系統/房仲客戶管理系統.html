@@ -2966,6 +2966,10 @@ function collectTypeNotes() {
 <script>
 // ── Sidebar filter ──
 function setFilter(type, btn) {
+    if (type === 'all') {
+        var si = document.getElementById('searchInput');
+        if (si) { si.value = ''; }
+    }
     curFilter = type;
     showThisMonthMode = false;
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -9651,10 +9655,6 @@ function doCloudRestore() {
 </script>
 <script>
 function mobileFilter(type) {
-    if (type === 'all') {
-        var si = document.getElementById('searchInput');
-        if (si) { si.value = ''; }
-    }
     document.querySelectorAll('.mobile-nav button').forEach(function(b){ b.classList.remove('active'); });
     var btn = document.getElementById('mnav-'+type);
     if (btn) btn.classList.add('active');
@@ -9777,7 +9777,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405s';
+var APP_VERSION = '20260405t';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
