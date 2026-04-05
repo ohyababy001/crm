@@ -9,42 +9,54 @@
     <meta name="apple-mobile-web-app-title" content="房仲CRM">
     <meta name="theme-color" content="#292524">
     <link rel="manifest" href="manifest.json">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <title>房仲客戶管理系統</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --primary: #78716C; --bg: #F5F3F0;
-            --text: #292524; --muted: #78716C; --border: #D6D3D1;
-            --warm: #A8A29E; --wood: #57534E; --deep: #44403C;
+            --primary: #78716C; --bg: #F7F5F3;
+            --text: #1C1917; --muted: #78716C; --border: #E7E5E4;
+            --warm: #A8A29E; --wood: #57534E; --deep: #292524;
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', 'PingFang TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+        body { font-family: 'Inter', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', 'PingFang TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; font-variant-numeric: tabular-nums; }
+        html { overflow-y: overlay; scrollbar-gutter: stable; }
+        html::-webkit-scrollbar { width: 6px; }
+        html::-webkit-scrollbar-track { background: transparent; }
+        html::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
+        html::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.3); }
 
         /* Header */
-        .header { background: linear-gradient(135deg, #292524 0%, #44403C 50%, #57534E 100%); color: #FAFAF9; padding: 16px 28px; display: flex; align-items: center; gap: 16px; box-shadow: 0 4px 12px rgba(41,37,36,0.3); position: sticky; top: 0; z-index: 100; }
-        .header-title { font-size: 24px; font-weight: 800; white-space: nowrap; letter-spacing: 1px; }
+        .header { background: linear-gradient(135deg, #1C1917 0%, #292524 50%, #3D3835 100%); color: #FAFAF9; padding: 16px 28px; display: flex; align-items: center; gap: 16px; box-shadow: 0 4px 16px rgba(28,25,23,0.4); position: sticky; top: 0; z-index: 100; overflow: visible; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .header-title { font-size: 24px; font-weight: 800; white-space: nowrap; letter-spacing: 4px; }
         .search-wrap { flex: 1; max-width: 420px; position: relative; }
         .search-wrap input { width: 100%; padding: 10px 16px 10px 38px; border-radius: 10px; border: none; font-size: 14px; background: rgba(255,255,255,0.15); color: #FAFAF9; outline: none; font-family: inherit; backdrop-filter: blur(4px); }
         .search-wrap input::placeholder { color: rgba(250,250,249,0.5); }
         .search-wrap input:focus { background: rgba(255,255,255,0.25); }
         .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 15px; }
-        .btn-add { background: #FAFAF9; color: var(--deep); border: none; padding: 10px 22px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: all 0.15s; }
-        .btn-add:hover { background: #F5F5F4; transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+        .header-btn { background:white; border:1.5px solid var(--border); border-radius:8px; padding:6px 14px; cursor:pointer; font-size:13px; font-weight:400; color:#57534E; white-space:nowrap; transition:all 0.15s; }
+        .header-btn:hover { border-color: var(--wood); color: var(--deep); background: #FAF9F7; }
+        .btn-add { background: #FAFAF9; color: var(--deep); border: none; padding: 10px 22px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.15); transition: all 0.15s; }
+        .btn-add:hover { background: #F5F5F4; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
 
         /* Layout */
         .layout { display: flex; min-height: calc(100vh - 54px); }
 
         /* Sidebar */
-        .sidebar { width: 230px; background: white; border-right: 1px solid var(--border); padding: 18px 0; position: sticky; top: 58px; height: calc(100vh - 58px); overflow-y: auto; flex-shrink: 0; }
-        .sidebar-label { font-size: 18px; font-weight: 800; color: var(--deep); letter-spacing: 0.5px; padding: 0 20px; margin-bottom: 10px; text-align: center; }
-        .filter-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 16px; border: 1px solid var(--border); background: #F5F3F0; border-radius: 10px; cursor: pointer; font-size: 27px; color: var(--text); transition: all 0.15s; text-align: center; margin: 2px 6px; width: calc(100% - 12px); }
-        .filter-btn:hover { background: var(--bg); border-color: #94A3B8; }
-        .filter-btn.active { background: linear-gradient(135deg, #57534E, #78716C); color: #FAFAF9; font-weight: 700; border-color: #57534E; box-shadow: 0 2px 8px rgba(87,83,78,0.3); }
-        .filter-overview { font-size: 27px; background: linear-gradient(135deg, #292524, #44403C); color: #FAFAF9 !important; border-radius: 12px; }
-        .filter-overview:hover { background: linear-gradient(135deg, #44403C, #57534E); }
-        .filter-overview.active { background: linear-gradient(135deg, #292524, #44403C); color: #FAFAF9 !important; border-color: #292524; box-shadow: 0 2px 8px rgba(41,37,36,0.3); }
+        .sidebar { width: 230px; background: #FFFFFF; border-right: 1px solid var(--border); padding: 18px 0; position: sticky; top: 58px; height: calc(100vh - 58px); overflow-y: auto; flex-shrink: 0; box-shadow: 2px 0 8px rgba(0,0,0,0.04); }
+        .sidebar-label { font-size: 18px; font-weight: 800; color: #1C1917; letter-spacing: 0.5px; padding: 0 20px; margin-bottom: 10px; text-align: center; }
+        .filter-btn { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border: 1px solid var(--border); background: #FAF9F7; border-radius: 16px; cursor: pointer; font-size: 29px; font-weight: 700; color: var(--text); transition: all 0.15s; text-align: left; margin: 4px 6px; width: calc(100% - 12px); }
+        .filter-btn .filter-left { display: flex; flex-direction: column; align-items: center; gap: 1px; flex: 1; }
+        .filter-sub { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.5; }
+        .filter-btn:hover { background: var(--bg); border-color: #94A3B8; transform: scale(1.02); }
+        .filter-btn.active { background: linear-gradient(135deg, #44403C, #57534E); color: #FAFAF9; font-weight: 700; border-color: #44403C; box-shadow: 0 2px 8px rgba(68,64,60,0.35); }
+        .filter-overview { font-size: 27px; background: linear-gradient(135deg, #1C1917, #292524); color: #FAFAF9 !important; border-radius: 16px; }
+        .filter-overview:hover { background: linear-gradient(135deg, #292524, #3D3835); }
+        .filter-overview.active { background: linear-gradient(135deg, #1C1917, #292524); color: #FAFAF9 !important; border-color: #1C1917; box-shadow: 0 2px 8px rgba(28,25,23,0.4); }
         .filter-overview .cnt { background: rgba(255,255,255,0.2) !important; color: #FAFAF9 !important; }
         .filter-left { display: flex; align-items: center; gap: 8px; }
-        .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; align-self: center; }
         .cnt { background: var(--bg); color: var(--muted); border-radius: 20px; padding: 2px 10px; font-size: 16px; font-weight: 600; }
         .filter-btn.active .cnt { background: rgba(255,255,255,0.2); color: #FAFAF9; }
         .sidebar-divider { height: 1px; background: var(--border); margin: 12px 0; }
@@ -57,7 +69,7 @@
         /* Main */
         .main { flex: 1; padding: 20px 24px; overflow-x: hidden; }
         .main-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-        .main-bar h2 { font-size: 26px; font-weight: 800; color: #0F172A; margin-left: 8px; }
+        .main-bar h2 { font-size: 26px; font-weight: 800; color: #1C1917; margin-left: 8px; }
         .sort-sel { padding: 7px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; color: var(--text); background: white; cursor: pointer; font-family: inherit; transition: border-color 0.12s; }
         .sort-sel:hover { border-color: #94A3B8; }
 
@@ -76,8 +88,8 @@
 
         /* Cards */
         .grid { display: grid; gap: 6px; }
-        .card { background: white; border-radius: 14px; padding: 8px 18px; border: 1px solid var(--border); display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.2s; }
-        .card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.08); border-color: #CBD5E1; transform: translateY(-1px); }
+        .card { background: #FFFFFF; border-radius: 14px; padding: 8px 18px; border: 1px solid var(--border); display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(28,25,23,0.04); }
+        .card:hover { box-shadow: 0 8px 24px rgba(28,25,23,0.1); border-color: #D6D3D1; transform: translateY(-2px); }
         .rental-group { border: 2px solid #A8A29E; border-radius: 16px; overflow: hidden; margin-bottom: 2px; }
         .card.landlord-card { border-left: 4px solid #0891B2; border-radius: 0; margin-bottom: 0; border-bottom: none; padding-bottom: 5px; border-top: none; border-right: none; }
         .card.tenant-card { border-left: 4px solid #DB2777; border-radius: 0; margin-top: 0; padding-top: 5px; border-top: 1px dashed #D6D3D1; border-bottom: none; border-right: none; }
@@ -131,7 +143,7 @@
         .cnt-archived { font-size: 11px; color: var(--muted); margin-left: 4px; }
         .avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 700; color: white; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.12); }
         .card-main { width: 200px; flex-shrink: 0; min-width: 0; }
-        .card-name { font-weight: 800; font-size: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 5px; color: #0F172A; }
+        .card-name { font-weight: 800; font-size: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 5px; color: #1C1917; }
         .deal-count { display:inline-flex;align-items:center;justify-content:center;background:#F59E0B;color:white;font-size:10px;font-weight:700;width:19px;height:19px;border-radius:50%;flex-shrink:0; }
         .card-phone { color: var(--muted); font-size: 15px; margin-top: 3px; }
         .tags { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
@@ -224,8 +236,8 @@
         .empty-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
 
         /* Modal */
-        .overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.5); backdrop-filter: blur(2px); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 16px; }
-        .modal { background: white; border-radius: 18px; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 64px rgba(0,0,0,0.2); }
+        .overlay { position: fixed; inset: 0; background: rgba(28,25,23,0.5); backdrop-filter: blur(3px); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 16px; }
+        .modal { background: #FFFFFF; border-radius: 18px; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 64px rgba(28,25,23,0.25); }
         .modal-head { padding: 18px 22px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: white; border-radius: 16px 16px 0 0; z-index: 1; }
         .modal-title { font-size: 17px; font-weight: 700; }
         .btn-x { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--muted); padding: 4px 6px; border-radius: 4px; }
@@ -247,8 +259,8 @@
         .btn { padding: 9px 20px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; border: none; font-family: inherit; }
         .btn-cancel { background: var(--bg); color: var(--text); }
         .btn-cancel:hover { background: var(--border); }
-        .btn-save { background: var(--deep); color: #FAFAF9; }
-        .btn-save:hover { background: #292524; }
+        .btn-save { background: var(--deep); color: #FAFAF9; box-shadow: 0 2px 6px rgba(28,25,23,0.2); }
+        .btn-save:hover { background: #1C1917; }
 
         /* Type Picker */
         .type-picker { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
@@ -326,19 +338,20 @@
         /* Dashboard */
         .dashboard { padding: 0; }
         .dash-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
-        .dash-card { background: white; border-radius: 14px; padding: 18px 16px; border: 1px solid var(--border); text-align: center; cursor: pointer; transition: all 0.2s; }
-        .dash-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.08); border-color: #CBD5E1; transform: translateY(-2px); }
+        .dash-card { background: #FFFFFF; border-radius: 14px; padding: 18px 16px; border: 1px solid var(--border); text-align: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(28,25,23,0.04); }
+        .dash-card:hover { box-shadow: 0 8px 24px rgba(28,25,23,0.1); border-color: #D6D3D1; transform: translateY(-2px); }
         .dash-card .dash-num { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
         .dash-card .dash-label { font-size: 13px; color: var(--muted); font-weight: 600; }
         .dash-sections { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 16px; grid-template-areas: "sched seller bday" "sched rental bday"; }
-        .dash-section { background: white; border-radius: 14px; padding: 18px; border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.03); min-height: 280px; }
-        .dash-section.dash-schedule { grid-area: sched; }
-        .dash-section.dash-seller { grid-area: seller; }
-        .dash-section.dash-bday { grid-area: bday; }
-        .dash-section.dash-rental { grid-area: rental; }
-        .dash-sec-title { font-size: 18px; font-weight: 700; color: #475569; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+        .dash-section { background: #FFFFFF; border-radius: 14px; padding: 18px; border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(28,25,23,0.04); min-height: 280px; transition: all 0.2s; }
+        .dash-section:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(28,25,23,0.08); }
+        .dash-section.dash-schedule { grid-area: sched; background: linear-gradient(135deg, #FFFFFF 0%, #F7F9FF 100%); }
+        .dash-section.dash-seller { grid-area: seller; background: linear-gradient(135deg, #FFFFFF 0%, #F7F9FF 100%); }
+        .dash-section.dash-bday { grid-area: bday; background: linear-gradient(135deg, #FFFFFF 0%, #F7F9FF 100%); }
+        .dash-section.dash-rental { grid-area: rental; background: linear-gradient(135deg, #FFFFFF 0%, #F7F9FF 100%); }
+        .dash-sec-title { font-size: 20px; font-weight: 800; color: #475569; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
         .dash-list { font-size: 18px; }
-        .dash-item { padding: 8px 8px; margin: 0 -8px; border-bottom: 1px solid #F1F5F9; display: flex; align-items: center; gap: 8px; border-radius: 6px; transition: background 0.15s; }
+        .dash-item { padding: 10px 8px; margin: 0 -8px; border-bottom: 1px solid #E2E8F0; display: flex; align-items: center; gap: 8px; border-radius: 6px; transition: background 0.15s; }
         .dash-item:last-child { border-bottom: none; }
         .dash-item:hover { background: #F0F4F8; }
         .dash-item-info { color: #334155; font-size: 16px; font-weight: 600; white-space: nowrap; flex-shrink: 0; min-width: 90px; }
@@ -352,6 +365,8 @@
 
         @media (max-width: 768px) {
             .dash-sched-memo { width: 100%; font-size: 14px; padding-left: 4px; margin-top: 2px; }
+            .dash-item-info { white-space: normal !important; text-align: right !important; }
+            .dash-item-info .sched-time { display: block; font-size: 14px; margin-top: 1px; text-align: right; }
             .dash-sched-btns { gap: 6px !important; }
             .dash-sched-btns .btn-ic { font-size: 12px !important; padding: 2px 5px !important; }
             /* 全域防溢出 */
@@ -627,6 +642,7 @@
             /* 手機雲端按鈕 */
             .mobile-cloud { display: flex !important; }
             .header-tools { display: none !important; }
+            .header-data-tools { display: none !important; }
 
             /* 手機頂部導航 */
             .mobile-nav { display: flex !important; }
@@ -669,10 +685,10 @@
             font-size: 18px; font-weight: 600; color: var(--muted); cursor: pointer;
             white-space: nowrap; border-radius: 6px; text-align: center;
         }
-        .mobile-nav button.active { color: #FAFAF9; font-weight: 800; background: linear-gradient(135deg, #292524, #44403C); border-radius: 6px; }
+        .mobile-nav button.active { color: #FAFAF9; font-weight: 800; background: linear-gradient(135deg, #1C1917, #292524); border-radius: 6px; }
 
         /* Toast 提示 */
-        .toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:#292524; color:#FAFAF9; padding:12px 24px; border-radius:12px; font-size:14px; font-weight:600; z-index:9999; box-shadow:0 4px 16px rgba(0,0,0,0.2); opacity:0; transition:opacity 0.3s; pointer-events:none; white-space:nowrap; }
+        .toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:#1C1917; color:#FAFAF9; padding:12px 24px; border-radius:12px; font-size:14px; font-weight:600; z-index:9999; box-shadow:0 4px 16px rgba(28,25,23,0.3); opacity:0; transition:opacity 0.3s; pointer-events:none; white-space:nowrap; }
         .toast.show { opacity:1; pointer-events:auto; }
         .toast.toast-error { background:#DC2626; }
         .toast.toast-warn { background:#D97706; }
@@ -699,7 +715,7 @@
 <div id="ptrIndicator" class="ptr-indicator">↓ 下拉刷新</div>
 
 <header class="header">
-    <div class="header-title">🏠 客戶管理</div>
+    <div class="header-title">🏠 CRM</div>
     <div class="search-wrap">
         <span class="search-icon">🔍</span>
         <input type="text" id="searchInput" placeholder="搜尋姓名、電話、社區、地址、備註…" oninput="debouncedRender()">
@@ -711,16 +727,27 @@
         <button onclick="toggleMobileSetting()" id="mobileSettingBtn">⚙️</button>
     </div>
     <button class="btn-add" onclick="openAdd()">＋ 新增客戶</button>
+    <div class="header-data-tools" style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin-left:12px">
+        <div style="display:flex;gap:6px;align-items:center">
+            <button onclick="exportCSV()" style="background:rgba(255,255,255,0.12);border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:400;color:#FAFAF9;white-space:nowrap">📊 匯出</button>
+            <button onclick="document.getElementById('csvImportInput2').click()" style="background:rgba(255,255,255,0.12);border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:400;color:#FAFAF9;white-space:nowrap">📥 匯入</button>
+            <button onclick="runDataCheck()" style="background:rgba(255,255,255,0.12);border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:400;color:#FAFAF9;white-space:nowrap">🔍 健檢</button>
+        </div>
+        <div style="display:flex;gap:12px;padding-left:4px">
+            <div id="exportTime" style="font-size:9px;color:#FFFFFF;white-space:nowrap"></div>
+            <div id="importTime" style="font-size:9px;color:#FFFFFF;white-space:nowrap"></div>
+        </div>
+    </div>
     <div class="header-tools" style="display:flex;gap:8px;align-items:center;margin-left:auto">
-        <button onclick="openTemplates()" style="background:white;border:1.5px solid #0891B2;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;font-weight:700;color:#0E7490;white-space:nowrap">📋 常用範本</button>
-        <button onclick="openPerformance()" style="background:white;border:1.5px solid #8B5CF6;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;font-weight:700;color:#6D28D9;white-space:nowrap">📊 業績儀表板</button>
-        <button onclick="openTrash()" style="background:white;border:1.5px solid #EF4444;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;font-weight:700;color:#DC2626;white-space:nowrap">🗑️ 資源回收桶<span id="trashCount" style="font-size:11px;margin-left:2px"></span></button>
-        <button onclick="cloudRestore()" id="btnRestore" style="background:white;border:1.5px solid #3B82F6;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;font-weight:700;color:#1D4ED8;white-space:nowrap">☁️ 雲端還原</button>
+        <button onclick="openTemplates()" class="header-btn" data-hover-color="#0891B2">📋 常用範本</button>
+        <button onclick="openPerformance()" class="header-btn" data-hover-color="#8B5CF6">📊 業績儀表板</button>
+        <button onclick="openTrash()" class="header-btn" data-hover-color="#EF4444">🗑️ 資源回收桶<span id="trashCount" style="font-size:11px;margin-left:2px"></span></button>
+        <button onclick="cloudRestore()" id="btnRestore" class="header-btn" data-hover-color="#3B82F6">☁️ 雲端還原</button>
     </div>
     <div class="mobile-setting-menu" id="mobileSettingMenu">
         <button onclick="openTrash();closeMobileSetting()">🗑️ 資源回收桶</button>
         <button onclick="cloudRestore();closeMobileSetting()">📥 雲端還原</button>
-        <button onclick="clearCache();closeMobileSetting()">🔄 清除快取</button>
+        <button onclick="clearCache();closeMobileSetting()">🔄 重新載入</button>
     </div>
 </header>
 <nav class="mobile-nav" id="mobileNav">
@@ -738,50 +765,52 @@
     <aside class="sidebar">
         <div style="padding:0 6px;margin-bottom:4px">
             <button class="filter-btn filter-overview active" onclick="setFilter('all',this)">
-                <span class="filter-left">📊 總覽</span>
+                <span class="dot" style="visibility:hidden"></span>
+                <span class="filter-left">總 覽<span class="filter-sub">OVERVIEW</span></span>
                 <span class="cnt" id="ct-all">0</span>
             </button>
-            <div style="border-bottom:1px solid var(--border);margin:6px 14px 8px"></div>
+            <div style="height:1px;margin:6px 14px 8px;background:linear-gradient(90deg, transparent, var(--border), transparent)"></div>
             <button class="filter-btn" onclick="setFilter('經營買方',this)">
-                <span class="filter-left"><span class="dot c-buyer"></span>買方</span>
+                <span class="dot c-buyer"></span>
+                <span class="filter-left">買 方<span class="filter-sub">BUYER</span></span>
                 <span><span class="cnt" id="ct-經營買方">0</span><span class="cnt-archived" id="ca-經營買方"></span></span>
             </button>
             <button class="filter-btn" onclick="setFilter('庫存屋主',this)">
-                <span class="filter-left"><span class="dot c-seller"></span>庫存</span>
+                <span class="dot c-seller"></span>
+                <span class="filter-left">庫 存<span class="filter-sub">LISTING</span></span>
                 <span><span class="cnt" id="ct-庫存屋主">0</span><span class="cnt-archived" id="ca-庫存屋主"></span></span>
             </button>
             <button class="filter-btn" onclick="setFilter('租客',this)">
-                <span class="filter-left"><span class="dot c-tenant"></span>租客</span>
+                <span class="dot c-tenant"></span>
+                <span class="filter-left">租 客<span class="filter-sub">TENANT</span></span>
                 <span><span class="cnt" id="ct-租客">0</span><span class="cnt-archived" id="ca-租客"></span></span>
             </button>
             <button class="filter-btn" onclick="setFilter('房東',this)">
-                <span class="filter-left"><span class="dot c-landlord"></span>房東</span>
+                <span class="dot c-landlord"></span>
+                <span class="filter-left">房 東<span class="filter-sub">LANDLORD</span></span>
                 <span><span class="cnt" id="ct-房東">0</span><span class="cnt-archived" id="ca-房東"></span></span>
             </button>
             <button class="filter-btn" onclick="setFilter('成交客戶',this)">
-                <span class="filter-left"><span class="dot c-closed"></span>成交</span>
+                <span class="dot c-closed"></span>
+                <span class="filter-left">成 交<span class="filter-sub">CLOSED</span></span>
                 <span class="cnt" id="ct-成交客戶">0</span>
             </button>
             <button class="filter-btn" onclick="setFilter('商機募集',this)">
-                <span class="filter-left"><span class="dot c-potential"></span>商機</span>
+                <span class="dot c-potential"></span>
+                <span class="filter-left">商 機<span class="filter-sub">LEADS</span></span>
                 <span class="cnt" id="ct-商機募集">0</span>
             </button>
         </div>
-        <button class="btn-export" onclick="exportCSV()" style="margin-top:12px">📊 匯出 CSV</button>
-        <div id="exportTime" style="text-align:center;font-size:10px;color:var(--muted);padding:0 10px"></div>
-        <button class="btn-export" onclick="document.getElementById('csvImportInput2').click()">📥 匯入 CSV</button>
         <input type="file" id="csvImportInput2" accept=".csv" style="display:none" onchange="importCSV(this.files[0])">
-        <div id="importTime" style="text-align:center;font-size:10px;color:var(--muted);padding:0 10px"></div>
-        <button class="btn-export" onclick="runDataCheck()" style="margin-top:4px">🔍 資料健檢</button>
-        <div id="cloudStatus" style="text-align:center;font-size:11px;color:var(--muted);margin-top:4px;padding:0 10px">☁️ 自動同步中</div>
+        <div id="cloudStatus" style="text-align:center;font-size:11px;color:var(--muted);margin-top:12px;padding:0 10px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#22C55E;margin-right:4px;vertical-align:middle"></span>自動同步中</div>
     </aside>
 
     <!-- Main -->
     <main class="main">
         <div class="main-bar">
-            <h2 id="filterTitle">全部客戶</h2>
+            <h2 id="filterTitle" style="display:none">全部客戶</h2>
             <span class="archive-toggle" id="archiveToggle" style="display:none" onclick="toggleShowArchived()">顯示封存</span>
-            <select class="sort-sel" id="sortSel" onchange="render()">
+            <select class="sort-sel" id="sortSel" onchange="render()" style="margin-left:auto">
                 <option value="newest">最新加入</option>
                 <option value="oldest">最早加入</option>
                 <option value="name">姓名排序</option>
@@ -830,25 +859,27 @@
         <!-- 總覽儀表板 -->
         <div id="dashboard" class="dashboard" style="display:none">
             <div class="dash-cards-wrap collapsed">
-                <div class="dash-cards-toggle" style="display:flex;align-items:center;justify-content:center;padding:8px 0;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted)" onclick="var w=this.parentElement;w.classList.toggle('collapsed');this.querySelector('span').textContent=w.classList.contains('collapsed')?'＋ 展開統計':'－ 收起統計'"><span>＋ 展開統計</span></div>
                 <div class="dash-cards" id="dashCards"></div>
             </div>
 
+            <div style="display:flex;justify-content:flex-end;margin-bottom:8px">
+                <div class="dash-cards-toggle" style="cursor:pointer;font-size:13px;font-weight:600;color:var(--muted);padding:4px 10px;border:1px solid var(--border);border-radius:8px;background:white" onclick="var w=document.querySelector('.dash-cards-wrap');w.classList.toggle('collapsed');this.querySelector('span').textContent=w.classList.contains('collapsed')?'📊 展開統計':'📊 收起統計'"><span>📊 展開統計</span></div>
+            </div>
             <div class="dash-sections">
                 <div class="dash-section dash-schedule">
-                    <div class="dash-sec-title" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center">📅 近期行程（15天內）<span class="dash-sched-btns" style="display:flex;gap:12px;align-items:center"><button class="btn-ic" onclick="showAllSchedules()" title="全部行程" style="font-size:15px;padding:3px 8px">📋全部</button><button class="btn-ic" onclick="showDoneSchedules()" title="已完成" style="font-size:15px;padding:3px 8px">✅已完成</button><button class="btn-ic" onclick="addPersonalSchedule()" title="新增個人行程" style="font-size:16px;padding:2px 6px">＋</button></span></div>
+                    <div class="dash-sec-title" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center"><span>📅 近期行程<span style="font-size:14px">（15天內）</span></span><span class="dash-sched-btns" style="display:flex;gap:12px;align-items:center"><button class="btn-ic" onclick="showAllSchedules()" title="全部行程" style="font-size:15px;padding:3px 8px">📋全部</button><button class="btn-ic" onclick="showDoneSchedules()" title="已完成" style="font-size:15px;padding:3px 8px">✅已完成</button><button class="btn-ic" onclick="addPersonalSchedule()" title="新增個人行程" style="font-size:16px;padding:2px 6px">＋</button></span></div>
                     <div class="dash-list" id="dashSchedule"></div>
                 </div>
                 <div class="dash-section dash-seller">
-                    <div class="dash-sec-title">⚠ 庫存合約即將到期（15天內）</div>
+                    <div class="dash-sec-title">⚠️ 庫存合約即將到期<span style="font-size:14px">（15天內）</span></div>
                     <div class="dash-list" id="dashExpiringSeller"></div>
                 </div>
                 <div class="dash-section dash-bday">
-                    <div class="dash-sec-title">🎂 客戶生日提醒（7天內）</div>
+                    <div class="dash-sec-title">🎂 客戶生日提醒<span style="font-size:14px">（7天內）</span></div>
                     <div class="dash-list" id="dashBirthday"></div>
                 </div>
                 <div class="dash-section dash-rental">
-                    <div class="dash-sec-title">⚠ 房東合約即將到期（45天內）</div>
+                    <div class="dash-sec-title">⚠️ 房東合約即將到期<span style="font-size:14px">（45天內）</span></div>
                     <div class="dash-list" id="dashExpiringRental"></div>
                 </div>
             </div>
@@ -1997,7 +2028,7 @@ function persistPerf() {
 }
 function autoSync() {
     var status = document.getElementById('cloudStatus');
-    if (status) status.textContent = '☁️ 同步中…';
+    if (status) status.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#F59E0B;margin-right:4px;vertical-align:middle"></span>同步中…';
     var syncData = DB.filter(function(c){ return !c.__perfRecords && !c.__templates; }).concat([{__perfRecords: true, records: _perfRecords}]).concat([{__templates: true, items: _templates}]);
     var payload = JSON.stringify(syncData);
     // 嘗試多種方式確保 POST 送達
@@ -2032,15 +2063,15 @@ function verifySyncResult(status) {
             if (cnt >= localCnt - 3) {
                 // 雲端筆數 >= 本地，確認上傳成功
                 var _dispCnt = data.filter(function(c){ return !c.__perfRecords && !c.__templates && !c._system; }).length;
-                if (status) status.textContent = '☁️ 已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + _dispCnt + '筆）';
+                if (status) status.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#22C55E;margin-right:4px;vertical-align:middle"></span>已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + _dispCnt + '筆）';
                 _localDirtyUntil = 0;
                 _lastSyncJSON = JSON.stringify(DB);
             } else {
-                if (status) status.textContent = '☁️ 同步中…';
+                if (status) status.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#F59E0B;margin-right:4px;vertical-align:middle"></span>同步中…';
                 // 筆數不符，不解除保護，下次 autoSync 重試
             }
         } else {
-            if (status) status.textContent = '⚠️ 同步可能失敗，請重試';
+            if (status) status.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#EF4444;margin-right:4px;vertical-align:middle"></span>同步可能失敗，請重試';
         }
     };
     vScript.src = CLOUD_URL + '?callback=' + vCb + '&t=' + Date.now();
@@ -2211,7 +2242,7 @@ function autoFetchCloud() {
                     try { localStorage.setItem('crmTemplates', JSON.stringify(_templates)); } catch(e) { console.error('localStorage寫入失敗', e); }
                 }
                 var status = document.getElementById('cloudStatus');
-                if (status) status.textContent = '☁️ 已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + DB.filter(function(c){return !c._system;}).length + '筆）';
+                if (status) status.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#22C55E;margin-right:4px;vertical-align:middle"></span>已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + DB.filter(function(c){return !c._system;}).length + '筆）';
             }
         } catch(e) { console.error('雲端同步解析失敗:', e); }
     };
@@ -3409,7 +3440,7 @@ function renderDashboard() {
         var memoHtml = s.memo ? '<div class="dash-sched-memo"'+(s.personal?' style="color:#0891B2"':'')+'>'+esc(s.memo)+'</div>' : (s.personal ? '<div class="dash-sched-memo" style="color:#0891B2">個人行程</div>' : '');
         return '<div class="dash-item dash-sched-item">' +
             '<div class="dash-sched-row1">' +
-                '<span class="dash-item-info" style="color:'+(s.days===0?'#EF4444':'')+'">'+esc(isoToMDW(s.date))+(s.time?' '+s.time:'')+'</span>' +
+                '<span class="dash-item-info" style="color:'+(s.days===0?'#EF4444':'')+'">'+esc(isoToMDW(s.date))+(s.time?'<span class="sched-time"> '+s.time+'</span>':'')+'</span>' +
                 nameHtml +
                 '<span style="display:flex;gap:2px;flex-shrink:0">' + editBtn + doneBtn +
                 (s.personal
@@ -3462,11 +3493,12 @@ function renderDashboard() {
     document.getElementById('dashBirthday').innerHTML = bdayList.length ? bdayList.map(function(b) {
         var label = b.days === 0 ? '今天生日！' : b.days + '天後';
         var age = '';
-        if (b.date) { var by = parseInt(b.date.substring(0,4)); if(by>0) { age = '（'+(now.getFullYear()-by)+'歲）'; } }
+        if (b.date) { var by = parseInt(b.date.substring(0,4)); if(by>0) { age = (now.getFullYear()-by)+'歲'; } }
         return '<div class="dash-item" style="cursor:pointer;flex-wrap:nowrap">' +
             '<span class="dash-item-info" style="color:'+(b.days===0?'#EF4444':'')+'">'+esc(isoToMDW(b.date))+'</span>' +
             '<span class="dash-item-name" onclick="showDet(\''+esc(b.id)+'\')" style="white-space:nowrap">'+(b.who?esc(b.who)+'<span style="font-weight:400;color:#64748B">（'+esc(b.name)+'）</span>':esc(b.name))+'</span>' +
-            '<span style="font-size:12px;color:#64748B;white-space:nowrap;flex-shrink:0">'+esc(isoToROC(b.date))+esc(age)+'</span>' +
+            '<span style="font-size:11px;color:#64748B;white-space:nowrap;flex-shrink:0">'+esc(isoToROC(b.date))+'</span>' +
+            (age ? '<span style="font-size:11px;font-weight:600;color:#1E40AF;background:#EFF6FF;padding:1px 8px;border-radius:10px;white-space:nowrap;flex-shrink:0">'+esc(age)+'</span>' : '') +
             '<button class="btn-ic" onclick="event.stopPropagation();_dismissAlert(\''+esc(b.dismissKey)+'\',\'確定已祝福「'+esc(b.who||b.name)+'」？\')" title="已祝福" style="font-size:13px;padding:2px 4px;flex-shrink:0">✅</button></div>';
     }).join('') : '<div class="dash-empty">近7天內沒有客戶生日</div>';
 

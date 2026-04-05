@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="description" content="房仲工具系統 — 房屋交易所得稅(舊制/新制)與房貸試算整合工具">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="房仲工具">
+<meta name="theme-color" content="#1C1917">
+<title>房仲工具系統</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --primary:#57534E;
+  --bg:#F7F5F3;
+  --text:#1C1917;
+  --muted:#78716C;
+  --border:#E7E5E4;
+  --deep:#292524;
+  --wood:#57534E;
+  --accent:#57534E;
+  --accent-light:#EDE8E0;
+  --danger:#EF4444;
+  --success:#16A34A;
+  --radius:14px;
+  --radius-sm:10px;
+  --radius-xs:8px;
+}
+
+html{height:100%;overflow-y:auto;scrollbar-gutter:stable;}
+html::-webkit-scrollbar{width:6px;}
+html::-webkit-scrollbar-track{background:transparent;}
+html::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.15);border-radius:3px;}
+html::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,0.3);}
+
+body{
+  font-family:'Inter','Noto Sans TC',-apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft JhengHei','PingFang TC',sans-serif;
+  min-height:100vh;
+  color:var(--text);
+  overflow-x:hidden;
+  background:var(--bg);
+  font-variant-numeric:tabular-nums;
+}
+
+/* 背景圖 — 隱藏 */
+.bg-layer{display:none;}
+
+/* Header */
+.header{
+  position:sticky;top:0;z-index:100;
+  background:linear-gradient(135deg, #1C1917 0%, #292524 50%, #3D3835 100%);
+  border-bottom:1px solid rgba(255,255,255,0.1);
+  box-shadow:0 4px 16px rgba(28,25,23,0.4);
+  padding:14px 28px;
+  display:flex;align-items:center;gap:14px;
+  color:#FAFAF9;
+}
+.header-dot{width:10px;height:10px;border-radius:50%;background:#FAFAF9;box-shadow:0 0 8px rgba(255,255,255,0.3);}
+.header-title{font-size:18px;font-weight:800;letter-spacing:4px;color:#FAFAF9;}
+.header-sep{width:1px;height:18px;background:rgba(255,255,255,0.15);margin:0 4px;}
+.header-sub{font-size:12px;color:rgba(255,255,255,0.5);letter-spacing:0.3px;}
+
+/* Layout */
+.layout{display:flex;min-height:calc(100vh - 51px);position:relative;z-index:1;}
+
+/* Sidebar */
+.sidebar{
+  width:200px;flex-shrink:0;
+  background:#FFFFFF;
+  border-right:1px solid var(--border);
+  box-shadow:2px 0 8px rgba(0,0,0,0.04);
+  padding:20px 10px;
+  position:sticky;top:51px;height:calc(100vh - 51px);
+  overflow-y:auto;
+  display:flex;flex-direction:column;gap:4px;
+}
+.sidebar-label{
+  font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--muted);padding:0 10px;margin-bottom:8px;
+}
+.nav-btn{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 14px;border-radius:var(--radius);
+  border:1px solid transparent;
+  background:transparent;
+  cursor:pointer;font-size:14px;font-weight:600;
+  color:var(--muted);
+  transition:all 0.15s ease;
+  font-family:inherit;width:100%;text-align:left;
+}
+.nav-btn:hover{background:var(--bg);color:var(--text);transform:scale(1.02);}
+.nav-btn.active{
+  background:linear-gradient(135deg, #44403C, #57534E);
+  border-color:#44403C;
+  color:#FAFAF9;font-weight:700;
+  box-shadow:0 2px 8px rgba(68,64,60,0.35);
+}
+.nav-btn.active .nav-icon{color:#FAFAF9;}
+.nav-icon{font-size:17px;width:24px;text-align:center;flex-shrink:0;transition:color 0.2s;}
+.sidebar-divider{height:1px;background:linear-gradient(90deg, transparent, var(--border), transparent);margin:8px 6px;}
+
+/* Main */
+.main{flex:1;padding:28px 36px;overflow-x:hidden;max-width:860px;}
+.page{display:none;}
+.page.active{display:block;}
+.page-title{
+  font-size:22px;font-weight:800;color:var(--text);
+  margin-bottom:24px;display:flex;align-items:center;gap:10px;
+  letter-spacing:0.3px;
+}
+.page-title .icon{font-size:24px;}
+
+/* Card */
+.section{
+  background:#FFFFFF;
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px 22px;
+  margin-bottom:14px;
+  transition:all 0.2s;
+  box-shadow:0 1px 3px rgba(28,25,23,0.04);
+}
+.section:hover{box-shadow:0 6px 20px rgba(28,25,23,0.08);border-color:#D6D3D1;}
+
+.sec-title{
+  font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--muted);
+  padding-bottom:10px;border-bottom:1px solid var(--border);
+  margin-bottom:16px;
+  display:flex;align-items:center;gap:8px;
+}
+.sec-title .sec-icon{font-size:13px;}
+
+/* Form */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;}
+.form-grid.three{grid-template-columns:1fr 1fr 1fr;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fg.full{grid-column:1/-1;}
+.fg label{font-size:12px;font-weight:600;color:var(--muted);padding-left:2px;letter-spacing:0.2px;}
+
+.fg input,.fg select{
+  padding:10px 13px;
+  border:1px solid var(--border);
+  border-radius:var(--radius-xs);
+  font-size:14px;font-weight:500;
+  color:var(--text);
+  background:white;
+  outline:none;
+  transition:all 0.2s ease;
+  font-family:inherit;
+  -moz-appearance:textfield;appearance:textfield;
+}
+.fg input::placeholder{color:#A8A29E;}
+.fg input:focus,.fg select:focus{
+  border-color:var(--wood);
+  box-shadow:0 0 0 3px rgba(87,83,78,0.1);
+}
+.fg select{cursor:pointer;}
+.fg input::-webkit-outer-spin-button,.fg input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.fg .hint{font-size:11px;color:var(--muted);margin-top:1px;padding-left:2px;}
+
+.input-grp{display:flex;align-items:stretch;}
+.input-grp input{border-radius:var(--radius-xs) 0 0 var(--radius-xs);flex:1;min-width:0;}
+.input-sfx{
+  padding:10px 12px;
+  border:1px solid var(--border);border-left:none;
+  border-radius:0 var(--radius-xs) var(--radius-xs) 0;
+  font-size:12px;font-weight:600;letter-spacing:0.3px;
+  color:var(--muted);
+  background:var(--bg);
+  white-space:nowrap;display:flex;align-items:center;
+}
+
+/* Radio group */
+.radio-group{display:flex;gap:6px;flex-wrap:wrap;}
+.radio-btn{
+  padding:8px 18px;
+  border-radius:20px;
+  border:1.5px solid var(--border);
+  background:white;
+  font-size:13px;font-weight:600;
+  cursor:pointer;color:var(--muted);
+  transition:all 0.15s ease;
+  font-family:inherit;
+}
+.radio-btn:hover{border-color:#94A3B8;color:var(--text);}
+.radio-btn.on{
+  background:var(--accent-light);
+  border-color:#8B7355;
+  color:#5C4A32;font-weight:700;
+}
+
+/* Checkbox */
+.check-row{display:flex;align-items:center;gap:10px;padding:6px 0;}
+.check-row input[type=checkbox]{
+  width:18px;height:18px;accent-color:var(--wood);cursor:pointer;
+  border-radius:4px;
+}
+.check-row label{font-size:13px;font-weight:500;cursor:pointer;color:var(--text);}
+
+/* Info box */
+.info-box{
+  background:linear-gradient(135deg, #FFFFFF 0%, #F7F9FF 100%);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:14px 16px;
+  margin-bottom:14px;
+  font-size:12px;color:#475569;
+  line-height:1.7;
+}
+.info-box strong{font-weight:700;color:var(--text);}
+.info-box ul{margin:4px 0 0 16px;}
+.info-box li{margin-bottom:2px;}
+
+/* Result */
+.result-box{
+  background:#FFFFFF;
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:22px 24px;
+  margin-top:18px;
+  box-shadow:0 2px 12px rgba(28,25,23,0.06);
+}
+.result-title{
+  font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+  color:var(--deep);margin-bottom:16px;
+  display:flex;align-items:center;gap:8px;
+}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.result-grid.single{grid-template-columns:1fr;}
+.result-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 14px;
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:var(--radius-xs);
+  transition:background 0.15s;
+}
+.result-item:hover{background:#F0EDE8;}
+.result-item .r-label{font-size:12px;color:var(--muted);font-weight:600;}
+.result-item .r-value{font-size:16px;font-weight:700;color:var(--text);}
+.result-item .r-value.highlight{color:#B45309;font-size:19px;}
+.result-item .r-value.green{color:var(--success);}
+.result-item.full{grid-column:1/-1;}
+
+/* Progress bar */
+.progress-bar{
+  height:4px;border-radius:2px;
+  background:var(--border);
+  overflow:hidden;margin-top:6px;
+}
+.progress-fill{
+  height:100%;border-radius:2px;
+  background:linear-gradient(90deg,#57534E,#78716C);
+  transition:width 0.6s ease;
+}
+
+/* Calc Button */
+.btn-calc{
+  display:block;width:100%;padding:14px;
+  border:none;border-radius:var(--radius-sm);
+  font-size:14px;font-weight:700;letter-spacing:0.3px;
+  cursor:pointer;font-family:inherit;
+  transition:all 0.2s ease;margin-top:18px;
+}
+.btn-calc.primary{
+  background:var(--deep);
+  color:#FAFAF9;
+  box-shadow:0 2px 8px rgba(28,25,23,0.2);
+}
+.btn-calc.primary:hover{
+  background:#1C1917;
+  box-shadow:0 4px 16px rgba(28,25,23,0.3);
+  transform:translateY(-1px);
+}
+.btn-calc.primary:active{transform:translateY(0);}
+
+/* Amortization Table */
+.amort-wrap{
+  margin-top:16px;max-height:420px;overflow-y:auto;
+  border:1px solid var(--border);border-radius:var(--radius-sm);
+}
+.amort-wrap::-webkit-scrollbar{width:6px;}
+.amort-wrap::-webkit-scrollbar-track{background:transparent;}
+.amort-wrap::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.15);border-radius:3px;}
+.amort-wrap::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,0.3);}
+
+.amort-table{width:100%;border-collapse:collapse;font-size:12px;}
+.amort-table th{
+  position:sticky;top:0;z-index:1;
+  background:#FFFFFF;
+  color:var(--muted);
+  padding:10px 10px;text-align:right;
+  font-weight:700;font-size:11px;letter-spacing:0.5px;
+  border-bottom:2px solid var(--border);
+}
+.amort-table th:first-child{text-align:center;}
+.amort-table td{
+  padding:8px 10px;text-align:right;
+  border-bottom:1px solid var(--border);
+  color:var(--text);font-weight:400;
+  font-variant-numeric:tabular-nums;
+}
+.amort-table td:first-child{text-align:center;color:var(--muted);}
+.amort-table tr:hover td{background:var(--bg);}
+.amort-table tr.grace td{background:#FEF3C7;color:#92400E;}
+
+/* Toggle detail */
+.toggle-detail{
+  font-size:12px;color:var(--muted);cursor:pointer;
+  margin-top:12px;display:inline-flex;align-items:center;gap:4px;
+  padding:6px 12px;border-radius:6px;
+  background:var(--bg);border:1px solid var(--border);
+  transition:all 0.15s;font-weight:600;
+}
+.toggle-detail:hover{background:#E7E5E4;color:var(--text);}
+.detail-content{display:none;margin-top:10px;}
+.detail-content.on{display:block;}
+
+/* Result messages */
+.result-msg{
+  margin-top:12px;padding:12px 16px;border-radius:var(--radius-xs);
+  font-size:13px;font-weight:500;line-height:1.5;
+}
+.result-msg.success{background:#DCFCE7;border:1px solid #BBF7D0;color:#166534;}
+.result-msg.warning{background:#FEF3C7;border:1px solid #FDE68A;color:#92400E;}
+
+/* Responsive */
+@media(max-width:768px){
+  .layout{flex-direction:column;}
+  .sidebar{
+    width:100%;height:auto;position:relative;top:0;
+    border-right:none;border-bottom:1px solid var(--border);
+    padding:8px 6px;box-shadow:none;
+    flex-direction:row;overflow-x:auto;gap:4px;
+  }
+  .sidebar-label{display:none;}
+  .sidebar-divider{width:1px;height:28px;margin:0 2px;flex-shrink:0;background:var(--border);}
+  .nav-btn{padding:8px 14px;font-size:12px;white-space:nowrap;min-width:fit-content;border-radius:var(--radius-xs);}
+  .nav-icon{font-size:15px;width:auto;}
+  .main{padding:16px 14px;}
+  .form-grid{grid-template-columns:1fr;}
+  .form-grid.three{grid-template-columns:1fr 1fr;}
+  .result-grid{grid-template-columns:1fr;}
+  .header{padding:12px 16px;}
+  .header-title{font-size:16px;}
+  .page-title{font-size:18px;}
+  .section{padding:16px;}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-layer"></div>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-dot"></div>
+  <div class="header-title">房仲工具系統</div>
+  <div class="header-sep"></div>
+  <div class="header-sub">稅務試算 ╱ 房貸計算</div>
+</div>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-label">工具</div>
+    <button class="nav-btn active" data-page="oldTax">
+      <span class="nav-icon">🏠</span>舊制所得稅
+    </button>
+    <button class="nav-btn" data-page="newTax">
+      <span class="nav-icon">🏢</span>房地合一稅
+    </button>
+    <div class="sidebar-divider"></div>
+    <button class="nav-btn" data-page="mortgage">
+      <span class="nav-icon">🏦</span>房貸試算
+    </button>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+
+    <!-- ========== 舊制所得稅 ========== -->
+    <div class="page active" id="page-oldTax">
+      <div class="page-title"><span class="icon">🏠</span> 房屋交易所得稅（舊制）</div>
+
+      <div class="info-box">
+        <strong>適用條件：</strong>2016/1/1 以前取得之房屋。舊制僅對「房屋」部分課稅，土地免稅（另繳土地增值稅）。<br>
+        所得併入個人綜合所得稅申報，適用 5%～40% 累進稅率。
+      </div>
+
+      <div class="section">
+        <div class="sec-title"><span class="sec-icon">📋</span> 計算方式</div>
+        <div class="radio-group" id="oldCalcMethod">
+          <button class="radio-btn on" data-val="actual">核實認定（有買賣資料）</button>
+          <button class="radio-btn" data-val="standard">標準認定（無法舉證）</button>
+        </div>
+      </div>
+
+      <!-- 核實認定 -->
+      <div class="section" id="oldActualSec">
+        <div class="sec-title"><span class="sec-icon">💰</span> 交易資料</div>
+        <div class="form-grid">
+          <div class="fg">
+            <label>房屋售價</label>
+            <div class="input-grp"><input type="text" id="oldSellPrice" placeholder="0" inputmode="numeric"><span class="input-sfx">萬元</span></div>
+          </div>
+          <div class="fg">
+            <label>房屋取得成本</label>
+            <div class="input-grp"><input type="text" id="oldBuyPrice" placeholder="0" inputmode="numeric"><span class="input-sfx">萬元</span></div>
+          </div>
+          <div class="fg">
+            <label>相關費用（仲介、代書等）</label>
+            <div class="input-grp"><input type="text" id="oldExpense" placeholder="0" inputmode="numeric"><span class="input-sfx">萬元</span></div>
+            <span class="hint">無法舉證可按售價 5% 計算</span>
+          </div>
+          <div class="fg">
+            <label>土地漲價總數額</label>
+            <div class="input-grp"><input type="text" id="oldLandInc" placeholder="0" inputmode="numeric"><span class="input-sfx">萬元</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 標準認定 -->
+      <div class="section" id="oldStdSec" style="display:none;">
+        <div class="sec-title"><span class="sec-icon">📊</span> 標準認定資料</div>
+        <div class="form-grid">
+          <div class="fg">
+            <label>房屋評定現值</label>
+            <div class="input-grp"><input type="text" id="oldAssessVal" placeholder="0" inputmode="numeric"><span class="input-sfx">萬元</span></div>
+          </div>
+          <div class="fg">
+            <label>所得標準率</label>
+            <div class="input-grp"><input type="text" id="oldStdRate" placeholder="例：48" inputmode="numeric"><span class="input-sfx">%</span></div>
+            <span class="hint">依各地區國稅局公告（台北市約 41%~48%）</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="sec-title"><span class="sec-icon">📑</span> 綜合所得稅資料</div>
+        <div class="form-grid">
+          <div class="fg">
+            <label>其他綜合所得淨額（不含本次交易）</label>
+            <div class="input-grp"><input type="text" id="oldOtherIncome" placeholder="0" inputmode="numeric"><span class="input-sfx">萬元</span></div>
+            <span class="hint">用以判斷適用稅率級距</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-calc primary" onclick="calcOldTax()">計算舊制所得稅</button>
+
+      <div id="oldResult"></div>
+    </div>
+
+    <!-- ========== 房地合一稅（新制） ========== -->
+    <div class="page" id="page-newTax">
+      <div class="page-title"><span class="icon">🏢</span> 房地合一稅（新制）</div>
+
+      <div class="info-box">
+        <strong>適用條件：</strong>2016/1/1 以後取得之房地產。房屋與土地合併課稅，分離課稅不併入綜所稅。
+        <ul>
+          <li><strong>1.0 版</strong>（2016/1/1～2021/6/30 交易）：短持高稅率</li>
+          <li><strong>2.0 版</strong>（2021/7/1 以後交易）：加重短期持有稅率門檻</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <div class="sec-title"><span class="sec-icon">📋</span> 適用版本與身分</div>
+        <div class="form-grid">
+          <div class="fg">
+            <label>適用版本</label>
+            <div class="radio-group" id="newVersion">
+              <button class="radio-btn on" data-val="2.0">2.0（2021/7/1後交易）</button>
+              <button class="radio-btn" data-val="1.0">1.0（2016～2021/6/30）</button>
+            </div>
+          </div>
+          <div class="fg">
+            <label>身分</label>
+            <div class="radio-group" id="newIdentity">
+              <button class="radio-btn on" data-val="resident">境內個人</button>
+              <button class="radio-btn" data-val="foreign">境外個人</button>
+              <button class="radio-btn" data-val="corp">境內法人</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="sec-title"><span class="sec-icon">💰</span> 交易資料</div>
+        <div class="form-grid">
+          <div class="fg">
+            <label>成交價額</label>
+            <div class="input-grp"><input type="text" id="newSellPrice" placeholder="0" inputmode="numeric"><span class="input-sfx">萬元</span></div>
+          </div>
+          <div class="fg">
+            <label>取得成本</label>
+            <div class="input-grp"><input type="text" id="newBuyPrice" placeholder="0" inputmode="numeric"><span class="input-sfx">萬元</span></div>
+          </div>
+          <div class="fg">
+            <label>相關費用</label>
+            <div class="input-grp"><input type="text" id="newExpense" placeholder="0" inputmode="numeric"><span class="input-sfx">萬元</span></div>
+            <span class="hint">無法舉證可按成交價 3%（上限30萬）</span>
+          </div>
+          <div class="fg">
+            <label>土地漲價總數額</label>
+            <div class="input-grp"><input type="text" id="newLandInc" placeholder="0" inputmode="numeric"><span class="input-sfx">萬元</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="sec-title"><span class="sec-icon">📅</span> 持有期間</div>
+        <div class="form-grid three">
+          <div class="fg">
+            <label>持有年數</label>
+            <div class="input-grp"><input type="text" id="newHoldYears" placeholder="0" inputmode="numeric"><span class="input-sfx">年</span></div>
+          </div>
+          <div class="fg">
+            <label>持有月數</label>
+            <div class="input-grp"><input type="text" id="newHoldMonths" placeholder="0" inputmode="numeric"><span class="input-sfx">月</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" id="newSelfUseSec">
+        <div class="sec-title"><span class="sec-icon">🏡</span> 自用住宅優惠</div>
+        <div class="check-row">
+          <input type="checkbox" id="newSelfUse">
+          <label for="newSelfUse">適用自用住宅優惠（課稅所得400萬免稅，超過部分10%）</label>
+        </div>
+        <div class="info-box" style="margin-top:10px;margin-bottom:0;">
+          須同時符合：本人/配偶/未成年子女設籍、持有並居住連續滿6年、無出租無營業、6年內未曾適用。
+        </div>
+      </div>
+
+      <button class="btn-calc primary" onclick="calcNewTax()">計算房地合一稅</button>
+
+      <div id="newResult"></div>
+    </div>
+
+    <!-- ========== 房貸試算 ========== -->
+    <div class="page" id="page-mortgage">
+      <div class="page-title"><span class="icon">🏦</span> 房貸試算</div>
+
+      <div class="section">
+        <div class="sec-title"><span class="sec-icon">💰</span> 貸款條件</div>
+        <div class="form-grid">
+          <div class="fg">
+            <label>貸款金額</label>
+            <div class="input-grp"><input type="text" id="mLoan" placeholder="0" inputmode="numeric"><span class="input-sfx">萬元</span></div>
+          </div>
+          <div class="fg">
+            <label>年利率</label>
+            <div class="input-grp"><input type="text" id="mRate" placeholder="2.185" inputmode="decimal"><span class="input-sfx">%</span></div>
+          </div>
+          <div class="fg">
+            <label>貸款年限</label>
+            <div class="input-grp"><input type="text" id="mYears" placeholder="30" inputmode="numeric"><span class="input-sfx">年</span></div>
+          </div>
+          <div class="fg">
+            <label>寬限期</label>
+            <div class="input-grp"><input type="text" id="mGrace" placeholder="0" inputmode="numeric"><span class="input-sfx">年</span></div>
+            <span class="hint">寬限期內僅繳利息不還本金</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="sec-title"><span class="sec-icon">📋</span> 還款方式</div>
+        <div class="radio-group" id="mMethod">
+          <button class="radio-btn on" data-val="annuity">本息均攤（等額本息）</button>
+          <button class="radio-btn" data-val="principal">本金均攤（等額本金）</button>
+        </div>
+      </div>
+
+      <button class="btn-calc primary" onclick="calcMortgage()">計算房貸</button>
+
+      <div id="mortgageResult"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ========== Utility ========== */
+function parseNum(id){
+  const v=document.getElementById(id).value.replace(/,/g,'').trim();
+  return v===''?0:parseFloat(v);
+}
+function fmt(n,d=0){return n.toLocaleString('zh-TW',{minimumFractionDigits:d,maximumFractionDigits:d});}
+function fmtMoney(n){
+  if(Math.abs(n)>=1) return fmt(n,2)+' 萬元';
+  return fmt(n*10000,0)+' 元';
+}
+
+/* ========== 千分位即時格式化 ========== */
+document.addEventListener('input',function(e){
+  const el=e.target;
+  if(el.tagName!=='INPUT'||el.type==='checkbox') return;
+  if(el.closest('.input-grp')||el.id){
+    const raw=el.value.replace(/,/g,'');
+    if(raw===''||raw==='-'||raw==='.') return;
+    const num=parseFloat(raw);
+    if(isNaN(num)) return;
+    const parts=raw.split('.');
+    const intPart=parseInt(parts[0]).toLocaleString('zh-TW');
+    el.value=parts.length>1?intPart+'.'+parts[1]:intPart;
+  }
+});
+
+/* ========== Nav ========== */
+document.querySelectorAll('.nav-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page-'+btn.dataset.page).classList.add('active');
+  });
+});
+
+/* ========== Radio Group ========== */
+document.querySelectorAll('.radio-group').forEach(grp=>{
+  grp.querySelectorAll('.radio-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      grp.querySelectorAll('.radio-btn').forEach(b=>b.classList.remove('on'));
+      btn.classList.add('on');
+      if(grp.id==='oldCalcMethod'){
+        const v=btn.dataset.val;
+        document.getElementById('oldActualSec').style.display=v==='actual'?'':'none';
+        document.getElementById('oldStdSec').style.display=v==='standard'?'':'none';
+      }
+      if(grp.id==='newIdentity'){
+        document.getElementById('newSelfUseSec').style.display=btn.dataset.val==='resident'?'':'none';
+      }
+    });
+  });
+});
+
+/* ========== 舊制所得稅計算 ========== */
+function getRadioVal(grpId){
+  const g=document.getElementById(grpId);
+  const on=g.querySelector('.radio-btn.on');
+  return on?on.dataset.val:'';
+}
+
+function calcOldTax(){
+  const method=getRadioVal('oldCalcMethod');
+  let income=0;
+
+  if(method==='actual'){
+    const sell=parseNum('oldSellPrice');
+    const buy=parseNum('oldBuyPrice');
+    const exp=parseNum('oldExpense');
+    const land=parseNum('oldLandInc');
+    income=sell-buy-exp-land;
+  }else{
+    const assess=parseNum('oldAssessVal');
+    const rate=parseNum('oldStdRate');
+    income=assess*rate/100;
+  }
+
+  if(income<0) income=0;
+
+  const otherIncome=parseNum('oldOtherIncome');
+  const brackets=[
+    {limit:59,rate:0.05,deduct:0},
+    {limit:133,rate:0.12,deduct:4.13},
+    {limit:266,rate:0.20,deduct:14.77},
+    {limit:498,rate:0.30,deduct:41.37},
+    {limit:Infinity,rate:0.40,deduct:91.17}
+  ];
+
+  const totalIncome=otherIncome+income;
+
+  function calcProgressiveTax(inc){
+    if(inc<=0)return 0;
+    for(const b of brackets){
+      if(inc<=b.limit)return inc*b.rate-b.deduct;
+    }
+    return 0;
+  }
+
+  const taxWithDeal=calcProgressiveTax(totalIncome);
+  const taxWithout=calcProgressiveTax(otherIncome);
+  const taxOnDeal=taxWithDeal-taxWithout;
+
+  let marginalRate=0;
+  for(const b of brackets){
+    if(totalIncome<=b.limit){marginalRate=b.rate;break;}
+  }
+
+  let html=`<div class="result-box">
+    <div class="result-title">📊 計算結果</div>
+    <div class="result-grid">
+      <div class="result-item"><span class="r-label">房屋交易所得</span><span class="r-value">${fmtMoney(income)}</span></div>
+      <div class="result-item"><span class="r-label">適用邊際稅率</span><span class="r-value">${(marginalRate*100).toFixed(0)}%</span></div>
+      <div class="result-item"><span class="r-label">綜所稅總額（含本次）</span><span class="r-value">${fmtMoney(taxWithDeal)}</span></div>
+      <div class="result-item"><span class="r-label">本次交易應增繳稅額</span><span class="r-value highlight">${fmtMoney(taxOnDeal)}</span></div>
+    </div>`;
+
+  if(income<=0&&method==='actual'){
+    const rawIncome=parseNum('oldSellPrice')-parseNum('oldBuyPrice')-parseNum('oldExpense')-parseNum('oldLandInc');
+    html+=`<div class="result-msg success">本次交易無獲利（虧損 ${fmtMoney(Math.abs(rawIncome))}），虧損可在往後3年的財產交易所得中扣除。</div>`;
+  }
+
+  html+=`</div>`;
+  document.getElementById('oldResult').innerHTML=html;
+}
+
+/* ========== 房地合一稅計算 ========== */
+function calcNewTax(){
+  const version=getRadioVal('newVersion');
+  const identity=getRadioVal('newIdentity');
+  const sell=parseNum('newSellPrice');
+  const buy=parseNum('newBuyPrice');
+  const exp=parseNum('newExpense');
+  const land=parseNum('newLandInc');
+  const holdY=parseNum('newHoldYears');
+  const holdM=parseNum('newHoldMonths');
+  const selfUse=document.getElementById('newSelfUse').checked&&identity==='resident';
+
+  let income=sell-buy-exp-land;
+
+  let expNote='';
+  if(exp===0){
+    const autoExp=Math.min(sell*0.03,30);
+    expNote=`（未填費用，可按 3% 估算約 ${fmt(autoExp,2)} 萬，上限 30 萬）`;
+  }
+
+  const totalMonths=holdY*12+holdM;
+
+  let rate=0;
+  let rateDesc='';
+
+  if(identity==='resident'){
+    if(version==='2.0'){
+      if(totalMonths<=24){rate=0.45;rateDesc='2年以內 → 45%';}
+      else if(totalMonths<=60){rate=0.35;rateDesc='2~5年 → 35%';}
+      else if(totalMonths<=120){rate=0.20;rateDesc='5~10年 → 20%';}
+      else{rate=0.15;rateDesc='超過10年 → 15%';}
+    }else{
+      if(totalMonths<=12){rate=0.45;rateDesc='1年以內 → 45%';}
+      else if(totalMonths<=24){rate=0.35;rateDesc='1~2年 → 35%';}
+      else if(totalMonths<=120){rate=0.20;rateDesc='2~10年 → 20%';}
+      else{rate=0.15;rateDesc='超過10年 → 15%';}
+    }
+  }else if(identity==='foreign'){
+    if(version==='2.0'){
+      if(totalMonths<=24){rate=0.45;rateDesc='2年以內 → 45%';}
+      else{rate=0.35;rateDesc='超過2年 → 35%';}
+    }else{
+      if(totalMonths<=12){rate=0.45;rateDesc='1年以內 → 45%';}
+      else{rate=0.35;rateDesc='超過1年 → 35%';}
+    }
+  }else{
+    if(version==='2.0'){
+      if(totalMonths<=24){rate=0.45;rateDesc='2年以內 → 45%';}
+      else if(totalMonths<=60){rate=0.35;rateDesc='2~5年 → 35%';}
+      else{rate=0.20;rateDesc='超過5年 → 20%（併入營所稅）';}
+    }else{
+      rate=0.20;
+      rateDesc='法人1.0版 → 併入營所稅 20%';
+    }
+  }
+
+  let tax=0;
+  let taxDesc='';
+
+  if(income<=0){
+    tax=0;
+    taxDesc='無獲利，免稅';
+  }else if(selfUse){
+    if(income<=400){
+      tax=0;
+      taxDesc='自用住宅：課稅所得≤400萬，全額免稅';
+    }else{
+      tax=(income-400)*0.10;
+      taxDesc=`自用住宅：400萬免稅，超過部分 ${fmtMoney(income-400)} × 10%`;
+    }
+  }else{
+    tax=income*rate;
+    taxDesc=`${fmtMoney(income)} × ${(rate*100).toFixed(0)}%`;
+  }
+
+  let html=`<div class="result-box">
+    <div class="result-title">📊 計算結果（房地合一稅 ${version}）</div>
+    <div class="result-grid">
+      <div class="result-item"><span class="r-label">課稅所得</span><span class="r-value">${income>0?fmtMoney(income):'0 元（虧損 '+fmtMoney(Math.abs(income))+'）'}</span></div>
+      <div class="result-item"><span class="r-label">持有期間</span><span class="r-value">${holdY}年${holdM}個月（${totalMonths}個月）</span></div>
+      <div class="result-item"><span class="r-label">適用稅率</span><span class="r-value">${selfUse&&income>0?'自用住宅優惠':rateDesc}</span></div>
+      <div class="result-item"><span class="r-label">應納稅額</span><span class="r-value highlight">${fmtMoney(tax)}</span></div>`;
+
+  if(expNote){
+    html+=`<div class="result-item full"><span class="r-label">費用提醒</span><span class="r-value" style="font-size:12px;font-weight:500;color:var(--accent);">${expNote}</span></div>`;
+  }
+
+  html+=`</div>`;
+
+  if(income<0){
+    html+=`<div class="result-msg success">本次交易虧損 ${fmtMoney(Math.abs(income))}，可在往後3年的房地合一交易所得中扣除。</div>`;
+  }
+
+  if(selfUse&&income>0){
+    html+=`<div class="result-msg warning"><strong>自用住宅優惠：</strong>${taxDesc}</div>`;
+  }
+
+  html+=`</div>`;
+  document.getElementById('newResult').innerHTML=html;
+}
+
+/* ========== 房貸試算 ========== */
+function calcMortgage(){
+  const P=parseNum('mLoan')*10000;
+  const annualRate=parseNum('mRate')/100;
+  const r=annualRate/12;
+  const years=parseNum('mYears');
+  const graceYears=parseNum('mGrace');
+  const method=getRadioVal('mMethod');
+
+  if(P<=0||annualRate<=0||years<=0){
+    document.getElementById('mortgageResult').innerHTML='<div class="result-box"><div class="result-title">⚠️ 請輸入完整的貸款條件</div></div>';
+    return;
+  }
+
+  const totalMonths=years*12;
+  const graceMonths=graceYears*12;
+  const repayMonths=totalMonths-graceMonths;
+
+  if(repayMonths<=0){
+    document.getElementById('mortgageResult').innerHTML='<div class="result-box"><div class="result-title">⚠️ 寬限期不能大於或等於貸款年限</div></div>';
+    return;
+  }
+
+  let schedule=[];
+  let totalInterest=0;
+  let totalPayment=0;
+  let balance=P;
+  let monthlyPayAfterGrace=0;
+
+  for(let i=1;i<=graceMonths;i++){
+    const interest=balance*r;
+    totalInterest+=interest;
+    totalPayment+=interest;
+    schedule.push({period:i,payment:interest,principal:0,interest:interest,balance:balance,grace:true});
+  }
+
+  if(method==='annuity'){
+    const rn=Math.pow(1+r,repayMonths);
+    monthlyPayAfterGrace=P*r*rn/(rn-1);
+
+    for(let i=1;i<=repayMonths;i++){
+      const interest=balance*r;
+      const principal=monthlyPayAfterGrace-interest;
+      balance-=principal;
+      if(balance<0)balance=0;
+      totalInterest+=interest;
+      totalPayment+=monthlyPayAfterGrace;
+      schedule.push({period:graceMonths+i,payment:monthlyPayAfterGrace,principal,interest,balance,grace:false});
+    }
+  }else{
+    const monthlyPrincipal=P/repayMonths;
+
+    for(let i=1;i<=repayMonths;i++){
+      const interest=balance*r;
+      const payment=monthlyPrincipal+interest;
+      balance-=monthlyPrincipal;
+      if(balance<0)balance=0;
+      totalInterest+=interest;
+      totalPayment+=payment;
+      schedule.push({period:graceMonths+i,payment,principal:monthlyPrincipal,interest,balance,grace:false});
+    }
+    monthlyPayAfterGrace=schedule.find(s=>!s.grace)?.payment||0;
+  }
+
+  const graceMonthly=graceMonths>0?P*r:0;
+  const firstRepay=schedule.find(s=>!s.grace);
+  const lastRepay=schedule[schedule.length-1];
+
+  let html=`<div class="result-box">
+    <div class="result-title">📊 房貸試算結果（${method==='annuity'?'本息均攤':'本金均攤'}）</div>
+    <div class="result-grid">
+      <div class="result-item"><span class="r-label">貸款金額</span><span class="r-value">${fmt(P/10000,0)} 萬元</span></div>
+      <div class="result-item"><span class="r-label">年利率</span><span class="r-value">${(annualRate*100).toFixed(3)}%</span></div>`;
+
+  if(graceMonths>0){
+    html+=`<div class="result-item"><span class="r-label">寬限期月付（僅利息）</span><span class="r-value" style="color:var(--accent);">${fmt(Math.round(graceMonthly),0)} 元</span></div>`;
+  }
+
+  if(method==='annuity'){
+    html+=`<div class="result-item"><span class="r-label">${graceMonths>0?'寬限期後':''}每月還款</span><span class="r-value highlight">${fmt(Math.round(monthlyPayAfterGrace),0)} 元</span></div>`;
+  }else{
+    html+=`<div class="result-item"><span class="r-label">首月還款</span><span class="r-value highlight">${fmt(Math.round(firstRepay.payment),0)} 元</span></div>
+    <div class="result-item"><span class="r-label">末月還款</span><span class="r-value green">${fmt(Math.round(lastRepay.payment),0)} 元</span></div>`;
+  }
+
+  html+=`<div class="result-item"><span class="r-label">總利息支出</span><span class="r-value">${fmt(Math.round(totalInterest),0)} 元（${fmt(totalInterest/10000,2)} 萬）</span></div>
+      <div class="result-item"><span class="r-label">總還款金額</span><span class="r-value">${fmt(Math.round(totalPayment),0)} 元（${fmt(totalPayment/10000,2)} 萬）</span></div>
+    </div>
+  </div>`;
+
+  html+=`<div style="margin-top:14px;">
+    <span class="toggle-detail" onclick="toggleAmort(this)">▼ 展開完整攤還表（共 ${totalMonths} 期）</span>
+    <div class="detail-content">
+      <div class="amort-wrap">
+        <table class="amort-table">
+          <thead><tr><th>期數</th><th>每月還款</th><th>本金</th><th>利息</th><th>剩餘本金</th></tr></thead>
+          <tbody>`;
+
+  for(const s of schedule){
+    html+=`<tr class="${s.grace?'grace':''}">
+      <td>${s.period}</td>
+      <td>${fmt(Math.round(s.payment),0)}</td>
+      <td>${fmt(Math.round(s.principal),0)}</td>
+      <td>${fmt(Math.round(s.interest),0)}</td>
+      <td>${fmt(Math.round(s.balance),0)}</td>
+    </tr>`;
+  }
+
+  html+=`</tbody></table></div></div></div>`;
+  document.getElementById('mortgageResult').innerHTML=html;
+}
+
+function toggleAmort(el){
+  const content=el.nextElementSibling;
+  if(content.classList.contains('on')){
+    content.classList.remove('on');
+    el.textContent='▼ 展開完整攤還表';
+  }else{
+    content.classList.add('on');
+    el.textContent='▲ 收合攤還表';
+  }
+}
+</script>
+</body>
+</html>
