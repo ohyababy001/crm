@@ -333,9 +333,9 @@
         .dash-sections { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; grid-template-rows: auto auto; gap: 16px; grid-template-areas: "sched sched seller bday" "sched sched rental ."; }
         .dash-section { background: white; border-radius: 14px; padding: 18px; border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.03); min-height: 280px; }
         .dash-section.dash-schedule { grid-area: sched; }
-        .dash-section.dash-seller { grid-area: seller; align-self: start; }
-        .dash-section.dash-bday { grid-area: bday; }
-        .dash-section.dash-rental { grid-area: rental; align-self: start; }
+        .dash-section.dash-seller { grid-area: seller; align-self: start; min-height: auto; }
+        .dash-section.dash-bday { grid-area: bday; align-self: start; min-height: auto; }
+        .dash-section.dash-rental { grid-area: rental; align-self: start; min-height: auto; }
         .dash-sec-title { font-size: 18px; font-weight: 700; color: #475569; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
         .dash-list { font-size: 18px; }
         .dash-item { padding: 8px 8px; margin: 0 -8px; border-bottom: 1px solid #F1F5F9; display: flex; align-items: center; gap: 8px; border-radius: 6px; transition: background 0.15s; }
@@ -9803,7 +9803,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405y';
+var APP_VERSION = '20260405z';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
