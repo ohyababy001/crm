@@ -3693,12 +3693,10 @@ function renderCard(c) {
             if (_budget)      meta += `<div class="cmeta-row"><span class="cmeta-k">預算</span><span class="cmeta-v">${esc(_budget)}${_budget.includes('萬')?'':'萬'}</span></div>`;
             var _want = _bd ? _bd.want : cc.want;
             if (_want) meta += `<div class="cmeta-row"><span class="cmeta-k">想要</span><span class="cmeta-v" style="color:#B45309">${esc(_want)}</span></div>`;
-        // 庫存屋主：行銷範本按鈕（行程之後、物件資訊之前）
-        if (showType==='庫存屋主') {
+        } else if (showType==='庫存屋主') {
+            // 行銷範本按鈕
             var _mktCount = (c.mktTemplates && c.mktTemplates.length) || 0;
             meta += `<div style="margin:4px 0"><button type="button" onclick="event.stopPropagation();openMktTemplates('${esc(c.id)}')" style="padding:3px 10px;border:1px dashed #0891B2;border-radius:6px;background:white;cursor:pointer;font-size:12px;color:#0891B2;font-weight:600">📋 行銷範本${_mktCount?' ('+_mktCount+')':''}</button></div>`;
-        }
-        if (showType==='庫存屋主') {
             // 根據等級篩選或優先度選擇顯示的物件
             var sp0 = {};
             var _spCount = (cc.sProperties && cc.sProperties.length) || 0;
@@ -9762,7 +9760,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405e';
+var APP_VERSION = '20260405f';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
