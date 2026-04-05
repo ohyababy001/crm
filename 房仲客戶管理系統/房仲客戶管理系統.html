@@ -3694,9 +3694,6 @@ function renderCard(c) {
             var _want = _bd ? _bd.want : cc.want;
             if (_want) meta += `<div class="cmeta-row"><span class="cmeta-k">想要</span><span class="cmeta-v" style="color:#B45309">${esc(_want)}</span></div>`;
         } else if (showType==='庫存屋主') {
-            // 行銷範本按鈕
-            var _mktCount = (c.mktTemplates && c.mktTemplates.length) || 0;
-            meta += `<div style="margin:4px 0"><button type="button" onclick="event.stopPropagation();openMktTemplates('${esc(c.id)}')" style="padding:3px 10px;border:1px dashed #0891B2;border-radius:6px;background:white;cursor:pointer;font-size:12px;color:#0891B2;font-weight:600">📋 行銷範本${_mktCount?' ('+_mktCount+')':''}</button></div>`;
             // 根據等級篩選或優先度選擇顯示的物件
             var sp0 = {};
             var _spCount = (cc.sProperties && cc.sProperties.length) || 0;
@@ -3928,6 +3925,7 @@ function renderCard(c) {
             <div class="card-bottom-right">
                 <div style="display:flex;gap:6px">
                     <button class="btn-ic" onclick="event.stopPropagation();quickSchedule('${_eid}')" title="預排行程">📅</button>
+                    ${showType==='庫存屋主'?`<button class="btn-ic" onclick="event.stopPropagation();openMktTemplates('${_eid}')" title="行銷範本">📋</button>`:''}
                     <button class="btn-ic" onclick="event.stopPropagation();openDriveFolder('${_eid}','${_eva}')" title="雲端資料夾">${getRpDriveIcon(c)}</button>
                     <button class="btn-ic" onclick="event.stopPropagation();openEdit('${_eid}','${_eva}')" title="編輯">✏️</button>
                     ${archBtn}
@@ -9760,7 +9758,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405f';
+var APP_VERSION = '20260405g';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
