@@ -3525,7 +3525,10 @@ function render() {
     document.getElementById('dashboard').style.display = isDashboard ? 'block' : 'none';
     document.getElementById('grid').style.display = isDashboard ? 'none' : '';
     document.getElementById('sortSel').style.display = (isDashboard || curFilter === 'all') ? 'none' : '';
-    if (isDashboard) { renderDashboard(); return; }
+    if (isDashboard) {
+        document.getElementById('expireBanner').style.display = 'none';
+        renderDashboard(); return;
+    }
 
     // 到期提醒
     var expiring = [];
@@ -9804,7 +9807,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260406d';
+var APP_VERSION = '20260406e';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
