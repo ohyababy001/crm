@@ -347,6 +347,7 @@
         .dash-sched-item { flex-wrap: wrap; }
         .dash-sched-row1 { display: flex; align-items: center; gap: 8px; width: 100%; }
         .dash-sched-memo { font-size: 15px; color: #475569; }
+        .dash-cards-wrap.collapsed .dash-cards { display: none !important; }
         .card-mobile-only { display: none !important; }
 
         @media (max-width: 768px) {
@@ -829,7 +830,7 @@
         <!-- 總覽儀表板 -->
         <div id="dashboard" class="dashboard" style="display:none">
             <div class="dash-cards-wrap collapsed">
-                <div class="dash-cards-toggle" style="display:none;align-items:center;justify-content:center;padding:8px 0;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted)" onclick="var w=this.parentElement;w.classList.toggle('collapsed');this.querySelector('span').textContent=w.classList.contains('collapsed')?'＋ 展開統計':'－ 收起統計'"><span>＋ 展開統計</span></div>
+                <div class="dash-cards-toggle" style="display:flex;align-items:center;justify-content:center;padding:8px 0;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted)" onclick="var w=this.parentElement;w.classList.toggle('collapsed');this.querySelector('span').textContent=w.classList.contains('collapsed')?'＋ 展開統計':'－ 收起統計'"><span>＋ 展開統計</span></div>
                 <div class="dash-cards" id="dashCards"></div>
             </div>
 
@@ -9803,7 +9804,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260406c';
+var APP_VERSION = '20260406d';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
