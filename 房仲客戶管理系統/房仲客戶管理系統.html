@@ -801,7 +801,7 @@
         </div>
         <input type="file" id="csvImportInput2" accept=".csv" style="display:none" onchange="importCSV(this.files[0])">
         <div id="cloudStatus" style="text-align:center;font-size:11px;color:var(--muted);margin-top:12px;padding:0 10px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#22C55E;margin-right:4px;vertical-align:middle"></span>自動同步中</div>
-        <div style="text-align:center;font-size:9px;color:var(--muted);opacity:0.5;margin-top:8px;padding:0 10px" id="appVersion">v20260406x</div>
+        <div style="text-align:center;font-size:9px;color:var(--muted);opacity:0.5;margin-top:8px;padding:0 10px" id="appVersion">v20260406y</div>
     </aside>
 
     <!-- Main -->
@@ -8961,9 +8961,7 @@ function renderDealAnalysis() {
         { label:'2,000萬以下', min:0, max:2000, color:'#3B82F6' },
         { label:'2,000萬~3,999萬', min:2000, max:4000, color:'#0891B2' },
         { label:'4,000萬~5,999萬', min:4000, max:6000, color:'#F59E0B' },
-        { label:'6,000萬~7,999萬', min:6000, max:8000, color:'#F97316' },
-        { label:'8,000萬~9,999萬', min:8000, max:10000, color:'#EF4444' },
-        { label:'10,000萬以上', min:10000, max:Infinity, color:'#DC2626' }
+        { label:'6,000萬以上', min:6000, max:Infinity, color:'#EF4444' }
     ];
     _priceBands.forEach(function(band) {
         band.count = allDeals.filter(function(d){ return d.price>=band.min && d.price<band.max; }).length;
@@ -9837,7 +9835,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260406x';
+var APP_VERSION = '20260406y';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
