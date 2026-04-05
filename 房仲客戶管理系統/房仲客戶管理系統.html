@@ -3697,7 +3697,7 @@ function renderCard(c) {
             // 行銷範本直接顯示（點擊複製）
             if (c.mktTemplates && c.mktTemplates.length) {
                 c.mktTemplates.forEach(function(mt) {
-                    meta += `<div class="cmeta-row" style="cursor:pointer" onclick="event.stopPropagation();copyMktDirect(this,'${esc(c.id)}','${esc(mt.title)}')" title="點擊複製"><span class="cmeta-k">📋</span><span class="cmeta-v" style="color:#B91C1C">${esc(mt.title)}</span></div>`;
+                    meta += `<div class="cmeta-row" style="cursor:pointer" onclick="event.stopPropagation();copyMktDirect(this,'${esc(c.id)}','${esc(mt.title)}')" title="點擊複製"><span class="cmeta-k">📋</span><span class="cmeta-v" style="color:#065F46">${esc(mt.title)}</span></div>`;
                 });
             }
             // 根據等級篩選或優先度選擇顯示的物件
@@ -9764,7 +9764,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405j';
+var APP_VERSION = '20260405k';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
