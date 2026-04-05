@@ -801,7 +801,7 @@
         </div>
         <input type="file" id="csvImportInput2" accept=".csv" style="display:none" onchange="importCSV(this.files[0])">
         <div id="cloudStatus" style="text-align:center;font-size:11px;color:var(--muted);margin-top:12px;padding:0 10px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#22C55E;margin-right:4px;vertical-align:middle"></span>自動同步中</div>
-        <div style="text-align:center;font-size:9px;color:var(--muted);opacity:0.5;margin-top:8px;padding:0 10px" id="appVersion">v20260406z3</div>
+        <div style="text-align:center;font-size:9px;color:var(--muted);opacity:0.5;margin-top:8px;padding:0 10px" id="appVersion">v20260406z4</div>
     </aside>
 
     <!-- Main -->
@@ -9014,6 +9014,21 @@ function renderDealAnalysis() {
         html += '</div>';
     }
 
+    // 6. 特殊產品（社區大樓名稱含店面或透天）
+    var specialCount = { '店面':0, '透天':0 };
+    allDeals.forEach(function(d) {
+        var text = (d.community || '') + (d.addr || '');
+        if (text.match(/店面|店舖|店鋪/)) specialCount['店面']++;
+        if (text.match(/透天/)) specialCount['透天']++;
+    });
+    if (specialCount['店面'] || specialCount['透天']) {
+        html += '<div style="font-size:14px;font-weight:700;margin-bottom:6px">特殊產品</div>' +
+            '<div style="background:white;border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin-bottom:8px">';
+        if (specialCount['店面']) html += '<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:14px"><span>店面</span><span style="font-weight:700">'+specialCount['店面']+' 件</span></div>';
+        if (specialCount['透天']) html += '<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:14px"><span>透天</span><span style="font-weight:700">'+specialCount['透天']+' 件</span></div>';
+        html += '</div>';
+    }
+
     html += '</div>';
     return html;
 }
@@ -9858,7 +9873,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260406z3';
+var APP_VERSION = '20260406z4';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
