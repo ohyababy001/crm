@@ -640,6 +640,8 @@
         .mobile-cloud button { background: rgba(255,255,255,0.15); border: none; color: #FAFAF9; padding: 6px 10px; border-radius: 8px; font-size: 12px; cursor: pointer; white-space: nowrap; }
         .mobile-cloud button:hover { background: rgba(255,255,255,0.25); }
         .mobile-cloud-status { font-size: 10px; color: rgba(250,250,249,0.6); }
+        .tpl-tab { padding:8px 20px;border:none;background:none;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent; }
+        .tpl-tab.active { color:var(--deep);border-bottom-color:var(--deep); }
         .mobile-setting-menu { display:none; position:absolute; right:8px; top:100%; background:white; border-radius:10px; box-shadow:0 4px 16px rgba(0,0,0,0.18); z-index:200; min-width:140px; overflow:hidden; }
         .mobile-setting-menu.show { display:block; }
         .mobile-setting-menu button { display:block; width:100%; text-align:left; padding:12px 16px; border:none; background:none; font-size:14px; cursor:pointer; color:var(--text); }
@@ -1395,9 +1397,13 @@
         <div class="modal-head">
             <div class="modal-title">📋 常用範本</div>
             <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
-                <button onclick="addTemplate()" style="padding:5px 12px;border:none;border-radius:8px;background:#0891B2;color:white;cursor:pointer;font-size:12px;font-weight:600">＋ 新增</button>
+                <button id="tplAddBtn" onclick="tplAddByTab()" style="padding:5px 12px;border:none;border-radius:8px;background:#0891B2;color:white;cursor:pointer;font-size:12px;font-weight:600">＋ 新增</button>
                 <button class="btn-x" onclick="closeTemplates()">✕</button>
             </div>
+        </div>
+        <div style="display:flex;gap:0;padding:0 16px;border-bottom:1px solid var(--border)">
+            <button class="tpl-tab active" data-tab="rental" onclick="setTplTab('rental')">租賃</button>
+            <button class="tpl-tab" data-tab="stock" onclick="setTplTab('stock')">庫存</button>
         </div>
         <div id="tplBody" class="modal-body" style="padding:12px 16px;flex:1;overflow-y:auto"></div>
     </div>
@@ -3694,12 +3700,6 @@ function renderCard(c) {
             var _want = _bd ? _bd.want : cc.want;
             if (_want) meta += `<div class="cmeta-row"><span class="cmeta-k">想要</span><span class="cmeta-v" style="color:#B45309">${esc(_want)}</span></div>`;
         } else if (showType==='庫存屋主') {
-            // 行銷範本直接顯示（點擊複製）
-            if (c.mktTemplates && c.mktTemplates.length) {
-                c.mktTemplates.forEach(function(mt) {
-                    meta += `<div class="cmeta-row" style="cursor:pointer" onclick="event.stopPropagation();copyMktDirect(this,'${esc(c.id)}','${esc(mt.title)}')" title="點擊複製"><span class="cmeta-k">📋</span><span class="cmeta-v" style="color:#065F46">${esc(mt.title)}</span></div>`;
-                });
-            }
             // 根據等級篩選或優先度選擇顯示的物件
             var sp0 = {};
             var _spCount = (cc.sProperties && cc.sProperties.length) || 0;
@@ -3931,7 +3931,6 @@ function renderCard(c) {
             <div class="card-bottom-right">
                 <div style="display:flex;gap:6px">
                     <button class="btn-ic" onclick="event.stopPropagation();quickSchedule('${_eid}')" title="預排行程">📅</button>
-                    ${showType==='庫存屋主'?`<button class="btn-ic" onclick="event.stopPropagation();openMktTemplates('${_eid}')" title="行銷範本">📋</button>`:''}
                     <button class="btn-ic" onclick="event.stopPropagation();openDriveFolder('${_eid}','${_eva}')" title="雲端資料夾">${getRpDriveIcon(c)}</button>
                     <button class="btn-ic" onclick="event.stopPropagation();openEdit('${_eid}','${_eva}')" title="編輯">✏️</button>
                     ${archBtn}
@@ -9764,7 +9763,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405p';
+var APP_VERSION = '20260405q';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
@@ -9861,11 +9860,24 @@ function persistTemplates() {
     _syncTimer = setTimeout(autoSync, 3000);
 }
 
+var _tplTab = 'rental';
 function openTemplates() {
-    renderTemplateList();
+    setTplTab(_tplTab);
     document.getElementById('tplModal').style.display = 'flex';
 }
 function closeTemplates() { document.getElementById('tplModal').style.display = 'none'; }
+function setTplTab(tab) {
+    _tplTab = tab;
+    document.querySelectorAll('.tpl-tab').forEach(function(b) {
+        b.classList.toggle('active', b.getAttribute('data-tab') === tab);
+    });
+    if (tab === 'rental') renderTemplateList();
+    else renderStockTemplateList();
+}
+function tplAddByTab() {
+    if (_tplTab === 'rental') addTemplate();
+    else addMktFromModal();
+}
 
 function renderTemplateList() {
     var html = '';
@@ -9885,6 +9897,100 @@ function renderTemplateList() {
         });
     }
     document.getElementById('tplBody').innerHTML = html;
+}
+
+function renderStockTemplateList() {
+    var clients = DB.filter(function(c) {
+        return !c._deleted && !c._system && c.mktTemplates && c.mktTemplates.length && getTypes(c).includes('庫存屋主');
+    });
+    var html = '';
+    if (!clients.length) {
+        html = '<div style="text-align:center;color:var(--muted);padding:30px;font-size:14px">尚無庫存行銷範本<br><span style="font-size:12px">點擊右上角「＋ 新增」建立</span></div>';
+    } else {
+        clients.forEach(function(c) {
+            var name = c.sName || c.name || '';
+            var comm = '';
+            if (c.sProperties && c.sProperties.length) {
+                comm = c.sProperties.map(function(sp){ return sp.community || sp.addr || ''; }).filter(Boolean).join('、');
+            }
+            if (!comm) comm = c.community || '';
+            c.mktTemplates.forEach(function(mt, i) {
+                html += '<div style="border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:white">' +
+                    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">' +
+                        '<span style="font-size:15px;font-weight:700;flex:1">'+esc(mt.title)+'</span>' +
+                        '<button type="button" onclick="copyMktFromModal(\''+esc(c.id)+'\','+i+')" style="padding:5px 12px;border:none;border-radius:6px;background:#0891B2;color:white;cursor:pointer;font-size:12px;font-weight:600">📋 複製</button>' +
+                        '<button type="button" onclick="editMktFromModal(\''+esc(c.id)+'\','+i+')" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:12px;color:var(--text)">✏️</button>' +
+                        '<button type="button" onclick="deleteMktFromModal(\''+esc(c.id)+'\','+i+')" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:12px;color:#EF4444">✕</button>' +
+                    '</div>' +
+                    '<div style="font-size:12px;color:var(--muted);margin-bottom:6px">'+esc(name)+(comm?' — '+esc(comm):'')+'</div>' +
+                    '<pre style="white-space:pre-wrap;word-break:break-word;font-family:inherit;font-size:13px;color:var(--text);margin:0;background:var(--bg);padding:10px 12px;border-radius:8px;max-height:150px;overflow-y:auto;line-height:1.6">'+esc(mt.content)+'</pre>' +
+                '</div>';
+            });
+        });
+    }
+    document.getElementById('tplBody').innerHTML = html;
+}
+
+function copyMktFromModal(clientId, idx) {
+    var c = DB.find(function(x){ return x.id === clientId; });
+    if (!c || !c.mktTemplates || !c.mktTemplates[idx]) return;
+    var tpl = c.mktTemplates[idx];
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(tpl.content).then(function() {
+            showToast('已複製「'+tpl.title+'」');
+        }).catch(function() { fallbackCopy(tpl); });
+    } else {
+        fallbackCopy(tpl);
+    }
+}
+
+function addMktFromModal() {
+    // 選擇庫存客戶
+    var stockClients = DB.filter(function(c) {
+        return !c._deleted && !c._system && getTypes(c).includes('庫存屋主');
+    });
+    if (!stockClients.length) { showToast('尚無庫存屋主客戶', 'warn'); return; }
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    overlay.style.zIndex = '10001';
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.cssText = 'padding:16px;width:min(400px,90vw);max-height:70vh;display:flex;flex-direction:column';
+    var listHtml = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">選擇庫存客戶</div>' +
+        '<div style="flex:1;overflow-y:auto">';
+    stockClients.forEach(function(c) {
+        var name = c.sName || c.name || '';
+        var comm = (c.sProperties && c.sProperties.length) ? (c.sProperties[0].community || c.sProperties[0].addr || '') : (c.community || '');
+        listHtml += '<button type="button" onclick="selectMktClient(\''+esc(c.id)+'\');this.closest(\'.fill-overlay\').remove()" style="display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:4px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">'+esc(name)+(comm?' — '+esc(comm):'')+'</button>';
+    });
+    listHtml += '</div>';
+    box.innerHTML = listHtml;
+    overlay.appendChild(box);
+    overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+    document.body.appendChild(overlay);
+}
+function selectMktClient(clientId) {
+    _mktClientId = clientId;
+    showMktEditor(-1, '', '');
+}
+
+function editMktFromModal(clientId, idx) {
+    _mktClientId = clientId;
+    var c = DB.find(function(x){ return x.id === clientId; });
+    if (!c || !c.mktTemplates || !c.mktTemplates[idx]) return;
+    var tpl = c.mktTemplates[idx];
+    showMktEditor(idx, tpl.title, tpl.content);
+}
+
+function deleteMktFromModal(clientId, idx) {
+    var c = DB.find(function(x){ return x.id === clientId; });
+    if (!c || !c.mktTemplates || !c.mktTemplates[idx]) return;
+    var tpl = c.mktTemplates[idx];
+    if (!confirm('確定刪除「'+tpl.title+'」？')) return;
+    c.mktTemplates.splice(idx, 1);
+    persist();
+    renderStockTemplateList();
+    showToast('已刪除行銷範本');
 }
 
 function copyTemplate(idx) {
@@ -10073,8 +10179,8 @@ function showMktEditor(idx, title, content) {
             c.mktTemplates[idx].content = ct;
         }
         persist();
-        renderMktList();
-        render();
+        if (document.getElementById('mktBody')) renderMktList();
+        if (_tplTab === 'stock') renderStockTemplateList();
         overlay.remove();
         showToast(isNew ? '已新增行銷範本' : '已儲存修改');
     };
