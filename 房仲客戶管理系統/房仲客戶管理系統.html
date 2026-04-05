@@ -6372,7 +6372,16 @@ function _getPS() { return _getPSRecord().schedules || []; }
 function _savePS(arr) { _getPSRecord().schedules = arr; persist(); }
 function _getDismissed() { return _getPSRecord().dismissed || {}; }
 function _dismissAlert(key, msg) {
-    if (msg && !confirm(msg)) return;
+    if (msg) {
+        confirmAction(msg, function() {
+            var rec = _getPSRecord();
+            if (!rec.dismissed) rec.dismissed = {};
+            rec.dismissed[key] = true;
+            persist();
+            render();
+        });
+        return;
+    }
     var rec = _getPSRecord();
     if (!rec.dismissed) rec.dismissed = {};
     rec.dismissed[key] = true;
@@ -9777,7 +9786,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260405v';
+var APP_VERSION = '20260405w';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
