@@ -36,7 +36,7 @@
         /* Sidebar */
         .sidebar { width: 230px; background: white; border-right: 1px solid var(--border); padding: 18px 0; position: sticky; top: 58px; height: calc(100vh - 58px); overflow-y: auto; flex-shrink: 0; }
         .sidebar-label { font-size: 18px; font-weight: 800; color: var(--deep); letter-spacing: 0.5px; padding: 0 20px; margin-bottom: 10px; text-align: center; }
-        .filter-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 16px; border: 1px solid var(--border); background: white; border-radius: 10px; cursor: pointer; font-size: 27px; color: var(--text); transition: all 0.15s; text-align: center; margin: 2px 6px; width: calc(100% - 12px); }
+        .filter-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 16px; border: 1px solid var(--border); background: #F5F3F0; border-radius: 10px; cursor: pointer; font-size: 27px; color: var(--text); transition: all 0.15s; text-align: center; margin: 2px 6px; width: calc(100% - 12px); }
         .filter-btn:hover { background: var(--bg); border-color: #94A3B8; }
         .filter-btn.active { background: linear-gradient(135deg, #292524, #44403C); color: #FAFAF9; font-weight: 700; border-color: #292524; box-shadow: 0 2px 8px rgba(41,37,36,0.3); }
         .filter-overview { font-size: 27px; background: linear-gradient(135deg, #292524, #44403C); color: #FAFAF9 !important; border-radius: 12px; }
@@ -669,7 +669,7 @@
             font-size: 18px; font-weight: 600; color: var(--muted); cursor: pointer;
             white-space: nowrap; border-radius: 6px; text-align: center;
         }
-        .mobile-nav button.active { color: var(--deep); font-weight: 800; background: var(--bg); }
+        .mobile-nav button.active { color: #FAFAF9; font-weight: 800; background: linear-gradient(135deg, #292524, #44403C); border-radius: 6px; }
 
         /* Toast 提示 */
         .toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:#292524; color:#FAFAF9; padding:12px 24px; border-radius:12px; font-size:14px; font-weight:600; z-index:9999; box-shadow:0 4px 16px rgba(0,0,0,0.2); opacity:0; transition:opacity 0.3s; pointer-events:none; white-space:nowrap; }
@@ -9806,7 +9806,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260406n';
+var APP_VERSION = '20260406q';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
