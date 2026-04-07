@@ -2161,9 +2161,14 @@ var _lastSyncJSON = JSON.stringify(DB);
 var _localDirtyUntil = parseInt(localStorage.getItem('_localDirtyUntil') || '0', 10); // 本機有未上傳的變更時，暫停拉雲端
 function startAutoCheck() {
     if (_checkTimer) clearInterval(_checkTimer);
-    // 頁面載入：先上傳本地資料，再拉雲端（確保本地變更不被覆蓋）
-    setTimeout(autoSync, 2000);
-    setTimeout(autoFetchCloud, 12000);
+    if (Date.now() < _localDirtyUntil) {
+        // 本地有未上傳的變更：先上傳，再拉雲端
+        setTimeout(autoSync, 2000);
+        setTimeout(autoFetchCloud, 12000);
+    } else {
+        // 本地沒有未上傳的變更：直接拉雲端取最新資料
+        setTimeout(autoFetchCloud, 3000);
+    }
     _checkTimer = setInterval(autoFetchCloud, 5 * 60 * 1000);
 }
 function autoFetchCloud() {
