@@ -9892,7 +9892,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     // 手機下拉刷新
     var _ptrY0 = null, _ptrActive = false;
-    function _getScrollTop() { var el = document.querySelector('.main-scroll') || document.querySelector('.main') || document.querySelector('.layout'); return el ? el.scrollTop : window.scrollY; }
+    function _getScrollTop() { if (window.innerWidth <= 768) { var ly = document.querySelector('.layout'); return ly ? ly.scrollTop : window.scrollY; } var el = document.querySelector('.main-scroll'); return el ? el.scrollTop : window.scrollY; }
     document.addEventListener('touchstart', function(e) {
         if (_getScrollTop() === 0 && !e.target.closest('.overlay,.modal,.fill-overlay,.fill-menu')) {
             _ptrY0 = e.touches[0].clientY;
@@ -9973,7 +9973,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260408d';
+var APP_VERSION = '20260408e';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
