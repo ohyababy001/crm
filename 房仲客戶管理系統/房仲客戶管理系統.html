@@ -213,7 +213,7 @@
         /* 帶入按鈕 */
         .btn-fill { background:none;border:1px solid var(--border);border-radius:6px;padding:1px 10px;cursor:pointer;font-size:13px;color:var(--muted);transition:all 0.12s;white-space:nowrap;vertical-align:middle;line-height:16px;margin-left:2px; }
         .btn-fill:hover { background:#EFF6FF;color:#1D4ED8;border-color:#93C5FD; }
-        .fill-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.3);z-index:9999;display:flex;align-items:center;justify-content:center; }
+        .fill-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.3);z-index:9999;display:flex;align-items:center;justify-content:center;touch-action:none;overscroll-behavior:contain; -webkit-overflow-scrolling:auto; }
         .fill-menu { background:white;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.15);min-width:240px;max-width:90vw;padding:8px 0;overflow:hidden; }
         .fill-menu-title { padding:10px 16px;font-size:14px;font-weight:700;color:var(--text);border-bottom:1px solid var(--border);text-align:center; }
         .fill-menu-item { padding:12px 16px;cursor:pointer;font-size:15px;color:var(--text);display:flex;justify-content:space-between;align-items:center;gap:10px; }
@@ -1485,6 +1485,12 @@
 <!-- ============================================================ -->
 <script>
 window.onerror = function(msg, url, line, col, err) { if (msg === 'Script error.' && line === 0) return true; console.error('JS錯誤:', msg, '行號:', line, err); try { showToast('⚠️ 系統發生錯誤，請重新整理', 'error', 4000); } catch(e) {} };
+// ── 全域 overlay 防止背景滾動 ──
+(function(){
+    var ms = document.querySelector('.main-scroll');
+    new MutationObserver(function(){ var has = !!document.querySelector('.fill-overlay'); document.body.style.overflow = has ? 'hidden' : ''; if(ms) ms.style.overflowY = has ? 'hidden' : 'auto'; }).observe(document.body, {childList:true});
+    document.addEventListener('touchmove', function(e){ if(document.querySelector('.fill-overlay') && !e.target.closest('.fill-menu')) e.preventDefault(); }, {passive:false});
+})();
 // ── 搜尋 debounce（避免每鍵觸發完整 render）──
 var _searchTimer = null;
 function debouncedRender() {
@@ -2045,6 +2051,14 @@ function persistPerf() {
     if (_syncTimer) clearTimeout(_syncTimer);
     _syncTimer = setTimeout(autoSync, 3000);
 }
+// 立即同步（跳過延遲），用於行程等重要操作
+function persistAndSyncNow() {
+    _lastSyncJSON = JSON.stringify(DB);
+    try { localStorage.setItem('reCRM', _lastSyncJSON); } catch(e) { console.error('localStorage寫入失敗', e); }
+    _localDirtyUntil = Date.now() + 30000;
+    if (_syncTimer) clearTimeout(_syncTimer);
+    autoSync();
+}
 function autoSync() {
     var status = document.getElementById('cloudStatus');
     if (status) status.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#F59E0B;margin-right:4px;vertical-align:middle"></span>同步中…';
@@ -2083,6 +2097,7 @@ function verifySyncResult(status) {
                 // 雲端筆數 >= 本地，確認上傳成功
                 var _dispCnt = data.filter(function(c){ return !c.__perfRecords && !c.__templates && !c._system; }).length;
                 if (status) status.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#22C55E;margin-right:4px;vertical-align:middle"></span>已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + _dispCnt + '筆）';
+                showToast('☁️ 已同步至雲端', 'ok', 2000);
                 _localDirtyUntil = 0;
                 _lastSyncJSON = JSON.stringify(DB);
             } else {
@@ -3451,14 +3466,14 @@ function renderDashboard() {
     }).sort(function(a,b) { return (a.rEndDate||'').localeCompare(b.rEndDate||''); });
     document.getElementById('dashExpiringRental').innerHTML = _renderExpireCards(expRental, 'rEndDate', function(c){ return c.rCommunity||c.rAddr||''; }, '目前沒有即將到期的租案合約');
 
-    // 近期行程（15天內）
+    // 近期行程（15天內）+ 已過期行程
     var schedList = [];
     DB.forEach(function(c) {
         if (c._deleted || c._system || c.archived || !c.schedules) return;
         c.schedules.forEach(function(s) {
             if (!s.date) return;
             var diff = daysUntilExpire(s.date);
-            if (diff >= 0 && diff <= 15) schedList.push({ id:c.id, name:c.name, date:s.date, time:s.time||'', memo:s.memo||'', days:diff, community:c.dCommunity||'' });
+            if (diff >= -30 && diff <= 15) schedList.push({ id:c.id, name:c.name, date:s.date, time:s.time||'', memo:s.memo||'', days:diff, community:c.dCommunity||'', expired: diff < 0 });
         });
     });
     // 合併個人行程
@@ -3466,11 +3481,16 @@ function renderDashboard() {
     psList.forEach(function(s, idx) {
         if (!s.date) return;
         var diff = daysUntilExpire(s.date);
-        if (diff >= 0 && diff <= 15) schedList.push({ id:'_ps', psIdx:idx, name:'個人行程', date:s.date, time:s.time||'', memo:s.memo||'', days:diff, community:'', personal:true });
+        if (diff >= -30 && diff <= 15) schedList.push({ id:'_ps', psIdx:idx, name:'個人行程', date:s.date, time:s.time||'', memo:s.memo||'', days:diff, community:'', personal:true, expired: diff < 0 });
     });
-    schedList.sort(function(a,b) { return (a.date+a.time).localeCompare(b.date+b.time); });
+    // 已過期的排前面（由近到遠），未過期的排後面（由近到遠）
+    schedList.sort(function(a,b) {
+        if (a.expired !== b.expired) return a.expired ? -1 : 1;
+        if (a.expired) return (b.date+b.time).localeCompare(a.date+a.time); // 過期：最近的排前
+        return (a.date+a.time).localeCompare(b.date+b.time); // 未來：最近的排前
+    });
     document.getElementById('dashSchedule').innerHTML = schedList.length ? schedList.map(function(s) {
-        var dayLabel = s.days === 0 ? '今天' : s.days + '天後';
+        var dayLabel = s.days === 0 ? '今天' : s.expired ? '已過期'+Math.abs(s.days)+'天' : s.days + '天後';
         var nameHtml = s.personal
             ? '<span style="flex:1"></span>'
             : '<span class="dash-item-name" style="cursor:pointer" onclick="showDet(\''+esc(s.id)+'\')">'+esc(s.name)+'</span>';
@@ -3480,10 +3500,11 @@ function renderDashboard() {
         var doneBtn = s.personal
             ? '<button class="btn-ic" onclick="completePersonalSchedule('+s.psIdx+')" title="完成" style="font-size:13px;padding:2px 4px">✅</button>'
             : '<button class="btn-ic" onclick="completeSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="完成" style="font-size:13px;padding:2px 4px">✅</button>';
-        var memoHtml = s.memo ? '<div class="dash-sched-memo"'+(s.personal?' style="color:#0891B2"':'')+'>'+esc(s.memo)+'</div>' : (s.personal ? '<div class="dash-sched-memo" style="color:#0891B2">個人行程</div>' : '');
+        var memoHtml = s.memo ? '<div class="dash-sched-memo">'+esc(s.memo)+'</div>' : (s.personal ? '<div class="dash-sched-memo">個人行程</div>' : '');
+        var dateColor = s.expired ? '#DC2626' : (s.days===0 ? '#B45309' : '');
         return '<div class="dash-item dash-sched-item">' +
             '<div class="dash-sched-row1">' +
-                '<span class="dash-item-info" style="color:'+(s.days===0?'#EF4444':'')+'">'+esc(isoToMDW(s.date))+(s.time?' '+s.time:'')+'</span>' +
+                '<span class="dash-item-info" style="color:'+dateColor+'">'+(s.expired?'⚠️ ':'')+esc(isoToMDW(s.date))+(s.time?' '+s.time:'')+(s.expired?' <span style="font-size:12px">已過期'+Math.abs(s.days)+'天</span>':'')+'</span>' +
                 nameHtml +
                 '<span style="display:flex;gap:2px;flex-shrink:0">' + editBtn + doneBtn +
                 (s.personal
@@ -3760,7 +3781,8 @@ function renderCard(c) {
         }
         // 中間欄 type-specific info
         let meta = '';
-        // 所有類型共用：顯示最近一筆預排行程（置頂，依頁籤篩選）
+        // 所有類型共用：顯示最近一筆預排行程（移至第三欄備註上方）
+        var _schedHtml = '';
         if (c.schedules && c.schedules.length) {
             var _todayISO = localDateISO();
             var _30d = localDateISO(new Date(Date.now() + 30*86400000));
@@ -3770,7 +3792,7 @@ function renderCard(c) {
                 if (_schedFilter && s.schedType && s.schedType !== _schedFilter) return false;
                 return true;
             }).sort(function(a,b){ return (a.date+(a.time||'')).localeCompare(b.date+(b.time||'')); })[0];
-            if (_nextSched) meta += `<div style="margin-bottom:3px;font-size:14px;line-height:1.4"><span style="color:var(--muted)">行程</span> <span style="color:#1E40AF;font-weight:700">${esc(isoToMDW(_nextSched.date))}${_nextSched.time?' '+_nextSched.time:''}</span>${_nextSched.memo?'<div style="color:#1E40AF;font-weight:700;word-break:break-word">'+esc(_nextSched.memo)+'</div>':''}</div>`;
+            if (_nextSched) _schedHtml = `<div style="margin-bottom:4px;font-size:14px;line-height:1.4"><span style="color:var(--muted)">行程</span> <span style="color:#1E40AF">${esc(isoToMDW(_nextSched.date))}${_nextSched.time?' '+_nextSched.time:''}</span>${_nextSched.memo?'<div style="color:#1E40AF;word-break:break-word">'+esc(_nextSched.memo)+'</div>':''}</div>`;
         }
         if (showType==='經營買方') {
             // 選擇要顯示的需求：有篩選時顯示符合的需求，否則顯示第一組
@@ -4016,6 +4038,7 @@ function renderCard(c) {
             ${meta ? `<div class="card-divider"></div><div class="card-meta">${meta}</div>` : ''}
             <div class="card-divider"></div>
             <div class="card-notes-col" onclick="event.stopPropagation()">
+                ${_schedHtml}
                 <div class="notes-inline${notesText?'':' empty-note'}" onclick="editNoteInline('${_eid}',this,'${esc(showType)}')">${notesText ? esc(notesText) : '點擊新增備註…'}</div>
                 <div class="card-contact">
                     ${dateLabel ? `<span>${esc(dateLabel)}</span>` : ''}
@@ -6387,7 +6410,7 @@ function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo, prefillT
         }
         var _qsTypeEl = document.getElementById('qs-type'); var _qsType = _qsTypeEl ? _qsTypeEl.value : '';
         c.schedules.push({ date:date, time:time, memo:memo, schedType:_qsType });
-        persist();
+        persistAndSyncNow();
         overlay.remove();
         render();
     };
@@ -6426,7 +6449,7 @@ function completeSchedule(clientId, date, time) {
         if (!c.history) c.history = [];
         c.history.push({ type:'schedule_done', time:new Date().toISOString(), detail:'【已完成行程】' + isoToROC(date) + (time ? ' ' + time : '') + (memo ? ' ' + memo : '') });
         _addDoneSchedule({ clientId:clientId, clientName:c.name, date:date, time:time, memo:memo, doneAt:new Date().toISOString() });
-        persist();
+        persistAndSyncNow();
         render();
     });
 }
@@ -6454,7 +6477,7 @@ function _getPSRecord() {
     return rec;
 }
 function _getPS() { return _getPSRecord().schedules || []; }
-function _savePS(arr) { _getPSRecord().schedules = arr; persist(); }
+function _savePS(arr) { _getPSRecord().schedules = arr; persistAndSyncNow(); }
 function _getDismissed() { return _getPSRecord().dismissed || {}; }
 function _dismissAlert(key, msg) {
     if (msg) {
@@ -6545,7 +6568,7 @@ function deleteSchedule(clientId, date, time) {
         c.schedules = c.schedules.filter(function(s) {
             return !(s.date === date && (s.time||'') === (time||''));
         });
-        persist();
+        persistAndSyncNow();
         render();
     });
 }
