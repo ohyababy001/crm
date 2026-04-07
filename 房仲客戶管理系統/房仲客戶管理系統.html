@@ -381,7 +381,9 @@
             .dash-sched-btns { gap: 6px !important; }
             .dash-sched-btns .btn-ic { font-size: 12px !important; padding: 2px 5px !important; }
             /* 全域防溢出 */
-            html, body { overflow-x: hidden !important; overflow-y: auto !important; width: 100% !important; }
+            html, body { overflow-x: hidden !important; width: 100% !important; }
+            body { overflow-y: auto !important; }
+            body.overlay-lock { overflow-y: hidden !important; position: fixed !important; width: 100% !important; }
             * { box-sizing: border-box !important; }
             .modal-body input, .modal-body select, .modal-body textarea { max-width: 100% !important; }
 
@@ -1487,7 +1489,9 @@ window.onerror = function(msg, url, line, col, err) { if (msg === 'Script error.
 // ── 全域 overlay 防止背景滾動 ──
 (function(){
     var ms = document.querySelector('.main-scroll');
-    new MutationObserver(function(){ var has = !!document.querySelector('.fill-overlay'); document.body.style.overflow = has ? 'hidden' : ''; if(ms) ms.style.overflowY = has ? 'hidden' : 'auto'; }).observe(document.body, {childList:true});
+    var isMobile = window.matchMedia('(max-width:768px)');
+    var _savedScrollY = 0;
+    new MutationObserver(function(){ var has = !!document.querySelector('.fill-overlay'); if(isMobile.matches){ if(has && !document.body.classList.contains('overlay-lock')){ _savedScrollY = window.scrollY; document.body.style.top = -_savedScrollY + 'px'; document.body.classList.add('overlay-lock'); } else if(!has && document.body.classList.contains('overlay-lock')){ document.body.classList.remove('overlay-lock'); document.body.style.top = ''; window.scrollTo(0, _savedScrollY); } } else { document.body.style.overflow = has ? 'hidden' : ''; } if(ms) ms.style.overflowY = has ? 'hidden' : (isMobile.matches ? '' : 'auto'); }).observe(document.body, {childList:true});
     document.addEventListener('touchmove', function(e){ if(document.querySelector('.fill-overlay') && !e.target.closest('.fill-menu')) e.preventDefault(); }, {passive:false});
 })();
 // ── 搜尋 debounce（避免每鍵觸發完整 render）──
