@@ -3792,7 +3792,7 @@ function renderCard(c) {
                 if (_schedFilter && s.schedType && s.schedType !== _schedFilter) return false;
                 return true;
             }).sort(function(a,b){ return (a.date+(a.time||'')).localeCompare(b.date+(b.time||'')); })[0];
-            if (_nextSched) _schedHtml = `<div style="margin-bottom:4px;font-size:14px;line-height:1.4"><span style="color:var(--muted)">行程</span> <span style="color:#1E40AF">${esc(isoToMDW(_nextSched.date))}${_nextSched.time?' '+_nextSched.time:''}</span>${_nextSched.memo?'<div style="color:#1E40AF;word-break:break-word">'+esc(_nextSched.memo)+'</div>':''}</div>`;
+            if (_nextSched) _schedHtml = `<div style="margin-bottom:4px;font-size:14px;line-height:1.4;display:flex;gap:6px"><span style="color:var(--muted);flex-shrink:0">行程</span><div><span style="color:#1E40AF;font-weight:700">${esc(isoToMDW(_nextSched.date))}${_nextSched.time?' '+_nextSched.time:''}</span>${_nextSched.memo?'<div style="color:#1E40AF;word-break:break-word">'+esc(_nextSched.memo)+'</div>':''}</div></div>`;
         }
         if (showType==='經營買方') {
             // 選擇要顯示的需求：有篩選時顯示符合的需求，否則顯示第一組
