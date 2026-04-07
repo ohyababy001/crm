@@ -381,7 +381,8 @@
             .dash-sched-btns { gap: 6px !important; }
             .dash-sched-btns .btn-ic { font-size: 12px !important; padding: 2px 5px !important; }
             /* 全域防溢出 */
-            html, body { overflow-x: hidden !important; overflow-y: auto !important; width: 100% !important; }
+            html { overflow-x: hidden !important; overflow-y: auto !important; width: 100% !important; }
+            body { overflow-x: hidden !important; overflow-y: auto !important; width: 100% !important; }
             * { box-sizing: border-box !important; }
             .modal-body input, .modal-body select, .modal-body textarea { max-width: 100% !important; }
 
@@ -9926,7 +9927,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260408f';
+var APP_VERSION = '20260408g';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
