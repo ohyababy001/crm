@@ -2036,11 +2036,12 @@ var _ctEls = {}, _caEls = {};
 <script>
 var CLOUD_URL = 'https://script.google.com/macros/s/AKfycbyKZfyP9__lWhLjsEtSvwrfZha-7mxeYzrfFCX0fDV7je4UPPOTAEJ1b1Gl0Q2rejpf/exec';
 var _syncTimer = null;
+function _setDirty() { _localDirtyUntil = Date.now() + 30000; try { localStorage.setItem('_localDirtyUntil', String(_localDirtyUntil)); } catch(e){} }
 function persist() {
     _lastSyncJSON = JSON.stringify(DB);
     try { localStorage.setItem('reCRM', _lastSyncJSON); } catch(e) { console.error('localStorage寫入失敗', e); }
     // 標記本機有變更，30秒內不接受雲端覆蓋（等上傳完成）
-    _localDirtyUntil = Date.now() + 30000;
+    _setDirty();
     // 自動雲端同步（延遲3秒，避免連續操作重複上傳）
     if (_syncTimer) clearTimeout(_syncTimer);
     _syncTimer = setTimeout(autoSync, 3000);
@@ -2054,7 +2055,7 @@ function persistPerf() {
 function persistAndSyncNow() {
     _lastSyncJSON = JSON.stringify(DB);
     try { localStorage.setItem('reCRM', _lastSyncJSON); } catch(e) { console.error('localStorage寫入失敗', e); }
-    _localDirtyUntil = Date.now() + 30000;
+    _setDirty();
     if (_syncTimer) clearTimeout(_syncTimer);
     autoSync();
 }
@@ -2097,7 +2098,7 @@ function verifySyncResult(status) {
                 var _dispCnt = data.filter(function(c){ return !c.__perfRecords && !c.__templates && !c._system; }).length;
                 if (status) status.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#22C55E;margin-right:4px;vertical-align:middle"></span>已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + _dispCnt + '筆）';
                 showToast('☁️ 已同步至雲端', 'ok', 2000);
-                _localDirtyUntil = 0;
+                _localDirtyUntil = 0; try { localStorage.removeItem('_localDirtyUntil'); } catch(e){}
                 _lastSyncJSON = JSON.stringify(DB);
             } else {
                 if (status) status.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#F59E0B;margin-right:4px;vertical-align:middle"></span>同步中…';
@@ -2151,11 +2152,12 @@ function syncViaIframe(payload, status) {
 // ── 自動雲端同步（頁面載入+每5分鐘）──
 var _checkTimer = null;
 var _lastSyncJSON = JSON.stringify(DB);
-var _localDirtyUntil = 0; // 本機有未上傳的變更時，暫停拉雲端
+var _localDirtyUntil = parseInt(localStorage.getItem('_localDirtyUntil') || '0', 10); // 本機有未上傳的變更時，暫停拉雲端
 function startAutoCheck() {
     if (_checkTimer) clearInterval(_checkTimer);
-    // 頁面載入5秒後自動拉雲端（避免和 autoSync 的 3 秒延遲競爭）
-    setTimeout(autoFetchCloud, 5000);
+    // 頁面載入：先上傳本地資料，再拉雲端（確保本地變更不被覆蓋）
+    setTimeout(autoSync, 2000);
+    setTimeout(autoFetchCloud, 12000);
     _checkTimer = setInterval(autoFetchCloud, 5 * 60 * 1000);
 }
 function autoFetchCloud() {
