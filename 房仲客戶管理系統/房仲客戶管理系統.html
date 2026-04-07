@@ -2064,17 +2064,23 @@ function autoSync() {
     if (status) status.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#F59E0B;margin-right:4px;vertical-align:middle"></span>同步中…';
     var syncData = DB.filter(function(c){ return !c.__perfRecords && !c.__templates; }).concat([{__perfRecords: true, records: _perfRecords}]).concat([{__templates: true, items: _templates}]);
     var payload = JSON.stringify(syncData);
-    // 嘗試多種方式確保 POST 送達
-    // 方式1: sendBeacon（最可靠的跨域 POST）
-    if (navigator.sendBeacon) {
-        var sent = navigator.sendBeacon(CLOUD_URL, new URLSearchParams({payload: payload}));
+    // 方式1: fetch（最可靠，有回傳結果）
+    if (window.fetch) {
+        fetch(CLOUD_URL, { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:'payload='+encodeURIComponent(payload), mode:'no-cors' })
+        .then(function() { setTimeout(function(){ verifySyncResult(status); }, 8000); })
+        .catch(function() { syncViaIframe(payload, status); });
+        return;
+    }
+    // 方式2: sendBeacon（payload < 60KB 才用，避免靜默失敗）
+    var encoded = new URLSearchParams({payload: payload});
+    if (navigator.sendBeacon && encoded.toString().length < 60000) {
+        var sent = navigator.sendBeacon(CLOUD_URL, encoded);
         if (sent) {
-            // 8秒後驗證（等雲端處理完成）
             setTimeout(function() { verifySyncResult(status); }, 8000);
             return;
         }
     }
-    // 方式2: iframe fallback
+    // 方式3: iframe fallback
     syncViaIframe(payload, status);
     // Fallback timeout
     setTimeout(function() {
