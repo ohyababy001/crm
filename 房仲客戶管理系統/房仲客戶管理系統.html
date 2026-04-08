@@ -4057,6 +4057,15 @@ function renderCard(c) {
             <div class="card-notes-col" onclick="event.stopPropagation()">
                 ${_schedHtml}
                 <div class="notes-inline${notesText?'':' empty-note'}" onclick="editNoteInline('${_eid}',this,'${esc(showType)}')" style="display:flex;gap:6px"><span style="color:var(--muted);flex-shrink:0">備註</span><div style="word-break:break-word">${notesText ? esc(notesText) : '<span style="color:#94A3B8">點擊新增備註…</span>'}</div></div>
+                ${(function(){
+                    if (!c.contactLog || !c.contactLog.length) return '';
+                    var sorted = c.contactLog.slice().sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+                    var show = sorted.slice(0, 3);
+                    return '<div style="margin-top:4px;border-top:1px dashed var(--border);padding-top:4px">' +
+                        show.map(function(log, i){ return '<div style="font-size:12px;line-height:1.5;color:#374151"><span style="color:#059669;font-weight:600">'+esc(isoToROC(log.date))+'</span> '+esc(log.memo)+'</div>'; }).join('') +
+                        (sorted.length > 3 ? '<div style="font-size:11px;color:var(--muted);cursor:pointer" onclick="event.stopPropagation();showContactLog(\''+_eid+'\')">還有 '+(sorted.length-3)+' 筆…</div>' : '') +
+                    '</div>';
+                })()}
                 <div class="card-contact">
                     ${dateLabel ? `<span>${esc(dateLabel)}</span>` : ''}
                     ${c.history && c.history.length ? `<button class="btn-history" onclick="event.stopPropagation();showHistory('${_eid}')">歷程</button>` : ''}
@@ -4065,6 +4074,7 @@ function renderCard(c) {
             <div class="card-bottom-right">
                 <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
                     <div style="display:flex;gap:6px">
+                        <button class="btn-ic" onclick="event.stopPropagation();quickContactLog('${_eid}')" title="聯繫紀錄">📝</button>
                         <button class="btn-ic" onclick="event.stopPropagation();quickSchedule('${_eid}')" title="預排行程">📅</button>
                         <button class="btn-ic" onclick="event.stopPropagation();openDriveFolder('${_eid}','${_eva}')" title="雲端資料夾">${getRpDriveIcon(c)}</button>
                         <button class="btn-ic card-mobile-only" onclick="event.stopPropagation();openCardMenu(event,'${_eid}','${_eva}',${c.archived?'true':'false'})" title="更多">⚙️</button>
@@ -4655,6 +4665,12 @@ function showDet(id, viewAs) {
                 }
                 var _fn = c.notes && c.notes.trim() && !(/^\d+$/.test(c.notes.trim())) ? c.notes : '';
                 return _fn?'<div class="det-sec">備註 / 跟進記錄</div><div style="font-size:14px;white-space:pre-wrap;line-height:1.6">'+esc(_fn)+'</div>':'';
+            })()}
+            ${(function(){
+                if (!c.contactLog || !c.contactLog.length) return '';
+                var sorted = c.contactLog.slice().sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+                return '<div class="det-sec">聯繫紀錄</div>' +
+                    sorted.map(function(log){ return '<div class="det-row"><span class="det-key" style="color:#059669;font-weight:700">'+esc(isoToROC(log.date))+'</span><span class="det-val">'+esc(log.memo)+'</span></div>'; }).join('');
             })()}
         </div>`;
     document.getElementById('dModal').style.display='flex';
@@ -6473,6 +6489,79 @@ function completeSchedule(clientId, date, time) {
         if (!c.history) c.history = [];
         c.history.push({ type:'schedule_done', time:new Date().toISOString(), detail:'【已完成行程】' + isoToROC(date) + (time ? ' ' + time : '') + (memo ? ' ' + memo : '') });
         _addDoneSchedule({ clientId:clientId, clientName:c.name, date:date, time:time, memo:memo, doneAt:new Date().toISOString() });
+        persistAndSyncNow();
+        render();
+    });
+}
+
+// ── 快速新增聯繫紀錄 ──
+function quickContactLog(clientId, editIdx) {
+    var c = DB.find(function(x){ return x.id === clientId; });
+    if (!c) return;
+    var editing = editIdx !== undefined;
+    var old = editing && c.contactLog ? c.contactLog[editIdx] : null;
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.padding = '16px'; box.style.minWidth = '300px'; box.style.maxWidth = '360px';
+    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">📝 聯繫紀錄 — '+esc(c.name)+'</div>' +
+        '<div style="display:flex;gap:8px;margin-bottom:10px">' +
+            '<div class="roc-date-wrap" style="flex:1"><input id="cl-date" type="text" placeholder="日期" value="'+esc(isoToROC(old?old.date:localDateISO()))+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>' +
+        '</div>' +
+        '<div style="margin-bottom:12px"><input id="cl-memo" type="text" placeholder="紀錄內容（如：帶看XX、電聯回報…）" value="'+esc(old?old.memo:'')+'" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit"></div>' +
+        '<div style="display:flex;gap:8px">' +
+            '<button onclick="this.closest(\'.fill-overlay\').remove()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
+            '<button id="cl-save" style="flex:1;padding:10px;border:none;border-radius:8px;background:#059669;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">儲存</button>' +
+        '</div>';
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    document.getElementById('cl-save').onclick = function() {
+        var date = rocToISO(document.getElementById('cl-date').value);
+        var memo = document.getElementById('cl-memo').value.trim();
+        if (!date) { showToast('請選擇日期', 'warn'); return; }
+        if (!memo) { showToast('請輸入紀錄內容', 'warn'); return; }
+        if (!c.contactLog) c.contactLog = [];
+        if (editing && old) {
+            c.contactLog[editIdx] = { date:date, memo:memo, time:new Date().toISOString() };
+        } else {
+            c.contactLog.unshift({ date:date, memo:memo, time:new Date().toISOString() });
+        }
+        c.lastContact = new Date().toISOString();
+        persistAndSyncNow();
+        overlay.remove();
+        render();
+    };
+    box.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('cl-save').click(); } });
+    document.getElementById('cl-memo').focus();
+}
+
+function showContactLog(clientId) {
+    var c = DB.find(function(x){ return x.id === clientId; });
+    if (!c || !c.contactLog || !c.contactLog.length) return;
+    var sorted = c.contactLog.slice().sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.padding = '16px'; box.style.minWidth = '320px'; box.style.maxWidth = '420px'; box.style.maxHeight = '80vh'; box.style.overflowY = 'auto';
+    box.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-weight:700;font-size:15px">📝 聯繫紀錄 — '+esc(c.name)+'</span><button onclick="this.closest(\'.fill-overlay\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)">✕</button></div>' +
+        sorted.map(function(log, i) {
+            return '<div style="padding:8px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start">' +
+                '<div><div style="font-weight:600;color:#059669;font-size:13px">'+esc(isoToROC(log.date))+'</div><div style="font-size:14px;color:#374151;margin-top:2px">'+esc(log.memo)+'</div></div>' +
+                '<div style="display:flex;gap:4px;flex-shrink:0"><button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();quickContactLog(\''+esc(clientId)+'\','+i+')" title="編輯" style="font-size:12px;padding:2px 4px">✏️</button><button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();deleteContactLog(\''+esc(clientId)+'\','+i+')" title="刪除" style="font-size:12px;padding:2px 4px">🗑️</button></div></div>';
+        }).join('') +
+        '<div style="margin-top:12px"><button onclick="this.closest(\'.fill-overlay\').remove();quickContactLog(\''+esc(clientId)+'\')" style="width:100%;padding:10px;border:none;border-radius:8px;background:#059669;color:white;font-size:14px;font-weight:700;cursor:pointer">＋ 新增紀錄</button></div>';
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
+}
+
+function deleteContactLog(clientId, idx) {
+    confirmAction('確定刪除此聯繫紀錄？', function() {
+        var c = DB.find(function(x){ return x.id === clientId; });
+        if (!c || !c.contactLog) return;
+        c.contactLog.splice(idx, 1);
         persistAndSyncNow();
         render();
     });
@@ -9973,7 +10062,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260408h';
+var APP_VERSION = '20260408i';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
@@ -10044,13 +10133,14 @@ function openCardMenu(e, id, viewAs, isArchived) {
     menu.id = 'cardMenuPopup';
     var archLabel = isArchived ? '📤 解除封存' : '📥 封存';
     var archFn = isArchived ? 'unarchiveClient' : 'archiveClient';
-    menu.innerHTML = '<button onclick="closeCardMenu();openEdit(\''+esc(id)+'\',\''+esc(viewAs)+'\')">✏️ 編輯</button>' +
+    menu.innerHTML = '<button onclick="closeCardMenu();quickContactLog(\''+esc(id)+'\')">📝 聯繫紀錄</button>' +
+        '<button onclick="closeCardMenu();openEdit(\''+esc(id)+'\',\''+esc(viewAs)+'\')">✏️ 編輯</button>' +
         '<button onclick="closeCardMenu();'+archFn+'(\''+esc(id)+'\')">'+archLabel+'</button>' +
         '<button class="del-btn" onclick="closeCardMenu();del(\''+esc(id)+'\')">🗑️ 刪除</button>';
     document.body.appendChild(menu);
     // 定位在按鈕附近
     var rect = e.currentTarget.getBoundingClientRect();
-    var menuW = 140, menuH = 144;
+    var menuW = 140, menuH = 180;
     var left = rect.right - menuW;
     var top = rect.bottom + 4;
     if (top + menuH > window.innerHeight) top = rect.top - menuH - 4;
