@@ -4082,7 +4082,6 @@ function editNoteInline(id, el, noteType) {
             c.typeNotes[key] = val;
             if (!val) c.notes = '';
             c.notes = getAllNotes(c);
-            c.lastContact = new Date().toISOString();
             persist();
         }
         render();
@@ -10016,7 +10015,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260408k';
+var APP_VERSION = '20260408m';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
