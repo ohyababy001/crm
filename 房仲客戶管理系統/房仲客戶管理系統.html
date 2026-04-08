@@ -4058,10 +4058,10 @@ function renderCard(c) {
                 ${_schedHtml}
                 ${(function(){
                     if (!c.contactLog || !c.contactLog.length) return '';
-                    var sorted = c.contactLog.slice().sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
-                    var show = sorted.slice(0, 3);
+                    var indexed = c.contactLog.map(function(log,i){ return {log:log,idx:i}; }).sort(function(a,b){ return (b.log.date||'').localeCompare(a.log.date||''); });
+                    var show = indexed.slice(0, 3);
                     return '<div style="margin-bottom:4px;font-size:12px;line-height:1.4;display:flex;gap:6px"><span style="color:var(--muted);flex-shrink:0">紀錄</span><div>' +
-                        show.map(function(log){ return '<div style="color:#374151"><span style="color:#059669;font-weight:600">'+esc(isoToROC(log.date))+'</span> '+esc(log.memo)+'</div>'; }).join('') +
+                        show.map(function(item){ return '<div style="color:#374151;cursor:pointer" onclick="event.stopPropagation();quickContactLog(\''+_eid+'\','+item.idx+')"><span style="color:#059669;font-weight:600">'+esc(isoToROC(item.log.date))+'</span> '+esc(item.log.memo)+'</div>'; }).join('') +
                         (sorted.length > 3 ? '<div style="font-size:11px;color:var(--muted);cursor:pointer" onclick="event.stopPropagation();showContactLog(\''+_eid+'\')">還有 '+(sorted.length-3)+' 筆…</div>' : '') +
                     '</div></div>';
                 })()}
@@ -10061,7 +10061,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260408o';
+var APP_VERSION = '20260408p';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
