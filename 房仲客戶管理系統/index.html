@@ -438,7 +438,7 @@
             /* 買方篩選列手機版 */
             .bf-grid-wrap { gap:4px; }
             .bf-row { gap:4px; }
-            .bf-chip { font-size:12px; padding:5px 11px; }
+            .bf-chip { font-size:12px; padding:5px 8px; }
             /* 買方手機版：基本資料重排 */
             /* 所有功能手機版基本資料統一重排 */
             /* 第一行(3或4欄)→2欄 */
@@ -859,9 +859,10 @@
                     <button class="bf-chip" onclick="toggleBfRoom(this,'套房')">套房</button>
                     <button class="bf-chip" onclick="toggleBfRoom(this,'二房')">二房</button>
                     <button class="bf-chip" onclick="toggleBfRoom(this,'三房+')">三房+</button>
+                    <span class="bf-sep"></span>
                     <button class="bf-chip" onclick="toggleBfRoom(this,'公寓')">公寓</button>
                     <button class="bf-chip" onclick="toggleBfRoom(this,'透天')">透天</button>
-                    <button class="bf-chip" onclick="toggleBfRoom(this,'店辦豪土')">店辦豪土</button>
+                    <button class="bf-chip" onclick="toggleBfRoom(this,'店辦豪土')">店辦</button>
                 </div>
             </div>
 
@@ -10047,7 +10048,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260408z2';
+var APP_VERSION = '20260408z3';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
