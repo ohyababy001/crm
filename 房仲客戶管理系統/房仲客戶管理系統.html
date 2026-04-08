@@ -389,7 +389,7 @@
             .fill-overlay { align-items: flex-start !important; padding-top: 15vh; }
 
             /* Header */
-            .header { padding: 10px 12px; gap: 6px; flex-wrap: wrap; position: sticky; left: auto; right: auto; margin-top: 0; }
+            .header { padding: 10px 12px; gap: 6px; flex-wrap: wrap; position: fixed; top: 0; left: 0; right: 0; z-index: 100; margin-top: 0; }
             .layout { margin-top: 0; height: auto; }
             .header-title { display: none; }
             .mobile-cloud { flex: 1 1 100% !important; max-width: 100%; justify-content: flex-start; order: 1; }
@@ -663,7 +663,7 @@
             .header-data-tools { display: none !important; }
 
             /* 手機頂部導航 */
-            .mobile-nav { display: flex !important; }
+            .mobile-nav { display: flex !important; position: fixed; left: 0; right: 0; z-index: 99; }
             .mobile-nav.hide-nav { display: none !important; }
             .main { padding-top: 0; padding-bottom: 16px; }
             .main-fixed-top { padding-top: 4px; }
@@ -9958,6 +9958,20 @@ var _mnavObs = new MutationObserver(function() {
     nav.style.display = anyOpen ? 'none' : '';
 });
 document.addEventListener('DOMContentLoaded', function() {
+    // 手機版固定 header + nav
+    function _fixMobileHeader() {
+        if (window.innerWidth > 768) return;
+        var header = document.querySelector('.header');
+        var nav = document.getElementById('mobileNav');
+        var layout = document.querySelector('.layout');
+        if (!header || !nav || !layout) return;
+        var hH = header.offsetHeight;
+        nav.style.top = hH + 'px';
+        layout.style.marginTop = (hH + nav.offsetHeight) + 'px';
+    }
+    _fixMobileHeader();
+    window.addEventListener('resize', function() { setTimeout(_fixMobileHeader, 100); });
+
     document.querySelectorAll('.overlay').forEach(function(o) {
         _mnavObs.observe(o, { attributes: true, attributeFilter: ['style'] });
     });
@@ -10067,7 +10081,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260408t';
+var APP_VERSION = '20260408u';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
