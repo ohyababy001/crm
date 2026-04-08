@@ -169,7 +169,7 @@
         .cmeta-v { font-weight: 700; color: var(--text); white-space: normal; word-break: break-word; overflow-wrap: break-word; }
         .cmeta-v.full { white-space: normal; word-break: break-word; }
         .card-notes-col { flex: 1; min-width: 0; }
-        .notes-inline { font-size: 12px; color: #1F2937; cursor: text; white-space: pre-line; word-break: break-word; line-height: 1.4; }
+        .notes-inline { font-size: 13px; color: #1F2937; cursor: text; white-space: pre-line; word-break: break-word; line-height: 1.4; }
         .notes-inline.empty-note { color: #94A3B8; }
         .notes-edit-area { flex:1; min-width:0; border: 1.5px solid var(--wood); border-radius: 6px; padding: 4px 7px; font-size: 14px; font-family: inherit; outline: none; resize: none; color: var(--text); box-shadow: 0 0 0 3px rgba(87,83,78,0.1); }
         .card-contact { font-size: 13px; color: var(--muted); margin-top: 4px; display: flex; align-items: center; gap: 6px; }
@@ -3809,7 +3809,7 @@ function renderCard(c) {
                 if (_schedFilter && s.schedType && s.schedType !== _schedFilter) return false;
                 return true;
             }).sort(function(a,b){ return (a.date+(a.time||'')).localeCompare(b.date+(b.time||'')); })[0];
-            if (_nextSched) _schedHtml = `<div style="margin-bottom:4px;font-size:12px;line-height:1.4;display:flex;gap:6px"><span style="color:var(--muted);flex-shrink:0">行程</span><div><span style="color:#1E40AF;font-weight:700">${esc(isoToMDW(_nextSched.date))}${_nextSched.time?' '+_nextSched.time:''}</span>${_nextSched.memo?'<div style="color:#1E40AF;word-break:break-word">'+esc(_nextSched.memo)+'</div>':''}</div></div>`;
+            if (_nextSched) _schedHtml = `<div style="margin-bottom:4px;font-size:13px;line-height:1.4;display:flex;gap:6px"><span style="color:var(--muted);flex-shrink:0">行程</span><div><span style="color:#1E40AF;font-weight:700">${esc(isoToMDW(_nextSched.date))}${_nextSched.time?' '+_nextSched.time:''}</span>${_nextSched.memo?'<div style="color:#1E40AF;word-break:break-word">'+esc(_nextSched.memo)+'</div>':''}</div></div>`;
         }
         if (showType==='經營買方') {
             // 選擇要顯示的需求：有篩選時顯示符合的需求，否則顯示第一組
@@ -4060,7 +4060,7 @@ function renderCard(c) {
                     if (!c.contactLog || !c.contactLog.length) return '';
                     var indexed = c.contactLog.map(function(log,i){ return {log:log,idx:i}; }).sort(function(a,b){ return (b.log.date||'').localeCompare(a.log.date||''); });
                     var show = indexed.slice(0, 3);
-                    return '<div style="margin-bottom:4px;font-size:12px;line-height:1.4;display:flex;gap:6px"><span style="color:var(--muted);flex-shrink:0">紀錄</span><div>' +
+                    return '<div style="margin-bottom:4px;font-size:13px;line-height:1.4;display:flex;gap:6px"><span style="color:var(--muted);flex-shrink:0">紀錄</span><div>' +
                         show.map(function(item){ return '<div style="color:#374151;cursor:pointer" onclick="event.stopPropagation();quickContactLog(\''+_eid+'\','+item.idx+')"><span style="color:#059669;font-weight:600">'+esc(isoToROC(item.log.date))+'</span> '+esc(item.log.memo)+'</div>'; }).join('') +
                         (indexed.length > 3 ? '<div style="font-size:11px;color:var(--muted);cursor:pointer" onclick="event.stopPropagation();showContactLog(\''+_eid+'\')">還有 '+(indexed.length-3)+' 筆…</div>' : '') +
                     '</div></div>';
@@ -10061,7 +10061,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260408q';
+var APP_VERSION = '20260408r';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
