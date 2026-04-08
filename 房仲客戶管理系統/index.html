@@ -3792,8 +3792,8 @@ function renderCard(c) {
             var _area = _bd ? _bd.areaDisplay : cc.areaDisplay;
             var _rooms = _bd ? _bd.roomTypes : cc.roomTypes;
             var _budget = _bd ? _bd.budget : cc.budget;
-            if (_rooms)   meta += `<div class="cmeta-row"><span class="cmeta-k">房型</span><span class="cmeta-v">${esc(_rooms)}</span></div>`;
             if (_area) meta += `<div class="cmeta-row"><span class="cmeta-k">區域</span><span class="cmeta-v" style="white-space:pre-line;overflow:visible">${esc(_area)}</span></div>`;
+            if (_rooms)   meta += `<div class="cmeta-row"><span class="cmeta-k">房型</span><span class="cmeta-v">${esc(_rooms)}</span></div>`;
             if (_budget)      meta += `<div class="cmeta-row"><span class="cmeta-k">預算</span><span class="cmeta-v">${esc(_budget)}${_budget.includes('萬')?'':'萬'}</span></div>`;
             var _want = _bd ? _bd.want : cc.want;
             if (_want) meta += `<div class="cmeta-row"><span class="cmeta-k">想要</span><span class="cmeta-v" style="color:#B45309">${esc(_want)}</span></div>`;
@@ -10046,7 +10046,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260408z';
+var APP_VERSION = '20260408y';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
