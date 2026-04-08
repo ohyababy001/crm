@@ -89,7 +89,7 @@
         .buyer-filter { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; margin-bottom: 14px; display: none; }
         .buyer-filter.on { display: block; }
         .bf-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
-        .bf-row:last-child { margin-bottom: 0; margin-left: 58px; }
+        .bf-row:last-child { margin-bottom: 0; }
         .bf-label { font-size: 14px; font-weight: 700; color: var(--muted); white-space: nowrap; width: 52px; }
         .bf-grid-wrap { display:flex; flex-direction:column; gap:6px; }
         .bf-chip { padding: 6px 16px; border-radius: 20px; border: 1.5px solid var(--border); background: white; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--muted); transition: all 0.12s; line-height:1.2; font-family:inherit; box-sizing:border-box; }
@@ -856,7 +856,7 @@
                     <button class="bf-chip bf-grade-b" onclick="toggleBfGrade(this,'B')">B級</button>
                     <button class="bf-chip bf-grade-c" onclick="toggleBfGrade(this,'C')">C級</button>
                 </div>
-                <div class="bf-row">
+                <div class="bf-row" id="bfRow2">
                     <button class="bf-chip" onclick="toggleBfRoom(this,'套房')">套房</button>
                     <button class="bf-chip" onclick="toggleBfRoom(this,'二房')">二房</button>
                     <button class="bf-chip" onclick="toggleBfRoom(this,'三房+')">三房+</button>
@@ -867,6 +867,23 @@
                 </div>
             </div>
 
+            <script>
+            (function(){
+                function alignBfRow2() {
+                    var row1 = document.querySelector('#buyerFilter .bf-row');
+                    var row2 = document.getElementById('bfRow2');
+                    if (!row1 || !row2) return;
+                    var allBtn = row1.querySelector('.bf-chip');
+                    var sep = row1.querySelector('.bf-sep');
+                    if (!allBtn || !sep) return;
+                    var gap = parseInt(getComputedStyle(row1).gap) || 6;
+                    row2.style.marginLeft = (allBtn.offsetWidth + sep.offsetWidth + gap * 2) + 'px';
+                }
+                if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', alignBfRow2);
+                else alignBfRow2();
+                window.addEventListener('resize', alignBfRow2);
+            })();
+            </script>
             <!-- 庫存屋主過濾列 -->
             <div class="buyer-filter" id="sellerFilter">
                 <div style="display:flex;gap:6px;align-items:center;width:fit-content">
@@ -10099,7 +10116,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260408z6';
+var APP_VERSION = '20260408z7';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
