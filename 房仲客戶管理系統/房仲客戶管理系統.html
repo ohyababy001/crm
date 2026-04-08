@@ -857,6 +857,8 @@
                     <button class="bf-chip bf-grade-c" onclick="toggleBfGrade(this,'C')">C級</button>
                 </div>
                 <div class="bf-row" id="bfRow2">
+                    <span class="bf-chip" style="visibility:hidden;padding:5px 8px">全部</span>
+                    <span class="bf-sep" style="visibility:hidden"></span>
                     <button class="bf-chip" onclick="toggleBfRoom(this,'套房')">套房</button>
                     <button class="bf-chip" onclick="toggleBfRoom(this,'二房')">二房</button>
                     <button class="bf-chip" onclick="toggleBfRoom(this,'三房+')">三房+</button>
@@ -867,23 +869,6 @@
                 </div>
             </div>
 
-            <script>
-            (function(){
-                function alignBfRow2() {
-                    var row1 = document.querySelector('#buyerFilter .bf-row');
-                    var row2 = document.getElementById('bfRow2');
-                    if (!row1 || !row2) return;
-                    var allBtn = row1.querySelector('.bf-chip');
-                    var sep = row1.querySelector('.bf-sep');
-                    if (!allBtn || !sep) return;
-                    var gap = parseInt(getComputedStyle(row1).gap) || 6;
-                    row2.style.marginLeft = (allBtn.offsetWidth + sep.offsetWidth + gap * 2) + 'px';
-                }
-                if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', alignBfRow2);
-                else alignBfRow2();
-                window.addEventListener('resize', alignBfRow2);
-            })();
-            </script>
             <!-- 庫存屋主過濾列 -->
             <div class="buyer-filter" id="sellerFilter">
                 <div style="display:flex;gap:6px;align-items:center;width:fit-content">
@@ -10116,7 +10101,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260408z7';
+var APP_VERSION = '20260408z8';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
