@@ -4070,7 +4070,11 @@ function renderCard(c) {
                 ${_schedHtml}
                 ${(function(){
                     if (!c.contactLog || !c.contactLog.length) return '';
-                    var indexed = c.contactLog.map(function(log,i){ return {log:log,idx:i}; }).sort(function(a,b){ return (b.log.date||'').localeCompare(a.log.date||''); });
+                    var _curTab = curFilter && curFilter !== 'all' ? curFilter : '';
+                    var indexed = c.contactLog.map(function(log,i){ return {log:log,idx:i}; })
+                        .filter(function(item){ return !_curTab || !item.log.tab || item.log.tab === _curTab; })
+                        .sort(function(a,b){ return (b.log.date||'').localeCompare(a.log.date||''); });
+                    if (!indexed.length) return '';
                     var show = indexed.slice(0, 3);
                     return '<div style="margin-bottom:4px;font-size:13px;line-height:1.4;display:flex;gap:6px"><span style="color:var(--muted);flex-shrink:0">紀錄</span><div>' +
                         show.map(function(item){ return '<div style="color:#374151;cursor:pointer" onclick="event.stopPropagation();quickContactLog(\''+_eid+'\','+item.idx+')"><span style="color:#059669;font-weight:600">'+esc(isoToROC(item.log.date))+'</span> '+esc(item.log.memo)+'</div>'; }).join('') +
@@ -4684,7 +4688,11 @@ function showDet(id, viewAs) {
             })()}
             ${(function(){
                 if (!c.contactLog || !c.contactLog.length) return '';
-                var sorted = c.contactLog.slice().sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+                var _curTab = curFilter && curFilter !== 'all' ? curFilter : '';
+                var sorted = c.contactLog.slice()
+                    .filter(function(log){ return !_curTab || !log.tab || log.tab === _curTab; })
+                    .sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+                if (!sorted.length) return '';
                 return '<div class="det-sec">聯繫紀錄</div>' +
                     sorted.map(function(log){ return '<div class="det-row"><span class="det-key" style="color:#059669;font-weight:700">'+esc(isoToROC(log.date))+'</span><span class="det-val">'+esc(log.memo)+'</span></div>'; }).join('');
             })()}
@@ -6545,10 +6553,11 @@ function quickContactLog(clientId, editIdx) {
         if (!date) { showToast('請選擇日期', 'warn'); return; }
         if (!memo) { showToast('請輸入紀錄內容', 'warn'); return; }
         if (!c.contactLog) c.contactLog = [];
+        var _logTab = curFilter && curFilter !== 'all' ? curFilter : '';
         if (editing && old) {
-            c.contactLog[editIdx] = { date:date, memo:memo, time:new Date().toISOString() };
+            c.contactLog[editIdx] = { date:date, memo:memo, time:new Date().toISOString(), tab: old.tab || _logTab };
         } else {
-            c.contactLog.unshift({ date:date, memo:memo, time:new Date().toISOString() });
+            c.contactLog.unshift({ date:date, memo:memo, time:new Date().toISOString(), tab: _logTab });
         }
         c.lastContact = new Date().toISOString();
         persistAndSyncNow();
@@ -6562,7 +6571,11 @@ function quickContactLog(clientId, editIdx) {
 function showContactLog(clientId) {
     var c = DB.find(function(x){ return x.id === clientId; });
     if (!c || !c.contactLog || !c.contactLog.length) return;
-    var sorted = c.contactLog.slice().sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+    var _curTab = curFilter && curFilter !== 'all' ? curFilter : '';
+    var sorted = c.contactLog.slice()
+        .filter(function(log){ return !_curTab || !log.tab || log.tab === _curTab; })
+        .sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+    if (!sorted.length) return;
     var overlay = document.createElement('div');
     overlay.className = 'fill-overlay';
     var box = document.createElement('div');
@@ -10100,7 +10113,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260408z10';
+var APP_VERSION = '20260409a1';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
