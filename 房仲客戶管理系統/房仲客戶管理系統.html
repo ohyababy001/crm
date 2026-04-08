@@ -6517,10 +6517,17 @@ function quickContactLog(clientId, editIdx) {
         '<div style="margin-bottom:12px"><input id="cl-memo" type="text" placeholder="紀錄內容（如：帶看XX、電聯回報…）" value="'+esc(old?old.memo:'')+'" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit"></div>' +
         '<div style="display:flex;gap:8px">' +
             '<button onclick="this.closest(\'.fill-overlay\').remove()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
+            (editing ? '<button id="cl-del" style="padding:10px 14px;border:none;border-radius:8px;background:#EF4444;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">刪除</button>' : '') +
             '<button id="cl-save" style="flex:1;padding:10px;border:none;border-radius:8px;background:#059669;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">儲存</button>' +
         '</div>';
     overlay.appendChild(box);
     document.body.appendChild(overlay);
+    if (editing) {
+        document.getElementById('cl-del').onclick = function() {
+            overlay.remove();
+            deleteContactLog(clientId, editIdx);
+        };
+    }
     document.getElementById('cl-save').onclick = function() {
         var date = rocToISO(document.getElementById('cl-date').value);
         var memo = document.getElementById('cl-memo').value.trim();
@@ -10081,7 +10088,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260408u';
+var APP_VERSION = '20260408v';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
