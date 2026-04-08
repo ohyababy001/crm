@@ -2033,12 +2033,17 @@ var _ctEls = {}, _caEls = {};
 <script>
 var CLOUD_URL = 'https://script.google.com/macros/s/AKfycbyKZfyP9__lWhLjsEtSvwrfZha-7mxeYzrfFCX0fDV7je4UPPOTAEJ1b1Gl0Q2rejpf/exec';
 var _syncTimer = null;
+function _stampUpdatedAt() {
+    var now = new Date().toISOString();
+    var oldMap = {};
+    try { var old = JSON.parse(_lastSyncJSON || '[]'); old.forEach(function(c){ if(c.id) oldMap[c.id] = JSON.stringify(c); }); } catch(e){}
+    DB.forEach(function(c) { if (!c.id) return; if (oldMap[c.id] !== JSON.stringify(c)) c.updatedAt = now; });
+}
 function persist() {
+    _stampUpdatedAt();
     _lastSyncJSON = JSON.stringify(DB);
     try { localStorage.setItem('reCRM', _lastSyncJSON); } catch(e) { console.error('localStorage寫入失敗', e); }
-    // 標記本機有變更，30秒內不接受雲端覆蓋（等上傳完成）
-    _localDirtyUntil = Date.now() + 30000;
-    // 自動雲端同步（延遲3秒，避免連續操作重複上傳）
+    _localDirtyUntil = Date.now() + 60000;
     if (_syncTimer) clearTimeout(_syncTimer);
     _syncTimer = setTimeout(autoSync, 3000);
 }
@@ -2199,55 +2204,54 @@ function autoFetchCloud() {
                 var localActiveCnt = DB.filter(function(c){ return !c._deleted; }).length;
                 var cloudActiveCnt = cloudData.filter(function(c){ return !c._deleted; }).length;
                 if (cloudActiveCnt < localActiveCnt - 2) {
-                    // 雲端少太多，跳過覆蓋
                     return;
                 }
-                // 合併：保留本機的 rpDriveUrl/spDriveUrl 不被雲端覆蓋
+                // 逐筆合併：比較 updatedAt，保留較新的
+                var localMap = {};
+                DB.forEach(function(c){ if(c.id) localMap[c.id] = c; });
+                var merged = [];
+                var cloudIds = {};
                 cloudData.forEach(function(cc) {
-                    var local = DB.find(function(x){ return x.id === cc.id; });
-                    if (!local) return;
+                    cloudIds[cc.id] = true;
+                    var local = localMap[cc.id];
+                    if (!local) { merged.push(cc); return; }
+                    var cTime = cc.updatedAt || '';
+                    var lTime = local.updatedAt || '';
+                    var useCloud = !lTime || (cTime && cTime > lTime);
+                    var base = useCloud ? cc : local;
                     if (local.rProperties && local.rProperties.length) {
-                        if (!cc.rProperties) cc.rProperties = [];
+                        if (!base.rProperties) base.rProperties = [];
                         local.rProperties.forEach(function(lp, i) {
-                            if (lp.rpDriveUrl && cc.rProperties[i] && !cc.rProperties[i].rpDriveUrl) {
-                                cc.rProperties[i].rpDriveUrl = lp.rpDriveUrl;
-                            }
+                            if (lp.rpDriveUrl && base.rProperties[i] && !base.rProperties[i].rpDriveUrl) base.rProperties[i].rpDriveUrl = lp.rpDriveUrl;
                         });
                     }
                     if (local.sProperties && local.sProperties.length) {
-                        if (!cc.sProperties) cc.sProperties = [];
+                        if (!base.sProperties) base.sProperties = [];
                         local.sProperties.forEach(function(lp, i) {
-                            if (lp.spDriveUrl && cc.sProperties[i] && !cc.sProperties[i].spDriveUrl) {
-                                cc.sProperties[i].spDriveUrl = lp.spDriveUrl;
-                            }
+                            if (lp.spDriveUrl && base.sProperties[i] && !base.sProperties[i].spDriveUrl) base.sProperties[i].spDriveUrl = lp.spDriveUrl;
                         });
                     }
-                    // 買方/成交/商機的雲端資料夾
                     ['bDriveUrl','cDriveUrl','dDriveUrl'].forEach(function(k) {
-                        if (local[k] && !cc[k]) cc[k] = local[k];
+                        if (local[k] && !base[k]) base[k] = local[k];
                     });
-                    // 成交物件的雲端資料夾
                     if (local.deals && local.deals.length) {
-                        if (!cc.deals) cc.deals = [];
+                        if (!base.deals) base.deals = [];
                         local.deals.forEach(function(ld, i) {
-                            if (ld.dealDriveUrl && cc.deals[i] && !cc.deals[i].dealDriveUrl) cc.deals[i].dealDriveUrl = ld.dealDriveUrl;
+                            if (ld.dealDriveUrl && base.deals[i] && !base.deals[i].dealDriveUrl) base.deals[i].dealDriveUrl = ld.dealDriveUrl;
                         });
                     }
-                    // 商機物件的雲端資料夾
                     if (local.dAddrs && local.dAddrs.length) {
-                        if (!cc.dAddrs) cc.dAddrs = [];
+                        if (!base.dAddrs) base.dAddrs = [];
                         local.dAddrs.forEach(function(ld, i) {
-                            if (ld.dAddrDriveUrl && cc.dAddrs[i] && !cc.dAddrs[i].dAddrDriveUrl) cc.dAddrs[i].dAddrDriveUrl = ld.dAddrDriveUrl;
+                            if (ld.dAddrDriveUrl && base.dAddrs[i] && !base.dAddrs[i].dAddrDriveUrl) base.dAddrs[i].dAddrDriveUrl = ld.dAddrDriveUrl;
                         });
                     }
+                    merged.push(base);
                 });
-                // 保留本地有但雲端沒有的紀錄
-                var cloudIds = {};
-                cloudData.forEach(function(cc){ cloudIds[cc.id] = true; });
                 DB.forEach(function(local) {
-                    if (!cloudIds[local.id]) cloudData.push(local);
+                    if (!cloudIds[local.id]) merged.push(local);
                 });
-                DB = cloudData;
+                DB = merged;
                 migrateDB();
                 _lastSyncJSON = JSON.stringify(DB);
                 try { localStorage.setItem('reCRM', _lastSyncJSON); } catch(e) { console.error('localStorage寫入失敗', e); }
@@ -10042,7 +10046,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260408x';
+var APP_VERSION = '20260408y';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
