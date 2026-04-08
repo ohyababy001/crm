@@ -4057,9 +4057,13 @@ function editNoteInline(id, el, noteType) {
     if (!c) return;
     // 解析 key：確保是有效的備註類型
     var key = _resolveNoteType(noteType) || _resolveNoteType(curFilter) || (c.types && c.types.find(function(t){return _VALID_NOTE_TYPES[t];})) || '';
-    // 讀取值：優先 typeNotes，fallback 舊 notes（不直接改 DB）
-    var original = (c.typeNotes && c.typeNotes[key]) || '';
-    if (!original && c.notes && (!c.typeNotes || !Object.keys(c.typeNotes).some(function(k){return c.typeNotes[k];}))) {
+    // 讀取值：優先 typeNotes[key]，fallback 找第一個有值的 typeNote，最後用 notes
+    var original = (c.typeNotes && key && c.typeNotes[key]) || '';
+    if (!original && c.typeNotes) {
+        var foundKey = Object.keys(c.typeNotes).find(function(k){ return c.typeNotes[k]; });
+        if (foundKey) { original = c.typeNotes[foundKey]; if (!key) key = foundKey; }
+    }
+    if (!original && c.notes) {
         original = c.notes;
     }
     const ta = document.createElement('textarea');
@@ -10015,7 +10019,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260408r';
+var APP_VERSION = '20260408s';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
