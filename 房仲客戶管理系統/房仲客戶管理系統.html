@@ -170,7 +170,7 @@
         .cmeta-v.full { white-space: normal; word-break: break-word; }
         .card-notes-col { flex: 1; min-width: 0; }
         .notes-inline { font-size: 12px; color: #1F2937; cursor: text; white-space: pre-line; word-break: break-word; line-height: 1.4; }
-        .notes-inline.empty-note { color: #94A3B8; font-size: 14px; }
+        .notes-inline.empty-note { color: #94A3B8; }
         .notes-edit-area { flex:1; min-width:0; border: 1.5px solid var(--wood); border-radius: 6px; padding: 4px 7px; font-size: 14px; font-family: inherit; outline: none; resize: none; color: var(--text); box-shadow: 0 0 0 3px rgba(87,83,78,0.1); }
         .card-contact { font-size: 13px; color: var(--muted); margin-top: 4px; display: flex; align-items: center; gap: 6px; }
         .btn-history { background: none; border: 1px solid var(--border); border-radius: 4px; font-size: 11px; color: var(--muted); cursor: pointer; padding: 1px 6px; white-space: nowrap; }
@@ -4060,12 +4060,12 @@ function renderCard(c) {
                     if (!c.contactLog || !c.contactLog.length) return '';
                     var sorted = c.contactLog.slice().sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
                     var show = sorted.slice(0, 3);
-                    return '<div style="margin-bottom:4px">' +
-                        show.map(function(log, i){ return '<div style="font-size:12px;line-height:1.5;color:#374151"><span style="color:#059669;font-weight:600">'+esc(isoToROC(log.date))+'</span> '+esc(log.memo)+'</div>'; }).join('') +
+                    return '<div style="margin-bottom:4px;font-size:12px;line-height:1.4;display:flex;gap:6px"><span style="color:var(--muted);flex-shrink:0">紀錄</span><div>' +
+                        show.map(function(log){ return '<div style="color:#374151"><span style="color:#059669;font-weight:600">'+esc(isoToROC(log.date))+'</span> '+esc(log.memo)+'</div>'; }).join('') +
                         (sorted.length > 3 ? '<div style="font-size:11px;color:var(--muted);cursor:pointer" onclick="event.stopPropagation();showContactLog(\''+_eid+'\')">還有 '+(sorted.length-3)+' 筆…</div>' : '') +
-                    '</div>';
+                    '</div></div>';
                 })()}
-                <div class="notes-inline${notesText?'':' empty-note'}" onclick="editNoteInline('${_eid}',this,'${esc(showType)}')" style="display:flex;gap:6px"><span style="color:var(--muted);flex-shrink:0">備註</span><div style="word-break:break-word">${notesText ? esc(notesText) : '<span style="color:#94A3B8">點擊新增備註…</span>'}</div></div>
+                <div class="notes-inline${notesText?'':' empty-note'}" onclick="editNoteInline('${_eid}',this,'${esc(showType)}')" style="display:flex;gap:6px"><span style="color:var(--muted);flex-shrink:0">備註</span><div style="word-break:break-word">${notesText ? esc(notesText) : '<span style="color:#94A3B8;font-size:10px">點擊新增備註…</span>'}</div></div>
                 <div class="card-contact">
                     ${dateLabel ? `<span>${esc(dateLabel)}</span>` : ''}
                     ${c.history && c.history.length ? `<button class="btn-history" onclick="event.stopPropagation();showHistory('${_eid}')">歷程</button>` : ''}
@@ -10061,7 +10061,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260408m';
+var APP_VERSION = '20260408o';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
