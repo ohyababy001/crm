@@ -9908,6 +9908,7 @@ function mobileFilter(type) {
     if (btn) btn.classList.add('active');
     var sideBtn = document.querySelector('.filter-btn');
     setFilter(type, sideBtn);
+    window.scrollTo(0, 0);
 }
 // 有 modal 打開時隱藏導航
 var _mnavObs = new MutationObserver(function() {
@@ -10041,7 +10042,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260408v';
+var APP_VERSION = '20260408w';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
