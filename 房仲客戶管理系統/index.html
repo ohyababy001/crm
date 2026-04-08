@@ -854,7 +854,8 @@
                     <button class="bf-chip bf-grade-a" onclick="toggleBfGrade(this,'A')">A級</button>
                     <button class="bf-chip bf-grade-b" onclick="toggleBfGrade(this,'B')">B級</button>
                     <button class="bf-chip bf-grade-c" onclick="toggleBfGrade(this,'C')">C級</button>
-                    <span class="bf-sep"></span>
+                </div>
+                <div class="bf-row">
                     <button class="bf-chip" onclick="toggleBfRoom(this,'套房')">套房</button>
                     <button class="bf-chip" onclick="toggleBfRoom(this,'二房')">二房</button>
                     <button class="bf-chip" onclick="toggleBfRoom(this,'三房+')">三房+</button>
@@ -10046,7 +10047,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260408y';
+var APP_VERSION = '20260408z2';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
