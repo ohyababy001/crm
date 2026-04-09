@@ -2709,6 +2709,15 @@ function deleteCheckedHistory() {
 }
 
 
+function getTabLastContact(c, tab) {
+    if (!c.contactLog || !c.contactLog.length) return c.lastContact || '';
+    var _t = tab && tab !== 'all' ? tab : '';
+    if (!_t) return c.lastContact || '';
+    var filtered = c.contactLog.filter(function(log){ return log.tab === _t; });
+    if (!filtered.length) return '';
+    return filtered.reduce(function(max, log){ return (log.time||'') > max ? (log.time||'') : max; }, '');
+}
+
 function relTime(dateStr) {
     if (!dateStr) return '';
     // 日期字串 YYYY-MM-DD 解析為本地時間，避免 UTC 時差問題
@@ -3282,7 +3291,7 @@ function getData() {
         if (s==='newest') return (b.created||'').localeCompare(a.created||'');
         if (s==='oldest') return (a.created||'').localeCompare(b.created||'');
         if (s==='name')   return a.name.localeCompare(b.name,'zh');
-        if (s==='lastContact') return (b.lastContact||'').localeCompare(a.lastContact||'');
+        if (s==='lastContact') return (getTabLastContact(b,curFilter)).localeCompare(getTabLastContact(a,curFilter));
         if (s==='nextSchedule') {
             var aDate = a._nextSchedDate || '9999-12-31';
             var bDate = b._nextSchedDate || '9999-12-31';
@@ -3308,7 +3317,7 @@ function getData() {
                 }
                 return _getRentalEnd2(a).localeCompare(_getRentalEnd2(b));
             }
-            return (b.lastContact||'').localeCompare(a.lastContact||'');
+            return (getTabLastContact(b,curFilter)).localeCompare(getTabLastContact(a,curFilter));
         }
         return 0;
     });
@@ -3784,7 +3793,8 @@ function renderCard(c) {
         }).join('');
         const statusTag = !cTypes.includes('經營買方') && c.status ? `<span class="tag s-${esc(c.status)}">${esc(c.status)}</span>` : '';
         const notesText = (getTypeNote(c, showType) || (curFilter==='all' ? getAllNotes(c) : getTypeNote(c, curFilter)) || '').trim();
-        const dateLabel = c.lastContact ? '📞 '+relTime(c.lastContact) : '';
+        const _tabLC = getTabLastContact(c, curFilter);
+        const dateLabel = _tabLC ? '📞 '+relTime(_tabLC) : '';
         const createdLabel = c.created ? '建檔 '+isoToROC((c.created||'').slice(0,10)) : '';
 
         // 到期提醒標籤（只在對應分類頁面顯示，同時到期時用 += 串接）
@@ -6559,7 +6569,7 @@ function quickContactLog(clientId, editIdx) {
         } else {
             c.contactLog.unshift({ date:date, memo:memo, time:new Date().toISOString(), tab: _logTab });
         }
-        c.lastContact = new Date().toISOString();
+        if (!_logTab) c.lastContact = new Date().toISOString();
         persistAndSyncNow();
         overlay.remove();
         render();
@@ -8181,7 +8191,7 @@ function openEdit(id, viewAs) {
     setVal('f-bank', _ll0.bank||c.llBank||c.bank||'');
     setVal('f-bankCode', _ll0.bankCode||c.llBankCode||c.bankCode||'');
     setVal('f-bankAccount', _ll0.bankAccount||c.llBankAccount||c.bankAccount||'');
-    setVal('fs',c.status||'待聯絡'); setVal('flc',isoToROC(c.lastContact)); setVal('fnotes',c.notes);
+    setVal('fs',c.status||'待聯絡'); setVal('flc',isoToROC(getTabLastContact(c,curFilter))); setVal('fnotes',c.notes);
     renderTypeNotes(c);
     // 買方需求區塊
     if (c.bDemands && c.bDemands.length) {
@@ -10113,7 +10123,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260409a1';
+var APP_VERSION = '20260409a2';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
