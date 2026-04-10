@@ -3219,13 +3219,19 @@ function getData() {
         list = list.filter(function(c){ if(c.sProperties&&c.sProperties.length){ return c.sProperties.some(function(sp){ return sp.grade===bfSGrade; }); } return (c.sGrade||'')===bfSGrade; });
     }
     var isRentalTab = curFilter === '房東' || curFilter === '租客';
-    // 取排序用的最近聯絡時間：優先用 contactLog 最新日期，fallback 到 c.lastContact
+    // 取排序用的最近聯絡時間（YYYY-MM-DD 格式，統一比較單位）
+    // 有具體 contactLog 紀錄時加 'z' 尾碼，讓同日期時有紀錄的客戶排前面
     function _getLastContactSort(c) {
-        if (c.contactLog && c.contactLog.length) {
-            var maxDate = c.contactLog.reduce(function(m, log){ return (log.date||'') > m ? (log.date||'') : m; }, '');
-            if (maxDate) return maxDate;
-        }
-        return c.lastContact || '';
+        function _toDate(s) { return s ? String(s).slice(0,10) : ''; }
+        var _fallback = _toDate(c.lastContact);
+        if (!c.contactLog || !c.contactLog.length) return _fallback;
+        var logMax = c.contactLog.reduce(function(m, log){
+            var d = log.date || _toDate(log.time);
+            return d > m ? d : m;
+        }, '');
+        if (!logMax) return _fallback;
+        if (logMax >= _fallback) return logMax + 'z';
+        return _fallback;
     }
     const s = document.getElementById('sortSel').value;
     if (s === 'nextSchedule') {
@@ -10072,7 +10078,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260410a1';
+var APP_VERSION = '20260410a2';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
