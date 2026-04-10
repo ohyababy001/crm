@@ -2723,8 +2723,9 @@ function getTabLastContact(c, tab) {
     if (!c.contactLog || !c.contactLog.length) return c.lastContact || '';
     var _t = tab && tab !== 'all' ? tab : '';
     if (!_t) return c.lastContact || '';
-    var filtered = c.contactLog.filter(function(log){ return log.tab === _t; });
-    if (!filtered.length) return '';
+    // 與卡片顯示邏輯一致：包含符合當前頁籤的紀錄、以及無 tab 的舊紀錄
+    var filtered = c.contactLog.filter(function(log){ return !log.tab || log.tab === _t; });
+    if (!filtered.length) return c.lastContact || '';
     return filtered.reduce(function(max, log){ return (log.time||'') > max ? (log.time||'') : max; }, '');
 }
 
@@ -10138,7 +10139,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260409a3';
+var APP_VERSION = '20260410a1';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }

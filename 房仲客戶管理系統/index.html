@@ -3219,6 +3219,14 @@ function getData() {
         list = list.filter(function(c){ if(c.sProperties&&c.sProperties.length){ return c.sProperties.some(function(sp){ return sp.grade===bfSGrade; }); } return (c.sGrade||'')===bfSGrade; });
     }
     var isRentalTab = curFilter === '房東' || curFilter === '租客';
+    // 取排序用的最近聯絡時間：優先用 contactLog 最新日期，fallback 到 c.lastContact
+    function _getLastContactSort(c) {
+        if (c.contactLog && c.contactLog.length) {
+            var maxDate = c.contactLog.reduce(function(m, log){ return (log.date||'') > m ? (log.date||'') : m; }, '');
+            if (maxDate) return maxDate;
+        }
+        return c.lastContact || '';
+    }
     const s = document.getElementById('sortSel').value;
     if (s === 'nextSchedule') {
         var _today = localDateISO();
@@ -3257,7 +3265,7 @@ function getData() {
         if (s==='newest') return (b.created||'').localeCompare(a.created||'');
         if (s==='oldest') return (a.created||'').localeCompare(b.created||'');
         if (s==='name')   return a.name.localeCompare(b.name,'zh');
-        if (s==='lastContact') return (b.lastContact||'').localeCompare(a.lastContact||'');
+        if (s==='lastContact') return (_getLastContactSort(b)).localeCompare(_getLastContactSort(a));
         if (s==='nextSchedule') {
             var aDate = a._nextSchedDate || '9999-12-31';
             var bDate = b._nextSchedDate || '9999-12-31';
@@ -3283,7 +3291,7 @@ function getData() {
                 }
                 return _getRentalEnd2(a).localeCompare(_getRentalEnd2(b));
             }
-            return (b.lastContact||'').localeCompare(a.lastContact||'');
+            return (_getLastContactSort(b)).localeCompare(_getLastContactSort(a));
         }
         return 0;
     });
@@ -10064,7 +10072,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260409a1';
+var APP_VERSION = '20260410a1';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
