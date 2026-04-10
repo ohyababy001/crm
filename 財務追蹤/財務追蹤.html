@@ -1,0 +1,2062 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>財務追蹤系統</title>
+<style>
+:root {
+    --bg: #F8F6F3;
+    --card: #FFFFFF;
+    --border: #E5E2DC;
+    --text: #2D2A26;
+    --muted: #8C8578;
+    --accent: #059669;
+    --accent2: #0284C7;
+    --red: #DC2626;
+    --green: #16A34A;
+    --yellow: #F59E0B;
+    --header-from: #3B3632;
+    --header-to: #2D2A26;
+    --radius: 10px;
+    --shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+    font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+.header {
+    background: linear-gradient(135deg, var(--header-from), var(--header-to));
+    color: white;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+}
+.header h1 { font-size: 18px; font-weight: 700; }
+.header-btns { display: flex; gap: 8px; }
+.header-btns button {
+    background: rgba(255,255,255,.15);
+    border: none; color: white; padding: 6px 12px;
+    border-radius: 6px; font-size: 13px; cursor: pointer;
+    font-family: inherit;
+}
+.header-btns button:hover { background: rgba(255,255,255,.25); }
+
+.tab-bar {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 56px; z-index: 99;
+}
+.tab-btn {
+    flex: none;
+    padding: 10px 60px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: var(--muted);
+    border-bottom: 3px solid transparent;
+    transition: .2s;
+    font-family: inherit;
+}
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-btn:hover { color: var(--text); }
+
+.container { max-width: 960px; margin: 0 auto; padding: 16px; }
+
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+}
+.s-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    box-shadow: var(--shadow);
+}
+.s-card .label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.s-card .value { font-size: 22px; font-weight: 700; }
+.s-card .sub { font-size: 12px; margin-top: 4px; }
+.pos { color: var(--green); }
+.neg { color: var(--red); }
+
+.table-wrap {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow-x: auto;
+    margin-bottom: 16px;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    white-space: nowrap;
+}
+thead th {
+    background: #F1EDE8;
+    font-weight: 700;
+    padding: 8px 8px;
+    text-align: right;
+    border-bottom: 2px solid var(--border);
+    position: sticky; top: 0;
+}
+thead th:first-child { text-align: left; }
+tbody td {
+    padding: 3px 8px;
+    text-align: right;
+    border-bottom: 1px solid var(--border);
+}
+tbody td:first-child {
+    text-align: left;
+    font-weight: 600;
+    position: sticky; left: 0;
+    background: var(--card);
+    z-index: 1;
+}
+tbody tr:hover { background: #FAFAF8; }
+tfoot td {
+    padding: 10px 12px;
+    text-align: right;
+    font-weight: 700;
+    border-top: 2px solid var(--border);
+    background: #F9F7F4;
+}
+tfoot td:first-child { text-align: left; }
+
+.rate-cell {
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.editable {
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 2px 6px;
+    transition: .15s;
+}
+.editable:hover { background: #EEE; }
+.edit-input {
+    width: 100px;
+    padding: 4px 8px;
+    border: 2px solid var(--accent);
+    border-radius: 4px;
+    font-size: 14px;
+    text-align: right;
+    font-family: inherit;
+    outline: none;
+}
+
+.toolbar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.toolbar select, .toolbar button {
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    background: var(--card);
+    cursor: pointer;
+}
+.toolbar button:hover { background: #F1EDE8; }
+.btn-add {
+    background: var(--accent) !important;
+    color: white !important;
+    border: none !important;
+    font-weight: 600;
+}
+.btn-add:hover { opacity: .9; }
+.btn-del {
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-size: 16px; padding: 0 4px;
+}
+.btn-del:hover { color: var(--red); }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.passive-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+}
+.p-source-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px;
+}
+.p-source-card h3 {
+    font-size: 15px;
+    margin-bottom: 8px;
+    color: var(--accent2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.p-source-card .p-total {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.4);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200;
+}
+.modal {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 20px;
+    width: 340px;
+    max-width: 90vw;
+    box-shadow: 0 8px 32px rgba(0,0,0,.15);
+}
+.modal h3 { margin-bottom: 12px; }
+.modal input, .modal select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    margin-bottom: 10px;
+}
+.modal-btns {
+    display: flex; gap: 8px; margin-top: 8px;
+}
+.modal-btns button {
+    flex: 1; padding: 10px;
+    border-radius: 8px;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+    border: 1px solid var(--border);
+    background: var(--card);
+}
+.modal-btns .btn-primary {
+    background: var(--accent);
+    color: white; border: none;
+}
+
+.toast {
+    position: fixed; bottom: 20px; left: 50%;
+    transform: translateX(-50%);
+    background: #333; color: white;
+    padding: 10px 20px; border-radius: 8px;
+    font-size: 14px; z-index: 999;
+    opacity: 0; transition: opacity .3s;
+}
+.toast.show { opacity: 1; }
+
+/* ── 台股投資頁籤 ── */
+.stock-summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.stock-refresh-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+.stock-refresh-bar .last-update {
+    font-size: 12px;
+    color: var(--muted);
+}
+.btn-refresh {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    background: var(--accent2);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+}
+.btn-refresh:hover { opacity: .9; }
+.btn-refresh:disabled { opacity: .5; cursor: not-allowed; }
+.stock-table th, .stock-table td { text-align: right; }
+.stock-table th:first-child, .stock-table td:first-child { text-align: left; }
+.stock-table td.stock-name-cell {
+    text-align: left;
+    font-weight: 600;
+}
+.dividend-section { margin-top: 12px; }
+.dividend-section h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--accent2);
+}
+.dividend-year-total {
+    font-size: 14px;
+    color: var(--muted);
+    font-weight: 400;
+    margin-left: 12px;
+}
+.stock-sub-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 8px;
+}
+.stock-sub-tab {
+    padding: 8px 20px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--muted);
+    font-family: inherit;
+}
+.stock-sub-tab.active {
+    background: var(--accent2);
+    color: white;
+    border-color: var(--accent2);
+}
+
+.dividend-alert {
+    background: #FFF7ED;
+    border: 1px solid #FDBA74;
+    border-radius: var(--radius);
+    padding: 8px 14px;
+    margin-bottom: 10px;
+    font-size: 13px;
+    line-height: 1.6;
+}
+.dividend-alert .alert-title {
+    font-weight: 700;
+    color: #EA580C;
+    margin-bottom: 2px;
+}
+.dividend-alert .alert-item {
+    color: var(--text);
+}
+.dividend-alert .alert-date {
+    font-weight: 600;
+    color: #EA580C;
+}
+
+tr.archived-row { opacity: 0.45; }
+tr.archived-row td:first-child { font-style: italic; }
+th.archived-col { opacity: 0.45; }
+.btn-archive {
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-size: 14px; padding: 0 4px;
+}
+.btn-archive:hover { color: var(--accent2); }
+.toggle-archive {
+    font-size: 13px; color: var(--muted); cursor: pointer;
+    background: none; border: 1px solid var(--border); border-radius: 8px;
+    padding: 6px 12px; font-family: inherit;
+}
+.toggle-archive:hover { color: var(--text); }
+.toggle-archive.active { color: var(--accent); border-color: var(--accent); }
+
+th.sortable {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+}
+th.sortable:hover { background: #E8E3DC; }
+th.sortable .sort-arrow {
+    display: inline-block;
+    margin-left: 4px;
+    font-size: 11px;
+    color: var(--muted);
+}
+th.sortable.sort-active .sort-arrow { color: var(--accent); font-weight: 700; }
+
+@media (max-width: 600px) {
+    .summary-cards { grid-template-columns: repeat(3, 1fr); }
+    .stock-summary { grid-template-columns: repeat(2, 1fr); }
+    .s-card .value { font-size: 18px; }
+    .container { padding: 10px; }
+    table { font-size: 13px; }
+    thead th, tbody td, tfoot td { padding: 6px 8px; }
+    .tab-btn { padding: 10px 16px; font-size: 13px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>💰 財務追蹤系統</h1>
+    <div class="header-btns">
+        <button onclick="exportData()">📤 匯出</button>
+        <button onclick="document.getElementById('importFile').click()">📥 匯入</button>
+        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+    </div>
+</div>
+
+<div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('income')">收入</button>
+    <button class="tab-btn" onclick="switchTab('expense')">支出</button>
+    <button class="tab-btn" onclick="switchTab('passive')">被動收入</button>
+    <button class="tab-btn" onclick="switchTab('stock')">台股投資</button>
+</div>
+
+<div class="container">
+    <!-- 收入 -->
+    <div id="tab-income" class="tab-content active"></div>
+    <!-- 支出 -->
+    <div id="tab-expense" class="tab-content"></div>
+    <!-- 被動收入 -->
+    <div id="tab-passive" class="tab-content"></div>
+    <!-- 台股投資 -->
+    <div id="tab-stock" class="tab-content"></div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+// ── 常數 ──
+var MONTH_LABELS = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+
+var DEFAULT_INCOME_CATS = ['租賃代管','股利','獎金','投資獲利','兼職','借款利息','優惠回饋','其他','利息所得','發票','保險'];
+var DEFAULT_EXPENSE_CATS = ['牙牙費用','投資虧損','租屋支出','飲食','服飾','社交禮金','醫療','公務支出','住家','家泰家悅','代墊往來','公用事業','交通','訂閱會籍','觀光旅遊','休閒娛樂','手續費','保險','質押利息','稅金'];
+var DEFAULT_PASSIVE_SOURCES = ['股利','放款','代管'];
+var DEFAULT_YEARS = ['113','114','115'];
+
+var DATA = null;
+var currentTab = 'income';
+// 排序狀態: { col: 'year'|'rate'|null, year: '113'|..., dir: 'asc'|'desc' }
+var sortState = { col: null, year: null, dir: 'desc' };
+var showArchived = false;
+
+// ── 資料層 ──
+function getDefaults() {
+    var d = { income:{}, expense:{}, passive:{}, settings:{
+        incomeCategories: DEFAULT_INCOME_CATS.slice(),
+        expenseCategories: DEFAULT_EXPENSE_CATS.slice(),
+        passiveSources: DEFAULT_PASSIVE_SOURCES.map(function(s){ return {name:s, memo:''}; }),
+        years: DEFAULT_YEARS.slice()
+    }};
+    DEFAULT_YEARS.forEach(function(y) {
+        d.income[y] = {}; d.expense[y] = {}; d.passive[y] = {};
+        DEFAULT_INCOME_CATS.forEach(function(c){ d.income[y][c] = 0; });
+        DEFAULT_EXPENSE_CATS.forEach(function(c){ d.expense[y][c] = 0; });
+        DEFAULT_PASSIVE_SOURCES.forEach(function(s){
+            d.passive[y][s] = {};
+            for (var m=1; m<=12; m++) d.passive[y][s][m] = 0;
+        });
+    });
+    return d;
+}
+
+function loadData() {
+    try {
+        var raw = localStorage.getItem('finTracker');
+        if (raw) {
+            DATA = JSON.parse(raw);
+            // 確保結構完整
+            if (!DATA.settings) DATA.settings = getDefaults().settings;
+            if (!DATA.settings.archivedYears) DATA.settings.archivedYears = [];
+            if (!DATA.settings.archivedIncomeCats) DATA.settings.archivedIncomeCats = [];
+            if (!DATA.settings.archivedExpenseCats) DATA.settings.archivedExpenseCats = [];
+            if (!DATA.income) DATA.income = {};
+            if (!DATA.expense) DATA.expense = {};
+            if (!DATA.passive) DATA.passive = {};
+            // 確保每個年份都有所有分類
+            DATA.settings.years.forEach(function(y) {
+                if (!DATA.income[y]) DATA.income[y] = {};
+                if (!DATA.expense[y]) DATA.expense[y] = {};
+                if (!DATA.passive[y]) DATA.passive[y] = {};
+                DATA.settings.incomeCategories.forEach(function(c){ if (DATA.income[y][c]===undefined) DATA.income[y][c]=0; });
+                DATA.settings.expenseCategories.forEach(function(c){ if (DATA.expense[y][c]===undefined) DATA.expense[y][c]=0; });
+                DATA.settings.passiveSources.forEach(function(s){
+                    var name = typeof s === 'string' ? s : s.name;
+                    if (!DATA.passive[y][name]) DATA.passive[y][name] = {};
+                    for (var m=1; m<=12; m++) if (DATA.passive[y][name][m]===undefined) DATA.passive[y][name][m]=0;
+                });
+            });
+        } else {
+            DATA = getDefaults();
+            // 預填截圖資料
+            prefillData();
+        }
+    } catch(e) {
+        DATA = getDefaults();
+    }
+}
+
+function saveData() {
+    try { localStorage.setItem('finTracker', JSON.stringify(DATA)); } catch(e) {}
+}
+
+function prefillData() {
+    // 收入
+    var inc = {
+        '113': {租賃代管:521774,股利:310170,獎金:1543761,投資獲利:145612,兼職:627649,借款利息:643200,優惠回饋:16070,其他:20000,利息所得:6625,發票:2200,保險:11641},
+        '114': {租賃代管:303635,股利:521000,獎金:1708648,投資獲利:239567,兼職:226572,借款利息:586000,優惠回饋:16126,其他:58904,利息所得:11520,發票:1200,保險:27243},
+        '115': {租賃代管:169682,股利:92336,獎金:65360,投資獲利:56465,兼職:41267,借款利息:30000,優惠回饋:11467,其他:2011,利息所得:808,發票:200,保險:0}
+    };
+    // 支出
+    var exp = {
+        '113': {牙牙費用:99687,投資虧損:26517,租屋支出:67400,飲食:146869,服飾:20642,社交禮金:165338,醫療:4450,公務支出:43127,住家:65124,家泰家悅:0,代墊往來:0,公用事業:27935,交通:41643,訂閱會籍:14500,觀光旅遊:16248,休閒娛樂:44618,手續費:436,保險:107392,質押利息:19397,稅金:95402},
+        '114': {牙牙費用:267111,投資虧損:1500,租屋支出:253000,飲食:179283,服飾:20919,社交禮金:434969,醫療:87460,公務支出:85946,住家:25890,家泰家悅:5500,代墊往來:0,公用事業:29369,交通:64991,訂閱會籍:13964,觀光旅遊:44692,休閒娛樂:43502,手續費:3434,保險:112262,質押利息:1447,稅金:450},
+        '115': {牙牙費用:86939,投資虧損:65924,租屋支出:63000,飲食:41064,服飾:34612,社交禮金:34404,醫療:19210,公務支出:13749,住家:12324,家泰家悅:9100,代墊往來:6800,公用事業:5920,交通:5444,訂閱會籍:4251,觀光旅遊:2171,休閒娛樂:1650,手續費:323,保險:179,質押利息:34,稅金:0}
+    };
+    // 被動收入
+    var pas = {
+        '114': {
+            '股利': {1:32390,2:59510,3:48378,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0},
+            '放款': {1:15000,2:15000,3:15000,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0},
+            '代管': {1:4600,2:4600,3:4600,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0}
+        },
+        '115': {
+            '股利': {1:4600,2:4600,3:4600,4:2300,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0},
+            '放款': {1:15000,2:15000,3:15000,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0},
+            '代管': {1:4600,2:4600,3:4600,4:2300,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0}
+        }
+    };
+    ['113','114','115'].forEach(function(y){
+        if (inc[y]) Object.keys(inc[y]).forEach(function(k){ DATA.income[y][k] = inc[y][k]; });
+        if (exp[y]) Object.keys(exp[y]).forEach(function(k){ DATA.expense[y][k] = exp[y][k]; });
+        if (pas[y]) {
+            Object.keys(pas[y]).forEach(function(s){
+                if (!DATA.passive[y][s]) DATA.passive[y][s] = {};
+                Object.keys(pas[y][s]).forEach(function(m){ DATA.passive[y][s][m] = pas[y][s][m]; });
+            });
+        }
+    });
+    saveData();
+}
+
+// ── 計算 ──
+function sumYear(section, year) {
+    var obj = DATA[section][year];
+    if (!obj) return 0;
+    return Object.values(obj).reduce(function(a,b){ return a + (typeof b === 'number' ? b : 0); }, 0);
+}
+
+function calcRate(cur, prev) {
+    if (!prev || prev === 0) {
+        if (cur > 0) return null; // 無法計算
+        return 0;
+    }
+    return ((cur - prev) / Math.abs(prev)) * 100;
+}
+
+function calcDailyRate(section, cat, years) {
+    var ys = years.slice().sort();
+    var last = ys[ys.length - 1];
+    var prev = ys.length > 1 ? ys[ys.length - 2] : null;
+    if (!prev) return null;
+    var curVal = DATA[section][last] ? (DATA[section][last][cat] || 0) : 0;
+    var prevVal = DATA[section][prev] ? (DATA[section][prev][cat] || 0) : 0;
+    // 115年的數據是到目前為止，用日均比較
+    // 日均變動率 = ((今年日均 / 去年日均) - 1) * 100
+    var curYear = parseInt(last) + 1911;
+    var prevYear = parseInt(prev) + 1911;
+    var now = new Date();
+    var curDays = (curYear === now.getFullYear()) ? dayOfYear(now) : daysInYear(curYear);
+    var prevDays = daysInYear(prevYear);
+    if (prevVal === 0) {
+        if (curVal === 0) return 0;
+        return null;
+    }
+    var curDaily = curVal / curDays;
+    var prevDaily = prevVal / prevDays;
+    return ((curDaily / prevDaily) - 1) * 100;
+}
+
+function dayOfYear(d) {
+    var start = new Date(d.getFullYear(), 0, 0);
+    var diff = d - start;
+    return Math.floor(diff / 86400000);
+}
+
+function daysInYear(y) {
+    return ((y % 4 === 0 && y % 100 !== 0) || y % 400 === 0) ? 366 : 365;
+}
+
+function sumPassiveSource(year, source) {
+    var obj = DATA.passive[year] && DATA.passive[year][source];
+    if (!obj) return 0;
+    var total = 0;
+    for (var m = 1; m <= 12; m++) total += (obj[m] || 0);
+    return total;
+}
+
+function sumPassiveMonth(year, month) {
+    var total = 0;
+    getSourceNames().forEach(function(s) {
+        total += (DATA.passive[year] && DATA.passive[year][s] && DATA.passive[year][s][month]) || 0;
+    });
+    return total;
+}
+
+function sumPassiveYear(year) {
+    var total = 0;
+    getSourceNames().forEach(function(s) { total += sumPassiveSource(year, s); });
+    return total;
+}
+
+function getSourceNames() {
+    return DATA.settings.passiveSources.map(function(s){ return typeof s === 'string' ? s : s.name; });
+}
+
+// ── 格式化 ──
+function fmt(n) {
+    if (n === null || n === undefined) return '-';
+    return Math.round(n).toLocaleString('en-US');
+}
+
+function fmtRate(r) {
+    if (r === null || r === undefined) return '-';
+    var s = r.toFixed(2) + '%';
+    return s;
+}
+
+function rateClass(r) {
+    if (r === null || r === undefined) return '';
+    return r >= 0 ? 'pos' : 'neg';
+}
+
+// ── 切換頁籤 ──
+function switchTab(tab) {
+    currentTab = tab;
+    sortState = { col: null, year: null, dir: 'desc' };
+    document.querySelectorAll('.tab-btn').forEach(function(b, i) {
+        b.classList.toggle('active', ['income','expense','passive','stock'][i] === tab);
+    });
+    document.querySelectorAll('.tab-content').forEach(function(el) {
+        el.classList.remove('active');
+    });
+    document.getElementById('tab-' + tab).classList.add('active');
+    if (tab === 'stock') {
+        startStockAutoRefresh();
+        if (!_dividendAlertChecked) checkDividendAlerts();
+    } else {
+        stopStockAutoRefresh();
+    }
+    render();
+}
+
+// ── 排序 ──
+function toggleSort(col, year) {
+    if (sortState.col === col && sortState.year === year) {
+        // 同欄點擊：asc → desc → 取消
+        if (sortState.dir === 'desc') sortState.dir = 'asc';
+        else { sortState.col = null; sortState.year = null; }
+    } else {
+        sortState.col = col;
+        sortState.year = year || null;
+        sortState.dir = 'desc';
+    }
+    render();
+}
+
+function sortArrow(col, year) {
+    var active = sortState.col === col && sortState.year === year;
+    var arrow = active ? (sortState.dir === 'desc' ? '▼' : '▲') : '⇅';
+    return '<span class="sort-arrow">' + arrow + '</span>';
+}
+
+function sortCats(section, cats, years) {
+    if (!sortState.col) return cats.slice();
+    var sorted = cats.slice();
+    var dir = sortState.dir === 'desc' ? -1 : 1;
+    if (sortState.col === 'year' && sortState.year) {
+        var y = sortState.year;
+        sorted.sort(function(a, b) {
+            var va = DATA[section][y] ? (DATA[section][y][a] || 0) : 0;
+            var vb = DATA[section][y] ? (DATA[section][y][b] || 0) : 0;
+            return (va - vb) * dir;
+        });
+    } else if (sortState.col === 'rate') {
+        sorted.sort(function(a, b) {
+            var ra = calcDailyRate(section, a, years);
+            var rb = calcDailyRate(section, b, years);
+            if (ra === null) ra = -99999;
+            if (rb === null) rb = -99999;
+            return (ra - rb) * dir;
+        });
+    }
+    return sorted;
+}
+
+// ── 渲染 ──
+function render() {
+    if (currentTab === 'income') renderIncomeExpense('income');
+    else if (currentTab === 'expense') renderIncomeExpense('expense');
+    else if (currentTab === 'passive') renderPassive();
+    else if (currentTab === 'stock') renderStock();
+}
+
+function renderIncomeExpense(section) {
+    var allYears = DATA.settings.years.slice().sort();
+    var years = showArchived ? allYears : allYears.filter(function(y){ return !isYearArchived(y); });
+    var allCats = section === 'income' ? DATA.settings.incomeCategories : DATA.settings.expenseCategories;
+    var cats = showArchived ? allCats : allCats.filter(function(c){ return !isCatArchived(section, c); });
+    var container = document.getElementById('tab-' + section);
+
+    // 摘要表格
+    var html = '<div class="table-wrap" style="margin-bottom:16px"><table><thead><tr><th></th>';
+    years.forEach(function(y) { html += '<th>' + y + '年</th>'; });
+    html += '<th>日均變動</th></tr></thead><tbody>';
+    // 總收入
+    html += '<tr><td style="font-weight:700">總收入</td>';
+    years.forEach(function(y) { html += '<td style="color:var(--green);font-weight:700">' + fmt(sumYear('income', y)) + '</td>'; });
+    if (years.length >= 2) {
+        var _iCur = sumYear('income', years[years.length-1]), _iPrev = sumYear('income', years[years.length-2]);
+        var _iCY = parseInt(years[years.length-1])+1911, _iPY = parseInt(years[years.length-2])+1911;
+        var _now = new Date();
+        var _iCD = (_iCY === _now.getFullYear()) ? dayOfYear(_now) : daysInYear(_iCY);
+        var _iPD = daysInYear(_iPY);
+        var _iRate = _iPrev > 0 ? (((_iCur/_iCD)/(_iPrev/_iPD))-1)*100 : null;
+        html += '<td class="rate-cell ' + rateClass(_iRate) + '">' + fmtRate(_iRate) + '</td>';
+    } else { html += '<td>-</td>'; }
+    html += '</tr>';
+    // 總支出
+    html += '<tr><td style="font-weight:700">總支出</td>';
+    years.forEach(function(y) { html += '<td style="color:var(--red);font-weight:700">' + fmt(sumYear('expense', y)) + '</td>'; });
+    if (years.length >= 2) {
+        var _eCur = sumYear('expense', years[years.length-1]), _ePrev = sumYear('expense', years[years.length-2]);
+        var _eCY = parseInt(years[years.length-1])+1911, _ePY = parseInt(years[years.length-2])+1911;
+        var _eCD = (_eCY === _now.getFullYear()) ? dayOfYear(_now) : daysInYear(_eCY);
+        var _ePD = daysInYear(_ePY);
+        var _eRate = _ePrev > 0 ? (((_eCur/_eCD)/(_ePrev/_ePD))-1)*100 : null;
+        html += '<td class="rate-cell ' + rateClass(_eRate) + '">' + fmtRate(_eRate) + '</td>';
+    } else { html += '<td>-</td>'; }
+    html += '</tr>';
+    // 盈餘
+    html += '<tr style="border-top:2px solid var(--border)"><td style="font-weight:700">盈餘</td>';
+    years.forEach(function(y) {
+        var surplus = sumYear('income', y) - sumYear('expense', y);
+        html += '<td style="font-weight:700" class="' + (surplus>=0?'pos':'neg') + '">' + fmt(surplus) + '</td>';
+    });
+    if (years.length >= 2) {
+        var _sCur = sumYear('income', years[years.length-1]) - sumYear('expense', years[years.length-1]);
+        var _sPrev = sumYear('income', years[years.length-2]) - sumYear('expense', years[years.length-2]);
+        var _sCD = (_iCY === _now.getFullYear()) ? dayOfYear(_now) : daysInYear(_iCY);
+        var _sPD = daysInYear(_iPY);
+        var _sRate = _sPrev > 0 ? (((_sCur/_sCD)/(_sPrev/_sPD))-1)*100 : null;
+        html += '<td class="rate-cell ' + rateClass(_sRate) + '">' + fmtRate(_sRate) + '</td>';
+    } else { html += '<td>-</td>'; }
+    html += '</tr>';
+    html += '</tbody></table></div>';
+
+    // 工具列
+    html += '<div class="toolbar">';
+    html += '<button class="btn-add" onclick="manageCategories(\'' + section + '\')">📋 管理項目</button>';
+    html += '<button onclick="manageYears()">📋 管理年份</button>';
+    html += '<button class="toggle-archive' + (showArchived?' active':'') + '" onclick="toggleShowArchived()">' + (showArchived?'隱藏封存':'顯示封存') + '</button>';
+    html += '</div>';
+
+    // 表格
+    html += '<div class="table-wrap"><table><thead><tr><th>項目</th>';
+    years.forEach(function(y, yi) {
+        var isActive = sortState.col === 'year' && sortState.year === y;
+        var yArch = isYearArchived(y);
+        var isLatest = yi === years.length - 1;
+        var colW = isLatest ? 'width:180px' : 'width:120px';
+        html += '<th class="sortable' + (isActive?' sort-active':'') + (yArch?' archived-col':'') + '" style="' + colW + '" onclick="toggleSort(\'year\',\'' + y + '\')">' + y + '年' + (yArch?' 🔒':'') + sortArrow('year', y) + '</th>';
+    });
+    var rateActive = sortState.col === 'rate';
+    html += '<th class="sortable' + (rateActive?' sort-active':'') + '" onclick="toggleSort(\'rate\')">日均變動率' + sortArrow('rate', undefined) + '</th></tr></thead><tbody>';
+
+    var sortedCats = sortCats(section, cats, years);
+    sortedCats.forEach(function(cat) {
+        var catArch = isCatArchived(section, cat);
+        html += '<tr class="' + (catArch?'archived-row':'') + '"><td>' + esc(cat) + '</td>';
+        years.forEach(function(y, yi) {
+            var val = DATA[section][y] ? (DATA[section][y][cat] || 0) : 0;
+            var yArch = isYearArchived(y);
+            var isLatest = yi === years.length - 1;
+            var cellStyle = isLatest ? 'font-weight:700;color:#1a1a1a' : 'color:#999';
+            if (yArch || catArch) {
+                html += '<td style="' + cellStyle + '">' + fmt(val) + '</td>';
+            } else {
+                html += '<td style="' + cellStyle + '"><span class="editable" onclick="editCell(this,\'' + esc(section) + '\',\'' + esc(y) + '\',\'' + esc(cat) + '\')">' + fmt(val) + '</span></td>';
+            }
+        });
+        var rate = calcDailyRate(section, cat, years);
+        html += '<td class="rate-cell ' + rateClass(rate) + '">' + fmtRate(rate) + '</td>';
+        html += '</tr>';
+    });
+
+    html += '</tbody><tfoot><tr><td>合計</td>';
+    years.forEach(function(y, yi) {
+        var isLatest = yi === years.length - 1;
+        html += '<td style="' + (isLatest ? 'font-weight:700;color:#1a1a1a' : 'color:#999') + '">' + fmt(sumYear(section, y)) + '</td>';
+    });
+    // 合計的日均變動率
+    if (years.length >= 2) {
+        var lastY = years[years.length-1], prevY = years[years.length-2];
+        var curT = sumYear(section, lastY), prevT = sumYear(section, prevY);
+        var cYr = parseInt(lastY)+1911, pYr = parseInt(prevY)+1911;
+        var now = new Date();
+        var cD = (cYr === now.getFullYear()) ? dayOfYear(now) : daysInYear(cYr);
+        var pD = daysInYear(pYr);
+        var totalRate = prevT > 0 ? (((curT/cD)/(prevT/pD))-1)*100 : null;
+        html += '<td class="rate-cell ' + rateClass(totalRate) + '">' + fmtRate(totalRate) + '</td>';
+    } else {
+        html += '<td>-</td>';
+    }
+    html += '</tr></tfoot></table></div>';
+
+    container.innerHTML = html;
+}
+
+function renderPassive() {
+    var years = DATA.settings.years.slice().sort();
+    var sources = getSourceNames();
+    var container = document.getElementById('tab-passive');
+
+    // 選擇年份
+    if (!window._passiveYear || years.indexOf(window._passiveYear) < 0) window._passiveYear = years[years.length - 1];
+    var selY = window._passiveYear;
+
+    var html = '<div class="toolbar">';
+    html += '<select onchange="window._passiveYear=this.value;render()">';
+    years.forEach(function(y) {
+        html += '<option value="' + y + '"' + (y===selY?' selected':'') + '>' + y + '年</option>';
+    });
+    html += '</select>';
+    html += '<button class="btn-add" onclick="addPassiveSource()">＋ 新增來源</button>';
+    html += '<button onclick="addYear()">＋ 新增年份</button>';
+    html += '</div>';
+
+    // 摘要卡
+    html += '<div class="summary-cards" style="grid-template-columns:repeat(4,1fr)">';
+    sources.forEach(function(s) {
+        var total = sumPassiveSource(selY, s);
+        var months = 0;
+        for (var m=1;m<=12;m++) if ((DATA.passive[selY]&&DATA.passive[selY][s]&&DATA.passive[selY][s][m])||0) months++;
+        var avg = months > 0 ? Math.round(total / months) : 0;
+        html += '<div class="s-card"><div class="label">' + esc(s) + '</div><div class="value">' + fmt(total) + '</div><div class="sub">月平均 ' + fmt(avg) + '</div></div>';
+    });
+    var grandTotal = sumPassiveYear(selY);
+    var totalMonths = 0;
+    for (var mm=1;mm<=12;mm++) if (sumPassiveMonth(selY,mm)>0) totalMonths++;
+    html += '<div class="s-card" style="border-left:3px solid var(--accent)"><div class="label">合計</div><div class="value" style="color:var(--accent)">' + fmt(grandTotal) + '</div><div class="sub">月平均 ' + fmt(totalMonths>0?Math.round(grandTotal/totalMonths):0) + '</div></div>';
+    html += '</div>';
+
+    // 月份表格
+    html += '<div class="table-wrap"><table><thead><tr><th>月份</th>';
+    sources.forEach(function(s) {
+        html += '<th>' + esc(s) + ' <button class="btn-del" onclick="deletePassiveSource(\'' + esc(s) + '\')">✕</button></th>';
+    });
+    html += '<th>月合計</th></tr></thead><tbody>';
+
+    for (var m = 1; m <= 12; m++) {
+        html += '<tr><td>' + MONTH_LABELS[m-1] + '</td>';
+        sources.forEach(function(s) {
+            var val = (DATA.passive[selY] && DATA.passive[selY][s] && DATA.passive[selY][s][m]) || 0;
+            html += '<td><span class="editable" onclick="editPassiveCell(this,\'' + esc(selY) + '\',\'' + esc(s) + '\',' + m + ')">' + fmt(val) + '</span></td>';
+        });
+        html += '<td style="font-weight:600">' + fmt(sumPassiveMonth(selY, m)) + '</td>';
+        html += '</tr>';
+    }
+
+    html += '</tbody></table></div>';
+
+    container.innerHTML = html;
+}
+
+// ── 編輯 ──
+function editCell(el, section, year, cat) {
+    var val = DATA[section][year] ? (DATA[section][year][cat] || 0) : 0;
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'edit-input';
+    input.value = val || '';
+    el.replaceWith(input);
+    input.focus();
+    input.select();
+    function save() {
+        var v = parseInt(input.value.replace(/,/g,'')) || 0;
+        if (!DATA[section][year]) DATA[section][year] = {};
+        DATA[section][year][cat] = v;
+        saveData();
+        render();
+    }
+    input.onblur = save;
+    input.onkeydown = function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); save(); }
+        if (e.key === 'Escape') { render(); }
+    };
+}
+
+function editPassiveCell(el, year, source, month) {
+    var val = (DATA.passive[year] && DATA.passive[year][source] && DATA.passive[year][source][month]) || 0;
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'edit-input';
+    input.value = val || '';
+    el.replaceWith(input);
+    input.focus();
+    input.select();
+    function save() {
+        var v = parseInt(input.value.replace(/,/g,'')) || 0;
+        if (!DATA.passive[year]) DATA.passive[year] = {};
+        if (!DATA.passive[year][source]) DATA.passive[year][source] = {};
+        DATA.passive[year][source][month] = v;
+        saveData();
+        render();
+    }
+    input.onblur = save;
+    input.onkeydown = function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); save(); }
+        if (e.key === 'Escape') { render(); }
+    };
+}
+
+// ── 新增/刪除 ──
+function addCategory(section) {
+    showModal('新增項目', '項目名稱', '', function(name) {
+        if (!name) return;
+        var list = section === 'income' ? DATA.settings.incomeCategories : DATA.settings.expenseCategories;
+        if (list.indexOf(name) >= 0) { toast('項目已存在'); return; }
+        list.push(name);
+        DATA.settings.years.forEach(function(y) {
+            if (!DATA[section][y]) DATA[section][y] = {};
+            DATA[section][y][name] = 0;
+        });
+        saveData();
+        render();
+    });
+}
+
+function deleteCategory(section, cat) {
+    showConfirm('確定刪除「' + cat + '」？所有年份的資料都會清除。', function() {
+        var list = section === 'income' ? DATA.settings.incomeCategories : DATA.settings.expenseCategories;
+        var idx = list.indexOf(cat);
+        if (idx >= 0) list.splice(idx, 1);
+        DATA.settings.years.forEach(function(y) {
+            if (DATA[section][y]) delete DATA[section][y][cat];
+        });
+        saveData();
+        render();
+    });
+}
+
+function addYear() {
+    showModal('新增年份', '民國年（如 116）', '', function(y) {
+        if (!y || !/^\d+$/.test(y)) return;
+        if (DATA.settings.years.indexOf(y) >= 0) { toast('年份已存在'); return; }
+        DATA.settings.years.push(y);
+        DATA.settings.years.sort();
+        DATA.income[y] = {}; DATA.expense[y] = {}; DATA.passive[y] = {};
+        DATA.settings.incomeCategories.forEach(function(c){ DATA.income[y][c] = 0; });
+        DATA.settings.expenseCategories.forEach(function(c){ DATA.expense[y][c] = 0; });
+        getSourceNames().forEach(function(s){
+            DATA.passive[y][s] = {};
+            for (var m=1;m<=12;m++) DATA.passive[y][s][m] = 0;
+        });
+        saveData();
+        render();
+    });
+}
+
+function deleteYear(y) {
+    showConfirm('確定刪除「' + y + '年」？該年份所有收入、支出、被動收入資料都會清除。', function() {
+        DATA.settings.years = DATA.settings.years.filter(function(yr){ return yr !== y; });
+        delete DATA.income[y];
+        delete DATA.expense[y];
+        delete DATA.passive[y];
+        saveData();
+        render();
+    });
+}
+
+function archiveYear(y) {
+    if (!DATA.settings.archivedYears) DATA.settings.archivedYears = [];
+    if (DATA.settings.archivedYears.indexOf(y) < 0) DATA.settings.archivedYears.push(y);
+    saveData(); render();
+    toast(y + '年已封存');
+}
+function unarchiveYear(y) {
+    if (!DATA.settings.archivedYears) return;
+    DATA.settings.archivedYears = DATA.settings.archivedYears.filter(function(yr){ return yr !== y; });
+    saveData(); render();
+    toast(y + '年已取消封存');
+}
+function isYearArchived(y) {
+    return DATA.settings.archivedYears && DATA.settings.archivedYears.indexOf(y) >= 0;
+}
+
+function archiveCategory(section, cat) {
+    var key = section === 'income' ? 'archivedIncomeCats' : 'archivedExpenseCats';
+    if (!DATA.settings[key]) DATA.settings[key] = [];
+    if (DATA.settings[key].indexOf(cat) < 0) DATA.settings[key].push(cat);
+    saveData(); render();
+    toast('「' + cat + '」已封存');
+}
+function unarchiveCategory(section, cat) {
+    var key = section === 'income' ? 'archivedIncomeCats' : 'archivedExpenseCats';
+    if (!DATA.settings[key]) return;
+    DATA.settings[key] = DATA.settings[key].filter(function(c){ return c !== cat; });
+    saveData(); render();
+    toast('「' + cat + '」已取消封存');
+}
+function isCatArchived(section, cat) {
+    var key = section === 'income' ? 'archivedIncomeCats' : 'archivedExpenseCats';
+    return DATA.settings[key] && DATA.settings[key].indexOf(cat) >= 0;
+}
+
+function toggleShowArchived() {
+    showArchived = !showArchived;
+    render();
+}
+
+function manageCategories(section) {
+    var ov = document.createElement('div');
+    ov.className = 'overlay';
+    var allCats = section === 'income' ? DATA.settings.incomeCategories : DATA.settings.expenseCategories;
+    var title = section === 'income' ? '管理收入項目' : '管理支出項目';
+    var rows = allCats.map(function(cat) {
+        var ca = isCatArchived(section, cat);
+        return '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">' +
+            '<span style="font-size:14px;' + (ca?'opacity:0.5;font-style:italic':'') + '">' + esc(cat) + (ca?' <span style="font-size:11px;color:var(--muted)">(已封存)</span>':'') + '</span>' +
+            '<div style="display:flex;gap:6px">' +
+                '<button onclick="' + (ca?'unarchiveCategory':'archiveCategory') + '(\'' + esc(section) + '\',\'' + esc(cat) + '\');this.closest(\'.overlay\').remove();manageCategories(\'' + section + '\')" style="padding:4px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;cursor:pointer;background:var(--card);font-family:inherit">' + (ca?'🔓 取消封存':'🔒 封存') + '</button>' +
+                '<button onclick="this.closest(\'.overlay\').remove();deleteCategory(\'' + esc(section) + '\',\'' + esc(cat) + '\')" style="padding:4px 10px;border:none;border-radius:6px;font-size:12px;cursor:pointer;background:var(--red);color:white;font-family:inherit">✕</button>' +
+            '</div></div>';
+    }).join('');
+    ov.innerHTML = '<div class="modal" style="max-height:80vh;overflow-y:auto"><h3>' + title + '</h3>' + rows +
+        '<div style="margin-top:12px"><button onclick="this.closest(\'.overlay\').remove();addCategory(\'' + section + '\')" style="width:100%;padding:10px;border:none;border-radius:8px;background:var(--accent);color:white;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">＋ 新增項目</button></div>' +
+        '<div style="margin-top:8px"><button onclick="this.closest(\'.overlay\').remove()" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--card);font-size:14px;cursor:pointer;font-family:inherit">關閉</button></div></div>';
+    document.body.appendChild(ov);
+    ov.onclick = function(e) { if (e.target === ov) ov.remove(); };
+}
+
+function manageYears() {
+    var ov = document.createElement('div');
+    ov.className = 'overlay';
+    var rows = DATA.settings.years.slice().sort().map(function(y) {
+        var ya = isYearArchived(y);
+        return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">' +
+            '<span style="font-weight:600;font-size:15px">' + y + '年' + (ya?' <span style="font-size:12px;color:var(--muted)">(已封存)</span>':'') + '</span>' +
+            '<div style="display:flex;gap:6px">' +
+                '<button onclick="' + (ya?'unarchiveYear':'archiveYear') + '(\'' + y + '\');this.closest(\'.overlay\').remove();manageYears()" style="padding:6px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;cursor:pointer;background:var(--card);font-family:inherit">' + (ya?'🔓 取消封存':'🔒 封存') + '</button>' +
+                '<button onclick="this.closest(\'.overlay\').remove();deleteYear(\'' + y + '\')" style="padding:6px 12px;border:none;border-radius:6px;font-size:13px;cursor:pointer;background:var(--red);color:white;font-family:inherit">✕ 刪除</button>' +
+            '</div></div>';
+    }).join('');
+    ov.innerHTML = '<div class="modal"><h3>管理年份</h3>' + rows +
+        '<div style="margin-top:12px"><button onclick="this.closest(\'.overlay\').remove();addYear()" style="width:100%;padding:10px;border:none;border-radius:8px;background:var(--accent);color:white;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">＋ 新增年份</button></div>' +
+        '<div style="margin-top:8px"><button onclick="this.closest(\'.overlay\').remove()" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--card);font-size:14px;cursor:pointer;font-family:inherit">關閉</button></div></div>';
+    document.body.appendChild(ov);
+    ov.onclick = function(e) { if (e.target === ov) ov.remove(); };
+}
+
+function addPassiveSource() {
+    showModal('新增被動收入來源', '來源名稱', '', function(name) {
+        if (!name) return;
+        var names = getSourceNames();
+        if (names.indexOf(name) >= 0) { toast('來源已存在'); return; }
+        DATA.settings.passiveSources.push({name:name, memo:''});
+        DATA.settings.years.forEach(function(y) {
+            if (!DATA.passive[y]) DATA.passive[y] = {};
+            DATA.passive[y][name] = {};
+            for (var m=1;m<=12;m++) DATA.passive[y][name][m] = 0;
+        });
+        saveData();
+        render();
+    });
+}
+
+function deletePassiveSource(name) {
+    showConfirm('確定刪除「' + name + '」？所有年份的資料都會清除。', function() {
+        DATA.settings.passiveSources = DATA.settings.passiveSources.filter(function(s){
+            return (typeof s === 'string' ? s : s.name) !== name;
+        });
+        DATA.settings.years.forEach(function(y) {
+            if (DATA.passive[y]) delete DATA.passive[y][name];
+        });
+        saveData();
+        render();
+    });
+}
+
+// ── 匯出匯入 ──
+function exportData() {
+    var exportObj = { finance: DATA, stock: stockData };
+    var blob = new Blob([JSON.stringify(exportObj, null, 2)], {type:'application/json'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = '財務追蹤_備份_' + new Date().toISOString().slice(0,10) + '.json';
+    a.click();
+    toast('已匯出備份（含台股資料）');
+}
+
+function importData(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+        try {
+            var d = JSON.parse(ev.target.result);
+            // 新格式（含台股）
+            if (d.finance && d.stock) {
+                DATA = d.finance;
+                stockData = d.stock;
+                saveData();
+                saveStockData();
+                render();
+                toast('已匯入資料（含台股）');
+                return;
+            }
+            // 舊格式（純財務）
+            if (!d.settings || !d.income) { toast('檔案格式不正確', true); return; }
+            DATA = d;
+            saveData();
+            render();
+            toast('已匯入資料');
+        } catch(err) {
+            toast('匯入失敗：' + err.message, true);
+        }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+}
+
+// ── UI 工具 ──
+function showConfirm(msg, onYes) {
+    var ov = document.createElement('div');
+    ov.className = 'overlay';
+    ov.innerHTML = '<div class="modal"><h3>⚠️ 確認刪除</h3>' +
+        '<p style="font-size:14px;line-height:1.6;margin-bottom:12px">' + esc(msg) + '</p>' +
+        '<div class="modal-btns"><button onclick="this.closest(\'.overlay\').remove()">取消</button><button class="btn-primary" style="background:var(--red)" id="confirm-yes">確定刪除</button></div></div>';
+    document.body.appendChild(ov);
+    document.getElementById('confirm-yes').onclick = function() {
+        ov.remove();
+        onYes();
+    };
+    ov.onclick = function(e) { if (e.target === ov) ov.remove(); };
+}
+
+function showModal(title, placeholder, defaultVal, onSave) {
+    var ov = document.createElement('div');
+    ov.className = 'overlay';
+    ov.innerHTML = '<div class="modal"><h3>' + esc(title) + '</h3>' +
+        '<input type="text" id="modal-input" placeholder="' + esc(placeholder) + '" value="' + esc(defaultVal) + '">' +
+        '<div class="modal-btns"><button onclick="this.closest(\'.overlay\').remove()">取消</button><button class="btn-primary" id="modal-save">確定</button></div></div>';
+    document.body.appendChild(ov);
+    var inp = document.getElementById('modal-input');
+    inp.focus();
+    document.getElementById('modal-save').onclick = function() {
+        var val = inp.value.trim();
+        ov.remove();
+        onSave(val);
+    };
+    inp.onkeydown = function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); document.getElementById('modal-save').click(); }
+    };
+    ov.onclick = function(e) { if (e.target === ov) ov.remove(); };
+}
+
+function toast(msg, isError) {
+    var el = document.getElementById('toast');
+    el.textContent = msg;
+    el.style.background = isError ? '#DC2626' : '#333';
+    el.classList.add('show');
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 2000);
+}
+
+function esc(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ══════════════════════════════════════════
+// ── 台股投資模組 ──
+// ══════════════════════════════════════════
+
+var STOCK_KEY = 'finTracker_stock';
+var stockData = null;
+var stockSubTab = 'holdings'; // holdings | dividend | pledge
+
+function loadStockData() {
+    try {
+        var raw = localStorage.getItem(STOCK_KEY);
+        if (raw) {
+            stockData = JSON.parse(raw);
+        } else {
+            stockData = { holdings: [], dividends: [], lastUpdate: null, prices: {} };
+        }
+        if (!stockData.holdings) stockData.holdings = [];
+        if (!stockData.dividends) stockData.dividends = [];
+        if (!stockData.pledges) stockData.pledges = [];
+        if (!stockData.prices) stockData.prices = {};
+    } catch(e) {
+        stockData = { holdings: [], dividends: [], pledges: [], lastUpdate: null, prices: {} };
+    }
+}
+
+function saveStockData() {
+    try { localStorage.setItem(STOCK_KEY, JSON.stringify(stockData)); } catch(e) {}
+}
+
+// ── TWSE API（直接呼叫，有 CORS 支援）──
+// 快取所有上市股票當日資料（代號→{name, price}）
+var _twseAllCache = null;
+var _twseAllCacheTime = 0;
+
+function fetchTWSEAll(callback) {
+    // 快取 3 分鐘
+    if (_twseAllCache && (Date.now() - _twseAllCacheTime < 3 * 60 * 1000)) {
+        callback(null, _twseAllCache);
+        return;
+    }
+    fetch('https://www.twse.com.tw/exchangeReport/STOCK_DAY_ALL?response=json')
+        .then(function(r) { return r.json(); })
+        .then(function(json) {
+            if (json.stat === 'OK' && json.data) {
+                var map = {};
+                json.data.forEach(function(row) {
+                    // [代號, 名稱, 成交股數, 成交金額, 開盤價, 最高價, 最低價, 收盤價, 漲跌價差, 成交筆數]
+                    var id = row[0].trim();
+                    var name = row[1].trim();
+                    var price = parseFloat(row[7].replace(/,/g, ''));
+                    var change = parseFloat(row[8].replace(/,/g, '')) || 0;
+                    if (!isNaN(price)) {
+                        map[id] = { name: name, price: price, change: change };
+                    }
+                });
+                _twseAllCache = map;
+                _twseAllCacheTime = Date.now();
+                callback(null, map);
+            } else {
+                callback('TWSE 無資料');
+            }
+        })
+        .catch(function(err) { callback(err.message || '網路錯誤'); });
+}
+
+// 個股查詢（備用，用於 STOCK_DAY_ALL 找不到的股票）
+function fetchStockDaySingle(stockId, callback) {
+    var today = new Date();
+    var dateStr = today.getFullYear() +
+        String(today.getMonth()+1).padStart(2,'0') +
+        String(today.getDate()).padStart(2,'0');
+    var url = 'https://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date=' + dateStr + '&stockNo=' + stockId;
+    fetch(url)
+        .then(function(r) { return r.json(); })
+        .then(function(json) {
+            if (json.stat === 'OK' && json.data && json.data.length > 0) {
+                var lastRow = json.data[json.data.length - 1];
+                var price = parseFloat(lastRow[6].replace(/,/g, ''));
+                var change = parseFloat(lastRow[7].replace(/,/g, '')) || 0;
+                var name = '';
+                if (json.title) {
+                    var m = json.title.match(/\d{4,}\s+(.+?)\s+各日/);
+                    if (m) name = m[1].trim();
+                }
+                callback(null, price, name, change);
+            } else {
+                // TWSE 查不到，用 FinMind 補查（債券 ETF、上櫃等）
+                fetchFinMind(stockId, callback);
+            }
+        })
+        .catch(function(err) {
+            fetchFinMind(stockId, callback);
+        });
+}
+
+// ── FinMind API（債券 ETF、上櫃股票備用）──
+function fetchFinMind(stockId, callback) {
+    var today = new Date();
+    var startDate = today.getFullYear() + '-' +
+        String(today.getMonth()+1).padStart(2,'0') + '-01';
+    var url = 'https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockPrice&data_id=' + stockId + '&start_date=' + startDate;
+    fetch(url)
+        .then(function(r) { return r.json(); })
+        .then(function(json) {
+            if (json.status === 200 && json.data && json.data.length > 0) {
+                var last = json.data[json.data.length - 1];
+                var price = last.close;
+                var change = last.spread || 0;
+                // 查名稱
+                fetchFinMindName(stockId, function(name) {
+                    callback(null, price, name || '', change);
+                });
+            } else {
+                callback('無資料');
+            }
+        })
+        .catch(function(err) { callback(err.message || '網路錯誤'); });
+}
+
+function fetchFinMindName(stockId, callback) {
+    fetch('https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockInfo&data_id=' + stockId)
+        .then(function(r) { return r.json(); })
+        .then(function(json) {
+            if (json.status === 200 && json.data && json.data.length > 0) {
+                callback(json.data[json.data.length - 1].stock_name || '');
+            } else {
+                callback('');
+            }
+        })
+        .catch(function() { callback(''); });
+}
+
+// Yahoo Finance 即時盤中報價（有 15 分鐘延遲）
+function fetchYahooPrice(stockId, callback) {
+    // 上市用 .TW，上櫃用 .TWO。先試 .TW，失敗再試 .TWO
+    var trySymbol = function(suffix, isLast) {
+        var url = 'https://query1.finance.yahoo.com/v8/finance/chart/' + stockId + suffix + '?interval=1d&range=1d';
+        fetch(url)
+            .then(function(r) { return r.json(); })
+            .then(function(json) {
+                if (json.chart && json.chart.result && json.chart.result[0]) {
+                    var meta = json.chart.result[0].meta;
+                    var price = meta.regularMarketPrice;
+                    var prevClose = meta.chartPreviousClose || meta.previousClose;
+                    var change = (price && prevClose) ? (price - prevClose) : 0;
+                    callback(null, price, change);
+                } else if (!isLast) {
+                    trySymbol('.TWO', true);
+                } else {
+                    callback('無資料');
+                }
+            })
+            .catch(function(err) {
+                if (!isLast) { trySymbol('.TWO', true); }
+                else { callback(err.message || 'Yahoo 錯誤'); }
+            });
+    };
+    trySymbol('.TW', false);
+}
+
+function fetchAllPrices(onDone) {
+    if (stockData.holdings.length === 0) { if (onDone) onDone(); return; }
+
+    // 先嘗試用 Yahoo Finance 取得盤中即時價（並行）
+    var pending = stockData.holdings.length;
+    var needTWSE = [];
+    var yahooSuccess = false;
+
+    stockData.holdings.forEach(function(h) {
+        fetchYahooPrice(h.id, function(err, price, change) {
+            if (!err && price) {
+                stockData.prices[h.id] = { price: price, change: change || 0, date: new Date().toLocaleString('zh-TW') };
+                yahooSuccess = true;
+            } else {
+                needTWSE.push(h);
+            }
+            pending--;
+            if (pending <= 0) {
+                if (needTWSE.length === 0) {
+                    stockData.lastUpdate = new Date().toLocaleString('zh-TW');
+                    saveStockData();
+                    if (onDone) onDone();
+                    return;
+                }
+                // Yahoo 失敗的用 TWSE/FinMind 補查
+                fallbackTWSE(needTWSE, onDone);
+            }
+        });
+    });
+}
+
+function fallbackTWSE(holdings, onDone) {
+    fetchTWSEAll(function(err, allMap) {
+        if (err) {
+            if (onDone) onDone([err]);
+            return;
+        }
+        // 先用 STOCK_DAY_ALL 批次比對
+        var needSingle = [];
+        function needsName(h) {
+            return !h.name || h.name === h.id || h.name === '查詢中...';
+        }
+        holdings.forEach(function(h) {
+            if (allMap[h.id]) {
+                stockData.prices[h.id] = { price: allMap[h.id].price, change: allMap[h.id].change || 0, date: new Date().toLocaleString('zh-TW') };
+                if (needsName(h)) h.name = allMap[h.id].name;
+            } else {
+                needSingle.push(h);
+            }
+        });
+
+        if (needSingle.length === 0) {
+            stockData.lastUpdate = new Date().toLocaleString('zh-TW');
+            saveStockData();
+            if (onDone) onDone();
+            return;
+        }
+
+        // 未找到的逐筆查（可能是上櫃或 ETF）
+        var pending = needSingle.length;
+        var errors = [];
+        needSingle.forEach(function(h) {
+            fetchStockDaySingle(h.id, function(sErr, price, name, change) {
+                if (!sErr && price) {
+                    stockData.prices[h.id] = { price: price, change: change || 0, date: new Date().toLocaleString('zh-TW') };
+                    if (name && needsName(h)) h.name = name;
+                } else {
+                    errors.push(h.id + ': ' + (sErr || '無資料'));
+                }
+                pending--;
+                if (pending <= 0) {
+                    stockData.lastUpdate = new Date().toLocaleString('zh-TW');
+                    saveStockData();
+                    if (onDone) onDone(errors.length > 0 ? errors : null);
+                }
+            });
+        });
+    });
+}
+
+// ── 查詢股票名稱 ──
+function lookupStockName(stockId, callback) {
+    // 1. 用 STOCK_DAY_ALL 快取查上市
+    fetchTWSEAll(function(err, allMap) {
+        if (!err && allMap && allMap[stockId]) {
+            callback(null, allMap[stockId].name);
+            return;
+        }
+        // 2. TWSE STOCK_DAY 個別查
+        var today = new Date();
+        var dateStr = today.getFullYear() +
+            String(today.getMonth()+1).padStart(2,'0') +
+            String(today.getDate()).padStart(2,'0');
+        var url = 'https://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date=' + dateStr + '&stockNo=' + stockId;
+        fetch(url).then(function(r){ return r.json(); }).then(function(json) {
+            if (json.stat === 'OK' && json.title) {
+                var m = json.title.match(/\d{4,}\s+(.+?)\s+各日/);
+                if (m) { callback(null, m[1].trim()); return; }
+            }
+            // 3. FinMind 查名稱（債券 ETF、上櫃等）
+            fetchFinMindName(stockId, function(name) {
+                if (name) { callback(null, name); }
+                else { callback('查無此股票'); }
+            });
+        }).catch(function() {
+            fetchFinMindName(stockId, function(name) {
+                if (name) { callback(null, name); }
+                else { callback('查無此股票'); }
+            });
+        });
+    });
+}
+
+// ── 持股管理 ──
+function addHolding() {
+    var ov = document.createElement('div');
+    ov.className = 'overlay';
+    ov.innerHTML = '<div class="modal"><h3>新增持股</h3>' +
+        '<input type="text" id="stock-id" placeholder="股票代號（如 2330）">' +
+        '<input type="text" id="stock-name" placeholder="股票名稱（如 台積電）">' +
+        '<input type="number" id="stock-shares" placeholder="持有股數">' +
+        '<input type="number" id="stock-cost" placeholder="買入均價" step="0.01">' +
+        '<div class="modal-btns"><button onclick="this.closest(\'.overlay\').remove()">取消</button>' +
+        '<button class="btn-primary" id="stock-save">確定</button></div></div>';
+    document.body.appendChild(ov);
+    var idInput = document.getElementById('stock-id');
+    var nameInput = document.getElementById('stock-name');
+    idInput.focus();
+    var _lookupTimer = null;
+    idInput.addEventListener('input', function() {
+        clearTimeout(_lookupTimer);
+        var val = idInput.value.trim();
+        if (val.length >= 4) {
+            nameInput.value = '查詢中...';
+            _lookupTimer = setTimeout(function() {
+                lookupStockName(val, function(err, name) {
+                    if (!err && name) {
+                        nameInput.value = name;
+                    } else {
+                        nameInput.value = '';
+                        nameInput.placeholder = '查無代號，請手動輸入';
+                    }
+                });
+            }, 300);
+        }
+    });
+    document.getElementById('stock-save').onclick = function() {
+        var id = document.getElementById('stock-id').value.trim();
+        var name = document.getElementById('stock-name').value.trim();
+        var shares = parseInt(document.getElementById('stock-shares').value) || 0;
+        var cost = parseFloat(document.getElementById('stock-cost').value) || 0;
+        if (!id) { toast('請輸入股票代號', true); return; }
+        if (!name) { toast('請輸入股票名稱', true); return; }
+        if (shares <= 0) { toast('請輸入持有股數', true); return; }
+        // 檢查是否已存在
+        var exists = stockData.holdings.find(function(h){ return h.id === id; });
+        if (exists) { toast('持股已存在，請直接編輯', true); return; }
+        stockData.holdings.push({ id: id, name: name, shares: shares, cost: cost });
+        saveStockData();
+        ov.remove();
+        renderStock();
+        toast('已新增 ' + name);
+    };
+    ov.onclick = function(e) { if (e.target === ov) ov.remove(); };
+}
+
+function editHolding(idx) {
+    var h = stockData.holdings[idx];
+    if (!h) return;
+    var ov = document.createElement('div');
+    ov.className = 'overlay';
+    ov.innerHTML = '<div class="modal"><h3>編輯持股 - ' + esc(h.name) + '</h3>' +
+        '<label style="font-size:12px;color:var(--muted)">股票代號</label>' +
+        '<input type="text" id="edit-stock-id" value="' + esc(h.id) + '" readonly style="background:#f5f5f5">' +
+        '<label style="font-size:12px;color:var(--muted)">股票名稱</label>' +
+        '<input type="text" id="edit-stock-name" value="' + esc(h.name) + '">' +
+        '<label style="font-size:12px;color:var(--muted)">持有股數</label>' +
+        '<input type="number" id="edit-stock-shares" value="' + h.shares + '">' +
+        '<label style="font-size:12px;color:var(--muted)">買入均價</label>' +
+        '<input type="number" id="edit-stock-cost" value="' + h.cost + '" step="0.01">' +
+        '<div class="modal-btns"><button onclick="this.closest(\'.overlay\').remove()">取消</button>' +
+        '<button class="btn-primary" id="edit-stock-save">儲存</button></div></div>';
+    document.body.appendChild(ov);
+    document.getElementById('edit-stock-save').onclick = function() {
+        h.name = document.getElementById('edit-stock-name').value.trim() || h.name;
+        h.shares = parseInt(document.getElementById('edit-stock-shares').value) || h.shares;
+        h.cost = parseFloat(document.getElementById('edit-stock-cost').value) || h.cost;
+        saveStockData();
+        ov.remove();
+        renderStock();
+        toast('已更新 ' + h.name);
+    };
+    ov.onclick = function(e) { if (e.target === ov) ov.remove(); };
+}
+
+function deleteHolding(idx) {
+    var h = stockData.holdings[idx];
+    if (!h) return;
+    showConfirm('確定刪除「' + h.name + '（' + h.id + '）」？', function() {
+        stockData.holdings.splice(idx, 1);
+        delete stockData.prices[h.id];
+        saveStockData();
+        renderStock();
+    });
+}
+
+// ── 股利管理 ──
+function addDividend() {
+    var options = stockData.holdings.map(function(h) {
+        return '<option value="' + esc(h.id) + '">' + esc(h.id + ' ' + h.name) + '</option>';
+    }).join('');
+    var ov = document.createElement('div');
+    ov.className = 'overlay';
+    ov.innerHTML = '<div class="modal"><h3>新增股利紀錄</h3>' +
+        '<label style="font-size:12px;color:var(--muted)">股票</label>' +
+        '<select id="div-stock">' + options + '</select>' +
+        '<label style="font-size:12px;color:var(--muted)">發放日期</label>' +
+        '<input type="date" id="div-date">' +
+        '<label style="font-size:12px;color:var(--muted)">現金股利（元）</label>' +
+        '<input type="number" id="div-cash" placeholder="0" step="0.01">' +
+        '<label style="font-size:12px;color:var(--muted)">股票股利（股）</label>' +
+        '<input type="number" id="div-stock-shares" placeholder="0" step="0.01">' +
+        '<div class="modal-btns"><button onclick="this.closest(\'.overlay\').remove()">取消</button>' +
+        '<button class="btn-primary" id="div-save">確定</button></div></div>';
+    document.body.appendChild(ov);
+    // 預設今天
+    document.getElementById('div-date').value = new Date().toISOString().slice(0,10);
+    document.getElementById('div-save').onclick = function() {
+        var stockId = document.getElementById('div-stock').value;
+        var date = document.getElementById('div-date').value;
+        var cash = parseFloat(document.getElementById('div-cash').value) || 0;
+        var stockShares = parseFloat(document.getElementById('div-stock-shares').value) || 0;
+        if (!stockId) { toast('請選擇股票', true); return; }
+        if (!date) { toast('請選擇日期', true); return; }
+        if (cash <= 0 && stockShares <= 0) { toast('請輸入股利金額', true); return; }
+        var holding = stockData.holdings.find(function(h){ return h.id === stockId; });
+        stockData.dividends.push({
+            stockId: stockId,
+            stockName: holding ? holding.name : stockId,
+            date: date,
+            cash: cash,
+            stockShares: stockShares
+        });
+        stockData.dividends.sort(function(a,b){ return b.date.localeCompare(a.date); });
+        saveStockData();
+        ov.remove();
+        renderStock();
+        toast('已新增股利紀錄');
+    };
+    ov.onclick = function(e) { if (e.target === ov) ov.remove(); };
+}
+
+function deleteDividend(idx) {
+    showConfirm('確定刪除此筆股利紀錄？', function() {
+        stockData.dividends.splice(idx, 1);
+        saveStockData();
+        renderStock();
+    });
+}
+
+// ── 除權息通知 ──
+var _dividendAlerts = [];
+var _dividendAlertChecked = false;
+
+function checkDividendAlerts() {
+    if (stockData.holdings.length === 0) return;
+    _dividendAlerts = [];
+    var pending = stockData.holdings.length;
+    var today = new Date();
+    var startDate = today.getFullYear() + '-01-01';
+
+    stockData.holdings.forEach(function(h) {
+        var url = 'https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockDividend&data_id=' + h.id + '&start_date=' + startDate;
+        fetch(url)
+            .then(function(r) { return r.json(); })
+            .then(function(json) {
+                if (json.status === 200 && json.data) {
+                    json.data.forEach(function(d) {
+                        var exDate = d.CashExDividendTradingDate || d.StockExDividendTradingDate || '';
+                        if (!exDate) return;
+                        var ex = new Date(exDate);
+                        var diff = Math.ceil((ex - today) / 86400000);
+                        // 提醒：未來 30 天內或過去 3 天內的除權息
+                        if (diff >= -3 && diff <= 30) {
+                            var cashDiv = d.CashEarningsDistribution || 0;
+                            var stockDiv = d.StockEarningsDistribution || 0;
+                            var payDate = d.CashDividendPaymentDate || '';
+                            _dividendAlerts.push({
+                                stockId: h.id,
+                                stockName: h.name,
+                                exDate: exDate,
+                                payDate: payDate,
+                                cash: cashDiv,
+                                stockDiv: stockDiv,
+                                diff: diff
+                            });
+                        }
+                    });
+                }
+                pending--;
+                if (pending <= 0) {
+                    _dividendAlerts.sort(function(a,b) { return a.exDate.localeCompare(b.exDate); });
+                    _dividendAlertChecked = true;
+                    renderStock();
+                }
+            })
+            .catch(function() {
+                pending--;
+                if (pending <= 0) { _dividendAlertChecked = true; renderStock(); }
+            });
+    });
+}
+
+function renderDividendAlerts() {
+    if (!_dividendAlertChecked || _dividendAlerts.length === 0) return '';
+    var html = '<div class="dividend-alert">';
+    html += '<div class="alert-title">📢 除權息提醒</div>';
+    _dividendAlerts.forEach(function(a) {
+        var label = '';
+        if (a.diff < 0) label = '（已除息）';
+        else if (a.diff === 0) label = '（今天除息）';
+        else label = '（' + a.diff + ' 天後）';
+
+        html += '<div class="alert-item">';
+        html += '<b>' + esc(a.stockId) + ' ' + esc(a.stockName) + '</b> ';
+        html += '除息日 <span class="alert-date">' + esc(a.exDate) + '</span> ' + label;
+        if (a.cash > 0) html += ' 現金 $' + a.cash.toFixed(2);
+        if (a.stockDiv > 0) html += ' 股票 ' + a.stockDiv.toFixed(4) + '股';
+        if (a.payDate) html += ' 發放日 ' + esc(a.payDate);
+        html += '</div>';
+    });
+    html += '</div>';
+    return html;
+}
+
+// ── 渲染台股頁籤 ──
+function renderStock() {
+    var container = document.getElementById('tab-stock');
+    if (!container) return;
+
+    var html = '';
+
+    // 除權息提醒
+    html += renderDividendAlerts();
+
+    // 子頁籤
+    html += '<div class="stock-sub-tabs">';
+    html += '<button class="stock-sub-tab' + (stockSubTab==='holdings'?' active':'') + '" onclick="stockSubTab=\'holdings\';renderStock()">持股總覽</button>';
+    html += '<button class="stock-sub-tab' + (stockSubTab==='dividend'?' active':'') + '" onclick="stockSubTab=\'dividend\';renderStock()">股利紀錄</button>';
+    html += '<button class="stock-sub-tab' + (stockSubTab==='pledge'?' active':'') + '" onclick="stockSubTab=\'pledge\';renderStock()">質借紀錄</button>';
+    html += '</div>';
+
+    if (stockSubTab === 'holdings') {
+        html += renderStockHoldings();
+    } else if (stockSubTab === 'dividend') {
+        html += renderStockDividend();
+    } else if (stockSubTab === 'pledge') {
+        html += renderStockPledge();
+    }
+
+    container.innerHTML = html;
+}
+
+function renderStockHoldings() {
+    var html = '';
+
+    // 更新按鈕列
+    html += '<div class="stock-refresh-bar">';
+    html += '<button class="btn-refresh" id="btn-fetch-price" onclick="refreshPrices()">📡 更新股價</button>';
+    html += '<button class="btn-refresh" style="background:var(--accent)" onclick="addHolding()">＋ 新增持股</button>';
+    if (stockData.lastUpdate) {
+        html += '<span class="last-update">最後更新：' + esc(stockData.lastUpdate) + '</span>';
+    }
+    html += '</div>';
+
+    // 計算總覽
+    var totalCost = 0, totalMarket = 0, todayPL = 0;
+    stockData.holdings.forEach(function(h) {
+        var cost = h.shares * h.cost;
+        var p = stockData.prices[h.id];
+        var market = p ? h.shares * p.price : cost;
+        totalCost += cost;
+        totalMarket += market;
+        if (p && p.change) todayPL += h.shares * p.change;
+    });
+    var totalPL = totalMarket - totalCost;
+    var totalRate = totalCost > 0 ? (totalPL / totalCost) * 100 : 0;
+
+    // 今年度股利
+    var thisYear = new Date().getFullYear();
+    var yearDividend = 0;
+    stockData.dividends.forEach(function(d) {
+        if (d.date && d.date.substring(0,4) === String(thisYear)) {
+            yearDividend += (d.cash || 0);
+        }
+    });
+
+    // 摘要列
+    html += '<div style="display:flex;flex-wrap:wrap;gap:6px 20px;font-size:14px;margin-bottom:10px;padding:8px 12px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow)">';
+    html += '<span style="color:var(--muted)">成本 <b style="color:var(--text)">' + fmt(totalCost) + '</b></span>';
+    html += '<span style="color:var(--muted)">市值 <b style="color:var(--accent2)">' + fmt(totalMarket) + '</b></span>';
+    html += '<span style="color:var(--muted)">損益 <b class="' + (totalPL>=0?'pos':'neg') + '">' + (totalPL>=0?'+':'') + fmt(totalPL) + ' (' + fmtRate(totalRate) + ')</b></span>';
+    html += '<span style="color:var(--muted)">今日損益 <b class="' + (todayPL>=0?'pos':'neg') + '">' + (todayPL>=0?'+':'') + fmt(todayPL) + '</b></span>';
+    html += '<span style="color:var(--muted)">今年股利 <b style="color:var(--accent)">' + fmt(yearDividend) + '</b></span>';
+    html += '</div>';
+
+    // 持股明細表
+    if (stockData.holdings.length === 0) {
+        html += '<div style="text-align:center;padding:40px;color:var(--muted)">尚未新增持股，請點擊「＋ 新增持股」開始</div>';
+        return html;
+    }
+
+    html += '<div class="table-wrap"><table class="stock-table"><thead><tr>';
+    html += '<th>股票</th><th>股數</th><th>買入均價</th><th>現價</th><th>投入成本</th><th>現值</th><th>損益</th><th>報酬率</th><th>今日損益</th><th>佔比</th><th></th>';
+    html += '</tr></thead><tbody>';
+
+    stockData.holdings.forEach(function(h, idx) {
+        var p = stockData.prices[h.id];
+        var curPrice = p ? p.price : null;
+        var cost = h.shares * h.cost;
+        var market = curPrice ? h.shares * curPrice : null;
+        var pl = market !== null ? market - cost : null;
+        var rate = (pl !== null && cost > 0) ? (pl / cost) * 100 : null;
+        var weight = totalMarket > 0 && market !== null ? (market / totalMarket) * 100 : null;
+
+        html += '<tr>';
+        html += '<td class="stock-name-cell" style="cursor:pointer" onclick="editHolding(' + idx + ')">' + esc(h.id) + '<br><span style="font-size:12px;color:var(--muted);font-weight:400">' + esc(h.name) + '</span></td>';
+        var pledgedShares = 0;
+        if (stockData.pledges) stockData.pledges.forEach(function(p){ if (p.stockId === h.id) pledgedShares += p.shares; });
+        html += '<td>' + fmt(h.shares) + (pledgedShares > 0 ? '<br><span style="font-size:11px;color:var(--muted)">質押 ' + fmt(pledgedShares) + '</span>' : '') + '</td>';
+        html += '<td>' + h.cost.toFixed(2) + '</td>';
+        html += '<td>' + (curPrice ? curPrice.toFixed(2) : '<span style="color:var(--muted)">-</span>') + '</td>';
+        html += '<td>' + fmt(cost) + '</td>';
+        html += '<td style="font-weight:600">' + (market !== null ? fmt(market) : '-') + '</td>';
+        html += '<td class="' + (pl !== null ? (pl>=0?'pos':'neg') : '') + '" style="font-weight:600">' + (pl !== null ? (pl>=0?'+':'') + fmt(pl) : '-') + '</td>';
+        html += '<td class="rate-cell ' + rateClass(rate) + '">' + (rate !== null ? fmtRate(rate) : '-') + '</td>';
+        var dayPL = (p && p.change) ? h.shares * p.change : null;
+        html += '<td class="' + (dayPL !== null ? (dayPL>=0?'pos':'neg') : '') + '" style="font-weight:600">' + (dayPL !== null ? (dayPL>=0?'+':'') + fmt(dayPL) : '-') + '</td>';
+        html += '<td>' + (weight !== null ? weight.toFixed(1) + '%' : '-') + '</td>';
+        html += '<td><button class="btn-del" onclick="deleteHolding(' + idx + ')">✕</button></td>';
+        html += '</tr>';
+    });
+
+    html += '</tbody><tfoot><tr>';
+    html += '<td>合計</td><td></td><td></td><td></td>';
+    html += '<td>' + fmt(totalCost) + '</td>';
+    html += '<td style="font-weight:700">' + fmt(totalMarket) + '</td>';
+    html += '<td class="' + (totalPL>=0?'pos':'neg') + '" style="font-weight:700">' + (totalPL>=0?'+':'') + fmt(totalPL) + '</td>';
+    html += '<td class="rate-cell ' + rateClass(totalRate) + '">' + fmtRate(totalRate) + '</td>';
+    html += '<td class="' + (todayPL>=0?'pos':'neg') + '" style="font-weight:700">' + (todayPL>=0?'+':'') + fmt(todayPL) + '</td>';
+    html += '<td>100%</td><td></td>';
+    html += '</tr></tfoot></table></div>';
+
+    return html;
+}
+
+function renderStockDividend() {
+    var html = '';
+
+    html += '<div class="toolbar">';
+    html += '<button class="btn-add" onclick="addDividend()">＋ 新增股利</button>';
+    html += '</div>';
+
+    if (stockData.dividends.length === 0) {
+        html += '<div style="text-align:center;padding:40px;color:var(--muted)">尚未新增股利紀錄</div>';
+        return html;
+    }
+
+    // 按年份分組
+    var byYear = {};
+    stockData.dividends.forEach(function(d, idx) {
+        var y = d.date ? d.date.substring(0,4) : '未知';
+        if (!byYear[y]) byYear[y] = [];
+        byYear[y].push({ d: d, idx: idx });
+    });
+
+    var years = Object.keys(byYear).sort().reverse();
+
+    years.forEach(function(y) {
+        var items = byYear[y];
+        var yearTotal = 0;
+        items.forEach(function(item) { yearTotal += (item.d.cash || 0); });
+
+        html += '<div class="dividend-section">';
+        html += '<h3>' + y + ' 年<span class="dividend-year-total">合計 $' + fmt(yearTotal) + '</span></h3>';
+        html += '<div class="table-wrap"><table class="stock-table"><thead><tr>';
+        html += '<th>日期</th><th>股票</th><th>現金股利</th><th>股票股利</th><th></th>';
+        html += '</tr></thead><tbody>';
+
+        items.forEach(function(item) {
+            var d = item.d;
+            html += '<tr>';
+            html += '<td style="text-align:left">' + esc(d.date) + '</td>';
+            html += '<td style="text-align:left">' + esc(d.stockId + ' ' + d.stockName) + '</td>';
+            html += '<td style="color:var(--green);font-weight:600">' + (d.cash > 0 ? '$' + fmt(d.cash) : '-') + '</td>';
+            html += '<td>' + (d.stockShares > 0 ? d.stockShares + ' 股' : '-') + '</td>';
+            html += '<td><button class="btn-del" onclick="deleteDividend(' + item.idx + ')">✕</button></td>';
+            html += '</tr>';
+        });
+
+        html += '</tbody></table></div></div>';
+    });
+
+    return html;
+}
+
+// ── 質借管理 ──
+function addPledge() {
+    var options = stockData.holdings.map(function(h) {
+        return '<option value="' + esc(h.id) + '">' + esc(h.id + ' ' + h.name) + '</option>';
+    }).join('');
+    var ov = document.createElement('div');
+    ov.className = 'overlay';
+    ov.innerHTML = '<div class="modal"><h3>新增質借紀錄</h3>' +
+        '<label style="font-size:12px;color:var(--muted)">質借標的</label>' +
+        '<select id="pledge-stock">' + options + '</select>' +
+        '<label style="font-size:12px;color:var(--muted)">質借股數</label>' +
+        '<input type="number" id="pledge-shares" placeholder="0">' +
+        '<label style="font-size:12px;color:var(--muted)">借款金額</label>' +
+        '<input type="number" id="pledge-amount" placeholder="0">' +
+        '<label style="font-size:12px;color:var(--muted)">年利率（%）</label>' +
+        '<input type="number" id="pledge-rate" placeholder="例如 2.5" step="0.01">' +
+        '<label style="font-size:12px;color:var(--muted)">質借日期</label>' +
+        '<input type="date" id="pledge-date">' +
+        '<div class="modal-btns"><button onclick="this.closest(\'.overlay\').remove()">取消</button>' +
+        '<button class="btn-primary" id="pledge-save">確定</button></div></div>';
+    document.body.appendChild(ov);
+    document.getElementById('pledge-date').value = new Date().toISOString().slice(0,10);
+    document.getElementById('pledge-save').onclick = function() {
+        var stockId = document.getElementById('pledge-stock').value;
+        var shares = parseInt(document.getElementById('pledge-shares').value) || 0;
+        var amount = parseInt(document.getElementById('pledge-amount').value) || 0;
+        var rate = parseFloat(document.getElementById('pledge-rate').value) || 0;
+        var date = document.getElementById('pledge-date').value;
+        if (!stockId) { toast('請選擇標的', true); return; }
+        if (shares <= 0) { toast('請輸入質借股數', true); return; }
+        if (amount <= 0) { toast('請輸入借款金額', true); return; }
+        var holding = stockData.holdings.find(function(h){ return h.id === stockId; });
+        stockData.pledges.push({
+            stockId: stockId,
+            stockName: holding ? holding.name : stockId,
+            shares: shares,
+            amount: amount,
+            rate: rate,
+            date: date
+        });
+        saveStockData();
+        ov.remove();
+        renderStock();
+        toast('已新增質借紀錄');
+    };
+    ov.onclick = function(e) { if (e.target === ov) ov.remove(); };
+}
+
+function editPledge(idx) {
+    var p = stockData.pledges[idx];
+    if (!p) return;
+    var ov = document.createElement('div');
+    ov.className = 'overlay';
+    ov.innerHTML = '<div class="modal"><h3>編輯質借 - ' + esc(p.stockName) + '</h3>' +
+        '<label style="font-size:12px;color:var(--muted)">質借股數</label>' +
+        '<input type="number" id="edit-pledge-shares" value="' + p.shares + '">' +
+        '<label style="font-size:12px;color:var(--muted)">借款金額</label>' +
+        '<input type="number" id="edit-pledge-amount" value="' + p.amount + '">' +
+        '<label style="font-size:12px;color:var(--muted)">年利率（%）</label>' +
+        '<input type="number" id="edit-pledge-rate" value="' + p.rate + '" step="0.01">' +
+        '<label style="font-size:12px;color:var(--muted)">質借日期</label>' +
+        '<input type="date" id="edit-pledge-date" value="' + (p.date||'') + '">' +
+        '<div class="modal-btns"><button onclick="this.closest(\'.overlay\').remove()">取消</button>' +
+        '<button class="btn-primary" id="edit-pledge-save">儲存</button></div></div>';
+    document.body.appendChild(ov);
+    document.getElementById('edit-pledge-save').onclick = function() {
+        p.shares = parseInt(document.getElementById('edit-pledge-shares').value) || p.shares;
+        p.amount = parseInt(document.getElementById('edit-pledge-amount').value) || p.amount;
+        p.rate = parseFloat(document.getElementById('edit-pledge-rate').value) || p.rate;
+        p.date = document.getElementById('edit-pledge-date').value || p.date;
+        saveStockData();
+        ov.remove();
+        renderStock();
+        toast('已更新質借紀錄');
+    };
+    ov.onclick = function(e) { if (e.target === ov) ov.remove(); };
+}
+
+function deletePledge(idx) {
+    showConfirm('確定刪除此筆質借紀錄？', function() {
+        stockData.pledges.splice(idx, 1);
+        saveStockData();
+        renderStock();
+    });
+}
+
+function renderStockPledge() {
+    var html = '';
+
+    html += '<div class="toolbar">';
+    html += '<button class="btn-refresh" style="background:var(--accent)" onclick="addPledge()">＋ 新增質借</button>';
+    html += '</div>';
+
+    if (!stockData.pledges || stockData.pledges.length === 0) {
+        html += '<div style="text-align:center;padding:40px;color:var(--muted)">尚未新增質借紀錄</div>';
+        return html;
+    }
+
+    // 摘要
+    var totalAmount = 0, totalCollateral = 0;
+    stockData.pledges.forEach(function(p) {
+        totalAmount += p.amount;
+        var pr = stockData.prices[p.stockId];
+        var curPrice = pr ? pr.price : 0;
+        totalCollateral += curPrice * p.shares;
+    });
+    var totalRatio = totalAmount > 0 ? (totalCollateral / totalAmount) * 100 : 0;
+
+    html += '<div style="display:flex;flex-wrap:wrap;gap:6px 20px;font-size:14px;margin-bottom:10px;padding:8px 12px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow)">';
+    html += '<span style="color:var(--muted)">總借款 <b style="color:var(--red)">' + fmt(totalAmount) + '</b></span>';
+    html += '<span style="color:var(--muted)">擔保現值 <b style="color:var(--accent2)">' + fmt(Math.round(totalCollateral)) + '</b></span>';
+    html += '<span style="color:var(--muted)">維持率 <b style="color:' + (totalRatio >= 130 ? 'var(--green)' : 'var(--red)') + '">' + totalRatio.toFixed(1) + '%</b></span>';
+    html += '</div>';
+
+    // 表格
+    html += '<div class="table-wrap"><table class="stock-table"><thead><tr>';
+    html += '<th>標的</th><th>質借股數</th><th>借款金額</th><th>年利率</th><th>擔保現值</th><th>維持率</th><th>質借日</th><th></th>';
+    html += '</tr></thead><tbody>';
+
+    stockData.pledges.forEach(function(p, idx) {
+        var pr = stockData.prices[p.stockId];
+        var curPrice = pr ? pr.price : null;
+        var collateral = curPrice ? curPrice * p.shares : null;
+        var ratio = (collateral && p.amount > 0) ? (collateral / p.amount) * 100 : null;
+        var ratioColor = ratio !== null ? (ratio >= 130 ? 'var(--green)' : 'var(--red)') : '';
+
+        html += '<tr>';
+        html += '<td class="stock-name-cell" style="cursor:pointer" onclick="editPledge(' + idx + ')">' + esc(p.stockId) + '<br><span style="font-size:12px;color:var(--muted);font-weight:400">' + esc(p.stockName) + '</span></td>';
+        html += '<td>' + fmt(p.shares) + '</td>';
+        html += '<td style="color:var(--red);font-weight:600">' + fmt(p.amount) + '</td>';
+        html += '<td>' + p.rate.toFixed(2) + '%</td>';
+        html += '<td style="font-weight:600">' + (collateral ? fmt(Math.round(collateral)) : '-') + '</td>';
+        html += '<td style="font-weight:700;color:' + ratioColor + '">' + (ratio ? ratio.toFixed(1) + '%' : '-') + '</td>';
+        html += '<td style="font-size:12px">' + esc(p.date || '') + '</td>';
+        html += '<td><button class="btn-del" onclick="deletePledge(' + idx + ')">✕</button></td>';
+        html += '</tr>';
+    });
+
+    html += '</tbody></table></div>';
+    return html;
+}
+
+var _stockAutoTimer = null;
+var _stockFetching = false;
+
+function refreshPrices(silent) {
+    if (_stockFetching) return;
+    _stockFetching = true;
+    var btn = document.getElementById('btn-fetch-price');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ 更新中...'; }
+    fetchAllPrices(function(errors) {
+        _stockFetching = false;
+        renderStock();
+        if (!silent) {
+            if (errors && errors.length > 0) {
+                toast('部分股票更新失敗：' + errors.join(', '), true);
+            } else {
+                toast('股價已更新');
+            }
+        }
+    });
+}
+
+function startStockAutoRefresh() {
+    stopStockAutoRefresh();
+    // 切到頁籤時立即更新一次
+    if (stockData.holdings.length > 0) refreshPrices(true);
+    // 每 5 分鐘自動刷新
+    _stockAutoTimer = setInterval(function() {
+        if (currentTab === 'stock' && stockData.holdings.length > 0) {
+            refreshPrices(true);
+        }
+    }, 5 * 60 * 1000);
+}
+
+function stopStockAutoRefresh() {
+    if (_stockAutoTimer) { clearInterval(_stockAutoTimer); _stockAutoTimer = null; }
+}
+
+// ── 初始化 ──
+loadData();
+loadStockData();
+// 一次性：放款→借款
+(function(){
+    var changed = false;
+    DATA.settings.passiveSources.forEach(function(s,i){
+        var n = typeof s === 'string' ? s : s.name;
+        if (n === '放款') {
+            if (typeof s === 'string') DATA.settings.passiveSources[i] = '借款';
+            else s.name = '借款';
+            changed = true;
+        }
+    });
+    if (changed) {
+        DATA.settings.years.forEach(function(y){
+            if (DATA.passive[y] && DATA.passive[y]['放款']) {
+                DATA.passive[y]['借款'] = DATA.passive[y]['放款'];
+                delete DATA.passive[y]['放款'];
+            }
+        });
+        saveData();
+    }
+})();
+render();
+</script>
+</body>
+</html>
