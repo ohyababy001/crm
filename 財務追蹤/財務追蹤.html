@@ -22,6 +22,12 @@
     --shadow: 0 2px 8px rgba(0,0,0,.06);
 }
 * { margin:0; padding:0; box-sizing:border-box; }
+/* 細窄捲軸 */
+html { scrollbar-width: thin; scrollbar-color: #C5C0B8 transparent; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #C5C0B8; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #8C8578; }
 body {
     font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--bg);
@@ -31,14 +37,17 @@ body {
 .header {
     background: linear-gradient(135deg, var(--header-from), var(--header-to));
     color: white;
-    padding: 16px 20px;
+    padding: 8px 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     position: sticky; top: 0; z-index: 100;
+    max-width: 880px;
+    margin: 0 auto;
+    border-radius: 0 0 10px 10px;
 }
-.header h1 { font-size: 18px; font-weight: 700; }
-.header-btns { display: flex; gap: 8px; }
+.header h1 { font-size: 15px; font-weight: 700; }
+.header-btns { display: flex; gap: 8px; align-items: center; }
 .header-btns button {
     background: rgba(255,255,255,.15);
     border: none; color: white; padding: 6px 12px;
@@ -50,29 +59,40 @@ body {
 .tab-bar {
     display: flex;
     justify-content: center;
-    gap: 4px;
+    gap: 8px;
     background: var(--card);
-    border-bottom: 1px solid var(--border);
+    border-bottom: 2px solid var(--border);
     position: sticky; top: 56px; z-index: 99;
+    padding: 4px 12px;
 }
 .tab-btn {
     flex: none;
-    padding: 10px 60px;
+    padding: 6px 48px;
     text-align: center;
-    font-size: 15px;
-    font-weight: 600;
-    border: none;
-    background: none;
+    font-size: 16px;
+    font-weight: 700;
+    border: 2px solid var(--border);
+    background: #F1EDE8;
     cursor: pointer;
     color: var(--muted);
-    border-bottom: 3px solid transparent;
-    transition: .2s;
+    border-radius: 10px;
+    transition: all .2s;
     font-family: inherit;
 }
-.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-.tab-btn:hover { color: var(--text); }
+.tab-btn.active {
+    color: white;
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 2px 8px rgba(5,150,105,.3);
+    transform: translateY(-1px);
+}
+.tab-btn:hover:not(.active) {
+    color: var(--text);
+    background: #E8E3DC;
+    border-color: var(--accent);
+}
 
-.container { max-width: 960px; margin: 0 auto; padding: 16px; }
+.container { max-width: 880px; margin: 0 auto; padding: 16px; }
 
 .summary-cards {
     display: grid;
@@ -408,6 +428,7 @@ th.sortable.sort-active .sort-arrow { color: var(--accent); font-weight: 700; }
 <div class="header">
     <h1>💰 財務追蹤系統</h1>
     <div class="header-btns">
+        <span id="last-export" style="color:rgba(255,255,255,.7);font-size:12px;margin-right:4px"></span>
         <button onclick="exportData()">📤 匯出</button>
         <button onclick="document.getElementById('importFile').click()">📥 匯入</button>
         <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
@@ -717,10 +738,16 @@ function renderIncomeExpense(section) {
     var cats = showArchived ? allCats : allCats.filter(function(c){ return !isCatArchived(section, c); });
     var container = document.getElementById('tab-' + section);
 
-    // 摘要表格
-    var html = '<div class="table-wrap" style="margin-bottom:16px"><table><thead><tr><th></th>';
-    years.forEach(function(y) { html += '<th>' + y + '年</th>'; });
-    html += '<th>日均變動</th></tr></thead><tbody>';
+    // 摘要表格（可展開收合，預設展開；記憶在 window._summaryExpanded）
+    if (window._summaryExpanded === undefined) window._summaryExpanded = true;
+    var summaryArrow = window._summaryExpanded ? '▼' : '▶';
+    var html = '<div class="table-wrap" style="margin-bottom:16px"><table><thead><tr>';
+    html += '<th style="cursor:pointer;user-select:none;text-align:left" onclick="toggleSummary()">' + summaryArrow + ' 總覽</th>';
+    years.forEach(function(y) { html += '<th>' + (window._summaryExpanded ? y + '年' : '') + '</th>'; });
+    html += '<th>' + (window._summaryExpanded ? '日均變動' : '') + '</th></tr></thead><tbody>';
+    if (!window._summaryExpanded) {
+        html += '</tbody></table></div>';
+    } else {
     // 總收入
     html += '<tr><td style="font-weight:700">總收入</td>';
     years.forEach(function(y) { html += '<td style="color:var(--green);font-weight:700">' + fmt(sumYear('income', y)) + '</td>'; });
@@ -762,6 +789,7 @@ function renderIncomeExpense(section) {
     } else { html += '<td>-</td>'; }
     html += '</tr>';
     html += '</tbody></table></div>';
+    } // end if _summaryExpanded
 
     // 工具列
     html += '<div class="toolbar">';
@@ -1022,6 +1050,11 @@ function isCatArchived(section, cat) {
     return DATA.settings[key] && DATA.settings[key].indexOf(cat) >= 0;
 }
 
+function toggleSummary() {
+    window._summaryExpanded = !window._summaryExpanded;
+    render();
+}
+
 function toggleShowArchived() {
     showArchived = !showArchived;
     render();
@@ -1104,7 +1137,18 @@ function exportData() {
     a.href = URL.createObjectURL(blob);
     a.download = '財務追蹤_備份_' + new Date().toISOString().slice(0,10) + '.json';
     a.click();
+    // 記錄匯出時間
+    var now = new Date().toLocaleString('zh-TW');
+    localStorage.setItem('finTracker_lastExport', now);
+    updateLastExportLabel();
     toast('已匯出備份（含台股資料）');
+}
+
+function updateLastExportLabel() {
+    var el = document.getElementById('last-export');
+    if (!el) return;
+    var last = localStorage.getItem('finTracker_lastExport');
+    el.textContent = last ? '上次匯出：' + last : '';
 }
 
 function importData(e) {
@@ -1114,10 +1158,21 @@ function importData(e) {
     reader.onload = function(ev) {
         try {
             var d = JSON.parse(ev.target.result);
+            // 匯入前自動備份當前資料到 localStorage（可用 console 還原）
+            try {
+                localStorage.setItem('finTracker_autoBackup', JSON.stringify({
+                    finance: DATA, stock: stockData, time: new Date().toISOString()
+                }));
+            } catch(e) {}
             // 新格式（含台股）
             if (d.finance && d.stock) {
                 DATA = d.finance;
                 stockData = d.stock;
+                // 防呆：確保所有欄位存在，避免匯入殘缺檔案後資料結構遺失
+                if (!stockData.holdings) stockData.holdings = [];
+                if (!stockData.dividends) stockData.dividends = [];
+                if (!stockData.pledges) stockData.pledges = [];
+                if (!stockData.prices) stockData.prices = {};
                 saveData();
                 saveStockData();
                 render();
@@ -1201,19 +1256,66 @@ function loadStockData() {
         if (raw) {
             stockData = JSON.parse(raw);
         } else {
-            stockData = { holdings: [], dividends: [], lastUpdate: null, prices: {} };
+            stockData = { holdings: [], dividends: [], pledges: [], lastUpdate: null, prices: {} };
         }
         if (!stockData.holdings) stockData.holdings = [];
         if (!stockData.dividends) stockData.dividends = [];
         if (!stockData.pledges) stockData.pledges = [];
         if (!stockData.prices) stockData.prices = {};
+        // 自動修正舊格式日期 YYYYMMDD → YYYY-MM-DD
+        function fixDate(s) {
+            if (!s) return s;
+            var v = String(s).replace(/\D/g, '');
+            if (v.length === 8) return v.slice(0,4) + '-' + v.slice(4,6) + '-' + v.slice(6,8);
+            return s;
+        }
+        stockData.dividends.forEach(function(d){ d.date = fixDate(d.date); });
+        stockData.pledges.forEach(function(p){ p.date = fixDate(p.date); });
+        // 一次性：補回遺失的股利紀錄
+        if (!stockData._divRestored) {
+            var recovery = [
+                {stockId:'00937B',stockName:'群益ESG投等債20+',date:'2026-03-25',cash:47942,stockShares:0},
+                {stockId:'00937B',stockName:'群益ESG投等債20+',date:'2026-02-13',cash:33110,stockShares:0},
+                {stockId:'00937B',stockName:'群益ESG投等債20+',date:'2026-01-13',cash:32390,stockShares:0},
+                {stockId:'00981A',stockName:'主動統一台股增長',date:'2026-04-10',cash:4612,stockShares:0},
+                {stockId:'00937B',stockName:'群益ESG投等債20+',date:'2025-12-12',cash:32390,stockShares:0},
+                {stockId:'00937B',stockName:'群益ESG投等債20+',date:'2025-11-14',cash:31670,stockShares:0},
+                {stockId:'00937B',stockName:'群益ESG投等債20+',date:'2025-10-15',cash:31670,stockShares:0},
+                {stockId:'00937B',stockName:'群益ESG投等債20+',date:'2025-09-11',cash:31670,stockShares:0},
+                {stockId:'00937B',stockName:'群益ESG投等債20+',date:'2025-08-11',cash:31670,stockShares:0},
+                {stockId:'00937B',stockName:'群益ESG投等債20+',date:'2025-07-11',cash:33870,stockShares:0},
+                {stockId:'00937B',stockName:'群益ESG投等債20+',date:'2025-06-13',cash:33870,stockShares:0},
+                {stockId:'00937B',stockName:'群益ESG投等債20+',date:'2025-05-16',cash:35190,stockShares:0},
+                {stockId:'00937B',stockName:'群益ESG投等債20+',date:'2025-04-15',cash:35190,stockShares:0}
+            ];
+            recovery.forEach(function(r) {
+                var exists = stockData.dividends.some(function(d) {
+                    return d.stockId === r.stockId && d.date === r.date && d.cash === r.cash;
+                });
+                if (!exists) stockData.dividends.push(r);
+            });
+            stockData.dividends.sort(function(a,b){ return b.date.localeCompare(a.date); });
+            stockData._divRestored = true;
+        }
+        saveStockData();
     } catch(e) {
         stockData = { holdings: [], dividends: [], pledges: [], lastUpdate: null, prices: {} };
     }
 }
 
 function saveStockData() {
-    try { localStorage.setItem(STOCK_KEY, JSON.stringify(stockData)); } catch(e) {}
+    try {
+        var json = JSON.stringify(stockData);
+        localStorage.setItem(STOCK_KEY, json);
+        console.log('[saveStockData] 已存 dividends:', stockData.dividends.length, '筆，時間:', new Date().toLocaleTimeString());
+    } catch(e) {
+        console.error('[saveStockData] 失敗:', e);
+        if (e && e.name === 'QuotaExceededError') {
+            toast('儲存失敗：瀏覽器儲存空間已滿', true);
+        } else {
+            toast('儲存失敗：' + (e.message || '未知錯誤'), true);
+        }
+    }
 }
 
 // ── TWSE API（直接呼叫，有 CORS 支援）──
@@ -1510,7 +1612,7 @@ function addDividend() {
         '<label style="font-size:12px;color:var(--muted)">股票</label>' +
         '<select id="div-stock">' + options + '</select>' +
         '<label style="font-size:12px;color:var(--muted)">發放日期</label>' +
-        '<input type="date" id="div-date">' +
+        '<input type="text" id="div-date" placeholder="YYYY-MM-DD">' +
         '<label style="font-size:12px;color:var(--muted)">現金股利（元）</label>' +
         '<input type="number" id="div-cash" placeholder="0" step="0.01">' +
         '<label style="font-size:12px;color:var(--muted)">股票股利（股）</label>' +
@@ -1520,6 +1622,7 @@ function addDividend() {
     document.body.appendChild(ov);
     // 預設今天
     document.getElementById('div-date').value = new Date().toISOString().slice(0,10);
+    bindDateInput(document.getElementById('div-date'));
     document.getElementById('div-save').onclick = function() {
         var stockId = document.getElementById('div-stock').value;
         var date = document.getElementById('div-date').value;
@@ -1750,11 +1853,44 @@ function renderStockHoldings() {
     return html;
 }
 
+function toggleDivYear(year) {
+    if (!window._divExpanded) window._divExpanded = {};
+    var currentYear = String(new Date().getFullYear());
+    // 今年預設 true，點擊後變 false；其他年份預設 false，點擊變 true
+    if (year === currentYear) {
+        window._divExpanded[year] = !(window._divExpanded[year] !== false);
+    } else {
+        window._divExpanded[year] = !(window._divExpanded[year] === true);
+    }
+    renderStock();
+}
+
 function renderStockDividend() {
     var html = '';
 
-    html += '<div class="toolbar">';
-    html += '<button class="btn-add" onclick="addDividend()">＋ 新增股利</button>';
+    // 累積股利統計方塊（特定股票）
+    var trackedStocks = [
+        { id: '00400A', label: '00400A' },
+        { id: '00937B', label: '00937B' },
+        { id: '00981A', label: '00981A' },
+        { id: '2812',   label: '台中銀' }
+    ];
+    var totals = {};
+    trackedStocks.forEach(function(s){ totals[s.id] = 0; });
+    stockData.dividends.forEach(function(d) {
+        if (totals.hasOwnProperty(d.stockId)) {
+            totals[d.stockId] += (d.cash || 0);
+        }
+    });
+
+    html += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">';
+    html += '<button class="btn-refresh" style="background:var(--accent)" onclick="addDividend()">＋ 新增股利</button>';
+    trackedStocks.forEach(function(s) {
+        html += '<div style="padding:8px 14px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);font-size:13px">';
+        html += '<div style="color:var(--muted);font-size:11px">' + esc(s.label) + ' 累積股利</div>';
+        html += '<div style="font-weight:700;color:var(--accent);font-size:15px">$' + fmt(totals[s.id]) + '</div>';
+        html += '</div>';
+    });
     html += '</div>';
 
     if (stockData.dividends.length === 0) {
@@ -1771,30 +1907,38 @@ function renderStockDividend() {
     });
 
     var years = Object.keys(byYear).sort().reverse();
+    var currentYear = String(new Date().getFullYear());
+    if (!window._divExpanded) window._divExpanded = {};
 
     years.forEach(function(y) {
         var items = byYear[y];
         var yearTotal = 0;
         items.forEach(function(item) { yearTotal += (item.d.cash || 0); });
+        // 今年預設展開，其他年份依記憶狀態（預設收合）
+        var expanded = (y === currentYear) ? (window._divExpanded[y] !== false) : (window._divExpanded[y] === true);
+        var arrow = expanded ? '▼' : '▶';
 
         html += '<div class="dividend-section">';
-        html += '<h3>' + y + ' 年<span class="dividend-year-total">合計 $' + fmt(yearTotal) + '</span></h3>';
-        html += '<div class="table-wrap"><table class="stock-table"><thead><tr>';
-        html += '<th>日期</th><th>股票</th><th>現金股利</th><th>股票股利</th><th></th>';
-        html += '</tr></thead><tbody>';
+        html += '<h3 style="cursor:pointer;user-select:none" onclick="toggleDivYear(\'' + esc(y) + '\')">' + arrow + ' ' + y + ' 年<span class="dividend-year-total">合計 $' + fmt(yearTotal) + '</span></h3>';
+        if (expanded) {
+            html += '<div class="table-wrap"><table class="stock-table"><thead><tr>';
+            html += '<th>日期</th><th>股票</th><th>現金股利</th><th>股票股利</th><th></th>';
+            html += '</tr></thead><tbody>';
 
-        items.forEach(function(item) {
-            var d = item.d;
-            html += '<tr>';
-            html += '<td style="text-align:left">' + esc(d.date) + '</td>';
-            html += '<td style="text-align:left">' + esc(d.stockId + ' ' + d.stockName) + '</td>';
-            html += '<td style="color:var(--green);font-weight:600">' + (d.cash > 0 ? '$' + fmt(d.cash) : '-') + '</td>';
-            html += '<td>' + (d.stockShares > 0 ? d.stockShares + ' 股' : '-') + '</td>';
-            html += '<td><button class="btn-del" onclick="deleteDividend(' + item.idx + ')">✕</button></td>';
-            html += '</tr>';
-        });
+            items.forEach(function(item) {
+                var d = item.d;
+                html += '<tr>';
+                html += '<td style="text-align:left">' + esc(d.date) + '</td>';
+                html += '<td style="text-align:left">' + esc(d.stockId + ' ' + d.stockName) + '</td>';
+                html += '<td style="color:var(--green);font-weight:600">' + (d.cash > 0 ? '$' + fmt(d.cash) : '-') + '</td>';
+                html += '<td>' + (d.stockShares > 0 ? d.stockShares + ' 股' : '-') + '</td>';
+                html += '<td><button class="btn-del" onclick="deleteDividend(' + item.idx + ')">✕</button></td>';
+                html += '</tr>';
+            });
 
-        html += '</tbody></table></div></div>';
+            html += '</tbody></table></div>';
+        }
+        html += '</div>';
     });
 
     return html;
@@ -1817,11 +1961,12 @@ function addPledge() {
         '<label style="font-size:12px;color:var(--muted)">年利率（%）</label>' +
         '<input type="number" id="pledge-rate" placeholder="例如 2.5" step="0.01">' +
         '<label style="font-size:12px;color:var(--muted)">質借日期</label>' +
-        '<input type="date" id="pledge-date">' +
+        '<input type="text" id="pledge-date" placeholder="YYYY-MM-DD">' +
         '<div class="modal-btns"><button onclick="this.closest(\'.overlay\').remove()">取消</button>' +
         '<button class="btn-primary" id="pledge-save">確定</button></div></div>';
     document.body.appendChild(ov);
     document.getElementById('pledge-date').value = new Date().toISOString().slice(0,10);
+    bindDateInput(document.getElementById('pledge-date'));
     document.getElementById('pledge-save').onclick = function() {
         var stockId = document.getElementById('pledge-stock').value;
         var shares = parseInt(document.getElementById('pledge-shares').value) || 0;
@@ -1861,10 +2006,11 @@ function editPledge(idx) {
         '<label style="font-size:12px;color:var(--muted)">年利率（%）</label>' +
         '<input type="number" id="edit-pledge-rate" value="' + p.rate + '" step="0.01">' +
         '<label style="font-size:12px;color:var(--muted)">質借日期</label>' +
-        '<input type="date" id="edit-pledge-date" value="' + (p.date||'') + '">' +
+        '<input type="text" id="edit-pledge-date" placeholder="YYYY-MM-DD" value="' + (p.date||'') + '">' +
         '<div class="modal-btns"><button onclick="this.closest(\'.overlay\').remove()">取消</button>' +
         '<button class="btn-primary" id="edit-pledge-save">儲存</button></div></div>';
     document.body.appendChild(ov);
+    bindDateInput(document.getElementById('edit-pledge-date'));
     document.getElementById('edit-pledge-save').onclick = function() {
         p.shares = parseInt(document.getElementById('edit-pledge-shares').value) || p.shares;
         p.amount = parseInt(document.getElementById('edit-pledge-amount').value) || p.amount;
@@ -1884,6 +2030,28 @@ function deletePledge(idx) {
         saveStockData();
         renderStock();
     });
+}
+
+// 綁定日期輸入框：8 碼數字自動格式化為 YYYY-MM-DD
+function bindDateInput(el) {
+    if (!el) return;
+    el.addEventListener('input', function() {
+        var v = el.value.replace(/\D/g, '');
+        if (v.length >= 8) {
+            el.value = v.slice(0,4) + '-' + v.slice(4,6) + '-' + v.slice(6,8);
+        } else if (v.length >= 6) {
+            el.value = v.slice(0,4) + '-' + v.slice(4,6) + (v.length > 6 ? '-' + v.slice(6) : '');
+        } else if (v.length >= 4) {
+            el.value = v.slice(0,4) + (v.length > 4 ? '-' + v.slice(4) : '');
+        }
+    });
+}
+
+// 計算質借到期日（預設半年 = 6 個月後）
+function calcPledgeDue(dateStr) {
+    var d = new Date(dateStr);
+    d.setMonth(d.getMonth() + 6);
+    return d;
 }
 
 function renderStockPledge() {
@@ -1914,9 +2082,35 @@ function renderStockPledge() {
     html += '<span style="color:var(--muted)">維持率 <b style="color:' + (totalRatio >= 130 ? 'var(--green)' : 'var(--red)') + '">' + totalRatio.toFixed(1) + '%</b></span>';
     html += '</div>';
 
+    // 到期提醒橫幅（半年一期 = 180 天，到期前 15 天提醒）
+    var today = new Date();
+    var dueAlerts = [];
+    stockData.pledges.forEach(function(p) {
+        if (!p.date) return;
+        var due = calcPledgeDue(p.date);
+        var daysLeft = Math.ceil((due - today) / 86400000);
+        if (daysLeft <= 15) {
+            dueAlerts.push({ p: p, dueStr: due.toISOString().slice(0,10), daysLeft: daysLeft });
+        }
+    });
+    if (dueAlerts.length > 0) {
+        html += '<div class="dividend-alert" style="background:#FEF2F2;border-color:#FCA5A5">';
+        html += '<div class="alert-title" style="color:#DC2626">⚠️ 質借到期提醒</div>';
+        dueAlerts.forEach(function(a) {
+            var label = a.daysLeft < 0 ? '（已逾期 ' + Math.abs(a.daysLeft) + ' 天）'
+                      : a.daysLeft === 0 ? '（今天到期）'
+                      : '（' + a.daysLeft + ' 天後到期）';
+            html += '<div class="alert-item">';
+            html += '<b>' + esc(a.p.stockId) + ' ' + esc(a.p.stockName) + '</b> ';
+            html += '借款 ' + fmt(a.p.amount) + '，到期日 <span class="alert-date" style="color:#DC2626">' + a.dueStr + '</span> ' + label;
+            html += '</div>';
+        });
+        html += '</div>';
+    }
+
     // 表格
     html += '<div class="table-wrap"><table class="stock-table"><thead><tr>';
-    html += '<th>標的</th><th>質借股數</th><th>借款金額</th><th>年利率</th><th>擔保現值</th><th>維持率</th><th>質借日</th><th></th>';
+    html += '<th>標的</th><th>質借股數</th><th>借款金額</th><th>年利率</th><th>擔保現值</th><th>維持率</th><th>質借日</th><th>到期日</th><th></th>';
     html += '</tr></thead><tbody>';
 
     stockData.pledges.forEach(function(p, idx) {
@@ -1925,6 +2119,18 @@ function renderStockPledge() {
         var collateral = curPrice ? curPrice * p.shares : null;
         var ratio = (collateral && p.amount > 0) ? (collateral / p.amount) * 100 : null;
         var ratioColor = ratio !== null ? (ratio >= 130 ? 'var(--green)' : 'var(--red)') : '';
+        var dueStr = '-', dueColor = '', dueDaysLabel = '';
+        if (p.date) {
+            var due = calcPledgeDue(p.date);
+            dueStr = due.toISOString().slice(0,10);
+            var daysLeft = Math.ceil((due - today) / 86400000);
+            if (daysLeft <= 15) {
+                dueColor = 'color:#DC2626;font-weight:700';
+                dueDaysLabel = '<br><span style="font-size:11px">' +
+                    (daysLeft < 0 ? '逾期 ' + Math.abs(daysLeft) + ' 天' :
+                     daysLeft === 0 ? '今天到期' : daysLeft + ' 天')  + '</span>';
+            }
+        }
 
         html += '<tr>';
         html += '<td class="stock-name-cell" style="cursor:pointer" onclick="editPledge(' + idx + ')">' + esc(p.stockId) + '<br><span style="font-size:12px;color:var(--muted);font-weight:400">' + esc(p.stockName) + '</span></td>';
@@ -1934,6 +2140,7 @@ function renderStockPledge() {
         html += '<td style="font-weight:600">' + (collateral ? fmt(Math.round(collateral)) : '-') + '</td>';
         html += '<td style="font-weight:700;color:' + ratioColor + '">' + (ratio ? ratio.toFixed(1) + '%' : '-') + '</td>';
         html += '<td style="font-size:12px">' + esc(p.date || '') + '</td>';
+        html += '<td style="font-size:12px;' + dueColor + '">' + dueStr + dueDaysLabel + '</td>';
         html += '<td><button class="btn-del" onclick="deletePledge(' + idx + ')">✕</button></td>';
         html += '</tr>';
     });
@@ -1982,6 +2189,7 @@ function stopStockAutoRefresh() {
 // ── 初始化 ──
 loadData();
 loadStockData();
+updateLastExportLabel();
 // 一次性：放款→借款
 (function(){
     var changed = false;
