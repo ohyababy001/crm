@@ -2720,7 +2720,7 @@ function deleteCheckedHistory() {
 
 
 function getTabLastContact(c, tab) {
-    // 回傳格式：YYYY-MM-DD[+'z'] — 同日期時，有具體 contactLog 紀錄的加 'z' 尾碼勝出
+    // 統一回傳 YYYY-MM-DD 格式，讓 relTime 可正確解析
     function _toDate(s) { return s ? String(s).slice(0,10) : ''; }
     var _fallback = _toDate(c.lastContact);
     if (!c.contactLog || !c.contactLog.length) return _fallback;
@@ -2729,14 +2729,32 @@ function getTabLastContact(c, tab) {
     // 與卡片顯示邏輯一致：包含符合當前頁籤的紀錄、以及無 tab 的舊紀錄
     var filtered = c.contactLog.filter(function(log){ return !log.tab || log.tab === _t; });
     if (!filtered.length) return _fallback;
-    // 取頁籤紀錄的最大 date
     var logMax = filtered.reduce(function(m, log){
         var d = log.date || _toDate(log.time);
         return d > m ? d : m;
     }, '');
-    // 與 c.lastContact 取較大者；若頁籤紀錄勝出或相同，加 'z' 尾碼讓同日期排前面
-    if (logMax >= _fallback) return logMax + 'z';
-    return _fallback;
+    return logMax > _fallback ? logMax : _fallback;
+}
+
+// 排序用：有具體 contactLog 紀錄的客戶優先於只有 c.lastContact 系統戳記的客戶
+// 回傳字串：前綴 '1' = 有紀錄、'0' = 只有戳記，後接 YYYY-MM-DD，確保有紀錄者恆勝
+function getTabLastContactSortKey(c, tab) {
+    function _toDate(s) { return s ? String(s).slice(0,10) : ''; }
+    var _t = tab && tab !== 'all' ? tab : '';
+    var hasLog = false, logMax = '';
+    if (c.contactLog && c.contactLog.length && _t) {
+        var filtered = c.contactLog.filter(function(log){ return !log.tab || log.tab === _t; });
+        if (filtered.length) {
+            hasLog = true;
+            logMax = filtered.reduce(function(m, log){
+                var d = log.date || _toDate(log.time);
+                return d > m ? d : m;
+            }, '');
+        }
+    }
+    var fallback = _toDate(c.lastContact);
+    if (hasLog) return '1|' + (logMax > fallback ? logMax : fallback);
+    return '0|' + fallback;
 }
 
 function relTime(dateStr) {
@@ -3312,7 +3330,7 @@ function getData() {
         if (s==='newest') return (b.created||'').localeCompare(a.created||'');
         if (s==='oldest') return (a.created||'').localeCompare(b.created||'');
         if (s==='name')   return a.name.localeCompare(b.name,'zh');
-        if (s==='lastContact') return (getTabLastContact(b,curFilter)).localeCompare(getTabLastContact(a,curFilter));
+        if (s==='lastContact') return (getTabLastContactSortKey(b,curFilter)).localeCompare(getTabLastContactSortKey(a,curFilter));
         if (s==='nextSchedule') {
             var aDate = a._nextSchedDate || '9999-12-31';
             var bDate = b._nextSchedDate || '9999-12-31';
@@ -3338,7 +3356,7 @@ function getData() {
                 }
                 return _getRentalEnd2(a).localeCompare(_getRentalEnd2(b));
             }
-            return (getTabLastContact(b,curFilter)).localeCompare(getTabLastContact(a,curFilter));
+            return (getTabLastContactSortKey(b,curFilter)).localeCompare(getTabLastContactSortKey(a,curFilter));
         }
         return 0;
     });
@@ -10149,7 +10167,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260410a2';
+var APP_VERSION = '20260410a3';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
