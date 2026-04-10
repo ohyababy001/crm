@@ -1319,63 +1319,9 @@ function fetchFinMindName(stockId, callback) {
         .catch(function() { callback(''); });
 }
 
-// Yahoo Finance 即時盤中報價（有 15 分鐘延遲）
-function fetchYahooPrice(stockId, callback) {
-    // 上市用 .TW，上櫃用 .TWO。先試 .TW，失敗再試 .TWO
-    var trySymbol = function(suffix, isLast) {
-        var url = 'https://query1.finance.yahoo.com/v8/finance/chart/' + stockId + suffix + '?interval=1d&range=1d';
-        fetch(url)
-            .then(function(r) { return r.json(); })
-            .then(function(json) {
-                if (json.chart && json.chart.result && json.chart.result[0]) {
-                    var meta = json.chart.result[0].meta;
-                    var price = meta.regularMarketPrice;
-                    var prevClose = meta.chartPreviousClose || meta.previousClose;
-                    var change = (price && prevClose) ? (price - prevClose) : 0;
-                    callback(null, price, change);
-                } else if (!isLast) {
-                    trySymbol('.TWO', true);
-                } else {
-                    callback('無資料');
-                }
-            })
-            .catch(function(err) {
-                if (!isLast) { trySymbol('.TWO', true); }
-                else { callback(err.message || 'Yahoo 錯誤'); }
-            });
-    };
-    trySymbol('.TW', false);
-}
-
 function fetchAllPrices(onDone) {
     if (stockData.holdings.length === 0) { if (onDone) onDone(); return; }
-
-    // 先嘗試用 Yahoo Finance 取得盤中即時價（並行）
-    var pending = stockData.holdings.length;
-    var needTWSE = [];
-    var yahooSuccess = false;
-
-    stockData.holdings.forEach(function(h) {
-        fetchYahooPrice(h.id, function(err, price, change) {
-            if (!err && price) {
-                stockData.prices[h.id] = { price: price, change: change || 0, date: new Date().toLocaleString('zh-TW') };
-                yahooSuccess = true;
-            } else {
-                needTWSE.push(h);
-            }
-            pending--;
-            if (pending <= 0) {
-                if (needTWSE.length === 0) {
-                    stockData.lastUpdate = new Date().toLocaleString('zh-TW');
-                    saveStockData();
-                    if (onDone) onDone();
-                    return;
-                }
-                // Yahoo 失敗的用 TWSE/FinMind 補查
-                fallbackTWSE(needTWSE, onDone);
-            }
-        });
-    });
+    fallbackTWSE(stockData.holdings, onDone);
 }
 
 function fallbackTWSE(holdings, onDone) {
@@ -1720,6 +1666,7 @@ function renderStockHoldings() {
     if (stockData.lastUpdate) {
         html += '<span class="last-update">最後更新：' + esc(stockData.lastUpdate) + '</span>';
     }
+    html += '<span class="last-update" style="color:var(--yellow)">※ 顯示前一交易日收盤價</span>';
     html += '</div>';
 
     // 計算總覽
