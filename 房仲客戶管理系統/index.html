@@ -6657,9 +6657,9 @@ function quickContactLog(clientId, editIdx) {
         if (!date) { showToast('請選擇日期', 'warn'); return; }
         if (!memo) { showToast('請輸入紀錄內容', 'warn'); return; }
         if (!c.contactLog) c.contactLog = [];
+        var _logTab = curFilter && curFilter !== 'all' ? curFilter : '';
         if (editing && old) {
-            var _logTab = curFilter && curFilter !== 'all' ? curFilter : '';
-        c.contactLog[editIdx] = { date:date, memo:memo, time:new Date().toISOString(), tab: old.tab || _logTab };
+            c.contactLog[editIdx] = { date:date, memo:memo, time:new Date().toISOString(), tab: old.tab || _logTab };
         } else {
             c.contactLog.unshift({ date:date, memo:memo, time:new Date().toISOString(), tab: _logTab });
         }
@@ -10222,7 +10222,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260412a7';
+var APP_VERSION = '20260412a8';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
