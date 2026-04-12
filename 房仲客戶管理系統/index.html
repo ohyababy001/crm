@@ -738,17 +738,6 @@
 
 <header class="header">
     <div class="header-title">CRM</div>
-    <div class="header-data-tools" style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin-top:16px;margin-left:16px;align-self:flex-end">
-        <div style="display:flex;gap:6px;align-items:center">
-            <button onclick="exportCSV()" style="background:rgba(255,255,255,0.12);border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:14px;font-weight:400;color:#FAFAF9;white-space:nowrap;display:flex;align-items:center;gap:4px"><span class="mi" style="font-size:16px">download</span>匯出</button>
-            <button onclick="document.getElementById('csvImportInput2').click()" style="background:rgba(255,255,255,0.12);border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:14px;font-weight:400;color:#FAFAF9;white-space:nowrap;display:flex;align-items:center;gap:4px"><span class="mi" style="font-size:16px">upload</span>匯入</button>
-            <button onclick="runDataCheck()" style="background:rgba(255,255,255,0.12);border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:14px;font-weight:400;color:#FAFAF9;white-space:nowrap;display:flex;align-items:center;gap:4px"><span class="mi" style="font-size:16px">health_and_safety</span>健檢</button>
-        </div>
-        <div style="display:flex;gap:12px;padding-left:4px">
-            <div id="exportTime" style="font-size:9px;color:#FFFFFF;white-space:nowrap"></div>
-            <div id="importTime" style="font-size:9px;color:#FFFFFF;white-space:nowrap"></div>
-        </div>
-    </div>
     <div style="flex:1"></div>
     <div class="search-wrap">
         <span class="search-icon"><span class="mi" style="font-size:16px">search</span></span>
@@ -765,8 +754,24 @@
     <div class="header-tools" style="display:flex;gap:8px;align-items:center">
         <button onclick="openTemplates()" class="header-btn" data-hover-color="#57534E"><span class="mi" style="font-size:18px">description</span> 常用範本</button>
         <button onclick="openPerformance()" class="header-btn" data-hover-color="#57534E"><span class="mi" style="font-size:18px">bar_chart</span> 業績儀表板</button>
-        <button onclick="openTrash()" class="header-btn" data-hover-color="#EF4444"><span class="mi" style="font-size:18px">delete</span> 資源回收桶<span id="trashCount" style="font-size:11px;margin-left:2px"></span></button>
-        <button onclick="cloudRestore()" id="btnRestore" class="header-btn" data-hover-color="#57534E"><span class="mi" style="font-size:18px">cloud_download</span> 雲端還原</button>
+        <!-- 更多選單 -->
+        <div style="position:relative">
+            <button class="header-btn" onclick="toggleHeaderMore()" id="headerMoreBtn" data-hover-color="#57534E"><span class="mi" style="font-size:18px">more_horiz</span></button>
+            <div id="headerMoreMenu" style="display:none;position:absolute;top:100%;right:0;margin-top:6px;background:white;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.15);border-top:3px solid #8B7355;min-width:180px;padding:6px 0;z-index:200">
+                <button onclick="openTrash();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><span class="mi" style="font-size:18px">delete</span>資源回收桶<span id="trashCount" style="font-size:11px;margin-left:2px"></span></button>
+                <button onclick="cloudRestore();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><span class="mi" style="font-size:18px">cloud_download</span>雲端還原</button>
+                <div style="height:1px;background:#E7E5E4;margin:4px 12px"></div>
+                <button onclick="exportCSV();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><span class="mi" style="font-size:18px">download</span>匯出</button>
+                <button onclick="document.getElementById('csvImportInput2').click();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><span class="mi" style="font-size:18px">upload</span>匯入</button>
+                <button onclick="runDataCheck();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><span class="mi" style="font-size:18px">health_and_safety</span>健檢</button>
+                <div style="height:1px;background:#E7E5E4;margin:4px 12px"></div>
+                <button onclick="clearCache();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><span class="mi" style="font-size:18px">refresh</span>重新載入</button>
+            </div>
+        </div>
+    </div>
+    <div style="display:none">
+        <div id="exportTime"></div>
+        <div id="importTime"></div>
     </div>
     <div class="mobile-setting-menu" id="mobileSettingMenu">
         <button onclick="openTrash();closeMobileSetting()">🗑️ 資源回收桶</button>
@@ -10243,7 +10248,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260412b1';
+var APP_VERSION = '20260412b2';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
@@ -10342,6 +10347,19 @@ function closeCardMenuOnClick(e) {
 }
 
 // ── ⚙️ 手機設定選單 ──
+function toggleHeaderMore() {
+    var menu = document.getElementById('headerMoreMenu');
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+function closeHeaderMore() {
+    document.getElementById('headerMoreMenu').style.display = 'none';
+}
+document.addEventListener('click', function(e) {
+    var menu = document.getElementById('headerMoreMenu');
+    if (menu && menu.style.display !== 'none' && !e.target.closest('#headerMoreBtn') && !e.target.closest('#headerMoreMenu')) {
+        menu.style.display = 'none';
+    }
+});
 function toggleMobileSetting() {
     var menu = document.getElementById('mobileSettingMenu');
     menu.classList.toggle('show');
