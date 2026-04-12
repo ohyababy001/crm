@@ -3655,7 +3655,20 @@ function renderDashboard() {
 
 }
 
-function _alignSidebarToContent() {}
+function _alignSidebarToContent() {
+    var ms = document.querySelector('.main-scroll');
+    if (!ms) return;
+    var q = document.getElementById('searchInput').value.trim();
+    if (!q) { ms.style.paddingTop = ''; return; }
+    ms.style.paddingTop = '0';
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){
+        var ov = document.querySelector('.filter-overview');
+        var card = document.querySelector('.card') || document.querySelector('.empty');
+        if (!ov || !card) return;
+        var diff = Math.round(ov.getBoundingClientRect().top - card.getBoundingClientRect().top);
+        if (diff > 0) ms.style.paddingTop = diff + 'px';
+    }); });
+}
 function render() {
     rebuildDbMap();
     // 單次遍歷計算所有計數（避免 TYPES.length * 2 次重複 filter）
@@ -10230,7 +10243,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260412a9';
+var APP_VERSION = '20260412b1';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
