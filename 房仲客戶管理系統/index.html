@@ -33,20 +33,20 @@
         html::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.3); }
 
         /* Header */
-        .header { background: linear-gradient(135deg, #1C1917 0%, #292524 50%, #3D3835 100%); color: #FAFAF9; padding: 6px 20px; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 16px rgba(28,25,23,0.4); position: fixed; top: 0; left: 50%; transform: translateX(-50%); z-index: 100; overflow: visible; border-bottom: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 1350px; border-radius: 0 0 16px 16px; }
+        .header { background: linear-gradient(135deg, #1C1917 0%, #292524 50%, #3D3835 100%); color: #FAFAF9; padding: 6px 20px; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 16px rgba(28,25,23,0.4); position: fixed; top: 0; left: 50%; transform: translateX(-50%); z-index: 100; overflow: visible; border-bottom: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 1450px; border-radius: 0 0 16px 16px; }
         .header-title { font-size: 42px; font-weight: 800; white-space: nowrap; letter-spacing: 4px; }
         .search-wrap { flex: 3; max-width: 700px; position: relative; }
         .search-wrap input { width: 100%; padding: 10px 16px 10px 38px; border-radius: 10px; border: none; font-size: 14px; background: rgba(255,255,255,0.15); color: #FAFAF9; outline: none; font-family: inherit; backdrop-filter: blur(4px); }
         .search-wrap input::placeholder { color: rgba(250,250,249,0.5); }
         .search-wrap input:focus { background: rgba(255,255,255,0.25); }
         .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 15px; }
-        .header-btn { background:white; border:1.5px solid var(--border); border-radius:8px; padding:6px 14px; cursor:pointer; font-size:13px; font-weight:400; color:#57534E; white-space:nowrap; transition:all 0.18s; letter-spacing:0.3px; }
+        .header-btn { background:white; border:1.5px solid var(--border); border-radius:8px; padding:6px 14px; cursor:pointer; font-size:13px; font-weight:600; color:#57534E; white-space:nowrap; transition:all 0.18s; letter-spacing:0.3px; }
         .header-btn:hover { border-color: var(--wood); color: var(--deep); background: linear-gradient(135deg, #FAFAF9, #F5F0EB); box-shadow: 0 2px 8px rgba(87,83,78,0.15); transform: translateY(-1px); }
         .btn-add { background: #FAFAF9; color: var(--deep); border: none; padding: 10px 22px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.15); transition: all 0.18s; letter-spacing:0.5px; }
         .btn-add:hover { background: linear-gradient(135deg, #FAFAF9, #EDE8E0); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.22); }
 
         /* Layout */
-        .layout { display: flex; height: calc(100vh - var(--header-h)); margin-top: var(--header-h); max-width: 1350px; margin-left: auto; margin-right: auto; }
+        .layout { display: flex; height: calc(100vh - var(--header-h)); margin-top: var(--header-h); max-width: 1450px; margin-left: auto; margin-right: auto; }
 
         /* Sidebar */
         .sidebar { width: 180px; background: #FFFFFF; border-right: 1px solid var(--border); padding: 58px 0 10px; position: sticky; top: 0; height: 100%; overflow-y: auto; flex-shrink: 0; box-shadow: 2px 0 8px rgba(0,0,0,0.04); }
@@ -3664,17 +3664,17 @@ function _alignSidebarToContent() {
     var ms = document.querySelector('.main-scroll');
     if (!ms) return;
     var q = document.getElementById('searchInput').value.trim();
-    if (!q) { ms.style.paddingTop = ''; return; }
-    ms.style.paddingTop = '0';
-    requestAnimationFrame(function(){ requestAnimationFrame(function(){
+    if (!q) return;
+    requestAnimationFrame(function(){
         var ov = document.querySelector('.filter-overview');
         var card = document.querySelector('.card') || document.querySelector('.empty');
         if (!ov || !card) return;
         var diff = Math.round(ov.getBoundingClientRect().top - card.getBoundingClientRect().top);
         if (diff > 0) ms.style.paddingTop = diff + 'px';
-    }); });
+    });
 }
 function render() {
+    var _ms = document.querySelector('.main-scroll'); if (_ms) _ms.style.paddingTop = '';
     rebuildDbMap();
     // 單次遍歷計算所有計數（避免 TYPES.length * 2 次重複 filter）
     var _allActive = 0, _trashN = 0;
@@ -10248,7 +10248,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260412b2';
+var APP_VERSION = '20260412b3';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
