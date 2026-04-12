@@ -17,13 +17,9 @@
     --text: #1C1917;
     --muted: #57534E;
     --muted-2: #8C8578;
-    --accent: #1a3a5c;
-    --accent2: #c8a45a;
     --red: #EF4444;
     --green: #16A34A;
     --yellow: #F59E0B;
-    --header-from: #0f2847;
-    --header-to: #2a5a8c;
     --lux-navy: #1a3a5c;
     --lux-navy-light: #2a5a8c;
     --lux-gold: #c8a45a;
@@ -68,7 +64,7 @@ body::before {
     pointer-events: none;
 }
 .header {
-    background: linear-gradient(135deg, #1e4068 0%, #2a5a8c 50%, #4a7ab0 100%);
+    background: linear-gradient(135deg, #0f2847 0%, #1a3a5c 50%, #2a5a8c 100%);
     color: #FAFAF9;
     padding: 10px 22px;
     display: flex;
@@ -213,6 +209,7 @@ body { padding-top: 110px; }
 .table-wrap {
     background: var(--card);
     border: 1px solid var(--border);
+    border-left: 3px solid var(--lux-navy);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
     overflow-x: auto;
@@ -450,6 +447,7 @@ tfoot td:first-child { text-align: left; }
 .modal {
     background: var(--card);
     border: 1px solid var(--border);
+    border-left: 3px solid var(--lux-navy);
     border-top: 3px solid var(--lux-gold);
     border-radius: var(--radius);
     padding: 24px;
@@ -670,22 +668,24 @@ th.archived-col { opacity: 0.4; }
 .btn-archive:hover { color: var(--lux-gold); }
 .toggle-archive {
     font-size: 12px;
-    color: var(--muted);
+    color: #FAFAF9 !important;
     cursor: pointer;
-    background: var(--card);
-    border: 1px solid var(--border);
+    background: linear-gradient(135deg, #0f2847 0%, #1a3a5c 50%, #2a5a8c 100%) !important;
+    border: 1px solid var(--lux-gold) !important;
     border-radius: var(--radius-xs);
     padding: 8px 14px;
     font-family: inherit;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: .5px;
     transition: all .18s;
+    box-shadow: 0 2px 8px rgba(15,40,71,.25);
 }
 .toggle-archive:hover {
-    color: var(--lux-navy);
-    border-color: var(--lux-gold-light);
-    background: #FFFBF0;
+    background: linear-gradient(135deg, #1a3a5c 0%, #2a5a8c 50%, #3a6aa0 100%) !important;
+    box-shadow: 0 4px 14px rgba(200,164,90,.3);
+    color: #FAFAF9 !important;
 }
-.toggle-archive.active { color: var(--accent); border-color: var(--accent); }
+.toggle-archive.active { background: linear-gradient(135deg, #1a3a5c 0%, #2a5a8c 50%, #3a6aa0 100%) !important; border-color: var(--lux-gold) !important; color: #FAFAF9 !important; }
 
 th.sortable {
     cursor: pointer;
@@ -716,7 +716,7 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
 }
 /* ── 淨資產 ── */
 .nw-hero {
-    background: linear-gradient(135deg, #1e4068 0%, #2a5a8c 50%, #4a7ab0 100%);
+    background: linear-gradient(135deg, #0f2847 0%, #1a3a5c 50%, #2a5a8c 100%);
     color: #FAFAF9;
     padding: 14px 22px;
     border-radius: var(--radius);
@@ -1245,7 +1245,7 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
 <div class="header">
     <h1>CashFlow</h1>
     <div class="header-btns">
-        <span id="last-export" style="color:rgba(255,255,255,.7);font-size:12px;margin-right:4px"></span>
+        <span id="last-export" style="color:rgba(255,255,255,.85);font-size:12px;margin-right:4px"></span>
         <button onclick="exportData()">匯出</button>
         <button onclick="document.getElementById('importFile').click()">匯入</button>
         <button onclick="showRestoreDialog()" title="從自動快照還原台股資料">還原</button>
@@ -1258,9 +1258,9 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
         <div class="tab-bar-inner">
             <button class="tab-btn active" onclick="switchTab('income')">收入</button>
             <button class="tab-btn" onclick="switchTab('expense')">支出</button>
-            <button class="tab-btn" onclick="switchTab('passive')">被動收入</button>
-            <button class="tab-btn" onclick="switchTab('stock')">台股投資</button>
             <button class="tab-btn" onclick="switchTab('trend')">月記錄</button>
+            <button class="tab-btn" onclick="switchTab('stock')">台股投資</button>
+            <button class="tab-btn" onclick="switchTab('passive')">被動收入</button>
             <button class="tab-btn" onclick="switchTab('assets')">淨資產</button>
         </div>
     </div>
@@ -1965,7 +1965,7 @@ function manageCategories(section) {
             '</div></div>';
     }).join('');
     ov.innerHTML = '<div class="modal" style="max-height:80vh;overflow-y:auto"><h3>' + title + '</h3>' + rows +
-        '<div style="margin-top:12px"><button onclick="this.closest(\'.overlay\').remove();addCategory(\'' + section + '\')" style="width:100%;padding:10px;border:none;border-radius:8px;background:var(--accent);color:white;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">＋ 新增項目</button></div>' +
+        '<div style="margin-top:12px"><button onclick="this.closest(\'.overlay\').remove();addCategory(\'' + section + '\')" style="width:100%;padding:10px;border:none;border-radius:8px;background:var(--lux-navy);color:white;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">＋ 新增項目</button></div>' +
         '<div style="margin-top:8px"><button onclick="this.closest(\'.overlay\').remove()" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--card);font-size:14px;cursor:pointer;font-family:inherit">關閉</button></div></div>';
     document.body.appendChild(ov);
     // 已移除點空白關閉行為（避免誤觸）
@@ -1984,7 +1984,7 @@ function manageYears() {
             '</div></div>';
     }).join('');
     ov.innerHTML = '<div class="modal"><h3>管理年份</h3>' + rows +
-        '<div style="margin-top:12px"><button onclick="this.closest(\'.overlay\').remove();addYear()" style="width:100%;padding:10px;border:none;border-radius:8px;background:var(--accent);color:white;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">＋ 新增年份</button></div>' +
+        '<div style="margin-top:12px"><button onclick="this.closest(\'.overlay\').remove();addYear()" style="width:100%;padding:10px;border:none;border-radius:8px;background:var(--lux-navy);color:white;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">＋ 新增年份</button></div>' +
         '<div style="margin-top:8px"><button onclick="this.closest(\'.overlay\').remove()" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--card);font-size:14px;cursor:pointer;font-family:inherit">關閉</button></div></div>';
     document.body.appendChild(ov);
     // 已移除點空白關閉行為（避免誤觸）
@@ -2209,7 +2209,7 @@ function manageRecurring() {
         });
         html += '</div>';
     }
-    html += '<div style="margin-top:12px"><button onclick="this.closest(\'.overlay\').remove();addRecurring()" style="width:100%;padding:10px;border:none;border-radius:8px;background:var(--accent);color:white;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">＋ 新增循環</button></div>';
+    html += '<div style="margin-top:12px"><button onclick="this.closest(\'.overlay\').remove();addRecurring()" style="width:100%;padding:10px;border:none;border-radius:8px;background:var(--lux-navy);color:white;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">＋ 新增循環</button></div>';
     html += '<div style="margin-top:8px"><button onclick="this.closest(\'.overlay\').remove()" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--card);font-size:14px;cursor:pointer;font-family:inherit">關閉</button></div></div>';
     ov.innerHTML = html;
     document.body.appendChild(ov);
@@ -2718,7 +2718,7 @@ function showRestoreDialog() {
     ov.innerHTML = html;
     document.body.appendChild(ov);
     ov.querySelectorAll('.restore-opt').forEach(function(btn) {
-        btn.onmouseenter = function() { btn.style.background = '#F1EDE8'; btn.style.borderColor = 'var(--accent)'; };
+        btn.onmouseenter = function() { btn.style.background = '#F1EDE8'; btn.style.borderColor = 'var(--lux-navy)'; };
         btn.onmouseleave = function() { btn.style.background = 'var(--card)'; btn.style.borderColor = 'var(--border)'; };
         btn.onclick = function() {
             var idx = parseInt(btn.dataset.idx, 10);
@@ -3349,7 +3349,7 @@ function renderTrend() {
 
     // 頂端操作列
     html += '<div class="toolbar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">';
-    html += '<button class="btn-refresh" style="background:var(--accent)" onclick="addMonthly()">＋ 新增</button>';
+    html += '<button class="btn-refresh" style="background:var(--lux-navy)" onclick="addMonthly()">＋ 新增</button>';
     html += '<span style="flex:1"></span>';
     html += '<span style="font-size:13px;color:var(--muted)">範圍：</span>';
     var customLabel = '自訂';
@@ -3359,7 +3359,7 @@ function renderTrend() {
     [[12,'近 12 個月'],[24,'近 24 個月'],[0,'全部'],[-1, customLabel]].forEach(function(r) {
         var active = _trendRange === r[0];
         var onclick = r[0] === -1 ? 'onclick="openTrendCustomRange()"' : 'onclick="setTrendRange(' + r[0] + ')"';
-        html += '<button ' + onclick + ' style="padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:' + (active?'var(--accent)':'var(--card)') + ';color:' + (active?'white':'var(--text)') + ';font-size:13px;cursor:pointer;font-family:inherit">' + esc(r[1]) + '</button>';
+        html += '<button ' + onclick + ' style="padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:' + (active?'var(--lux-navy)':'var(--card)') + ';color:' + (active?'white':'var(--text)') + ';font-size:13px;cursor:pointer;font-family:inherit">' + esc(r[1]) + '</button>';
     });
     html += '</div>';
 
@@ -3694,7 +3694,7 @@ function renderStockHoldings() {
     // 更新按鈕列
     html += '<div class="stock-refresh-bar">';
     html += '<button class="btn-refresh" id="btn-fetch-price" onclick="refreshPrices()"><i class="ti ti-antenna-bars-5"></i> 更新股價</button>';
-    html += '<button class="btn-refresh" style="background:var(--accent)" onclick="addHolding()">＋ 新增持股</button>';
+    html += '<button class="btn-refresh" style="background:var(--lux-navy)" onclick="addHolding()">＋ 新增持股</button>';
     if (stockData.lastUpdate) {
         html += '<span class="last-update">最後更新：' + esc(stockData.lastUpdate) + '</span>';
     }
@@ -3726,10 +3726,10 @@ function renderStockHoldings() {
     // 摘要列
     html += '<div style="display:flex;flex-wrap:wrap;gap:6px 20px;font-size:14px;margin-bottom:10px;padding:8px 12px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow)">';
     html += '<span style="color:var(--muted)">成本 <b style="color:var(--text)">' + fmt(totalCost) + '</b></span>';
-    html += '<span style="color:var(--muted)">市值 <b style="color:var(--accent2)">' + fmt(totalMarket) + '</b></span>';
+    html += '<span style="color:var(--muted)">市值 <b style="color:var(--lux-gold)">' + fmt(totalMarket) + '</b></span>';
     html += '<span style="color:var(--muted)">損益 <b class="' + (totalPL>=0?'pos':'neg') + '">' + (totalPL>=0?'+':'') + fmt(totalPL) + ' (' + fmtRate(totalRate) + ')</b></span>';
     html += '<span style="color:var(--muted)">今日損益 <b class="' + (todayPL>=0?'pos':'neg') + '">' + (todayPL>=0?'+':'') + fmt(todayPL) + '</b></span>';
-    html += '<span style="color:var(--muted)">今年股利 <b style="color:var(--accent)">' + fmt(yearDividend) + '</b></span>';
+    html += '<span style="color:var(--muted)">今年股利 <b style="color:var(--lux-navy)">' + fmt(yearDividend) + '</b></span>';
     html += '</div>';
 
     // 持股明細表
@@ -3805,11 +3805,11 @@ function renderStockDividend() {
     });
 
     html += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">';
-    html += '<button class="btn-refresh" style="background:var(--accent)" onclick="addDividend()">＋ 新增股利</button>';
+    html += '<button class="btn-refresh" style="background:var(--lux-navy)" onclick="addDividend()">＋ 新增股利</button>';
     trackedStocks.forEach(function(s) {
         html += '<div style="padding:8px 14px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);font-size:13px">';
         html += '<div style="color:var(--muted);font-size:11px">' + esc(s.label) + ' 累積股利</div>';
-        html += '<div style="font-weight:700;color:var(--accent);font-size:15px">$' + fmt(totals[s.id]) + '</div>';
+        html += '<div style="font-weight:700;color:var(--lux-navy);font-size:15px">$' + fmt(totals[s.id]) + '</div>';
         html += '</div>';
     });
     html += '</div>';
@@ -4011,7 +4011,7 @@ function renderStockPledge() {
     var html = '';
 
     html += '<div class="toolbar">';
-    html += '<button class="btn-refresh" style="background:var(--accent)" onclick="addPledge()">＋ 新增質押</button>';
+    html += '<button class="btn-refresh" style="background:var(--lux-navy)" onclick="addPledge()">＋ 新增質押</button>';
     html += '</div>';
 
     if (!stockData.pledges || stockData.pledges.length === 0) {
@@ -4033,7 +4033,7 @@ function renderStockPledge() {
 
     html += '<div style="display:flex;flex-wrap:wrap;gap:6px 20px;font-size:14px;margin-bottom:10px;padding:8px 12px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow)">';
     html += '<span style="color:var(--muted)">總借款 <b style="color:var(--red)">' + fmt(totalAmount) + '</b></span>';
-    html += '<span style="color:var(--muted)">擔保現值 <b style="color:var(--accent2)">' + fmt(Math.round(totalCollateral)) + '</b></span>';
+    html += '<span style="color:var(--muted)">擔保現值 <b style="color:var(--lux-gold)">' + fmt(Math.round(totalCollateral)) + '</b></span>';
     html += '<span style="color:var(--muted)">維持率 <b style="color:' + (totalRatio >= 130 ? 'var(--green)' : 'var(--red)') + '">' + totalRatio.toFixed(1) + '%</b></span>';
     html += '<span style="flex:1"></span>';
     html += '<span style="color:var(--muted)">日息 <b style="color:var(--red)">' + fmt(Math.round(totalDailyInterest)) + '</b></span>';

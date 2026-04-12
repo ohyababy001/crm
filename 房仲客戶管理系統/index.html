@@ -15,14 +15,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-    <title>房仲客戶管理系統</title>
+    <title>AgentDesk</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         .ti { font-size: 1.3em; vertical-align: -0.1em; }
         :root {
             --primary: #78716C; --bg: #F7F5F3;
             --text: #1C1917; --muted: #78716C; --border: #E7E5E4;
-            --warm: #A8A29E; --wood: #57534E; --deep: #292524;
+            --wood: #57534E; --deep: #292524;
+            --lux-navy: #1a3a5c; --lux-navy-light: #2a5a8c;
+            --lux-gold: #c8a45a; --lux-gold-light: #e8d49a;
+            --radius: 14px; --radius-sm: 10px; --radius-xs: 8px;
             --header-h: 62px;
         }
         body { font-family: 'Inter', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft JhengHei', 'PingFang TC', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow: hidden; font-variant-numeric: tabular-nums; }
@@ -33,8 +36,8 @@
         html::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.3); }
 
         /* Header */
-        .header { background: linear-gradient(135deg, #1C1917 0%, #292524 50%, #3D3835 100%); color: #FAFAF9; padding: 6px 20px; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 16px rgba(28,25,23,0.4); position: fixed; top: 0; left: 50%; transform: translateX(-50%); z-index: 100; overflow: visible; border-bottom: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 1450px; border-radius: 0 0 16px 16px; }
-        .header-title { font-family: 'Cinzel', serif; font-size: 52px; font-weight: 700; white-space: nowrap; letter-spacing: 6px; margin-left: 48px; }
+        .header { background: linear-gradient(135deg, #0f2847 0%, #1a3a5c 50%, #2a5a8c 100%); color: #FAFAF9; padding: 6px 20px; display: flex; align-items: center; gap: 12px; box-shadow: 0 6px 24px rgba(15,40,71,0.35); position: fixed; top: 0; left: 50%; transform: translateX(-50%); z-index: 100; overflow: visible; border-bottom: 1px solid rgba(200,164,90,0.3); width: 100%; max-width: 1450px; border-radius: 0 0 16px 16px; }
+        .header-title { font-family: 'Cinzel', serif; font-size: 28px; font-weight: 700; white-space: nowrap; letter-spacing: 6px; margin-left: 48px; }
         .search-wrap { flex: 3; max-width: 700px; position: relative; }
         .search-wrap input { width: 100%; padding: 10px 16px 10px 38px; border-radius: 10px; border: none; font-size: 14px; background: rgba(255,255,255,0.15); color: #FAFAF9; outline: none; font-family: inherit; backdrop-filter: blur(4px); }
         .search-wrap input::placeholder { color: rgba(250,250,249,0.5); }
@@ -49,20 +52,20 @@
         .layout { display: flex; height: calc(100vh - var(--header-h)); margin-top: var(--header-h); max-width: 1450px; margin-left: auto; margin-right: auto; }
 
         /* Sidebar */
-        .sidebar { width: 180px; background: #FFFFFF; border-right: 1px solid var(--border); padding: 58px 0 10px; position: sticky; top: 0; height: 100%; overflow-y: auto; flex-shrink: 0; box-shadow: 2px 0 8px rgba(0,0,0,0.04); }
+        .sidebar { width: 180px; background: var(--bg); border-right: 1px solid var(--border); padding: 58px 0 10px; position: sticky; top: 0; height: 100%; overflow-y: auto; flex-shrink: 0; box-shadow: 2px 0 8px rgba(0,0,0,0.04); }
         .sidebar::-webkit-scrollbar { width: 4px; }
         .sidebar::-webkit-scrollbar-track { background: transparent; }
         .sidebar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 2px; }
         .sidebar::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
         .sidebar-label { font-size: 18px; font-weight: 800; color: #1C1917; letter-spacing: 0.5px; padding: 0 20px; margin-bottom: 10px; text-align: center; }
-        .filter-btn { display: flex; align-items: center; gap: 6px; padding: 8px 10px; border: 1px solid var(--border); background: #FAF9F7; border-radius: 14px; cursor: pointer; font-size: 22px; font-weight: 700; color: var(--text); transition: all 0.15s; text-align: left; margin: 4px 4px; width: calc(100% - 8px); }
+        .filter-btn { display: flex; align-items: center; gap: 6px; padding: 8px 10px; border: 1px solid var(--border); background: #FAF9F7; border-radius: var(--radius); cursor: pointer; font-size: 22px; font-weight: 700; color: var(--text); transition: all 0.15s; text-align: left; margin: 4px 4px; width: calc(100% - 8px); }
         .filter-btn .filter-left { display: flex; flex-direction: column; align-items: center; gap: 1px; flex: 1; }
         .filter-sub { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.7; }
         .filter-btn:hover { background: linear-gradient(135deg, #FAF9F7, #F0EDEA); border-color: #94A3B8; transform: scale(1.02); box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
-        .filter-btn.active { background: linear-gradient(135deg, #44403C, #57534E); color: #FAFAF9; font-weight: 700; border-color: #44403C; box-shadow: 0 2px 8px rgba(68,64,60,0.35); }
-        .filter-overview { font-size: 27px; background: linear-gradient(135deg, #1C1917, #292524); color: #FAFAF9 !important; border-radius: 16px; }
-        .filter-overview:hover { background: linear-gradient(135deg, #292524, #3D3835); }
-        .filter-overview.active { background: linear-gradient(135deg, #1C1917, #292524); color: #FAFAF9 !important; border-color: #1C1917; box-shadow: 0 2px 8px rgba(28,25,23,0.4); }
+        .filter-btn.active { background: linear-gradient(135deg, #0f2847, #1a3a5c); color: #FAFAF9; font-weight: 700; border-color: #0f2847; box-shadow: 0 2px 8px rgba(15,40,71,0.35); }
+        .filter-overview { font-size: 27px; background: linear-gradient(135deg, #0f2847, #1a3a5c); color: #FAFAF9 !important; border-radius: 16px; }
+        .filter-overview:hover { background: linear-gradient(135deg, #1a3a5c, #2a5a8c); }
+        .filter-overview.active { background: linear-gradient(135deg, #0f2847, #1a3a5c); color: #FAFAF9 !important; border-color: #0f2847; box-shadow: 0 2px 8px rgba(15,40,71,0.4); }
         .filter-overview .cnt { background: rgba(255,255,255,0.2) !important; color: #FAFAF9 !important; }
         .filter-left { display: flex; align-items: center; gap: 8px; }
         .dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; align-self: center; }
@@ -104,7 +107,7 @@
 
         /* Cards */
         .grid { display: grid; gap: 6px; }
-        .card { background: #FFFFFF; border-radius: 14px; padding: 8px 18px; border: 1px solid var(--border); border-left: 3px solid #1A3A5C; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(28,25,23,0.04); }
+        .card { background: #FFFFFF; border-radius: var(--radius); padding: 8px 18px; border: 1px solid var(--border); border-left: 3px solid var(--lux-navy); display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(28,25,23,0.04); }
         .card:hover { box-shadow: 0 8px 24px rgba(28,25,23,0.1); border-color: #A8A29E; transform: translateY(-2px); }
         .rental-group { border: 2px solid #A8A29E; border-radius: 16px; overflow: hidden; margin-bottom: 2px; }
         .card.landlord-card { border-left: 4px solid #0891B2; border-radius: 0; margin-bottom: 0; border-bottom: none; padding-bottom: 5px; border-top: none; border-right: none; }
@@ -173,7 +176,7 @@
         .cmeta-v.full { white-space: normal; word-break: break-word; }
         .card-notes-col { flex: 1; min-width: 0; }
         .notes-inline { font-size: 13px; color: #1F2937; cursor: text; white-space: pre-line; word-break: break-word; line-height: 1.4; }
-        .notes-inline.empty-note { color: #94A3B8; }
+        .notes-inline.empty-note { color: #78716C; }
         .notes-edit-area { flex:1; min-width:0; border: 1.5px solid var(--wood); border-radius: 6px; padding: 4px 7px; font-size: 14px; font-family: inherit; outline: none; resize: none; color: var(--text); box-shadow: 0 0 0 3px rgba(87,83,78,0.1); }
         .card-contact { font-size: 13px; color: var(--muted); margin-top: 4px; display: flex; align-items: center; gap: 6px; }
         .btn-history { background: none; border: 1px solid var(--border); border-radius: 4px; font-size: 11px; color: var(--muted); cursor: pointer; padding: 1px 6px; white-space: nowrap; }
@@ -353,12 +356,12 @@
         /* Dashboard */
         .dashboard { padding: 0; }
         .dash-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
-        .dash-card { background: #FFFFFF; border-radius: 14px; padding: 18px 16px; border: 1px solid var(--border); text-align: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(28,25,23,0.04); }
+        .dash-card { background: #FFFFFF; border-radius: var(--radius); padding: 18px 16px; border: 1px solid var(--border); text-align: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(28,25,23,0.04); }
         .dash-card:hover { box-shadow: 0 8px 24px rgba(28,25,23,0.1); border-color: #D6D3D1; transform: translateY(-2px); }
         .dash-card .dash-num { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
         .dash-card .dash-label { font-size: 13px; color: var(--muted); font-weight: 600; }
         .dash-sections { display: grid; grid-template-columns: 1.5fr 1.1fr 1.1fr; gap: 10px; margin-top: 34px; grid-template-areas: "sched seller bday" "sched rental bday"; }
-        .dash-section { background: #FFFFFF; border-radius: 14px; padding: 12px; border: 2px solid #1A3A5C; box-shadow: 0 1px 4px rgba(28,25,23,0.04); min-height: 240px; transition: all 0.2s; }
+        .dash-section { background: #FFFFFF; border-radius: var(--radius); padding: 12px; border: 2px solid var(--lux-navy); box-shadow: 0 1px 4px rgba(28,25,23,0.04); min-height: 240px; transition: all 0.2s; }
         .dash-section:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(28,25,23,0.08); }
         .dash-section.dash-schedule { grid-area: sched; background: #FFFFFF; align-self: start; }
         .dash-section.dash-seller { grid-area: seller; background: #FFFFFF; }
@@ -741,7 +744,7 @@
 <div id="ptrIndicator" class="ptr-indicator">↓ 下拉刷新</div>
 
 <header class="header">
-    <div class="header-title">CRM</div>
+    <div class="header-title">AgentDesk</div>
     <div style="flex:1"></div>
     <div class="search-wrap">
         <span class="search-icon"><i class="ti ti-search" style="font-size:16px"></i></span>
@@ -1431,7 +1434,7 @@
 
 <!-- 訊息彈窗 -->
 <div id="msgModal" class="overlay" style="display:none;z-index:300" onclick="if(event.target===this)closeMsgModal()">
-    <div style="background:white;border-radius:14px;padding:24px 28px;max-width:360px;width:90%;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,0.2)">
+    <div style="background:white;border-radius:var(--radius);padding:24px 28px;max-width:360px;width:90%;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,0.2)">
         <div id="msgTitle" style="font-size:18px;font-weight:800;color:var(--deep);margin-bottom:10px"></div>
         <div id="msgBody" style="font-size:14px;color:var(--text);line-height:1.6;white-space:pre-line;margin-bottom:16px"></div>
         <button class="btn btn-cancel" id="msgCancelBtn" onclick="cancelMsg()" style="min-width:80px;display:none">取消</button>
@@ -2690,7 +2693,7 @@ function showHistory(id) {
             details = h.changes.map(function(ch) {
                 var label = FIELD_LABELS[ch.field] || ch.field;
                 return '<div class="history-detail"><span class="history-field">' + esc(label) + '</span> ' +
-                    '<span style="color:#94A3B8">' + esc(ch.from || '(空)') + '</span> → <span class="history-val">' + esc(ch.to || '(空)') + '</span></div>';
+                    '<span style="color:#78716C">' + esc(ch.from || '(空)') + '</span> → <span class="history-val">' + esc(ch.to || '(空)') + '</span></div>';
             }).join('');
         }
         return '<div class="history-item" style="display:flex;gap:8px;align-items:flex-start">' +
@@ -4162,7 +4165,7 @@ function renderCard(c) {
                     '</div></div>';
                 })()}
                 ${_schedHtml}
-                <div class="notes-inline${notesText?'':' empty-note'}" onclick="editNoteInline('${_eid}',this,'${esc(showType)}')" style="display:flex;gap:6px"><span style="color:var(--muted);flex-shrink:0">備註</span><div style="word-break:break-word">${notesText ? esc(notesText) : '<span style="color:#94A3B8;font-size:10px">點擊新增備註…</span>'}</div></div>
+                <div class="notes-inline${notesText?'':' empty-note'}" onclick="editNoteInline('${_eid}',this,'${esc(showType)}')" style="display:flex;gap:6px"><span style="color:var(--muted);flex-shrink:0">備註</span><div style="word-break:break-word">${notesText ? esc(notesText) : '<span style="color:#78716C;font-size:10px">點擊新增備註…</span>'}</div></div>
                 <div class="card-contact">
                     ${dateLabel ? `<span>${esc(dateLabel)}</span>` : ''}
                     ${c.history && c.history.length ? `<button class="btn-history" onclick="event.stopPropagation();showHistory('${_eid}')">歷程</button>` : ''}
@@ -6996,7 +6999,7 @@ function filterDoneList() {
             '<div style="flex:1">' +
                 '<div style="font-size:14px;color:#334155;font-weight:600">'+esc(isoToMDW(d.date))+(d.time?' '+d.time:'')+'</div>' +
                 '<div style="font-size:15px"><span style="color:'+nameColor+';font-weight:600">'+esc(d.clientName||'')+'</span>'+(d.memo?' <span style="color:#475569">/ '+esc(d.memo)+'</span>':'')+'</div>' +
-                '<div style="font-size:11px;color:#94A3B8">完成於 '+esc(toROCDateTime(d.doneAt))+'</div>' +
+                '<div style="font-size:11px;color:#78716C">完成於 '+esc(toROCDateTime(d.doneAt))+'</div>' +
             '</div>' +
             '<button class="btn-ic" onclick="restoreDoneSchedule('+realIdx+')" title="恢復" style="font-size:14px;padding:4px 8px">↩️</button>' +
             '<button class="btn-ic" onclick="deleteDoneSchedule('+realIdx+')" title="刪除" style="font-size:14px;padding:4px 8px"><i class="ti ti-trash" style="color:#DC2626"></i></button>' +
