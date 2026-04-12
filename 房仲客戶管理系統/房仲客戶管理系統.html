@@ -38,10 +38,10 @@
         .search-wrap input::placeholder { color: rgba(250,250,249,0.5); }
         .search-wrap input:focus { background: rgba(255,255,255,0.25); }
         .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 15px; }
-        .header-btn { background:white; border:1.5px solid var(--border); border-radius:8px; padding:6px 14px; cursor:pointer; font-size:13px; font-weight:400; color:#57534E; white-space:nowrap; transition:all 0.15s; }
-        .header-btn:hover { border-color: var(--wood); color: var(--deep); background: #FAF9F7; }
-        .btn-add { background: #FAFAF9; color: var(--deep); border: none; padding: 10px 22px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.15); transition: all 0.15s; }
-        .btn-add:hover { background: #F5F5F4; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .header-btn { background:white; border:1.5px solid var(--border); border-radius:8px; padding:6px 14px; cursor:pointer; font-size:13px; font-weight:400; color:#57534E; white-space:nowrap; transition:all 0.18s; letter-spacing:0.3px; }
+        .header-btn:hover { border-color: var(--wood); color: var(--deep); background: linear-gradient(135deg, #FAFAF9, #F5F0EB); box-shadow: 0 2px 8px rgba(87,83,78,0.15); transform: translateY(-1px); }
+        .btn-add { background: #FAFAF9; color: var(--deep); border: none; padding: 10px 22px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.15); transition: all 0.18s; letter-spacing:0.5px; }
+        .btn-add:hover { background: linear-gradient(135deg, #FAFAF9, #EDE8E0); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.22); }
 
         /* Layout */
         .layout { display: flex; height: calc(100vh - var(--header-h)); margin-top: var(--header-h); max-width: 1600px; margin-left: auto; margin-right: auto; }
@@ -56,7 +56,7 @@
         .filter-btn { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); background: #FAF9F7; border-radius: 14px; cursor: pointer; font-size: 22px; font-weight: 700; color: var(--text); transition: all 0.15s; text-align: left; margin: 3px 6px; width: calc(100% - 12px); }
         .filter-btn .filter-left { display: flex; flex-direction: column; align-items: center; gap: 1px; flex: 1; }
         .filter-sub { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.5; }
-        .filter-btn:hover { background: var(--bg); border-color: #94A3B8; transform: scale(1.02); }
+        .filter-btn:hover { background: linear-gradient(135deg, #FAF9F7, #F0EDEA); border-color: #94A3B8; transform: scale(1.02); box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
         .filter-btn.active { background: linear-gradient(135deg, #44403C, #57534E); color: #FAFAF9; font-weight: 700; border-color: #44403C; box-shadow: 0 2px 8px rgba(68,64,60,0.35); }
         .filter-overview { font-size: 27px; background: linear-gradient(135deg, #1C1917, #292524); color: #FAFAF9 !important; border-radius: 16px; }
         .filter-overview:hover { background: linear-gradient(135deg, #292524, #3D3835); }
@@ -82,7 +82,7 @@
         .main-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
         .main-scroll::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.3); }
         .main-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-        .main-bar h2 { font-size: 26px; font-weight: 800; color: #1C1917; margin-left: 8px; }
+        .main-bar h2 { font-size: 26px; font-weight: 800; color: #1C1917; margin-left: 8px; letter-spacing: 0.5px; }
         .sort-sel { padding: 7px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; color: var(--text); background: white; cursor: pointer; font-family: inherit; transition: border-color 0.12s; }
         .sort-sel:hover { border-color: #94A3B8; }
 
@@ -94,7 +94,7 @@
         .bf-label { font-size: 14px; font-weight: 700; color: var(--muted); white-space: nowrap; width: 52px; }
         .bf-grid-wrap { display:flex; flex-direction:column; gap:6px; }
         .bf-chip { padding: 6px 16px; border-radius: 20px; border: 1.5px solid var(--border); background: white; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--muted); transition: all 0.12s; line-height:1.2; font-family:inherit; box-sizing:border-box; }
-        .bf-chip:hover { border-color: #94A3B8; color: var(--text); }
+        .bf-chip:hover { border-color: #94A3B8; color: var(--text); background: linear-gradient(135deg, white, #F5F0EB); }
         .bf-chip.on { background: #EDE8E0; border-color: #8B7355; color: #5C4A32; }
         .bf-clear { font-size: 14px; color: var(--muted); cursor: pointer; margin-left: auto; text-decoration: underline; }
         .bf-sep { width: 1.5px; height: 22px; background: #D6D3D1; flex-shrink: 0; margin: 0 14px; }
@@ -103,7 +103,7 @@
         /* Cards */
         .grid { display: grid; gap: 6px; }
         .card { background: #FFFFFF; border-radius: 14px; padding: 8px 18px; border: 1px solid var(--border); display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(28,25,23,0.04); }
-        .card:hover { box-shadow: 0 8px 24px rgba(28,25,23,0.1); border-color: #D6D3D1; transform: translateY(-2px); }
+        .card:hover { box-shadow: 0 8px 24px rgba(28,25,23,0.1); border-color: #A8A29E; transform: translateY(-2px); }
         .rental-group { border: 2px solid #A8A29E; border-radius: 16px; overflow: hidden; margin-bottom: 2px; }
         .card.landlord-card { border-left: 4px solid #0891B2; border-radius: 0; margin-bottom: 0; border-bottom: none; padding-bottom: 5px; border-top: none; border-right: none; }
         .card.tenant-card { border-left: 4px solid #DB2777; border-radius: 0; margin-top: 0; padding-top: 5px; border-top: 1px dashed #D6D3D1; border-bottom: none; border-right: none; }
@@ -214,7 +214,7 @@
         .btn-fill { background:none;border:1px solid var(--border);border-radius:6px;padding:1px 10px;cursor:pointer;font-size:13px;color:var(--muted);transition:all 0.12s;white-space:nowrap;vertical-align:middle;line-height:16px;margin-left:2px; }
         .btn-fill:hover { background:#EFF6FF;color:#1D4ED8;border-color:#93C5FD; }
         .fill-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.3);z-index:9999;display:flex;align-items:center;justify-content:center;touch-action:none;overscroll-behavior:contain; -webkit-overflow-scrolling:auto; }
-        .fill-menu { background:white;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.15);min-width:240px;max-width:90vw;padding:8px 0;overflow:hidden; }
+        .fill-menu { background:white;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.15);min-width:240px;max-width:90vw;padding:8px 0;overflow:hidden;border-top:3px solid #8B7355; }
         .fill-menu-title { padding:10px 16px;font-size:14px;font-weight:700;color:var(--text);border-bottom:1px solid var(--border);text-align:center; }
         .fill-menu-item { padding:12px 16px;cursor:pointer;font-size:15px;color:var(--text);display:flex;justify-content:space-between;align-items:center;gap:10px; }
         .fill-menu-item:active { background:var(--bg); }
@@ -252,7 +252,7 @@
         .overlay { position: fixed; inset: 0; background: rgba(28,25,23,0.5); backdrop-filter: blur(3px); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 16px; }
         .modal { background: #FFFFFF; border-radius: 18px; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 64px rgba(28,25,23,0.25); }
         .modal-head { padding: 18px 22px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: white; border-radius: 16px 16px 0 0; z-index: 1; }
-        .modal-title { font-size: 17px; font-weight: 700; }
+        .modal-title { font-size: 17px; font-weight: 700; letter-spacing: 0.5px; }
         .btn-x { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--muted); padding: 4px 6px; border-radius: 4px; }
         .btn-x:hover { background: var(--bg); }
         .modal-body { padding: 18px 22px; }
@@ -4888,7 +4888,7 @@ function addSellerProperty(data) {
             '<button type="button" class="grade-btn grade-c'+(d.grade==='C'?' on':'')+'" style="font-size:11px;padding:1px 8px" onclick="pickSpGrade(this,\'C\')">C級</button>' +
             '<input type="hidden" data-f="grade" value="'+esc(d.grade||'')+'">' +
             '<input type="hidden" data-f="spArchived" value="'+(d.spArchived||'')+'">' +
-            '<div style="flex:1"></div><button type="button" class="sp-archive-btn" onclick="toggleSpArchive(this)" style="font-size:11px;padding:2px 8px;border:1px solid #D6CFC7;border-radius:6px;background:'+(d.spArchived?'#059669':'#F5F0EB')+';color:'+(d.spArchived?'white':'#8B7355')+';cursor:pointer;margin-right:4px">'+(d.spArchived?'恢復銷售':'暫停銷售')+'</button><button type="button" class="c-del" onclick="this.parentElement.parentElement.remove()">✕</button></div>' +
+            '<div style="flex:1"></div><button type="button" class="sp-archive-btn" onclick="toggleSpArchive(this)" style="font-size:12px;padding:3px 10px;border:1px solid #D6CFC7;border-radius:6px;background:'+(d.spArchived?'#059669':'#F5F0EB')+';color:'+(d.spArchived?'white':'#8B7355')+';cursor:pointer;margin-right:4px">'+(d.spArchived?'恢復銷售':'暫停銷售')+'</button><button type="button" class="c-del" onclick="this.parentElement.parentElement.remove()">✕</button></div>' +
         // 約種
         '<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">' +
             '<span style="font-size:13px;font-weight:600;color:var(--text);flex-shrink:0">約種</span>' +
@@ -4961,30 +4961,75 @@ function addSellerProperty(data) {
         // 初始化開價/底價歷程
         block._spPriceHistory = d.spPriceHistory || [];
         block._spFloorPriceHistory = d.spFloorPriceHistory || [];
-        if (d.spArchived) applySpArchiveStyle(block, true);
+        block._spPauseHistory = d.spPauseHistory || [];
+        if (d.spArchived) applySpArchiveStyle(block, true, d.spArchiveReason || '');
     }
 }
 function toggleSpArchive(btn) {
     var block = btn.closest('.person-block'); if (!block) return;
     var hidden = block.querySelector('[data-f="spArchived"]');
-    var isArchived = !hidden.value;
-    hidden.value = isArchived ? '1' : '';
-    applySpArchiveStyle(block, isArchived);
-    btn.textContent = isArchived ? '恢復銷售' : '暫停銷售';
-    btn.style.background = isArchived ? '#059669' : '#F5F0EB';
-    btn.style.color = isArchived ? 'white' : '#8B7355';
+    if (!hidden.value) {
+        var reasons = ['屋主考慮中','裝修中','價格調整','暫不委託','其他'];
+        var ov = document.createElement('div'); ov.className = 'fill-overlay';
+        var bx = document.createElement('div'); bx.className = 'fill-menu'; bx.style.cssText = 'padding:20px 24px;min-width:260px';
+        bx.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">暫停銷售原因</div>' +
+            reasons.map(function(r){ return '<button type="button" class="bf-chip" onclick="doSpPause(this,\''+r+'\')" style="margin:0 6px 8px 0;padding:6px 14px;font-size:13px">'+r+'</button>'; }).join('') +
+            '<div style="margin-top:4px"><input id="spPauseOther" type="text" placeholder="自行填寫原因…" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px"><button type="button" onclick="var v=document.getElementById(\'spPauseOther\').value.trim();if(v)doSpPause(this,v);" style="margin-top:6px;padding:6px 14px;border:none;border-radius:8px;background:var(--deep);color:white;cursor:pointer;font-size:13px;font-weight:600">確定</button></div>';
+        bx._spBlock = block;
+        bx._spBtn = btn;
+        ov.appendChild(bx);
+        ov.onclick = function(e){ if(e.target===ov) ov.remove(); };
+        document.body.appendChild(ov);
+    } else {
+        hidden.value = '';
+        var reasonEl = block.querySelector('.sp-pause-reason');
+        if (reasonEl) reasonEl.remove();
+        applySpArchiveStyle(block, false, '');
+        btn.textContent = '暫停銷售';
+        btn.style.background = '#F5F0EB';
+        btn.style.color = '#8B7355';
+        if (!block._spPauseHistory) block._spPauseHistory = [];
+        block._spPauseHistory.push({ action:'恢復', date:localDateISO() });
+    }
 }
-function applySpArchiveStyle(block, archived) {
+function doSpPause(el, reason) {
+    var ov = el.closest('.fill-overlay');
+    var bx = ov.querySelector('.fill-menu');
+    var block = bx._spBlock;
+    var btn = bx._spBtn;
+    var hidden = block.querySelector('[data-f="spArchived"]');
+    hidden.value = '1';
+    applySpArchiveStyle(block, true, reason);
+    btn.textContent = '恢復銷售';
+    btn.style.background = '#059669';
+    btn.style.color = 'white';
+    if (!block._spPauseHistory) block._spPauseHistory = [];
+    block._spPauseHistory.push({ action:'暫停', reason:reason, date:localDateISO() });
+    ov.remove();
+}
+function applySpArchiveStyle(block, archived, reason) {
+    var existReason = block.querySelector('.sp-pause-reason');
     if (archived) {
         block.style.opacity = '0.45';
         block.style.borderLeftColor = '#A8A29E';
         block.querySelectorAll('input:not([data-f="spArchived"]):not([data-f="grade"]),select,textarea').forEach(function(el){ el.disabled = true; });
         block.querySelectorAll('button:not(.sp-archive-btn):not(.c-del)').forEach(function(el){ el.disabled = true; el.style.pointerEvents = 'none'; });
+        if (reason) {
+            if (existReason) { existReason.textContent = '暫停原因：' + reason; }
+            else {
+                var tag = document.createElement('div');
+                tag.className = 'sp-pause-reason';
+                tag.style.cssText = 'font-size:12px;color:#78716C;margin-top:6px;padding:4px 8px;background:#F5F5F4;border-radius:6px;display:inline-block';
+                tag.textContent = '暫停原因：' + reason;
+                block.appendChild(tag);
+            }
+        }
     } else {
         block.style.opacity = '';
         block.style.borderLeftColor = '#8B7355';
         block.querySelectorAll('input:not([data-f="spArchived"]):not([data-f="grade"]),select,textarea').forEach(function(el){ el.disabled = false; });
         block.querySelectorAll('button:not(.sp-archive-btn):not(.c-del)').forEach(function(el){ el.disabled = false; el.style.pointerEvents = ''; });
+        if (existReason) existReason.remove();
     }
 }
 function openSpDetailSz(btn) {
@@ -5220,7 +5265,7 @@ function getSellerProperties() {
     document.querySelectorAll('#sPropertyList .person-block').forEach(function(block) {
         var get = function(f) { var el = block.querySelector('[data-f="'+f+'"]'); return el ? el.value.trim() : ''; };
         if (get('community') || get('addr') || get('price')) {
-            var _spArch = get('spArchived'); r.push({ grade:get('grade'), contractType:get('contractType'), community:get('community'), addr:get('addr'), price:get('price'), floorPrice:get('floorPrice'), serviceFee:get('serviceFee'), baseLand:get('baseLand'), landShare:get('landShare'), mainBldg:get('mainBldg'), ancBldg:get('ancBldg'), common:get('common'), parkingSz:get('parkingSz'), parking:get('parking'), parkingPrice:get('parkingPrice'), parkingNo:get('parkingNo'), mgmtBuilding:get('mgmtBuilding'), mgmtCar:get('mgmtCar'), mgmtMoto:get('mgmtMoto'), mgmtOther:get('mgmtOther'), mgmtPeriod:get('mgmtPeriod'), contractStart:rocToISO(get('contractStart')), contractEnd:rocToISO(get('contractEnd')), spRenewals: block._spRenewals || [], spPriceHistory: block._spPriceHistory || [], spFloorPriceHistory: block._spFloorPriceHistory || [], spDriveUrl: block._spDriveUrl || '', spArchived: _spArch ? '1' : '' });
+            var _spArch = get('spArchived'); var _reasonEl = block.querySelector('.sp-pause-reason'); var _reason = _reasonEl ? _reasonEl.textContent.replace('暫停原因：','') : ''; r.push({ grade:get('grade'), contractType:get('contractType'), community:get('community'), addr:get('addr'), price:get('price'), floorPrice:get('floorPrice'), serviceFee:get('serviceFee'), baseLand:get('baseLand'), landShare:get('landShare'), mainBldg:get('mainBldg'), ancBldg:get('ancBldg'), common:get('common'), parkingSz:get('parkingSz'), parking:get('parking'), parkingPrice:get('parkingPrice'), parkingNo:get('parkingNo'), mgmtBuilding:get('mgmtBuilding'), mgmtCar:get('mgmtCar'), mgmtMoto:get('mgmtMoto'), mgmtOther:get('mgmtOther'), mgmtPeriod:get('mgmtPeriod'), contractStart:rocToISO(get('contractStart')), contractEnd:rocToISO(get('contractEnd')), spRenewals: block._spRenewals || [], spPriceHistory: block._spPriceHistory || [], spFloorPriceHistory: block._spFloorPriceHistory || [], spDriveUrl: block._spDriveUrl || '', spArchived: _spArch ? '1' : '', spArchiveReason: _reason, spPauseHistory: block._spPauseHistory || [] });
         }
     });
     return r;
@@ -10195,7 +10240,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260411a1';
+var APP_VERSION = '20260412a1';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
