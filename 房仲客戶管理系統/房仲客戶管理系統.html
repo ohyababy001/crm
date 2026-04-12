@@ -3290,7 +3290,7 @@ function getData() {
     }
     // 庫存屋主等級過濾
     if (curFilter === '庫存屋主' && bfSGrade) {
-        list = list.filter(function(c){ if(c.sProperties&&c.sProperties.length){ return c.sProperties.some(function(sp){ return sp.grade===bfSGrade; }); } return (c.sGrade||'')===bfSGrade; });
+        list = list.filter(function(c){ if(c.sProperties&&c.sProperties.length){ return c.sProperties.some(function(sp){ return !sp.spArchived && sp.grade===bfSGrade; }); } return (c.sGrade||'')===bfSGrade; });
     }
     var isRentalTab = curFilter === '房東' || curFilter === '租客';
     const s = document.getElementById('sortSel').value;
@@ -3320,8 +3320,8 @@ function getData() {
                 }
                 return _getRentalEnd(a).localeCompare(_getRentalEnd(b));
             } else {
-                var aEnd = a.contractEnd || (a.sProperties && a.sProperties.length ? a.sProperties.reduce(function(min,sp){ var d=sp.contractEnd||'9999-12-31'; return d<min?d:min; },'9999-12-31') : '9999-12-31');
-                var bEnd = b.contractEnd || (b.sProperties && b.sProperties.length ? b.sProperties.reduce(function(min,sp){ var d=sp.contractEnd||'9999-12-31'; return d<min?d:min; },'9999-12-31') : '9999-12-31');
+                var aEnd = a.contractEnd || (a.sProperties && a.sProperties.length ? a.sProperties.filter(function(sp){return !sp.spArchived;}).reduce(function(min,sp){ var d=sp.contractEnd||'9999-12-31'; return d<min?d:min; },'9999-12-31') : '9999-12-31');
+                var bEnd = b.contractEnd || (b.sProperties && b.sProperties.length ? b.sProperties.filter(function(sp){return !sp.spArchived;}).reduce(function(min,sp){ var d=sp.contractEnd||'9999-12-31'; return d<min?d:min; },'9999-12-31') : '9999-12-31');
                 return aEnd.localeCompare(bEnd);
             }
         }
@@ -3338,8 +3338,8 @@ function getData() {
             var cmp = aDate.localeCompare(bDate);
             if (cmp !== 0) return cmp;
             if (curFilter === '庫存屋主') {
-                var aEnd = a.contractEnd || (a.sProperties && a.sProperties.length ? a.sProperties.reduce(function(min,sp){ var d=sp.contractEnd||'9999-12-31'; return d<min?d:min; },'9999-12-31') : '9999-12-31');
-                var bEnd = b.contractEnd || (b.sProperties && b.sProperties.length ? b.sProperties.reduce(function(min,sp){ var d=sp.contractEnd||'9999-12-31'; return d<min?d:min; },'9999-12-31') : '9999-12-31');
+                var aEnd = a.contractEnd || (a.sProperties && a.sProperties.length ? a.sProperties.filter(function(sp){return !sp.spArchived;}).reduce(function(min,sp){ var d=sp.contractEnd||'9999-12-31'; return d<min?d:min; },'9999-12-31') : '9999-12-31');
+                var bEnd = b.contractEnd || (b.sProperties && b.sProperties.length ? b.sProperties.filter(function(sp){return !sp.spArchived;}).reduce(function(min,sp){ var d=sp.contractEnd||'9999-12-31'; return d<min?d:min; },'9999-12-31') : '9999-12-31');
                 return aEnd.localeCompare(bEnd);
             }
             if (curFilter === '房東') {
@@ -3897,15 +3897,17 @@ function renderCard(c) {
         } else if (showType==='庫存屋主') {
             // 根據等級篩選或優先度選擇顯示的物件
             var sp0 = {};
-            var _spCount = (cc.sProperties && cc.sProperties.length) || 0;
-            if (cc.sProperties && cc.sProperties.length) {
+            var _spAll = cc.sProperties && cc.sProperties.length ? cc.sProperties : [];
+            var _spActive = _spAll.filter(function(sp){ return !sp.spArchived; });
+            var _spCount = _spAll.length;
+            var _spActiveCount = _spActive.length;
+            var _spPool = _spActive.length ? _spActive : _spAll;
+            if (_spPool.length) {
                 if (bfSGrade) {
-                    // 篩選特定等級時，顯示該等級的物件
-                    sp0 = cc.sProperties.find(function(sp){ return sp.grade === bfSGrade; }) || cc.sProperties[0];
+                    sp0 = _spPool.find(function(sp){ return sp.grade === bfSGrade; }) || _spPool[0];
                 } else {
-                    // 未篩選時，優先顯示最高等級（A > B > C > 無）
                     var gradeOrder = {A:0, B:1, C:2};
-                    var sorted = cc.sProperties.slice().sort(function(a,b){
+                    var sorted = _spPool.slice().sort(function(a,b){
                         var ga = (a.grade && gradeOrder[a.grade] !== undefined) ? gradeOrder[a.grade] : 3;
                         var gb = (b.grade && gradeOrder[b.grade] !== undefined) ? gradeOrder[b.grade] : 3;
                         return ga - gb;
@@ -3913,7 +3915,7 @@ function renderCard(c) {
                     sp0 = sorted[0];
                 }
             }
-            if (_spCount > 1) meta += `<div class="cmeta-row"><span class="cmeta-k">物件數</span><span class="cmeta-v" style="color:#8B7355;font-weight:700">${_spCount} 間物件</span></div>`;
+            if (_spCount > 1) { var _archN = _spCount - _spActiveCount; meta += `<div class="cmeta-row"><span class="cmeta-k">物件數</span><span class="cmeta-v" style="color:#8B7355;font-weight:700">${_spActiveCount} 間物件${_archN ? '<span style="color:var(--muted);font-weight:400">（'+_archN+'暫停）</span>' : ''}</span></div>`; }
             var _ct = cc.contractType || sp0.contractType || '';
             var _comm = cc.community || sp0.community || '';
             var _sAddr = cc.sAddr || sp0.addr || '';
@@ -4724,7 +4726,7 @@ function showDet(id, viewAs) {
                 if (!c.schedules || !c.schedules.length) return '';
                 var sorted = c.schedules.slice().sort(function(a,b){ return (a.date+(a.time||'')).localeCompare(b.date+(b.time||'')); });
                 return '<div style="font-weight:700;font-size:12px;color:#1E40AF;margin-top:8px;margin-bottom:4px">預排行程</div>' +
-                    sorted.map(function(s){ return '<div class="det-row"><span class="det-key" style="color:#292524;font-weight:700">'+esc(isoToROC(s.date)+(s.time?' '+s.time:''))+'</span><span class="det-val" style="color:#1E40AF">'+esc(s.memo||'')+'</span></div>'; }).join('');
+                    sorted.map(function(s){ return '<div class="det-row"><span class="det-key" style="color:#292524;font-weight:700;width:auto;white-space:nowrap;margin-right:12px">'+esc(isoToROC(s.date)+(s.time?' '+s.time:''))+'</span><span class="det-val" style="color:#1E40AF">'+esc(s.memo||'')+'</span></div>'; }).join('');
             })()}
             ${(function(){
                 var _nLabels={'經營買方':'買方備註','庫存屋主':'庫存備註','房東':'房東備註','租客':'租客備註','成交客戶':'成交備註','商機募集':'商機備註'};
@@ -4885,7 +4887,8 @@ function addSellerProperty(data) {
             '<button type="button" class="grade-btn grade-b'+(d.grade==='B'?' on':'')+'" style="font-size:11px;padding:1px 8px" onclick="pickSpGrade(this,\'B\')">B級</button>' +
             '<button type="button" class="grade-btn grade-c'+(d.grade==='C'?' on':'')+'" style="font-size:11px;padding:1px 8px" onclick="pickSpGrade(this,\'C\')">C級</button>' +
             '<input type="hidden" data-f="grade" value="'+esc(d.grade||'')+'">' +
-            '<div style="flex:1"></div><button type="button" class="c-del" onclick="this.parentElement.parentElement.remove()">✕</button></div>' +
+            '<input type="hidden" data-f="spArchived" value="'+(d.spArchived||'')+'">' +
+            '<div style="flex:1"></div><button type="button" class="sp-archive-btn" onclick="toggleSpArchive(this)" style="font-size:11px;padding:2px 8px;border:1px solid #D6CFC7;border-radius:6px;background:'+(d.spArchived?'#059669':'#F5F0EB')+';color:'+(d.spArchived?'white':'#8B7355')+';cursor:pointer;margin-right:4px">'+(d.spArchived?'恢復銷售':'暫停銷售')+'</button><button type="button" class="c-del" onclick="this.parentElement.parentElement.remove()">✕</button></div>' +
         // 約種
         '<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">' +
             '<span style="font-size:13px;font-weight:600;color:var(--text);flex-shrink:0">約種</span>' +
@@ -4958,6 +4961,30 @@ function addSellerProperty(data) {
         // 初始化開價/底價歷程
         block._spPriceHistory = d.spPriceHistory || [];
         block._spFloorPriceHistory = d.spFloorPriceHistory || [];
+        if (d.spArchived) applySpArchiveStyle(block, true);
+    }
+}
+function toggleSpArchive(btn) {
+    var block = btn.closest('.person-block'); if (!block) return;
+    var hidden = block.querySelector('[data-f="spArchived"]');
+    var isArchived = !hidden.value;
+    hidden.value = isArchived ? '1' : '';
+    applySpArchiveStyle(block, isArchived);
+    btn.textContent = isArchived ? '恢復銷售' : '暫停銷售';
+    btn.style.background = isArchived ? '#059669' : '#F5F0EB';
+    btn.style.color = isArchived ? 'white' : '#8B7355';
+}
+function applySpArchiveStyle(block, archived) {
+    if (archived) {
+        block.style.opacity = '0.45';
+        block.style.borderLeftColor = '#A8A29E';
+        block.querySelectorAll('input:not([data-f="spArchived"]):not([data-f="grade"]),select,textarea').forEach(function(el){ el.disabled = true; });
+        block.querySelectorAll('button:not(.sp-archive-btn):not(.c-del)').forEach(function(el){ el.disabled = true; el.style.pointerEvents = 'none'; });
+    } else {
+        block.style.opacity = '';
+        block.style.borderLeftColor = '#8B7355';
+        block.querySelectorAll('input:not([data-f="spArchived"]):not([data-f="grade"]),select,textarea').forEach(function(el){ el.disabled = false; });
+        block.querySelectorAll('button:not(.sp-archive-btn):not(.c-del)').forEach(function(el){ el.disabled = false; el.style.pointerEvents = ''; });
     }
 }
 function openSpDetailSz(btn) {
@@ -5193,7 +5220,7 @@ function getSellerProperties() {
     document.querySelectorAll('#sPropertyList .person-block').forEach(function(block) {
         var get = function(f) { var el = block.querySelector('[data-f="'+f+'"]'); return el ? el.value.trim() : ''; };
         if (get('community') || get('addr') || get('price')) {
-            r.push({ grade:get('grade'), contractType:get('contractType'), community:get('community'), addr:get('addr'), price:get('price'), floorPrice:get('floorPrice'), serviceFee:get('serviceFee'), baseLand:get('baseLand'), landShare:get('landShare'), mainBldg:get('mainBldg'), ancBldg:get('ancBldg'), common:get('common'), parkingSz:get('parkingSz'), parking:get('parking'), parkingPrice:get('parkingPrice'), parkingNo:get('parkingNo'), mgmtBuilding:get('mgmtBuilding'), mgmtCar:get('mgmtCar'), mgmtMoto:get('mgmtMoto'), mgmtOther:get('mgmtOther'), mgmtPeriod:get('mgmtPeriod'), contractStart:rocToISO(get('contractStart')), contractEnd:rocToISO(get('contractEnd')), spRenewals: block._spRenewals || [], spPriceHistory: block._spPriceHistory || [], spFloorPriceHistory: block._spFloorPriceHistory || [], spDriveUrl: block._spDriveUrl || '' });
+            var _spArch = get('spArchived'); r.push({ grade:get('grade'), contractType:get('contractType'), community:get('community'), addr:get('addr'), price:get('price'), floorPrice:get('floorPrice'), serviceFee:get('serviceFee'), baseLand:get('baseLand'), landShare:get('landShare'), mainBldg:get('mainBldg'), ancBldg:get('ancBldg'), common:get('common'), parkingSz:get('parkingSz'), parking:get('parking'), parkingPrice:get('parkingPrice'), parkingNo:get('parkingNo'), mgmtBuilding:get('mgmtBuilding'), mgmtCar:get('mgmtCar'), mgmtMoto:get('mgmtMoto'), mgmtOther:get('mgmtOther'), mgmtPeriod:get('mgmtPeriod'), contractStart:rocToISO(get('contractStart')), contractEnd:rocToISO(get('contractEnd')), spRenewals: block._spRenewals || [], spPriceHistory: block._spPriceHistory || [], spFloorPriceHistory: block._spFloorPriceHistory || [], spDriveUrl: block._spDriveUrl || '', spArchived: _spArch ? '1' : '' });
         }
     });
     return r;
