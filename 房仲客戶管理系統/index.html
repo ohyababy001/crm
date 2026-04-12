@@ -366,7 +366,7 @@
         .dash-section.dash-rental { grid-area: rental; background: linear-gradient(135deg, #FFFFFF 0%, #F7F9FF 100%); }
         .dash-sec-title { font-size: 17px; font-weight: 800; color: #475569; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); white-space: nowrap; }
         .dash-list { font-size: 18px; }
-        .dash-item { padding: 10px 8px; margin: 0 -8px; border-bottom: 1px solid #E2E8F0; display: flex; align-items: center; gap: 8px; border-radius: 6px; transition: background 0.15s; }
+        .dash-item { padding: 6px 8px; margin: 0 -8px; border-bottom: 1px solid #E2E8F0; display: flex; align-items: center; gap: 8px; border-radius: 6px; transition: background 0.15s; }
         .dash-item:last-child { border-bottom: none; }
         .dash-item:hover { background: #F0F4F8; }
         .dash-item-info { color: #334155; font-size: 16px; font-weight: 600; white-space: nowrap; flex-shrink: 0; min-width: 90px; }
@@ -392,7 +392,7 @@
             .fill-overlay { align-items: flex-start !important; padding-top: 15vh; }
 
             /* Header */
-            .header { padding: 10px 12px; gap: 6px; flex-wrap: wrap; position: fixed; top: 0; left: 0; right: 0; z-index: 100; margin-top: 0; }
+            .header { padding: 10px 12px; gap: 6px; flex-wrap: wrap; position: fixed; top: 0; left: 0; right: 0; z-index: 100; margin-top: 0; transform: none; width: 100%; max-width: 100%; border-radius: 0; }
             .layout { margin-top: 0; height: auto; }
             .header-title { display: none; }
             .mobile-cloud { flex: 1 1 100% !important; max-width: 100%; justify-content: flex-start; order: 1; }
@@ -774,9 +774,12 @@
         <div id="importTime"></div>
     </div>
     <div class="mobile-setting-menu" id="mobileSettingMenu">
-        <button onclick="openTrash();closeMobileSetting()">🗑️ 資源回收桶</button>
-        <button onclick="cloudRestore();closeMobileSetting()">📥 雲端還原</button>
-        <button onclick="clearCache();closeMobileSetting()">🔄 重新載入</button>
+        <button onclick="openTrash();closeMobileSetting()"><span class="mi" style="font-size:16px">delete</span> 資源回收桶</button>
+        <button onclick="cloudRestore();closeMobileSetting()"><span class="mi" style="font-size:16px">cloud_download</span> 雲端還原</button>
+        <button onclick="exportCSV();closeMobileSetting()"><span class="mi" style="font-size:16px">download</span> 匯出</button>
+        <button onclick="document.getElementById('csvImportInput2').click();closeMobileSetting()"><span class="mi" style="font-size:16px">upload</span> 匯入</button>
+        <button onclick="runDataCheck();closeMobileSetting()"><span class="mi" style="font-size:16px">health_and_safety</span> 健檢</button>
+        <button onclick="clearCache();closeMobileSetting()"><span class="mi" style="font-size:16px">refresh</span> 重新載入</button>
     </div>
 </header>
 <nav class="mobile-nav" id="mobileNav">
@@ -4151,16 +4154,16 @@ function renderCard(c) {
             </div>
             <div class="card-bottom-right">
                 <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+                    <div style="display:flex;gap:6px" class="card-desktop-only">
+                        <button class="btn-ic" onclick="event.stopPropagation();openEdit('${_eid}','${_eva}')" title="編輯">✏️</button>
+                        <span>${archBtn}</span>
+                        <button class="btn-ic del" onclick="event.stopPropagation();del('${_eid}')" title="刪除">🗑️</button>
+                    </div>
                     <div style="display:flex;gap:6px">
                         <button class="btn-ic" onclick="event.stopPropagation();quickContactLog('${_eid}')" title="聯繫紀錄">📝</button>
                         <button class="btn-ic" onclick="event.stopPropagation();quickSchedule('${_eid}')" title="預排行程">📅</button>
                         <button class="btn-ic" onclick="event.stopPropagation();openDriveFolder('${_eid}','${_eva}')" title="雲端資料夾">${getRpDriveIcon(c)}</button>
                         <button class="btn-ic card-mobile-only" onclick="event.stopPropagation();openCardMenu(event,'${_eid}','${_eva}',${c.archived?'true':'false'})" title="更多">⚙️</button>
-                    </div>
-                    <div style="display:flex;gap:6px" class="card-desktop-only">
-                        <button class="btn-ic" onclick="event.stopPropagation();openEdit('${_eid}','${_eva}')" title="編輯">✏️</button>
-                        <span>${archBtn}</span>
-                        <button class="btn-ic del" onclick="event.stopPropagation();del('${_eid}')" title="刪除">🗑️</button>
                     </div>
                 </div>
                 ${createdLabel ? `<div style="margin-top:auto;padding-top:16px">${esc(createdLabel)}</div>` : ''}
@@ -10248,7 +10251,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260412b3';
+var APP_VERSION = '20260412b4';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
