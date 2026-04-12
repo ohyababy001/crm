@@ -13,13 +13,12 @@
     <link rel="manifest" href="manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     <title>房仲客戶管理系統</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        .mi { font-family: 'Material Symbols Outlined'; font-size: 18px; vertical-align: middle; font-weight: normal; font-style: normal; line-height: 1; letter-spacing: normal; text-transform: none; display: inline-block; white-space: nowrap; word-wrap: normal; direction: ltr; -webkit-font-smoothing: antialiased; }
+        .ti { font-size: 1.3em; vertical-align: -0.1em; }
         :root {
             --primary: #78716C; --bg: #F7F5F3;
             --text: #1C1917; --muted: #78716C; --border: #E7E5E4;
@@ -35,7 +34,7 @@
 
         /* Header */
         .header { background: linear-gradient(135deg, #1C1917 0%, #292524 50%, #3D3835 100%); color: #FAFAF9; padding: 6px 20px; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 16px rgba(28,25,23,0.4); position: fixed; top: 0; left: 50%; transform: translateX(-50%); z-index: 100; overflow: visible; border-bottom: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 1450px; border-radius: 0 0 16px 16px; }
-        .header-title { font-size: 42px; font-weight: 800; white-space: nowrap; letter-spacing: 4px; }
+        .header-title { font-family: 'Cinzel', serif; font-size: 52px; font-weight: 700; white-space: nowrap; letter-spacing: 6px; margin-left: 48px; }
         .search-wrap { flex: 3; max-width: 700px; position: relative; }
         .search-wrap input { width: 100%; padding: 10px 16px 10px 38px; border-radius: 10px; border: none; font-size: 14px; background: rgba(255,255,255,0.15); color: #FAFAF9; outline: none; font-family: inherit; backdrop-filter: blur(4px); }
         .search-wrap input::placeholder { color: rgba(250,250,249,0.5); }
@@ -58,7 +57,7 @@
         .sidebar-label { font-size: 18px; font-weight: 800; color: #1C1917; letter-spacing: 0.5px; padding: 0 20px; margin-bottom: 10px; text-align: center; }
         .filter-btn { display: flex; align-items: center; gap: 6px; padding: 8px 10px; border: 1px solid var(--border); background: #FAF9F7; border-radius: 14px; cursor: pointer; font-size: 22px; font-weight: 700; color: var(--text); transition: all 0.15s; text-align: left; margin: 4px 4px; width: calc(100% - 8px); }
         .filter-btn .filter-left { display: flex; flex-direction: column; align-items: center; gap: 1px; flex: 1; }
-        .filter-sub { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.5; }
+        .filter-sub { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.7; }
         .filter-btn:hover { background: linear-gradient(135deg, #FAF9F7, #F0EDEA); border-color: #94A3B8; transform: scale(1.02); box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
         .filter-btn.active { background: linear-gradient(135deg, #44403C, #57534E); color: #FAFAF9; font-weight: 700; border-color: #44403C; box-shadow: 0 2px 8px rgba(68,64,60,0.35); }
         .filter-overview { font-size: 27px; background: linear-gradient(135deg, #1C1917, #292524); color: #FAFAF9 !important; border-radius: 16px; }
@@ -105,7 +104,7 @@
 
         /* Cards */
         .grid { display: grid; gap: 6px; }
-        .card { background: #FFFFFF; border-radius: 14px; padding: 8px 18px; border: 1px solid var(--border); display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(28,25,23,0.04); }
+        .card { background: #FFFFFF; border-radius: 14px; padding: 8px 18px; border: 1px solid var(--border); border-left: 3px solid #1A3A5C; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 3px rgba(28,25,23,0.04); }
         .card:hover { box-shadow: 0 8px 24px rgba(28,25,23,0.1); border-color: #A8A29E; transform: translateY(-2px); }
         .rental-group { border: 2px solid #A8A29E; border-radius: 16px; overflow: hidden; margin-bottom: 2px; }
         .card.landlord-card { border-left: 4px solid #0891B2; border-radius: 0; margin-bottom: 0; border-bottom: none; padding-bottom: 5px; border-top: none; border-right: none; }
@@ -162,14 +161,14 @@
         .card-main { width: 180px; flex-shrink: 0; min-width: 0; }
         .card-name { font-weight: 800; font-size: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 5px; color: #1C1917; }
         .deal-count { display:inline-flex;align-items:center;justify-content:center;background:#F59E0B;color:white;font-size:10px;font-weight:700;width:19px;height:19px;border-radius:50%;flex-shrink:0; }
-        .card-phone { color: var(--muted); font-size: 15px; margin-top: 3px; }
+        .card-phone { color: #57534E; font-size: 15px; margin-top: 3px; }
         .tags { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
         .tag { padding: 2px 8px; border-radius: 20px; font-size: 13px; font-weight: 600; }
         .card-divider { width: 1px; height: 44px; background: var(--border); flex-shrink: 0; }
         .card-meta { width: 330px; flex-shrink: 0; }
         .cmeta-row { display: flex; align-items: baseline; gap: 5px; margin-bottom: 3px; font-size: 14px; line-height: 1.4; }
         .cmeta-row:last-child { margin-bottom: 0; }
-        .cmeta-k { color: var(--muted); flex-shrink: 0; }
+        .cmeta-k { color: #57534E; flex-shrink: 0; }
         .cmeta-v { font-weight: 700; color: var(--text); white-space: normal; word-break: break-word; overflow-wrap: break-word; }
         .cmeta-v.full { white-space: normal; word-break: break-word; }
         .card-notes-col { flex: 1; min-width: 0; }
@@ -359,24 +358,28 @@
         .dash-card .dash-num { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
         .dash-card .dash-label { font-size: 13px; color: var(--muted); font-weight: 600; }
         .dash-sections { display: grid; grid-template-columns: 1.5fr 1.1fr 1.1fr; gap: 10px; margin-top: 34px; grid-template-areas: "sched seller bday" "sched rental bday"; }
-        .dash-section { background: #FFFFFF; border-radius: 14px; padding: 12px; border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(28,25,23,0.04); min-height: 240px; transition: all 0.2s; }
+        .dash-section { background: #FFFFFF; border-radius: 14px; padding: 12px; border: 2px solid #1A3A5C; box-shadow: 0 1px 4px rgba(28,25,23,0.04); min-height: 240px; transition: all 0.2s; }
         .dash-section:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(28,25,23,0.08); }
-        .dash-section.dash-schedule { grid-area: sched; background: linear-gradient(135deg, #FFFFFF 0%, #F7F9FF 100%); align-self: start; }
-        .dash-section.dash-seller { grid-area: seller; background: linear-gradient(135deg, #FFFFFF 0%, #F7F9FF 100%); }
-        .dash-section.dash-bday { grid-area: bday; background: linear-gradient(135deg, #FFFFFF 0%, #F7F9FF 100%); }
-        .dash-section.dash-rental { grid-area: rental; background: linear-gradient(135deg, #FFFFFF 0%, #F7F9FF 100%); }
-        .dash-sec-title { font-size: 17px; font-weight: 800; color: #475569; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+        .dash-section.dash-schedule { grid-area: sched; background: #FFFFFF; align-self: start; }
+        .dash-section.dash-seller { grid-area: seller; background: #FFFFFF; }
+        .dash-section.dash-bday { grid-area: bday; background: #FFFFFF; }
+        .dash-section.dash-rental { grid-area: rental; background: #FFFFFF; }
+        .dash-sec-title { font-size: 17px; font-weight: 800; color: #475569; margin: -12px -12px 10px -12px; padding: 10px 12px; background: linear-gradient(135deg, #F0F4FA 0%, #F7F9FF 100%); border-bottom: 1px solid rgba(26,58,92,0.1); border-radius: 12px 12px 0 0; white-space: nowrap; }
         .dash-list { font-size: 18px; }
-        .dash-item { padding: 6px 8px; margin: 0 -8px; border-bottom: 1px solid #E2E8F0; display: flex; align-items: center; gap: 8px; border-radius: 6px; transition: background 0.15s; }
+        .dash-item { padding: 6px 8px; margin: 0 -8px; border-bottom: 1px solid rgba(200,164,90,0.15); display: flex; align-items: center; gap: 8px; border-radius: 6px; transition: background 0.15s; }
         .dash-item:last-child { border-bottom: none; }
         .dash-item:hover { background: #F0F4F8; }
-        .dash-item-info { color: #334155; font-size: 16px; font-weight: 600; white-space: nowrap; flex-shrink: 0; min-width: 90px; }
+        .dash-item-info { color: #1C1917; font-size: 16px; font-weight: 700; white-space: nowrap; flex-shrink: 0; min-width: 90px; }
         .dash-item-name { font-weight: 600; flex: 1; min-width: 0; color: #1E40AF; font-size: 18px; }
         .dash-empty { color: var(--muted); text-align: center; padding: 16px 0; font-size: 13px; }
         .dash-sched-item { flex-wrap: wrap; }
         .dash-sched-row1 { display: flex; align-items: center; gap: 8px; width: 100%; }
         .dash-sched-memo { font-size: 15px; color: #475569; }
-        #dashSchedule { max-height: 560px; overflow-y: auto; overflow-x: hidden; }
+        #dashSchedule { max-height: 560px; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: rgba(200,164,90,0.3) transparent; }
+        #dashSchedule::-webkit-scrollbar { width: 5px; }
+        #dashSchedule::-webkit-scrollbar-track { background: transparent; margin: 4px 0; }
+        #dashSchedule::-webkit-scrollbar-thumb { background: rgba(200,164,90,0.3); border-radius: 4px; }
+        #dashSchedule::-webkit-scrollbar-thumb:hover { background: rgba(200,164,90,0.5); }
         .dash-cards-wrap.collapsed .dash-cards { display: none !important; }
         .card-mobile-only { display: none !important; }
 
@@ -753,20 +756,20 @@
     </div>
     <div style="flex:1"></div>
     <div class="header-tools" style="display:flex;gap:8px;align-items:center">
-        <button onclick="openTemplates()" class="header-btn" data-hover-color="#57534E"><i class="ti ti-file-text" style="font-size:18px"></i> 常用範本</button>
-        <button onclick="openPerformance()" class="header-btn" data-hover-color="#57534E"><i class="ti ti-chart-bar" style="font-size:18px"></i> 業績儀表板</button>
+        <button onclick="openTemplates()" class="header-btn" data-hover-color="#57534E"><i class="ti ti-file-text" style="font-size:18px;color:#8B7355"></i> 常用範本</button>
+        <button onclick="openPerformance()" class="header-btn" data-hover-color="#57534E"><i class="ti ti-chart-bar" style="font-size:18px;color:#2563EB"></i> 業績儀表板</button>
         <!-- 更多選單 -->
         <div style="position:relative">
-            <button class="header-btn" onclick="toggleHeaderMore()" id="headerMoreBtn" data-hover-color="#57534E"><span class="mi" style="font-size:18px">more_horiz</span></button>
+            <button class="header-btn" onclick="toggleHeaderMore()" id="headerMoreBtn" data-hover-color="#57534E"><i class="ti ti-dots" style="font-size:18px"></i></button>
             <div id="headerMoreMenu" style="display:none;position:absolute;top:100%;right:0;margin-top:6px;background:white;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.15);border-top:3px solid #8B7355;min-width:180px;padding:6px 0;z-index:200">
-                <button onclick="openTrash();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><i class="ti ti-trash" style="font-size:18px"></i> 資源回收桶<span id="trashCount" style="font-size:11px;margin-left:2px"></span></button>
-                <button onclick="cloudRestore();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><i class="ti ti-cloud-download" style="font-size:18px"></i> 雲端還原</button>
+                <button onclick="openTrash();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><i class="ti ti-trash" style="font-size:18px;color:#DC2626"></i> 資源回收桶<span id="trashCount" style="font-size:11px;margin-left:2px"></span></button>
+                <button onclick="cloudRestore();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><i class="ti ti-cloud-download" style="font-size:18px;color:#2563EB"></i> 雲端還原</button>
                 <div style="height:1px;background:#E7E5E4;margin:4px 12px"></div>
-                <button onclick="exportCSV();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><i class="ti ti-download" style="font-size:18px"></i> 匯出</button>
-                <button onclick="document.getElementById('csvImportInput2').click();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><i class="ti ti-upload" style="font-size:18px"></i> 匯入</button>
-                <button onclick="runDataCheck();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><i class="ti ti-shield-check" style="font-size:18px"></i> 健檢</button>
+                <button onclick="exportCSV();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><i class="ti ti-download" style="font-size:18px;color:#059669"></i> 匯出</button>
+                <button onclick="document.getElementById('csvImportInput2').click();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><i class="ti ti-upload" style="font-size:18px;color:#D97706"></i> 匯入</button>
+                <button onclick="runDataCheck();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><i class="ti ti-shield-check" style="font-size:18px;color:#059669"></i> 健檢</button>
                 <div style="height:1px;background:#E7E5E4;margin:4px 12px"></div>
-                <button onclick="clearCache();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><i class="ti ti-refresh" style="font-size:18px"></i> 重新載入</button>
+                <button onclick="clearCache();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><i class="ti ti-refresh" style="font-size:18px;color:#57534E"></i> 重新載入</button>
             </div>
         </div>
     </div>
@@ -855,7 +858,7 @@
             </div>
 
             <div class="expire-banner" id="expireBanner">
-                <b>⚠ 合約即將到期提醒</b>
+                <b><i class="ti ti-alert-triangle" style="color:#D97706"></i> 合約即將到期提醒</b>
                 <div class="expire-list" id="expireList"></div>
             </div>
 
@@ -899,19 +902,19 @@
             </div>
             <div class="dash-sections">
                 <div class="dash-section dash-schedule">
-                    <div class="dash-sec-title" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center"><span>📅 近期行程<span style="font-size:14px">（15天內）</span></span><span class="dash-sched-btns" style="display:flex;gap:12px;align-items:center"><button class="btn-ic" onclick="showAllSchedules()" title="全部行程" style="font-size:15px;padding:3px 8px">📋全部</button><button class="btn-ic" onclick="showDoneSchedules()" title="已完成" style="font-size:15px;padding:3px 8px">✅已完成</button><button class="btn-ic" onclick="addPersonalSchedule()" title="新增個人行程" style="font-size:16px;padding:2px 6px">＋</button></span></div>
+                    <div class="dash-sec-title" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center"><span><i class="ti ti-calendar-event" style="color:#2563EB"></i> 近期行程<span style="font-size:14px">（15天內）</span></span><span class="dash-sched-btns" style="display:flex;gap:12px;align-items:center"><button class="btn-ic" onclick="showAllSchedules()" title="全部行程" style="font-size:15px;padding:3px 8px"><i class="ti ti-list" style="color:#57534E"></i>全部</button><button class="btn-ic" onclick="showDoneSchedules()" title="已完成" style="font-size:15px;padding:3px 8px"><i class="ti ti-circle-check" style="color:#059669"></i>已完成</button><button class="btn-ic" onclick="addPersonalSchedule()" title="新增個人行程" style="font-size:16px;padding:2px 6px"><i class="ti ti-plus" style="color:#2563EB"></i></button></span></div>
                     <div class="dash-list" id="dashSchedule"></div>
                 </div>
                 <div class="dash-section dash-seller">
-                    <div class="dash-sec-title">⚠️ 庫存合約即將到期<span style="font-size:14px">（15天內）</span></div>
+                    <div class="dash-sec-title"><i class="ti ti-alert-triangle" style="color:#D97706"></i> 庫存合約即將到期<span style="font-size:14px">（15天內）</span></div>
                     <div class="dash-list" id="dashExpiringSeller"></div>
                 </div>
                 <div class="dash-section dash-bday">
-                    <div class="dash-sec-title">🎂 客戶生日提醒<span style="font-size:14px">（7天內）</span></div>
+                    <div class="dash-sec-title"><i class="ti ti-cake" style="color:#EC4899"></i> 客戶生日提醒<span style="font-size:14px">（7天內）</span></div>
                     <div class="dash-list" id="dashBirthday"></div>
                 </div>
                 <div class="dash-section dash-rental">
-                    <div class="dash-sec-title">⚠️ 房東合約即將到期<span style="font-size:14px">（45天內）</span></div>
+                    <div class="dash-sec-title"><i class="ti ti-alert-triangle" style="color:#D97706"></i> 房東合約即將到期<span style="font-size:14px">（45天內）</span></div>
                     <div class="dash-list" id="dashExpiringRental"></div>
                 </div>
             </div>
@@ -930,9 +933,9 @@
             <div class="modal-title" id="formTitle">新增客戶</div>
             <span id="editClientName" style="position:absolute;left:50%;transform:translateX(-50%);font-size:30px;font-weight:800;color:#8B6914;letter-spacing:1px;white-space:nowrap"></span>
             <div style="display:flex;gap:6px;align-items:center;margin-left:auto" id="editNavGroup">
-                <button class="btn-ic" onclick="navEdit(-1)" title="上一筆" id="btnPrevEdit" style="font-size:16px;padding:4px 10px">◀</button>
+                <button class="btn-ic" onclick="navEdit(-1)" title="上一筆" id="btnPrevEdit" style="font-size:16px;padding:4px 10px"><i class="ti ti-chevron-left"></i></button>
                 <span id="editNavInfo" style="font-size:12px;color:var(--muted);white-space:nowrap"></span>
-                <button class="btn-ic" onclick="navEdit(1)" title="下一筆" id="btnNextEdit" style="font-size:16px;padding:4px 10px">▶</button>
+                <button class="btn-ic" onclick="navEdit(1)" title="下一筆" id="btnNextEdit" style="font-size:16px;padding:4px 10px"><i class="ti ti-chevron-right"></i></button>
             </div>
             <button class="btn-x" onclick="closeForm(true)" style="margin-left:8px">✕</button>
         </div>
@@ -970,10 +973,10 @@
                 </div>
                 <div class="fg" style="margin-bottom:0">
                     <label>生日</label>
-                    <div class="roc-date-wrap"><input id="f-birthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>
+                    <div class="roc-date-wrap"><input id="f-birthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div>
                 </div>
             </div>
-            <div style="margin-bottom:4px"><button type="button" id="basicDetailToggle" onclick="var d=document.getElementById('basicDetailWrap');d.style.display=d.style.display==='none'?'':'none';this.textContent=d.style.display==='none'?'▶ 展開詳細':'▼ 收合詳細'" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--muted);padding:2px 0">▶ 展開詳細</button>
+            <div style="margin-bottom:4px"><button type="button" id="basicDetailToggle" onclick="var d=document.getElementById('basicDetailWrap');d.style.display=d.style.display==='none'?'':'none';this.innerHTML=d.style.display==='none'?'<i class=\'ti ti-chevron-right\' style=\'font-size:12px\'></i> 展開詳細':'<i class=\'ti ti-chevron-down\' style=\'font-size:12px\'></i> 收合詳細'" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--muted);padding:2px 0"><i class="ti ti-chevron-right" style="font-size:12px"></i> 展開詳細</button>
             <div id="basicDetailWrap" style="display:none">
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
                 <div class="fg" style="margin-bottom:0">
@@ -1033,7 +1036,7 @@
                     <div class="fg" style="margin-bottom:0"><label>職業</label><input id="f-bOccupation" placeholder=""></div>
                 </div>
                 <div id="bRow2" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
-                    <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-bBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
+                    <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-bBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div></div>
                     <div class="fg" style="margin-bottom:0;grid-column:span 2"><label>Email</label><input id="f-bEmail" type="email" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-bSource" placeholder=""></div>
                 </div>
@@ -1064,7 +1067,7 @@
                     <div class="fg" style="margin-bottom:0"><label>職業</label><input id="f-sOccupation" placeholder=""></div>
                 </div>
                 <div id="sellerBasicRow2" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
-                    <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-sBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
+                    <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-sBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div></div>
                     <div class="fg" style="margin-bottom:0;grid-column:span 2"><label>Email</label><input id="f-sEmail" type="email" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-sSource" placeholder=""></div>
                 </div>
@@ -1146,8 +1149,8 @@
                     </select>
                 </div>
                 <div id="sellerContractRow" style="display:grid;grid-template-columns:3fr 3fr 1fr;gap:8px;align-items:end;margin-bottom:10px">
-                    <div class="fg" style="margin-bottom:0"><label>立約日</label><div class="roc-date-wrap"><input id="f-contractStart" type="text"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
-                    <div class="fg" style="margin-bottom:0"><label>到期日 <button type="button" class="btn-fill" onclick="showRenewalHistory()" id="btnRenewalHist" style="display:none">續約歷程</button></label><div class="roc-date-wrap"><input id="f-contractEnd" type="text"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
+                    <div class="fg" style="margin-bottom:0"><label>立約日</label><div class="roc-date-wrap"><input id="f-contractStart" type="text"><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div></div>
+                    <div class="fg" style="margin-bottom:0"><label>到期日 <button type="button" class="btn-fill" onclick="showRenewalHistory()" id="btnRenewalHist" style="display:none">續約歷程</button></label><div class="roc-date-wrap"><input id="f-contractEnd" type="text"><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div></div>
                     <button type="button" class="bf-chip" onclick="renewContract()" style="padding:10px 18px;font-size:15px;text-align:center;white-space:nowrap">續約</button>
                 </div>
                 </div>
@@ -1186,7 +1189,7 @@
                         <div class="fg" style="margin-bottom:0"><label>職業</label><input id="f-llOccupation" placeholder=""></div>
                     </div>
                     <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
-                        <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-llBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
+                        <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-llBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div></div>
                         <div class="fg" style="margin-bottom:0;grid-column:span 2"><label>Email</label><input id="f-llEmail" type="email" placeholder=""></div>
                         <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-llSource" placeholder=""></div>
                     </div>
@@ -1246,7 +1249,7 @@
                         <div class="fg" style="margin-bottom:0"><label>職業</label><input id="f-ttOccupation" placeholder=""></div>
                     </div>
                     <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
-                        <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-ttBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
+                        <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-ttBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div></div>
                         <div class="fg" style="margin-bottom:0;grid-column:span 2"><label>Email</label><input id="f-ttEmail" type="email" placeholder=""></div>
                         <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-ttSource" placeholder=""></div>
                     </div>
@@ -1264,7 +1267,7 @@
                         <div style="font-size:12px;font-weight:700;color:#0E7490;margin-bottom:6px">連結房東</div>
                         <div style="display:flex;gap:8px;align-items:center">
                             <input id="f-linkedLandlord" readonly placeholder="點擊選擇房東" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:white;cursor:pointer" onclick="pickLandlord()">
-                            <button type="button" class="btn-ic" onclick="pickLandlord()" title="選擇房東" style="font-size:16px;padding:6px 10px">🔍</button>
+                            <button type="button" class="btn-ic" onclick="pickLandlord()" title="選擇房東" style="font-size:16px;padding:6px 10px"><i class="ti ti-search" style="color:#57534E"></i></button>
                             <button type="button" class="btn-ic" onclick="clearLinkedLandlord()" title="清除" style="font-size:14px;padding:6px 10px;color:#EF4444">✕</button>
                         </div>
                         <input type="hidden" id="f-linkedLandlordId" value="">
@@ -1283,7 +1286,7 @@
                     <div class="fg" style="margin-bottom:0"><label>職業</label><input id="f-cOccupation" placeholder=""></div>
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
-                    <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-cBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
+                    <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-cBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div></div>
                     <div class="fg" style="margin-bottom:0;grid-column:span 2"><label>Email</label><input id="f-cEmail" type="email" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-cSource" placeholder=""></div>
                 </div>
@@ -1313,7 +1316,7 @@
                     <div class="fg" style="margin-bottom:0"><label>職業</label><input id="f-dOccupation" placeholder=""></div>
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">
-                    <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-dBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>
+                    <div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input id="f-dBirthday" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div></div>
                     <div class="fg" style="margin-bottom:0;grid-column:span 2"><label>Email</label><input id="f-dEmail" type="email" placeholder=""></div>
                     <div class="fg" style="margin-bottom:0"><label>客戶來源</label><input id="f-dSource" placeholder=""></div>
                 </div>
@@ -1440,7 +1443,7 @@
 <div id="perfModal" class="overlay" style="display:none" onmousedown="if(event.target===this)closePerformance()">
     <div class="modal" style="max-width:700px;height:90vh;display:flex;flex-direction:column" onclick="event.stopPropagation()">
         <div class="modal-head">
-            <div class="modal-title">📊 業績儀表板</div>
+            <div class="modal-title"><i class="ti ti-chart-bar" style="color:#2563EB"></i> 業績儀表板</div>
             <div style="flex:1"></div>
             <button class="btn-x" onclick="closePerformance()">✕</button>
         </div>
@@ -1453,7 +1456,7 @@
 <div id="trashModal" class="overlay" style="display:none" onmousedown="if(event.target===this)closeTrash()">
     <div class="modal" style="max-width:600px" onclick="event.stopPropagation()">
         <div class="modal-head">
-            <div class="modal-title">🗑️ 資源回收桶</div>
+            <div class="modal-title"><i class="ti ti-trash" style="color:#DC2626"></i> 資源回收桶</div>
             <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
                 <button class="btn btn-cancel" onclick="emptyTrash()" style="font-size:12px;padding:5px 12px">清空回收桶</button>
                 <button class="btn-x" onclick="closeTrash()">✕</button>
@@ -1469,7 +1472,7 @@
 <div id="tplModal" class="overlay" style="display:none" onmousedown="if(event.target===this)closeTemplates()">
     <div class="modal" style="max-width:600px;height:90vh;display:flex;flex-direction:column" onclick="event.stopPropagation()">
         <div class="modal-head">
-            <div class="modal-title">📋 常用範本</div>
+            <div class="modal-title"><i class="ti ti-file-text" style="color:#8B7355"></i> 常用範本</div>
             <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
                 <button id="tplAddBtn" onclick="tplAddByTab()" style="padding:5px 12px;border:none;border-radius:8px;background:#57534E;color:white;cursor:pointer;font-size:12px;font-weight:600">＋ 新增</button>
                 <button class="btn-x" onclick="closeTemplates()">✕</button>
@@ -1487,9 +1490,9 @@
 <!-- 自製日曆 -->
 <div class="cal-popup" id="calPopup">
     <div class="cal-head" id="calDrag">
-        <button class="cal-arrow" onclick="calNav(-1)" id="calPrevBtn">◀</button>
+        <button class="cal-arrow" onclick="calNav(-1)" id="calPrevBtn"><i class="ti ti-chevron-left"></i></button>
         <span class="cal-title" id="calTitle" onclick="toggleYearPicker()" style="cursor:pointer"></span>
-        <button class="cal-arrow" onclick="calNav(1)" id="calNextBtn">▶</button>
+        <button class="cal-arrow" onclick="calNav(1)" id="calNextBtn"><i class="ti ti-chevron-right"></i></button>
     </div>
     <div class="cal-grid" id="calGrid"></div>
     <div id="calYearPicker" style="display:none;padding:8px 12px;max-height:200px;overflow-y:auto"></div>
@@ -1499,7 +1502,7 @@
 <!-- 區塊 1：基礎資料（區域、郵遞區號、地址自動帶入）               -->
 <!-- ============================================================ -->
 <script>
-window.onerror = function(msg, url, line, col, err) { if (msg === 'Script error.' && line === 0) return true; console.error('JS錯誤:', msg, '行號:', line, err); try { showToast('⚠️ 系統發生錯誤，請重新整理', 'error', 4000); } catch(e) {} };
+window.onerror = function(msg, url, line, col, err) { if (msg === 'Script error.' && line === 0) return true; console.error('JS錯誤:', msg, '行號:', line, err); try { showToast('系統發生錯誤，請重新整理', 'error', 4000); } catch(e) {} };
 // ── 全域 overlay 防止背景滾動 ──
 (function(){
     var ms = document.querySelector('.main-scroll');
@@ -2107,7 +2110,7 @@ function autoSync() {
     syncViaIframe(payload, status);
     // Fallback timeout
     setTimeout(function() {
-        if (status && status.textContent === '☁️ 同步中…') {
+        if (status && status.textContent === '同步中…') {
             _onSyncFail(status);
         }
     }, 30000);
@@ -2126,7 +2129,7 @@ function verifySyncResult(status) {
                 // 雲端筆數 >= 本地，確認上傳成功
                 var _dispCnt = data.filter(function(c){ return !c.__perfRecords && !c.__templates && !c.__signingTemplates && !c._system; }).length;
                 if (status) status.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#22C55E;margin-right:4px;vertical-align:middle"></span>已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + _dispCnt + '筆）';
-                showToast('☁️ 已同步至雲端', 'ok', 2000);
+                showToast('已同步至雲端', 'ok', 2000);
                 _localDirtyUntil = 0; try { localStorage.removeItem('_localDirtyUntil'); } catch(e){}
                 _lastSyncJSON = JSON.stringify(DB);
             } else {
@@ -2142,8 +2145,8 @@ function verifySyncResult(status) {
     document.body.appendChild(vScript);
 }
 function _onSyncFail(status) {
-    if (status) status.innerHTML = '❌ 同步失敗 <button onclick="autoSync()" style="background:none;border:1px solid var(--border);border-radius:6px;padding:2px 8px;cursor:pointer;font-size:11px;margin-left:4px">重試</button>';
-    showToast('⚠️ 雲端同步失敗', 'warn', 3000);
+    if (status) status.innerHTML = '同步失敗 <button onclick="autoSync()" style="background:none;border:1px solid var(--border);border-radius:6px;padding:2px 8px;cursor:pointer;font-size:11px;margin-left:4px">重試</button>';
+    showToast('雲端同步失敗', 'warn', 3000);
 }
 function syncViaIframe(payload, status) {
     var iframe = document.createElement('iframe');
@@ -2335,14 +2338,14 @@ window.addEventListener('beforeunload', function() { if(_checkTimer) clearInterv
 // ── 離線/上線偵測：恢復網路時自動同步 ──
 window.addEventListener('online', function() {
     var status = document.getElementById('cloudStatus');
-    if (status) status.textContent = '☁️ 網路恢復，同步中…';
-    showToast('📶 網路已恢復，正在同步…');
+    if (status) status.textContent = '網路恢復，同步中…';
+    showToast('網路已恢復，正在同步…');
     setTimeout(autoSync, 1000);
 });
 window.addEventListener('offline', function() {
     var status = document.getElementById('cloudStatus');
-    if (status) status.textContent = '📵 離線模式（資料已存本機）';
-    showToast('📵 目前離線，資料會存在本機', 'warn', 3000);
+    if (status) status.textContent = '離線模式（資料已存本機）';
+    showToast('目前離線，資料會存在本機', 'warn', 3000);
 });
 
 // ── 封存 ──
@@ -2988,7 +2991,7 @@ function runDataCheck() {
     Object.keys(phoneMap).forEach(function(p) {
         if (phoneMap[p].length > 1) {
             var names = phoneMap[p].map(function(x) { return x.name; });
-            issues.push({ type: 'dup-phone', severity: 'warn', phone: p, clients: phoneMap[p], msg: '📞 電話 ' + p + ' 重複：' + names.join('、') });
+            issues.push({ type: 'dup-phone', severity: 'warn', phone: p, clients: phoneMap[p], msg: '電話 ' + p + ' 重複：' + names.join('、') });
         }
     });
     // 2. 身份證驗證
@@ -3000,7 +3003,7 @@ function runDataCheck() {
         ];
         ids.forEach(function(item) {
             if (item.val && !validateTWID(item.val)) {
-                issues.push({ type: 'bad-id', severity: 'error', clientId: c.id, clientName: c.name || '未命名', msg: '🪪 「' + (c.name||'未命名') + '」的' + item.label + '身份證「' + item.val + '」格式錯誤' });
+                issues.push({ type: 'bad-id', severity: 'error', clientId: c.id, clientName: c.name || '未命名', msg: '「' + (c.name||'未命名') + '」的' + item.label + '身份證「' + item.val + '」格式錯誤' });
             }
         });
     });
@@ -3008,13 +3011,13 @@ function runDataCheck() {
     liveDB.forEach(function(c) {
         var hasPhone = c.phone || c.bPhone || c.sPhone || c.llPhone || c.ttPhone;
         if (!hasPhone) {
-            issues.push({ type: 'no-phone', severity: 'info', clientId: c.id, clientName: c.name || '未命名', msg: '📵 「' + (c.name||'未命名') + '」沒有電話號碼' });
+            issues.push({ type: 'no-phone', severity: 'info', clientId: c.id, clientName: c.name || '未命名', msg: '「' + (c.name||'未命名') + '」沒有電話號碼' });
         }
     });
     // 4. 缺姓名的客戶
     liveDB.forEach(function(c) {
         if (!c.name && !c.bName && !c.sName && !c.llName && !c.ttName) {
-            issues.push({ type: 'no-name', severity: 'info', clientId: c.id, msg: '👤 有一筆客戶沒有姓名（ID: ' + c.id.slice(0,8) + '）' });
+            issues.push({ type: 'no-name', severity: 'info', clientId: c.id, msg: '有一筆客戶沒有姓名（ID: ' + c.id.slice(0,8) + '）' });
         }
     });
     // 顯示結果
@@ -3028,10 +3031,10 @@ function _showDataCheckResult(issues) {
     box.className = 'fill-menu';
     box.style.cssText = 'padding:16px;width:90vw;max-width:520px;max-height:80vh;display:flex;flex-direction:column';
     var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">' +
-        '<span style="font-weight:700;font-size:16px">🔍 資料健檢結果</span>' +
+        '<span style="font-weight:700;font-size:16px"><i class="ti ti-shield-check" style="color:#059669"></i> 資料健檢結果</span>' +
         '<button onclick="this.closest(\'.fill-overlay\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)">✕</button></div>';
     if (!issues.length) {
-        html += '<div style="text-align:center;padding:30px 0;color:#059669;font-size:15px;font-weight:600">✅ 所有資料正常，沒有發現問題！</div>';
+        html += '<div style="text-align:center;padding:30px 0;color:#059669;font-size:15px;font-weight:600"><i class="ti ti-circle-check" style="color:#059669"></i> 所有資料正常，沒有發現問題！</div>';
     } else {
         var errs = issues.filter(function(i) { return i.severity === 'error'; });
         var warns = issues.filter(function(i) { return i.severity === 'warn'; });
@@ -3536,8 +3539,8 @@ function renderDashboard() {
             var dk = 'expire_' + c.id + '_' + (c[dateField] || '');
             return '<div class="dash-item" style="cursor:pointer">' +
                 '<span class="dash-item-info" style="color:'+(d<=0?'#EF4444':'')+'">'+label+'</span>' +
-                '<span class="dash-item-name" onclick="showDet(\''+esc(c.id)+'\')">'+esc(c.name)+'<span style="font-weight:400;color:#64748B"> · '+esc(infoFn(c))+'</span></span>' +
-                '<button class="btn-ic" onclick="event.stopPropagation();_dismissAlert(\''+esc(dk)+'\',\'確定已處理「'+esc(c.name)+'」的到期提醒？\\n（續約後會重新出現）\')" title="已處理" style="font-size:13px;padding:2px 4px;flex-shrink:0">✅</button></div>';
+                '<span class="dash-item-name" onclick="showDet(\''+esc(c.id)+'\')">'+esc(c.name)+'<span style="font-weight:400;color:#475569"> · '+esc(infoFn(c))+'</span></span>' +
+                '<button class="btn-ic" onclick="event.stopPropagation();_dismissAlert(\''+esc(dk)+'\',\'確定已處理「'+esc(c.name)+'」的到期提醒？\\n（續約後會重新出現）\')" title="已處理" style="font-size:13px;padding:2px 4px;flex-shrink:0"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button></div>';
         }).join('') : '<div class="dash-empty">'+emptyMsg+'</div>';
     }
     // 庫存合約即將到期（15天內）
@@ -3581,19 +3584,19 @@ function renderDashboard() {
             ? '<span style="flex:1"></span>'
             : '<span class="dash-item-name" style="cursor:pointer" onclick="showDet(\''+esc(s.id)+'\')">'+esc(s.name)+'</span>';
         var editBtn = s.personal
-            ? '<button class="btn-ic" onclick="editPersonalSchedule('+s.psIdx+')" title="編輯" style="font-size:13px;padding:2px 4px">✏️</button>'
-            : '<button class="btn-ic" onclick="editDashSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\',this)" title="編輯" style="font-size:13px;padding:2px 4px">✏️</button>';
+            ? '<button class="btn-ic" onclick="editPersonalSchedule('+s.psIdx+')" title="編輯" style="font-size:13px;padding:2px 4px"><i class="ti ti-pencil" style="color:#57534E"></i></button>'
+            : '<button class="btn-ic" onclick="editDashSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\',this)" title="編輯" style="font-size:13px;padding:2px 4px"><i class="ti ti-pencil" style="color:#57534E"></i></button>';
         var doneBtn = s.personal
-            ? '<button class="btn-ic" onclick="completePersonalSchedule('+s.psIdx+')" title="完成" style="font-size:13px;padding:2px 4px">✅</button>'
-            : '<button class="btn-ic" onclick="completeSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="完成" style="font-size:13px;padding:2px 4px">✅</button>';
+            ? '<button class="btn-ic" onclick="completePersonalSchedule('+s.psIdx+')" title="完成" style="font-size:13px;padding:2px 4px"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button>'
+            : '<button class="btn-ic" onclick="completeSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="完成" style="font-size:13px;padding:2px 4px"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button>';
         var memoHtml = s.memo ? '<div class="dash-sched-memo">'+esc(s.memo)+'</div>' : (s.personal ? '<div class="dash-sched-memo">個人行程</div>' : '');
         var dateColor = s.expired ? '#DC2626' : (s.days===0 ? '#B45309' : '');
         var delBtn = s.personal
-            ? '<button class="btn-ic" onclick="deletePersonalSchedule('+s.psIdx+')" title="刪除" style="font-size:13px;padding:2px 4px">🗑️</button>'
-            : '<button class="btn-ic" onclick="deleteSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="刪除" style="font-size:13px;padding:2px 4px">🗑️</button>';
+            ? '<button class="btn-ic" onclick="deletePersonalSchedule('+s.psIdx+')" title="刪除" style="font-size:13px;padding:2px 4px"><i class="ti ti-trash" style="color:#DC2626"></i></button>'
+            : '<button class="btn-ic" onclick="deleteSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="刪除" style="font-size:13px;padding:2px 4px"><i class="ti ti-trash" style="color:#DC2626"></i></button>';
         return '<div class="dash-item dash-sched-item" style="flex-direction:column;align-items:stretch">' +
             '<div class="dash-sched-row1">' +
-                '<span class="dash-item-info" style="color:'+dateColor+'">'+(s.expired?'⚠️ ':'')+esc(isoToMDW(s.date))+(s.time?' '+s.time:'')+(s.expired?' <span style="font-size:12px">已過期'+Math.abs(s.days)+'天</span>':'')+'</span>' +
+                '<span class="dash-item-info" style="color:'+dateColor+'">'+(s.expired?'<i class="ti ti-alert-triangle" style="color:#DC2626;font-size:12px"></i> ':'')+esc(isoToMDW(s.date))+(s.time?' '+s.time:'')+(s.expired?' <span style="font-size:12px">已過期'+Math.abs(s.days)+'天</span>':'')+'</span>' +
                 nameHtml +
                 '<span style="display:flex;gap:2px;flex-shrink:0">' + editBtn + delBtn + '</span>' +
             '</div>' +
@@ -3646,10 +3649,10 @@ function renderDashboard() {
         if (b.date) { var by = parseInt(b.date.substring(0,4)); if(by>0) { age = (now.getFullYear()-by)+'歲'; } }
         return '<div class="dash-item" style="cursor:pointer;flex-wrap:nowrap">' +
             '<span class="dash-item-info" style="color:'+(b.days===0?'#EF4444':'')+'">'+esc(isoToMDW(b.date))+'</span>' +
-            '<span class="dash-item-name" onclick="showDet(\''+esc(b.id)+'\')" style="white-space:nowrap">'+(b.who?esc(b.who)+'<span style="font-weight:400;color:#64748B">（'+esc(b.name)+'）</span>':esc(b.name))+'</span>' +
-            '<span style="font-size:11px;color:#64748B;white-space:nowrap;flex-shrink:0">'+esc(isoToROC(b.date))+'</span>' +
+            '<span class="dash-item-name" onclick="showDet(\''+esc(b.id)+'\')" style="white-space:nowrap">'+(b.who?esc(b.who)+'<span style="font-weight:400;color:#475569">（'+esc(b.name)+'）</span>':esc(b.name))+'</span>' +
+            '<span style="font-size:11px;color:#475569;white-space:nowrap;flex-shrink:0">'+esc(isoToROC(b.date))+'</span>' +
             (age ? '<span style="font-size:11px;font-weight:600;color:#5C4A32;background:#F5F0EB;padding:1px 8px;border-radius:10px;white-space:nowrap;flex-shrink:0">'+esc(age)+'</span>' : '') +
-            '<button class="btn-ic" onclick="event.stopPropagation();_dismissAlert(\''+esc(b.dismissKey)+'\',\'確定已祝福「'+esc(b.who||b.name)+'」？\')" title="已祝福" style="font-size:13px;padding:2px 4px;flex-shrink:0">✅</button></div>';
+            '<button class="btn-ic" onclick="event.stopPropagation();_dismissAlert(\''+esc(b.dismissKey)+'\',\'確定已祝福「'+esc(b.who||b.name)+'」？\')" title="已祝福" style="font-size:13px;padding:2px 4px;flex-shrink:0"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button></div>';
     }).join('') : '<div class="dash-empty">近7天內沒有客戶生日</div>';
 
     // 手機版：近期行程固定最上面，其餘依最近期日期排序
@@ -3760,7 +3763,7 @@ function render() {
     updateActiveFilterBar();
     const grid = document.getElementById('grid');
     if (!list.length) {
-        grid.innerHTML = `<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">尚無客戶資料</div><div>點右上角「＋ 新增客戶」開始建立</div></div>`;
+        grid.innerHTML = `<div class="empty"><div class="empty-icon"><i class="ti ti-file-text" style="color:#8B7355;font-size:36px"></i></div><div class="empty-title">尚無客戶資料</div><div>點右上角「＋ 新增客戶」開始建立</div></div>`;
         _alignSidebarToContent(); return;
     }
     // 預計算同房東關聯數量（避免 renderCard 內 O(n²) 重複掃描）
@@ -3857,7 +3860,7 @@ function renderCard(c) {
         const statusTag = !cTypes.includes('經營買方') && c.status ? `<span class="tag s-${esc(c.status)}">${esc(c.status)}</span>` : '';
         const notesText = (getTypeNote(c, showType) || (curFilter==='all' ? getAllNotes(c) : getTypeNote(c, curFilter)) || '').trim();
         const _tabLC = getTabLastContact(c, curFilter);
-        const dateLabel = _tabLC ? '📞 '+relTime(_tabLC) : '';
+        const dateLabel = _tabLC ? relTime(_tabLC) : '';
         const createdLabel = c.created ? '建檔 '+isoToROC((c.created||'').slice(0,10)) : '';
 
         // 到期提醒標籤（只在對應分類頁面顯示，同時到期時用 += 串接）
@@ -3962,7 +3965,7 @@ function renderCard(c) {
             var pkPriceNum = parseFloat(String(_pkPrice||'').replace(/[萬,]/g,'')) || 0;
             if (displaySz) {
                 let szDisp = displaySz.toFixed(2) + '坪';
-                if (pkSz) szDisp += ` <span style="color:#64748B">+車位${pkSz}坪</span>`;
+                if (pkSz) szDisp += ` <span style="color:#475569">+車位${pkSz}坪</span>`;
                 meta += `<div class="cmeta-row"><span class="cmeta-k">登記</span><span class="cmeta-v">${szDisp}</span></div>`;
             } else {
                 // 無建物坪數：顯示土地坪數及土地單價
@@ -3984,7 +3987,7 @@ function renderCard(c) {
                     priceDisp += ` <span style="color:#6366F1;font-weight:600">@${unitPrice}萬</span>`;
                 }
                 if (_pk && _pk !== '無車位') {
-                    priceDisp += ` <span style="color:#64748B">含${esc(_pk)}${_pkPrice ? ' ' + esc(_pkPrice) + (_pkPrice.includes('萬')?'':'萬') : ''}</span>`;
+                    priceDisp += ` <span style="color:#475569">含${esc(_pk)}${_pkPrice ? ' ' + esc(_pkPrice) + (_pkPrice.includes('萬')?'':'萬') : ''}</span>`;
                 }
                 meta += `<div class="cmeta-row"><span class="cmeta-k">開價</span><span class="cmeta-v">${priceDisp}</span></div>`;
             }
@@ -4021,9 +4024,9 @@ function renderCard(c) {
                 var _rentDisp = esc(_rRent) + (_rRent.includes('元')?'':'元') + (_rPeriod?'／'+esc(_rPeriod):'');
                 var _rMgmt = (parseFloat(_rp0.rMgmtBuilding)||0)+(parseFloat(_rp0.rMgmtCar)||0)+(parseFloat(_rp0.rMgmtMoto)||0)+(parseFloat(_rp0.rMgmtOther)||0);
                 if (_rp0.rMgmtType === '含管' || _rp0.rMgmtType === '內含') {
-                    _rentDisp += ' <span style="color:#64748B">含管' + (_rMgmt ? ' ' + _rMgmt.toLocaleString() + '元' : '') + '</span>';
+                    _rentDisp += ' <span style="color:#475569">含管' + (_rMgmt ? ' ' + _rMgmt.toLocaleString() + '元' : '') + '</span>';
                 } else if (_rp0.rMgmtType === '不含管') {
-                    _rentDisp += ' <span style="color:#64748B">不含管' + (_rMgmt ? ' ' + _rMgmt.toLocaleString() + '元' : '') + '</span>';
+                    _rentDisp += ' <span style="color:#475569">不含管' + (_rMgmt ? ' ' + _rMgmt.toLocaleString() + '元' : '') + '</span>';
                 }
                 meta += `<div class="cmeta-row"><span class="cmeta-k">租金</span><span class="cmeta-v">${_rentDisp}</span></div>`;
             }
@@ -4048,9 +4051,9 @@ function renderCard(c) {
                         var _ttMgmt = (parseFloat(_llRp.rMgmtBuilding||_llC.rMgmtBuilding)||0)+(parseFloat(_llRp.rMgmtCar||_llC.rMgmtCar)||0)+(parseFloat(_llRp.rMgmtMoto||_llC.rMgmtMoto)||0)+(parseFloat(_llRp.rMgmtOther||_llC.rMgmtOther)||0);
                         var _ttMgmtType = _llRp.rMgmtType || _llC.rMgmtType || '';
                         if (_ttMgmtType === '含管' || _ttMgmtType === '內含') {
-                            _ttRentDisp += ' <span style="color:#64748B">含管' + (_ttMgmt ? ' ' + _ttMgmt.toLocaleString() + '元' : '') + '</span>';
+                            _ttRentDisp += ' <span style="color:#475569">含管' + (_ttMgmt ? ' ' + _ttMgmt.toLocaleString() + '元' : '') + '</span>';
                         } else if (_ttMgmtType === '不含管') {
-                            _ttRentDisp += ' <span style="color:#64748B">不含管' + (_ttMgmt ? ' ' + _ttMgmt.toLocaleString() + '元' : '') + '</span>';
+                            _ttRentDisp += ' <span style="color:#475569">不含管' + (_ttMgmt ? ' ' + _ttMgmt.toLocaleString() + '元' : '') + '</span>';
                         }
                         meta += `<div class="cmeta-row"><span class="cmeta-k">租金</span><span class="cmeta-v">${_ttRentDisp}</span></div>`;
                     }
@@ -4067,7 +4070,7 @@ function renderCard(c) {
                 let rentDisp = esc(c.rent) + (c.rent&&!c.rent.includes('元')?'元':'') + (c.rRentPeriod&&c.rRentPeriod!=='月繳'?'／'+esc(c.rRentPeriod):'');
                 var rMgmtSum = (parseFloat(c.rMgmtBuilding)||0)+(parseFloat(c.rMgmtCar)||0)+(parseFloat(c.rMgmtMoto)||0)+(parseFloat(c.rMgmtOther)||0);
                 if (!rMgmtSum && c.rMgmtFee) rMgmtSum = parseFloat(c.rMgmtFee)||0;
-                if (c.rMgmtType || rMgmtSum) rentDisp += ` <span style="color:#64748B">${esc(c.rMgmtType||'')}${rMgmtSum?' '+rMgmtSum.toLocaleString()+'元':''}</span>`;
+                if (c.rMgmtType || rMgmtSum) rentDisp += ` <span style="color:#475569">${esc(c.rMgmtType||'')}${rMgmtSum?' '+rMgmtSum.toLocaleString()+'元':''}</span>`;
                 meta += `<div class="cmeta-row"><span class="cmeta-k">租金</span><span class="cmeta-v">${rentDisp}</span></div>`;
             }
             if (c.renewals && c.renewals.length) {
@@ -4104,8 +4107,8 @@ function renderCard(c) {
         const archivedTag = c.archived ? `<span class="tag tag-archived">${esc(c.archiveReason || '已封存')}</span>` : '';
         const archBtn = cTypes.some(t => ARCHIVABLE.includes(t))
             ? (c.archived
-                ? `<button class="btn-ic" onclick="event.stopPropagation();unarchiveClient('${esc(c.id)}')" title="解除封存">📤</button>`
-                : `<button class="btn-ic" onclick="event.stopPropagation();archiveClient('${esc(c.id)}')" title="封存">📥</button>`)
+                ? `<button class="btn-ic" onclick="event.stopPropagation();unarchiveClient('${esc(c.id)}')" title="解除封存"><i class="ti ti-archive-off" style="color:#059669"></i></button>`
+                : `<button class="btn-ic" onclick="event.stopPropagation();archiveClient('${esc(c.id)}')" title="封存"><i class="ti ti-archive" style="color:#D97706"></i></button>`)
             : '';
 
         // 租案卡片：根據 _viewAs 顯示不同名字和標籤
@@ -4168,15 +4171,15 @@ function renderCard(c) {
             <div class="card-bottom-right">
                 <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
                     <div style="display:flex;gap:6px" class="card-desktop-only">
-                        <button class="btn-ic" onclick="event.stopPropagation();openEdit('${_eid}','${_eva}')" title="編輯">✏️</button>
+                        <button class="btn-ic" onclick="event.stopPropagation();openEdit('${_eid}','${_eva}')" title="編輯"><i class="ti ti-pencil" style="color:#57534E"></i></button>
                         <span>${archBtn}</span>
-                        <button class="btn-ic del" onclick="event.stopPropagation();del('${_eid}')" title="刪除">🗑️</button>
+                        <button class="btn-ic del" onclick="event.stopPropagation();del('${_eid}')" title="刪除"><i class="ti ti-trash" style="color:#DC2626"></i></button>
                     </div>
                     <div style="display:flex;gap:6px">
-                        <button class="btn-ic" onclick="event.stopPropagation();quickContactLog('${_eid}')" title="聯繫紀錄">📝</button>
-                        <button class="btn-ic" onclick="event.stopPropagation();quickSchedule('${_eid}')" title="預排行程">📅</button>
+                        <button class="btn-ic" onclick="event.stopPropagation();quickContactLog('${_eid}')" title="聯繫紀錄"><i class="ti ti-notebook" style="color:#8B7355"></i></button>
+                        <button class="btn-ic" onclick="event.stopPropagation();quickSchedule('${_eid}')" title="預排行程"><i class="ti ti-calendar-plus" style="color:#2563EB"></i></button>
                         <button class="btn-ic" onclick="event.stopPropagation();openDriveFolder('${_eid}','${_eva}')" title="雲端資料夾">${getRpDriveIcon(c)}</button>
-                        <button class="btn-ic card-mobile-only" onclick="event.stopPropagation();openCardMenu(event,'${_eid}','${_eva}',${c.archived?'true':'false'})" title="更多">⚙️</button>
+                        <button class="btn-ic card-mobile-only" onclick="event.stopPropagation();openCardMenu(event,'${_eid}','${_eva}',${c.archived?'true':'false'})" title="更多"><i class="ti ti-dots" style="color:#57534E"></i></button>
                     </div>
                 </div>
                 ${createdLabel ? `<div style="margin-top:auto;padding-top:16px">${esc(createdLabel)}</div>` : ''}
@@ -4564,7 +4567,7 @@ function typeDetail(origC, viewAs) {
                 return r.rAddr && r.rAddr === c.rAddr;
             });
             if (related.length) {
-                rows.push('<div style="font-weight:700;font-size:13px;color:#6366F1;margin-top:12px;margin-bottom:6px;border-top:1px solid var(--border);padding-top:8px">📎 關聯租案（同地址）</div>');
+                rows.push('<div style="font-weight:700;font-size:13px;color:#6366F1;margin-top:12px;margin-bottom:6px;border-top:1px solid var(--border);padding-top:8px"><i class="ti ti-link" style="color:#6366F1"></i> 關聯租案（同地址）</div>');
                 related.forEach(function(r) {
                     var rll = (r.rLandlords && r.rLandlords[0]) || {name:r.rLandlord||''};
                     var rtt = (r.rTenants && r.rTenants[0]) || {name:r.rTenant||''};
@@ -4593,7 +4596,7 @@ function typeDetail(origC, viewAs) {
                 return false;
             });
             if (relatedLL.length) {
-                rows.push('<div style="font-weight:700;font-size:13px;color:#D97706;margin-top:12px;margin-bottom:6px;border-top:1px solid var(--border);padding-top:8px">📎 關聯租案（同房東：'+esc(curLLName)+'）</div>');
+                rows.push('<div style="font-weight:700;font-size:13px;color:#D97706;margin-top:12px;margin-bottom:6px;border-top:1px solid var(--border);padding-top:8px"><i class="ti ti-link" style="color:#D97706"></i> 關聯租案（同房東：'+esc(curLLName)+'）</div>');
                 relatedLL.forEach(function(r) {
                     var rtt = (r.rTenants && r.rTenants[0]) || {name:r.rTenant||''};
                     var label = '租客：'+(rtt.name||'未填')+(r.rAddr?' ・'+r.rAddr:'');
@@ -4681,8 +4684,8 @@ function showDet(id, viewAs) {
         var typeColor = {'經營買方':'#5C4A32','庫存屋主':'#3B5E3B','房東':'#0E7490','租客':'#9D174D','租案管理':'#4A3D5E','成交客戶':'#7A5C30','商機募集':'#5E4A3E'}[t] || '#475569';
         var typeBg = {'經營買方':'#EDE8E0','庫存屋主':'#E0EBE0','房東':'#CFFAFE','租客':'#FCE7F3','租案管理':'#E8E3ED','成交客戶':'#F0E6D6','商機募集':'#EAE3DE'}[t] || '#F5F5F4';
         var collapseId = 'collapse_' + idx;
-        allTd += `<div class="det-sec" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:${typeBg};color:${typeColor};padding:8px 10px;border-radius:6px;margin:-2px -4px 6px;border:none;opacity:${isOpen?'1':'0.8'}" onclick="var el=document.getElementById('${collapseId}');var ar=this.querySelector('.collapse-arrow');if(el.style.display==='none'){el.style.display='';ar.textContent='▼';this.style.opacity='1'}else{el.style.display='none';ar.textContent='▶';this.style.opacity='0.8'}">
-            <span>${esc(TYPE_DISPLAY[t]||t)}資料${isOpen?'':'（點擊展開）'}</span><span class="collapse-arrow" style="font-size:11px">${isOpen?'▼':'▶'}</span>
+        allTd += `<div class="det-sec" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:${typeBg};color:${typeColor};padding:8px 10px;border-radius:6px;margin:-2px -4px 6px;border:none;opacity:${isOpen?'1':'0.8'}" onclick="var el=document.getElementById('${collapseId}');var ar=this.querySelector('.collapse-arrow');if(el.style.display==='none'){el.style.display='';ar.innerHTML='<i class=\\'ti ti-chevron-down\\'></i>';this.style.opacity='1'}else{el.style.display='none';ar.innerHTML='<i class=\\'ti ti-chevron-right\\'></i>';this.style.opacity='0.8'}">
+            <span>${esc(TYPE_DISPLAY[t]||t)}資料${isOpen?'':'（點擊展開）'}</span><span class="collapse-arrow" style="font-size:11px">${isOpen?'<i class="ti ti-chevron-down"></i>':'<i class="ti ti-chevron-right"></i>'}</span>
         </div><div id="${collapseId}" style="display:${isOpen?'':'none'}">${td}</div>`;
     });
     document.getElementById('detContent').innerHTML = `
@@ -4785,9 +4788,9 @@ function showDet(id, viewAs) {
     var navWrap = document.getElementById('detNavWrap');
     var prevStyle = detIdx <= 0 ? 'opacity:0.3;pointer-events:none' : '';
     var nextStyle = detIdx >= detListCache.length - 1 ? 'opacity:0.3;pointer-events:none' : '';
-    navWrap.innerHTML = '<button class="btn-ic" onclick="navDet(-1)" title="上一筆" style="font-size:14px;padding:4px 8px;'+prevStyle+'">◀</button>' +
+    navWrap.innerHTML = '<button class="btn-ic" onclick="navDet(-1)" title="上一筆" style="font-size:14px;padding:4px 8px;'+prevStyle+'"><i class="ti ti-chevron-left"></i></button>' +
         '<span style="font-size:12px;font-weight:600;color:var(--muted)">' + (detIdx+1) + ' / ' + detListCache.length + '</span>' +
-        '<button class="btn-ic" onclick="navDet(1)" title="下一筆" style="font-size:14px;padding:4px 8px;'+nextStyle+'">▶</button>';
+        '<button class="btn-ic" onclick="navDet(1)" title="下一筆" style="font-size:14px;padding:4px 8px;'+nextStyle+'"><i class="ti ti-chevron-right"></i></button>';
 }
 var _detFromPerf = false;
 function closeDet(){ document.getElementById('dModal').style.display='none'; if(_detFromPerf){ _detFromPerf=false; document.getElementById('perfModal').style.display='flex'; } detListCache=[]; currentDetId=null; currentDetIdx=-1; }
@@ -4965,10 +4968,10 @@ function addSellerProperty(data) {
         '</div>' +
         // 立約日+到期日+續約+續約歷程
         '<div class="sp-contract-row" style="display:grid;grid-template-columns:3fr 3fr auto auto;gap:8px;align-items:end">' +
-            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">立約日</label><div class="roc-date-wrap"><input data-f="contractStart" type="text" value="'+esc(d.contractStart?isoToROC(d.contractStart):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
-            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">到期日</label><div class="roc-date-wrap"><input data-f="contractEnd" type="text" value="'+esc(d.contractEnd?isoToROC(d.contractEnd):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">立約日</label><div class="roc-date-wrap"><input data-f="contractStart" type="text" value="'+esc(d.contractStart?isoToROC(d.contractStart):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">到期日</label><div class="roc-date-wrap"><input data-f="contractEnd" type="text" value="'+esc(d.contractEnd?isoToROC(d.contractEnd):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div></div>' +
             '<button type="button" class="bf-chip" onclick="renewSpContract(this)" style="padding:10px 14px;font-size:14px;text-align:center;white-space:nowrap">續約</button>' +
-            '<button type="button" class="bf-chip sp-renewal-hist-btn" onclick="showSpRenewalHistory(this)" style="padding:10px 14px;font-size:13px;background:#F5F0EB;color:#8B7355;border:1px solid #D6CFC7;white-space:nowrap">📋 歷程</button>' +
+            '<button type="button" class="bf-chip sp-renewal-hist-btn" onclick="showSpRenewalHistory(this)" style="padding:10px 14px;font-size:13px;background:#F5F0EB;color:#8B7355;border:1px solid #D6CFC7;white-space:nowrap"><i class="ti ti-history" style="font-size:13px"></i> 歷程</button>' +
         '</div>' +
     '</div>';
     document.getElementById('sPropertyList').insertAdjacentHTML('beforeend', html);
@@ -6063,14 +6066,14 @@ function addRentalProperty(data) {
         '</div>' +
         // 起租日+到期日+續約+歷程
         '<div class="sp-contract-row" style="display:grid;grid-template-columns:3fr 3fr auto auto;gap:8px;align-items:end">' +
-            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">起租日</label><div class="roc-date-wrap"><input data-f="startDate" type="text" value="'+esc(d.rStartDate?isoToROC(d.rStartDate):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
-            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">到期日</label><div class="roc-date-wrap"><input data-f="endDate" type="text" value="'+esc(d.rEndDate?isoToROC(d.rEndDate):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">起租日</label><div class="roc-date-wrap"><input data-f="startDate" type="text" value="'+esc(d.rStartDate?isoToROC(d.rStartDate):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">到期日</label><div class="roc-date-wrap"><input data-f="endDate" type="text" value="'+esc(d.rEndDate?isoToROC(d.rEndDate):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div></div>' +
             '<button type="button" class="bf-chip" onclick="renewRpContract(this)" style="padding:10px 14px;font-size:14px;text-align:center;white-space:nowrap">續約</button>' +
-            '<button type="button" class="bf-chip" onclick="showRpRenewalHistory(this)" style="padding:10px 14px;font-size:13px;background:#F5F0EB;color:#5B21B6;border:1px solid #D6CFC7;white-space:nowrap">📋 歷程</button>' +
+            '<button type="button" class="bf-chip" onclick="showRpRenewalHistory(this)" style="padding:10px 14px;font-size:13px;background:#F5F0EB;color:#5B21B6;border:1px solid #D6CFC7;white-space:nowrap"><i class="ti ti-history" style="font-size:13px"></i> 歷程</button>' +
         '</div>' +
         // 附屬設備
-        '<div class="rp-equip-toggle equip-toggle" style="margin-top:8px" onclick="var b=this.nextElementSibling;b.classList.toggle(\'on\');this.querySelector(\'span:last-child\').textContent=b.classList.contains(\'on\')?\'▼\':\'▶\'">' +
-            '<span>📋 附屬設備清單</span><span>▶</span>' +
+        '<div class="rp-equip-toggle equip-toggle" style="margin-top:8px" onclick="var b=this.nextElementSibling;b.classList.toggle(\'on\');this.querySelector(\'span:last-child\').innerHTML=b.classList.contains(\'on\')?\'<i class=\\\'ti ti-chevron-down\\\'></i>\':\'<i class=\\\'ti ti-chevron-right\\\'></i>\'">' +
+            '<span><i class="ti ti-list-check"></i> 附屬設備清單</span><span><i class=\'ti ti-chevron-right\'></i></span>' +
         '</div>' +
         '<div class="equip-body rp-equip-body">' +
             buildRpEquipHtml(d.rEquipment) +
@@ -6370,9 +6373,9 @@ function addPersonBlock(listId, data) {
             '<div class="fg" style="margin-bottom:0"><label>姓名 <button type="button" class="btn-fill" onclick="fillPersonBlock(this)">帶入</button></label><input data-f="name" value="'+esc(d.name||'')+'" placeholder=""></div>' +
             '<div class="fg" style="margin-bottom:0"><label>電話</label><input data-f="phone" value="'+esc(d.phone||'')+'" placeholder="" onblur="autoPhone(this)"></div>' +
             '<div class="fg" style="margin-bottom:0"><label>身份證字號</label><input data-f="idNo" value="'+esc(d.idNo||'')+'" placeholder=""></div>' +
-            '<div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input data-f="birthday" type="text" value="'+esc(bdVal)+'" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label>生日</label><div class="roc-date-wrap"><input data-f="birthday" type="text" value="'+esc(bdVal)+'" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div></div>' +
         '</div>' +
-        '<div style="margin-bottom:4px"><button type="button" onclick="var d=this.nextElementSibling;d.style.display=d.style.display===\'none\'?\'\':\'none\';this.textContent=d.style.display===\'none\'?\'▶ 展開詳細\':\'▼ 收合詳細\'" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--muted);padding:2px 0">▶ 展開詳細</button>' +
+        '<div style="margin-bottom:4px"><button type="button" onclick="var d=this.nextElementSibling;d.style.display=d.style.display===\'none\'?\'\':\'none\';this.innerHTML=d.style.display===\'none\'?\'<i class=\\\'ti ti-chevron-right\\\' style=\\\'font-size:12px\\\'></i> 展開詳細\':\'<i class=\\\'ti ti-chevron-down\\\' style=\\\'font-size:12px\\\'></i> 收合詳細\'" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--muted);padding:2px 0"><i class=\'ti ti-chevron-right\' style=\'font-size:12px\'></i> 展開詳細</button>' +
         '<div style="display:none">' +
         '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px">' +
             '<div class="fg" style="margin-bottom:0"><label>職業</label><input data-f="occupation" value="'+esc(d.occupation||'')+'" placeholder=""></div>' +
@@ -6548,7 +6551,7 @@ function addScheduleRow(data) {
     var html = '<div class="c-row" id="sched-'+schedId+'" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:8px 10px;margin-bottom:8px;background:#FAFAF9;flex-wrap:wrap;gap:6px">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:2px"><span style="font-size:12px;font-weight:700;color:#8B7355">行程 '+localNum+'</span><button type="button" class="c-del" onclick="this.parentElement.parentElement.remove()">✕</button></div>' +
         '<select class="sched-type" style="width:70px;flex-shrink:0;padding:6px 4px;border:1px solid var(--border);border-radius:6px;font-size:12px">'+_stHtml+'</select>' +
-        '<div class="roc-date-wrap" style="width:160px;flex-shrink:0"><input type="text" placeholder="日期" style="min-width:0;flex:1" value="'+esc(d.date?isoToROC(d.date):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>' +
+        '<div class="roc-date-wrap" style="width:160px;flex-shrink:0"><input type="text" placeholder="日期" style="min-width:0;flex:1" value="'+esc(d.date?isoToROC(d.date):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div>' +
         '<select class="sched-time" style="width:80px;flex-shrink:0">' + buildTimeOptions(d.time||'') + '</select>' +
         '<input type="text" style="flex:1" placeholder="備註" value="'+esc(d.memo||'')+'">' +
     '</div>';
@@ -6590,10 +6593,10 @@ function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo, prefillT
     var box = document.createElement('div');
     box.className = 'fill-menu';
     box.style.padding = '16px'; box.style.minWidth = '300px'; box.style.maxWidth = '360px';
-    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">📅 預排行程 — '+esc(c.name)+'</div>' +
+    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px"><i class="ti ti-calendar-plus" style="color:#2563EB"></i> 預排行程 — '+esc(c.name)+'</div>' +
         '<div style="display:flex;gap:8px;margin-bottom:10px">' +
             '<select id="qs-type" style="width:70px;padding:8px 4px;border:1px solid var(--border);border-radius:8px;font-size:13px">'+_stHtml+'</select>' +
-            '<div class="roc-date-wrap" style="flex:1"><input id="qs-date" type="text" placeholder="日期" value="'+esc(isoToROC(prefillDate||localDateISO()))+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>' +
+            '<div class="roc-date-wrap" style="flex:1"><input id="qs-date" type="text" placeholder="日期" value="'+esc(isoToROC(prefillDate||localDateISO()))+'"><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div>' +
             '<select id="qs-time" style="width:90px;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px">' + buildTimeOptions(prefillTime||'') + '</select>' +
         '</div>' +
         '<div style="margin-bottom:12px"><input id="qs-memo" type="text" placeholder="事項說明（如：帶看、回電、簽約…）" value="'+esc(prefillMemo||'')+'" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit"></div>' +
@@ -6675,9 +6678,9 @@ function quickContactLog(clientId, editIdx) {
     var box = document.createElement('div');
     box.className = 'fill-menu';
     box.style.padding = '16px'; box.style.minWidth = '300px'; box.style.maxWidth = '360px';
-    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">📝 聯繫紀錄 — '+esc(c.name)+'</div>' +
+    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px"><i class="ti ti-notebook" style="color:#8B7355"></i> 聯繫紀錄 — '+esc(c.name)+'</div>' +
         '<div style="display:flex;gap:8px;margin-bottom:10px">' +
-            '<div class="roc-date-wrap" style="flex:1"><input id="cl-date" type="text" placeholder="日期" value="'+esc(isoToROC(old?old.date:localDateISO()))+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>' +
+            '<div class="roc-date-wrap" style="flex:1"><input id="cl-date" type="text" placeholder="日期" value="'+esc(isoToROC(old?old.date:localDateISO()))+'"><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div>' +
         '</div>' +
         '<div style="margin-bottom:12px"><input id="cl-memo" type="text" placeholder="紀錄內容（如：帶看XX、電聯回報…）" value="'+esc(old?old.memo:'')+'" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit"></div>' +
         '<div style="display:flex;gap:8px">' +
@@ -6727,11 +6730,11 @@ function showContactLog(clientId) {
     var box = document.createElement('div');
     box.className = 'fill-menu';
     box.style.padding = '16px'; box.style.minWidth = '320px'; box.style.maxWidth = '420px'; box.style.maxHeight = '80vh'; box.style.overflowY = 'auto';
-    box.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-weight:700;font-size:15px">📝 聯繫紀錄 — '+esc(c.name)+'</span><button onclick="this.closest(\'.fill-overlay\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)">✕</button></div>' +
+    box.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-weight:700;font-size:15px"><i class="ti ti-notebook" style="color:#8B7355"></i> 聯繫紀錄 — '+esc(c.name)+'</span><button onclick="this.closest(\'.fill-overlay\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)">✕</button></div>' +
         sorted.map(function(log, i) {
             return '<div style="padding:8px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start">' +
                 '<div><div style="font-weight:600;color:#059669;font-size:13px">'+esc(isoToROC(log.date))+'</div><div style="font-size:14px;color:#374151;margin-top:2px">'+esc(log.memo)+'</div></div>' +
-                '<div style="display:flex;gap:4px;flex-shrink:0"><button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();quickContactLog(\''+esc(clientId)+'\','+i+')" title="編輯" style="font-size:12px;padding:2px 4px">✏️</button><button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();deleteContactLog(\''+esc(clientId)+'\','+i+')" title="刪除" style="font-size:12px;padding:2px 4px">🗑️</button></div></div>';
+                '<div style="display:flex;gap:4px;flex-shrink:0"><button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();quickContactLog(\''+esc(clientId)+'\','+i+')" title="編輯" style="font-size:12px;padding:2px 4px"><i class="ti ti-pencil" style="color:#57534E"></i></button><button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();deleteContactLog(\''+esc(clientId)+'\','+i+')" title="刪除" style="font-size:12px;padding:2px 4px"><i class="ti ti-trash" style="color:#DC2626"></i></button></div></div>';
         }).join('') +
         '<div style="margin-top:12px"><button onclick="this.closest(\'.fill-overlay\').remove();quickContactLog(\''+esc(clientId)+'\')" style="width:100%;padding:10px;border:none;border-radius:8px;background:#059669;color:white;font-size:14px;font-weight:700;cursor:pointer">＋ 新增紀錄</button></div>';
     overlay.appendChild(box);
@@ -6808,9 +6811,9 @@ function addPersonalSchedule(prefillIdx) {
     var box = document.createElement('div');
     box.className = 'fill-menu';
     box.style.padding = '16px'; box.style.minWidth = '300px'; box.style.maxWidth = '360px';
-    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">📅 個人行程</div>' +
+    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px"><i class="ti ti-calendar-plus" style="color:#2563EB"></i> 個人行程</div>' +
         '<div style="display:flex;gap:8px;margin-bottom:10px">' +
-            '<div class="roc-date-wrap" style="flex:1"><input id="ps-date" type="text" placeholder="日期" value="'+esc(isoToROC(ps.date||localDateISO()))+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>' +
+            '<div class="roc-date-wrap" style="flex:1"><input id="ps-date" type="text" placeholder="日期" value="'+esc(isoToROC(ps.date||localDateISO()))+'"><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div>' +
             '<select id="ps-time" style="width:90px;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px">' + buildTimeOptions(ps.time||'') + '</select>' +
         '</div>' +
         '<div style="margin-bottom:12px"><input id="ps-memo" type="text" placeholder="事項說明" value="'+esc(ps.memo||'')+'" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit"></div>' +
@@ -6904,7 +6907,7 @@ function showAllSchedules() {
     box.className = 'fill-menu';
     box.style.cssText = 'padding:16px;width:90vw;max-width:500px;max-height:80vh;display:flex;flex-direction:column';
     box.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">' +
-            '<span style="font-weight:700;font-size:15px">📋 全部行程</span>' +
+            '<span style="font-weight:700;font-size:15px"><i class="ti ti-list" style="color:#57534E"></i> 全部行程</span>' +
             '<button onclick="this.closest(\'.fill-overlay\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)">✕</button>' +
         '</div>' +
         '<input id="all-sched-search" type="text" placeholder="搜尋客戶名或事項…" oninput="filterAllSchedList()" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:12px">' +
@@ -6935,14 +6938,14 @@ function filterAllSchedList() {
         var nameText = s.personal ? (s.memo || '個人行程') : s.clientName;
         var memoText = s.personal ? '' : (s.memo ? ' <span style="color:#475569">/ '+esc(s.memo)+'</span>' : '');
         var editBtn = s.personal
-            ? '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();editPersonalSchedule('+s.psIdx+')" title="編輯" style="font-size:14px;padding:4px 8px">✏️</button>'
-            : '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();editDashSchedule(\''+esc(s.clientId)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="編輯" style="font-size:14px;padding:4px 8px">✏️</button>';
+            ? '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();editPersonalSchedule('+s.psIdx+')" title="編輯" style="font-size:14px;padding:4px 8px"><i class="ti ti-pencil" style="color:#57534E"></i></button>'
+            : '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();editDashSchedule(\''+esc(s.clientId)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="編輯" style="font-size:14px;padding:4px 8px"><i class="ti ti-pencil" style="color:#57534E"></i></button>';
         var doneBtn = s.personal
-            ? '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();completePersonalSchedule('+s.psIdx+')" title="完成" style="font-size:14px;padding:4px 8px">✅</button>'
-            : '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();completeSchedule(\''+esc(s.clientId)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="完成" style="font-size:14px;padding:4px 8px">✅</button>';
+            ? '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();completePersonalSchedule('+s.psIdx+')" title="完成" style="font-size:14px;padding:4px 8px"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button>'
+            : '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();completeSchedule(\''+esc(s.clientId)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="完成" style="font-size:14px;padding:4px 8px"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button>';
         var delBtn2 = s.personal
-            ? '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();deletePersonalSchedule('+s.psIdx+')" title="刪除" style="font-size:14px;padding:4px 8px">🗑️</button>'
-            : '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();deleteSchedule(\''+esc(s.clientId)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="刪除" style="font-size:14px;padding:4px 8px">🗑️</button>';
+            ? '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();deletePersonalSchedule('+s.psIdx+')" title="刪除" style="font-size:14px;padding:4px 8px"><i class="ti ti-trash" style="color:#DC2626"></i></button>'
+            : '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();deleteSchedule(\''+esc(s.clientId)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="刪除" style="font-size:14px;padding:4px 8px"><i class="ti ti-trash" style="color:#DC2626"></i></button>';
         return separator + '<div style="padding:8px 0;border-bottom:1px solid #F1F5F9">' +
             '<div style="display:flex;align-items:center;gap:8px">' +
                 '<div style="flex:1">' +
@@ -6952,7 +6955,7 @@ function filterAllSchedList() {
                 '<span style="display:flex;gap:2px;flex-shrink:0">' + editBtn + delBtn2 + '</span>' +
             '</div>' +
             '<div style="display:flex;align-items:center;margin-top:2px">' +
-                (memoText ? '<div style="flex:1;font-size:14px;color:#64748B">'+memoText+'</div>' : '<div style="flex:1"></div>') +
+                (memoText ? '<div style="flex:1;font-size:14px;color:#475569">'+memoText+'</div>' : '<div style="flex:1"></div>') +
                 doneBtn +
             '</div>' +
         '</div>';
@@ -6968,7 +6971,7 @@ function showDoneSchedules() {
     box.className = 'fill-menu';
     box.style.cssText = 'padding:16px;width:90vw;max-width:500px;max-height:80vh;display:flex;flex-direction:column';
     box.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">' +
-            '<span style="font-weight:700;font-size:15px">✅ 已完成行程</span>' +
+            '<span style="font-weight:700;font-size:15px"><i class="ti ti-circle-check" style="color:#059669"></i> 已完成行程</span>' +
             '<button onclick="this.closest(\'.fill-overlay\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)">✕</button>' +
         '</div>' +
         '<input id="done-search" type="text" placeholder="搜尋客戶名或事項…" oninput="filterDoneList()" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:12px">' +
@@ -6996,7 +6999,7 @@ function filterDoneList() {
                 '<div style="font-size:11px;color:#94A3B8">完成於 '+esc(toROCDateTime(d.doneAt))+'</div>' +
             '</div>' +
             '<button class="btn-ic" onclick="restoreDoneSchedule('+realIdx+')" title="恢復" style="font-size:14px;padding:4px 8px">↩️</button>' +
-            '<button class="btn-ic" onclick="deleteDoneSchedule('+realIdx+')" title="刪除" style="font-size:14px;padding:4px 8px">🗑️</button>' +
+            '<button class="btn-ic" onclick="deleteDoneSchedule('+realIdx+')" title="刪除" style="font-size:14px;padding:4px 8px"><i class="ti ti-trash" style="color:#DC2626"></i></button>' +
         '</div>';
     }).join('') : '<div style="text-align:center;color:var(--muted);padding:20px;font-size:14px">'+(q?'沒有符合的紀錄':'尚無已完成行程')+'</div>';
 }
@@ -7034,7 +7037,7 @@ function restoreDoneSchedule(idx) {
 function getRpDriveIcon(c) {
     var all = _getAllDriveProps(c);
     var hasUrl = all.some(function(a){ return a.url; });
-    return hasUrl ? '📂' : '<span style="opacity:0.3">📁</span>';
+    return hasUrl ? '<i class="ti ti-folder-open" style="color:#D97706"></i>' : '<i class="ti ti-folder" style="color:#A8A29E"></i>';
 }
 function buildDriveFolderName(type, prop, client) {
     var addr = prop.rAddr || prop.addr || '未填地址';
@@ -7202,13 +7205,13 @@ function openDriveFolder(clientId, viewAs) {
         var tag = '<span style="font-size:10px;padding:1px 5px;border-radius:3px;background:'+(tagBgs[a.type]||'#F3F4F6')+';color:'+(tagColors[a.type]||'#374151')+';margin-right:4px">'+a.type+'</span>';
         if (a.url) {
             html += '<div style="margin-bottom:6px">' +
-                '<button type="button" style="display:block;width:100%;text-align:left;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;word-break:break-word;margin-bottom:4px" onclick="window.open(\''+esc(a.url)+'\',\'_blank\')">📂 '+tag+esc(a.label)+'</button>' +
+                '<button type="button" style="display:block;width:100%;text-align:left;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;word-break:break-word;margin-bottom:4px" onclick="window.open(\''+esc(a.url)+'\',\'_blank\')"><i class="ti ti-folder-open" style="color:#D97706"></i> '+tag+esc(a.label)+'</button>' +
                 '<div style="display:flex;gap:6px;justify-content:flex-end">' +
                 '<button type="button" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:11px;color:var(--muted)" onclick="cardSetDriveFolder(\''+esc(clientId)+'\',\''+esc(a.src)+'\','+(parseInt(a.idx)||0)+')">重設</button>' +
                 '<button type="button" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;font-size:11px;color:#EF4444" onclick="cardDelDriveFolder(\''+esc(clientId)+'\',\''+esc(a.src)+'\','+(parseInt(a.idx)||0)+',\''+esc(a.urlKey)+'\')">刪除</button>' +
                 '</div></div>';
         } else {
-            html += '<button type="button" style="display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:6px;border:1px dashed var(--border);border-radius:8px;background:var(--bg);cursor:pointer;font-size:13px;color:var(--muted);word-break:break-word" onclick="cardSetDriveFolder(\''+esc(clientId)+'\',\''+esc(a.src)+'\','+(parseInt(a.idx)||0)+')">📁 '+tag+esc(a.label)+' — 點擊設定</button>';
+            html += '<button type="button" style="display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:6px;border:1px dashed var(--border);border-radius:8px;background:var(--bg);cursor:pointer;font-size:13px;color:var(--muted);word-break:break-word" onclick="cardSetDriveFolder(\''+esc(clientId)+'\',\''+esc(a.src)+'\','+(parseInt(a.idx)||0)+')"><i class="ti ti-folder" style="color:#A8A29E"></i> '+tag+esc(a.label)+' — 點擊設定</button>';
         }
     });
     html += '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="display:block;width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;margin-top:4px">關閉</button>';
@@ -7401,7 +7404,7 @@ function initCContactHeader() {
         '<span style="flex:1;min-width:0;padding:7px 10px;font-size:13px;font-weight:600;color:var(--text);border:1px solid transparent">姓名</span>' +
         '<span style="flex:1;min-width:0;padding:7px 10px;font-size:13px;font-weight:600;color:var(--text);border:1px solid transparent">電話</span>' +
         '<span style="flex:1;min-width:0;padding:7px 10px;font-size:13px;font-weight:600;color:var(--text);border:1px solid transparent">身份證字號</span>' +
-        '<div class="roc-date-wrap" style="flex:1;min-width:0"><span style="flex:1;padding:7px 10px;font-size:13px;font-weight:600;color:var(--text);border:1px solid transparent">生日</span><span style="padding:8px;font-size:14px;visibility:hidden">📅</span></div>' +
+        '<div class="roc-date-wrap" style="flex:1;min-width:0"><span style="flex:1;padding:7px 10px;font-size:13px;font-weight:600;color:var(--text);border:1px solid transparent">生日</span><span style="padding:8px;font-size:14px;visibility:hidden"><i class="ti ti-calendar"></i></span></div>' +
         '<span style="width:22px"></span></div>';
 }
 function addCContactRow(data) {
@@ -7444,7 +7447,7 @@ function addDealRow(data) {
     var html = '<div class="deal-box" id="deal-'+i+'" style="border:1px solid var(--border);border-left:4px solid #92400E;border-radius:10px;padding:10px;margin-bottom:10px;background:#FAFAF9;position:relative">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:12px;font-weight:700;color:#92400E">成交物件 '+localNum+'</span><button type="button" class="c-del" onclick="removeDeal('+i+')">✕</button></div>' +
         '<div style="display:flex;gap:8px;margin-bottom:6px;width:50%">' +
-            '<div class="deal-f-date roc-date-wrap" style="flex:3"><input class="deal-date" type="text" placeholder="成交日期" style="min-width:0;flex:1" value="'+esc(d.date?isoToROC(d.date):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>' +
+            '<div class="deal-f-date roc-date-wrap" style="flex:3"><input class="deal-date" type="text" placeholder="成交日期" style="min-width:0;flex:1" value="'+esc(d.date?isoToROC(d.date):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div>' +
             '<select class="deal-f-role deal-role" style="flex:2"><option value=""'+(d.role?'':' selected')+'>買/賣方</option><option value="買方"'+(d.role==='買方'?' selected':'')+'>買方</option><option value="賣方"'+(d.role==='賣方'?' selected':'')+'>賣方</option></select>' +
         '</div>' +
         '<div class="deal-fields" style="display:grid;grid-template-columns:100px 1fr 100px;gap:8px">' +
@@ -7945,7 +7948,7 @@ function updateActiveFilterBar() {
     if (curFilter === '庫存屋主' && bfSGrade) tags.push(bfSGrade + '級');
     if (!tags.length) { bar.style.display = 'none'; return; }
     bar.style.display = 'flex';
-    bar.innerHTML = '<span style="font-weight:700">🔍 篩選中：</span>' +
+    bar.innerHTML = '<span style="font-weight:700"><i class="ti ti-filter" style="color:#2563EB"></i> 篩選中：</span>' +
         tags.map(function(t) { return '<span style="background:#FEF3C7;padding:2px 10px;border-radius:12px;font-weight:600">' + esc(t) + '</span>'; }).join('') +
         '<span style="margin-left:auto;cursor:pointer;text-decoration:underline" onclick="clearAllFilters()">清除</span>';
 }
@@ -8136,7 +8139,7 @@ function pickLandlord() {
         var propInfo = props.length ? (props[0].rAddr || props[0].rCommunity || '') : '';
         html += '<button type="button" class="ll-pick-item" data-search="'+esc((c.llName||c.name||'').toLowerCase()+' '+(c.llPhone||c.phone||''))+'" data-llid="'+esc(c.id)+'" style="display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:4px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px">';
         html += '<div style="font-weight:700">'+esc(c.llName||c.name||'未填姓名')+' <span style="color:var(--muted);font-weight:400">'+esc(c.llPhone||c.phone||'')+'</span></div>';
-        if (propInfo) html += '<div style="font-size:12px;color:var(--muted);margin-top:2px">📍 '+esc(propInfo)+'</div>';
+        if (propInfo) html += '<div style="font-size:12px;color:var(--muted);margin-top:2px"><i class="ti ti-map-pin" style="color:#DC2626;font-size:12px"></i> '+esc(propInfo)+'</div>';
         if (props.length > 1) html += '<div style="font-size:11px;color:#8B7355">共 '+props.length+' 筆物件</div>';
         html += '</button>';
     });
@@ -8174,7 +8177,7 @@ function selectLandlord(id, propIdx) {
             var rent = p.rent ? '月租 ' + p.rent : '';
             var period = p.rStartDate || p.rEndDate ? (isoToROC(p.rStartDate||'') + ' ~ ' + isoToROC(p.rEndDate||'')) : '';
             html += '<button type="button" onclick="selectLandlord(\'' + esc(id) + '\',' + i + ')" style="display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:4px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px">';
-            html += '<div style="font-weight:700">📍 ' + esc(addr) + '</div>';
+            html += '<div style="font-weight:700"><i class="ti ti-map-pin" style="color:#DC2626"></i> ' + esc(addr) + '</div>';
             if (rent) html += '<div style="font-size:12px;color:var(--muted)">' + esc(rent) + '</div>';
             if (period) html += '<div style="font-size:12px;color:var(--muted)">' + esc(period) + '</div>';
             html += '</button>';
@@ -8251,7 +8254,7 @@ function showLinkedTenants(landlordId) {
         if (propInfo) details.push('物件：' + esc(propInfo));
         if (details.length) html += '<div style="font-size:12px;color:var(--muted)">' + details.join(' / ') + '</div>';
         html += '</div>';
-        html += '<button type="button" onclick="openEdit(\'' + esc(t.id) + '\')" class="btn-ic" title="編輯租客" style="font-size:14px;padding:4px 8px">✏️</button>';
+        html += '<button type="button" onclick="openEdit(\'' + esc(t.id) + '\')" class="btn-ic" title="編輯租客" style="font-size:14px;padding:4px 8px"><i class="ti ti-pencil" style="color:#57534E"></i></button>';
         html += '</div>';
     });
     list.innerHTML = html;
@@ -8971,18 +8974,18 @@ function saveClient() {
         }
     }
     persist(); closeForm(true); render();
-    showToast('✅ 已儲存「' + name + '」');
+    showToast('已儲存「' + name + '」');
     } // end _continueSave
     if (_needDupConfirm) {
-        confirmAction('⚠️ 此電話與「' + (_dupClient.name||'') + '」重複，確定要儲存？', function() {
+        confirmAction('此電話與「' + (_dupClient.name||'') + '」重複，確定要儲存？', function() {
             if (_needIdConfirm) {
-                confirmAction('⚠️ 身份證字號「' + _basicIdNo + '」格式不正確，確定要儲存？', _continueSave);
+                confirmAction('身份證字號「' + _basicIdNo + '」格式不正確，確定要儲存？', _continueSave);
             } else { _continueSave(); }
         });
         return;
     }
     if (_needIdConfirm) {
-        confirmAction('⚠️ 身份證字號「' + _basicIdNo + '」格式不正確，確定要儲存？', _continueSave);
+        confirmAction('身份證字號「' + _basicIdNo + '」格式不正確，確定要儲存？', _continueSave);
         return;
     }
     _continueSave();
@@ -9014,7 +9017,7 @@ function _showUndoBar(id, name) {
 }
 function _undoDel(id) {
     var c = DB.find(function(x){return x.id===id;});
-    if (c) { delete c._deleted; delete c._deletedAt; persist(); render(); showToast('✅ 已復原'); }
+    if (c) { delete c._deleted; delete c._deletedAt; persist(); render(); showToast('已復原'); }
     if (_undoBar) _undoBar.remove(); _undoBar=null; clearTimeout(_undoTimer); if(_undoInterval) clearInterval(_undoInterval);
 }
 function restoreFromTrash(id) {
@@ -9090,9 +9093,9 @@ function renderPerformance() {
             html += '</select></div>';
         } else {
             html += '<div style="display:flex;gap:8px;align-items:center">' +
-                    '<div style="flex:1"><div class="roc-date-wrap"><input id="perfHistStart" type="text" value="'+esc(_perfHistStart?isoToROC(_perfHistStart):'')+'" placeholder="起始日" style="width:100%;font-size:14px"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
+                    '<div style="flex:1"><div class="roc-date-wrap"><input id="perfHistStart" type="text" value="'+esc(_perfHistStart?isoToROC(_perfHistStart):'')+'" placeholder="起始日" style="width:100%;font-size:14px"><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div></div>' +
                     '<span style="font-size:16px;color:var(--muted)">～</span>' +
-                    '<div style="flex:1"><div class="roc-date-wrap"><input id="perfHistEnd" type="text" value="'+esc(_perfHistEnd?isoToROC(_perfHistEnd):'')+'" placeholder="結束日" style="width:100%;font-size:14px"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
+                    '<div style="flex:1"><div class="roc-date-wrap"><input id="perfHistEnd" type="text" value="'+esc(_perfHistEnd?isoToROC(_perfHistEnd):'')+'" placeholder="結束日" style="width:100%;font-size:14px"><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div></div>' +
                     '<button type="button" onclick="_perfHistStart=\'\';_perfHistEnd=\'\';renderPerformance()" style="padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:13px;color:var(--text);white-space:nowrap">清除</button>' +
                     '<button type="button" onclick="_perfHistStart=rocToISO(document.getElementById(\'perfHistStart\').value);_perfHistEnd=rocToISO(document.getElementById(\'perfHistEnd\').value);renderPerformance()" style="padding:6px 12px;border:none;border-radius:6px;background:#57534E;color:white;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap">查詢</button>' +
                 '</div>';
@@ -9256,7 +9259,7 @@ function renderPerfList(filtered) {
                     '<span style="padding:2px 6px;border-radius:4px;font-size:13px;font-weight:600;background:'+catBg+';color:'+catColor+'">'+esc(r.category||'')+'</span>' +
                     '<span style="flex:1"></span>' +
                     '<span style="color:#047857;text-align:right">'+(feeDetail?feeDetail+'元':'')+'</span>' +
-                    '<button type="button" onclick="editPerfRecord('+idx+')" style="background:none;border:none;cursor:pointer;color:#57534E;font-size:13px" title="修改">✏️</button>' +
+                    '<button type="button" onclick="editPerfRecord('+idx+')" style="background:none;border:none;cursor:pointer;color:#57534E;font-size:13px" title="修改"><i class="ti ti-pencil" style="color:#57534E"></i></button>' +
                     '<button type="button" onclick="deletePerfRecord('+idx+')" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px" title="刪除">✕</button>' +
                 '</div>' +
                 '<div style="padding-left:76px;margin-top:2px">' +
@@ -9284,7 +9287,7 @@ function renderDealAnalysis() {
     if (!allDeals.length) return '<div style="text-align:center;color:var(--muted);padding:30px;font-size:14px">尚無成交物件資料</div>';
 
     var html = '<div style="padding:4px 0">' +
-        '<div style="font-size:16px;font-weight:800;color:var(--deep);margin-bottom:12px">📊 成交總價分析</div>';
+        '<div style="font-size:16px;font-weight:800;color:var(--deep);margin-bottom:12px"><i class="ti ti-chart-bar" style="color:#2563EB"></i> 成交總價分析</div>';
 
     // 1. 年度成交統計
     var years = {};
@@ -9452,7 +9455,7 @@ function addPerfRecord() {
                 '<button type="button" id="perfCat-中人" onclick="setPerfCat(\'中人\')" style="flex:1;padding:8px;border:2px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;font-weight:600">中人</button>' +
             '</div></div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
-            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">成交日期</label><div class="roc-date-wrap"><input id="perfDate" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">成交日期</label><div class="roc-date-wrap"><input id="perfDate" type="text" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">客戶/物件</label><input id="perfClient" placeholder=""><input type="hidden" id="perfClientId"></div>' +
         '</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
@@ -9575,7 +9578,7 @@ function editPerfRecord(idx) {
             '</div></div>' +
         '<div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">項目</label><div id="epCatBtns" style="display:flex;gap:6px">'+catBtnsHtml+'</div></div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
-            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">成交日期</label><div class="roc-date-wrap"><input id="epDate" type="text" value="'+esc(r.date?isoToROC(r.date):'')+'" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
+            '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">成交日期</label><div class="roc-date-wrap"><input id="epDate" type="text" value="'+esc(r.date?isoToROC(r.date):'')+'" placeholder=""><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">客戶/物件</label><input id="epClient" value="'+esc(r.client||'')+'"><input type="hidden" id="epClientId" value="'+esc(r.clientId||'')+'"></div>' +
         '</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">' +
@@ -9674,8 +9677,8 @@ function renderTrash() {
         return '<div style="display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid var(--border)">' +
             '<div style="flex:1"><div style="font-weight:700;font-size:14px">'+esc(c.name)+'</div>' +
             '<div style="font-size:12px;color:var(--muted)">'+esc(types)+' · '+esc(c.phone||'')+' · 刪除於 '+esc(delDate)+'</div></div>' +
-            '<button class="btn-ic" onclick="restoreFromTrash(\''+esc(c.id)+'\')" title="還原" style="font-size:16px;padding:4px 10px">♻️</button>' +
-            '<button class="btn-ic del" onclick="permanentDel(\''+esc(c.id)+'\')" title="永久刪除" style="font-size:16px;padding:4px 10px">🗑️</button>' +
+            '<button class="btn-ic" onclick="restoreFromTrash(\''+esc(c.id)+'\')" title="還原" style="font-size:16px;padding:4px 10px"><i class="ti ti-restore" style="color:#059669"></i></button>' +
+            '<button class="btn-ic del" onclick="permanentDel(\''+esc(c.id)+'\')" title="永久刪除" style="font-size:16px;padding:4px 10px"><i class="ti ti-trash" style="color:#DC2626"></i></button>' +
             '</div>';
     }).join('');
 }
@@ -10071,7 +10074,7 @@ function doCloudRestore() {
             if (c._deleted) return;
             getTypes(c).forEach(function(t) { if (t in _typeMap) _typeMap[t]++; });
         });
-        if (statusEl) statusEl.textContent = '✅ 還原成功（共 ' + DB.length + ' 筆）';
+        if (statusEl) statusEl.textContent = '還原成功（共 ' + DB.length + ' 筆）';
         // 自訂置中彈窗
         var _ov = document.createElement('div');
         _ov.className = 'fill-overlay';
@@ -10098,7 +10101,7 @@ function doCloudRestore() {
         done = true;
         try { processRestore(data); }
         catch(err) {
-            if (statusEl) statusEl.textContent = '❌ 還原失敗：' + err.message;
+            if (statusEl) statusEl.textContent = '還原失敗：' + err.message;
             console.error('還原失敗:', err); showToast('還原失敗，請重試', 'error', 4000);
         }
         if (btnEl) btnEl.disabled = false;
@@ -10109,7 +10112,7 @@ function doCloudRestore() {
     script.onerror = function() {
         if (done) return;
         done = true;
-        if (statusEl) statusEl.textContent = '❌ 連線失敗';
+        if (statusEl) statusEl.textContent = '連線失敗';
         if (btnEl) btnEl.disabled = false;
         showToast('連線失敗，請檢查網路後重試', 'error', 4000);
         delete window[cbName];
@@ -10120,7 +10123,7 @@ function doCloudRestore() {
     setTimeout(function() {
         if (done) return;
         done = true;
-        if (statusEl) statusEl.textContent = '⚠️ 還原逾時，請重試';
+        if (statusEl) statusEl.textContent = '還原逾時，請重試';
         if (btnEl) btnEl.disabled = false;
         showToast('還原逾時，請確認網路後重試', 'error', 4000);
         delete window[cbName];
@@ -10214,11 +10217,11 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('touchend', function() {
         var ind = document.getElementById('ptrIndicator');
         if (_ptrActive) {
-            ind.textContent = '☁️ 同步中…';
+            ind.textContent = '同步中…';
             ind.classList.add('refreshing');
             autoSync();
             autoFetchCloud();
-            setTimeout(function() { ind.classList.remove('pulling','refreshing'); render(); showToast('✅ 已刷新'); }, 3000);
+            setTimeout(function() { ind.classList.remove('pulling','refreshing'); render(); showToast('已刷新'); }, 3000);
         } else {
             ind.classList.remove('pulling');
         }
@@ -10269,7 +10272,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260413a4';
+var APP_VERSION = '20260413a5';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
@@ -10279,9 +10282,9 @@ if ('serviceWorker' in navigator) {
     if (oldVer) {
         localStorage.removeItem('_appOldVersion');
         if (oldVer !== APP_VERSION) {
-            setTimeout(function(){ showUpdateMsg('✅ 更新成功！', '版本：' + APP_VERSION); }, 500);
+            setTimeout(function(){ showUpdateMsg('更新成功！', '版本：' + APP_VERSION); }, 500);
         } else {
-            setTimeout(function(){ showUpdateMsg('⚠️ 未更新成功', '版本仍為：' + APP_VERSION + '\n請稍後再試'); }, 500);
+            setTimeout(function(){ showUpdateMsg('未更新成功', '版本仍為：' + APP_VERSION + '\n請稍後再試'); }, 500);
         }
     }
 })();
@@ -10331,18 +10334,18 @@ function doClearCache() {
     }
 }
 
-// ── ⚙️ 卡片更多選單 ──
+// ── 卡片更多選單 ──
 function openCardMenu(e, id, viewAs, isArchived) {
     var existing = document.getElementById('cardMenuPopup');
     if (existing) { closeCardMenu(); return; }
     var menu = document.createElement('div');
     menu.className = 'card-menu-popup';
     menu.id = 'cardMenuPopup';
-    var archLabel = isArchived ? '📤 解除封存' : '📥 封存';
+    var archLabel = isArchived ? '<i class="ti ti-archive-off" style="color:#059669"></i> 解除封存' : '<i class="ti ti-archive" style="color:#D97706"></i> 封存';
     var archFn = isArchived ? 'unarchiveClient' : 'archiveClient';
-    menu.innerHTML = '<button onclick="closeCardMenu();openEdit(\''+esc(id)+'\',\''+esc(viewAs)+'\')">✏️ 編輯</button>' +
+    menu.innerHTML = '<button onclick="closeCardMenu();openEdit(\''+esc(id)+'\',\''+esc(viewAs)+'\')"><i class="ti ti-pencil" style="color:#57534E"></i> 編輯</button>' +
         '<button onclick="closeCardMenu();'+archFn+'(\''+esc(id)+'\')">'+archLabel+'</button>' +
-        '<button class="del-btn" onclick="closeCardMenu();del(\''+esc(id)+'\')">🗑️ 刪除</button>';
+        '<button class="del-btn" onclick="closeCardMenu();del(\''+esc(id)+'\')"><i class="ti ti-trash" style="color:#DC2626"></i> 刪除</button>';
     document.body.appendChild(menu);
     // 定位在按鈕附近
     var rect = e.currentTarget.getBoundingClientRect();
@@ -10367,7 +10370,7 @@ function closeCardMenuOnClick(e) {
     if (m && !m.contains(e.target)) closeCardMenu();
 }
 
-// ── ⚙️ 手機設定選單 ──
+// ── 手機設定選單 ──
 function toggleHeaderMore() {
     var menu = document.getElementById('headerMoreMenu');
     menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
@@ -10397,7 +10400,7 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// ── 📋 常用範本 ──
+// ── 常用範本 ──
 var _templates;
 var _defaultTemplates = [
     { id: 'tpl_1', title: '租客詢問表', content: '👋您好，先麻煩您幫我填寫\n\n👤 身分背景與成員\n[怎麼稱呼您]:\n[您的手機]：\n[居住成員及關係]： \n[任職公司/職稱/年資]:\n\n🏠 生活習慣\n[有/無] 飼養寵物：\n[有/無] 抽菸習慣：\n[有/無] 供奉神明桌：\n\n📝 其他\n[有/無] 申請租補需求：\n[有/無] 報稅抵稅需求：\n[有/無] 遷入戶籍需求：\n[希望入住時間]:\n[特殊需求]:' },
@@ -10445,8 +10448,8 @@ function renderTemplateList() {
             html += '<div style="border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:white">' +
                 '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">' +
                     '<span style="font-size:15px;font-weight:700;flex:1">'+esc(tpl.title)+'</span>' +
-                    '<button type="button" onclick="copyTemplate('+i+')" style="padding:5px 12px;border:none;border-radius:6px;background:#57534E;color:white;cursor:pointer;font-size:12px;font-weight:600">📋 複製</button>' +
-                    '<button type="button" onclick="editTemplate('+i+')" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:12px;color:var(--text)">✏️</button>' +
+                    '<button type="button" onclick="copyTemplate('+i+')" style="padding:5px 12px;border:none;border-radius:6px;background:#57534E;color:white;cursor:pointer;font-size:12px;font-weight:600"><i class="ti ti-copy"></i> 複製</button>' +
+                    '<button type="button" onclick="editTemplate('+i+')" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:12px;color:var(--text)"><i class="ti ti-pencil" style="color:#57534E"></i></button>' +
                     '<button type="button" onclick="deleteTemplate('+i+')" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:12px;color:#EF4444">✕</button>' +
                 '</div>' +
                 '<pre style="white-space:pre-wrap;word-break:break-word;font-family:inherit;font-size:13px;color:var(--text);margin:0;background:var(--bg);padding:10px 12px;border-radius:8px;max-height:150px;overflow-y:auto;line-height:1.6">'+esc(tpl.content)+'</pre>' +
@@ -10475,8 +10478,8 @@ function renderStockTemplateList() {
                 html += '<div style="border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:white">' +
                     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">' +
                         '<span style="font-size:15px;font-weight:700;flex:1">'+esc(mt.title)+'</span>' +
-                        '<button type="button" onclick="copyMktFromModal(\''+esc(c.id)+'\','+i+')" style="padding:5px 12px;border:none;border-radius:6px;background:#57534E;color:white;cursor:pointer;font-size:12px;font-weight:600">📋 複製</button>' +
-                        '<button type="button" onclick="editMktFromModal(\''+esc(c.id)+'\','+i+')" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:12px;color:var(--text)">✏️</button>' +
+                        '<button type="button" onclick="copyMktFromModal(\''+esc(c.id)+'\','+i+')" style="padding:5px 12px;border:none;border-radius:6px;background:#57534E;color:white;cursor:pointer;font-size:12px;font-weight:600"><i class="ti ti-copy"></i> 複製</button>' +
+                        '<button type="button" onclick="editMktFromModal(\''+esc(c.id)+'\','+i+')" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:12px;color:var(--text)"><i class="ti ti-pencil" style="color:#57534E"></i></button>' +
                         '<button type="button" onclick="deleteMktFromModal(\''+esc(c.id)+'\','+i+')" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:12px;color:#EF4444">✕</button>' +
                     '</div>' +
                     '<div style="font-size:12px;color:var(--muted);margin-bottom:6px">'+esc(name)+(comm?' — '+esc(comm):'')+'</div>' +
@@ -10630,7 +10633,7 @@ function deleteTemplate(idx) {
     });
 }
 
-// ── 📋 簽約範本 ──
+// ── 簽約範本 ──
 var _signingTemplates;
 var _defaultSigningTemplates = [
     { id: 'stpl_1', title: '買方簽約應帶物品', content: '🙋‍♂️ 買方簽約應帶物品\n一、身分證正本\n\n二、印章\n\n三、現金（或現場轉帳）\n①斡旋金/要約金:\n②簽約款:\n③仲介服務費:\n以上金額共計:\n\n四、戶籍謄本（三個月內）\n\n五、財力證明\n①薪資證明\n②存摺影本\n③所得清單\n\n．買賣契約書我會準備。' },
@@ -10657,8 +10660,8 @@ function renderSigningTemplateList() {
             html += '<div style="border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:white">' +
                 '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">' +
                     '<span style="font-size:15px;font-weight:700;flex:1">'+esc(tpl.title)+'</span>' +
-                    '<button type="button" onclick="copySigningTemplate('+i+')" style="padding:5px 12px;border:none;border-radius:6px;background:#57534E;color:white;cursor:pointer;font-size:12px;font-weight:600">📋 複製</button>' +
-                    '<button type="button" onclick="editSigningTemplate('+i+')" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:12px;color:var(--text)">✏️</button>' +
+                    '<button type="button" onclick="copySigningTemplate('+i+')" style="padding:5px 12px;border:none;border-radius:6px;background:#57534E;color:white;cursor:pointer;font-size:12px;font-weight:600"><i class="ti ti-copy"></i> 複製</button>' +
+                    '<button type="button" onclick="editSigningTemplate('+i+')" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:12px;color:var(--text)"><i class="ti ti-pencil" style="color:#57534E"></i></button>' +
                     '<button type="button" onclick="deleteSigningTemplate('+i+')" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:12px;color:#EF4444">✕</button>' +
                 '</div>' +
                 '<pre style="white-space:pre-wrap;word-break:break-word;font-family:inherit;font-size:13px;color:var(--text);margin:0;background:var(--bg);padding:10px 12px;border-radius:8px;max-height:150px;overflow-y:auto;line-height:1.6">'+esc(tpl.content)+'</pre>' +
@@ -10738,7 +10741,7 @@ function deleteSigningTemplate(idx) {
     });
 }
 
-// ── 📋 庫存行銷範本 ──
+// ── 庫存行銷範本 ──
 var _mktClientId = '';
 function openMktTemplates(clientId) {
     _mktClientId = clientId;
@@ -10752,7 +10755,7 @@ function openMktTemplates(clientId) {
     box.className = 'fill-menu';
     box.style.cssText = 'padding:16px;width:min(500px,90vw);max-height:85vh;display:flex;flex-direction:column';
     box.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">' +
-        '<span style="font-weight:700;font-size:15px;flex:1">📋 行銷範本 — '+esc(c.sName||c.name)+'</span>' +
+        '<span style="font-weight:700;font-size:15px;flex:1"><i class="ti ti-file-text" style="color:#8B7355"></i> 行銷範本 — '+esc(c.sName||c.name)+'</span>' +
         '<button type="button" onclick="addMktTemplate()" style="padding:4px 10px;border:none;border-radius:6px;background:#57534E;color:white;cursor:pointer;font-size:12px;font-weight:600">＋ 新增</button>' +
         '<button type="button" onclick="closeMktOverlay()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--muted)">✕</button>' +
     '</div>' +
@@ -10780,8 +10783,8 @@ function renderMktList() {
             html += '<div style="border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:white">' +
                 '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">' +
                     '<span style="font-size:14px;font-weight:700;flex:1">'+esc(tpl.title)+'</span>' +
-                    '<button type="button" onclick="copyMktTemplate('+i+')" style="padding:4px 10px;border:none;border-radius:6px;background:#57534E;color:white;cursor:pointer;font-size:11px;font-weight:600">📋 複製</button>' +
-                    '<button type="button" onclick="editMktTemplate('+i+')" style="padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:11px">✏️</button>' +
+                    '<button type="button" onclick="copyMktTemplate('+i+')" style="padding:4px 10px;border:none;border-radius:6px;background:#57534E;color:white;cursor:pointer;font-size:11px;font-weight:600"><i class="ti ti-copy"></i> 複製</button>' +
+                    '<button type="button" onclick="editMktTemplate('+i+')" style="padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:11px"><i class="ti ti-pencil" style="color:#57534E"></i></button>' +
                     '<button type="button" onclick="deleteMktTemplate('+i+')" style="padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:11px;color:#EF4444">✕</button>' +
                 '</div>' +
                 '<pre style="white-space:pre-wrap;word-break:break-word;font-family:inherit;font-size:12px;color:var(--text);margin:0;background:var(--bg);padding:8px 10px;border-radius:8px;max-height:120px;overflow-y:auto;line-height:1.5">'+esc(tpl.content)+'</pre>' +
