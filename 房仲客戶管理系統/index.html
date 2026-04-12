@@ -760,10 +760,10 @@
     </div>
     <div style="flex:1"></div>
     <div class="header-tools" style="display:flex;gap:8px;align-items:center">
-        <button onclick="openTemplates()" class="header-btn" data-hover-color="#0891B2">📋 常用範本</button>
-        <button onclick="openPerformance()" class="header-btn" data-hover-color="#8B5CF6">📊 業績儀表板</button>
+        <button onclick="openTemplates()" class="header-btn" data-hover-color="#57534E">📋 常用範本</button>
+        <button onclick="openPerformance()" class="header-btn" data-hover-color="#57534E">📊 業績儀表板</button>
         <button onclick="openTrash()" class="header-btn" data-hover-color="#EF4444">🗑️ 資源回收桶<span id="trashCount" style="font-size:11px;margin-left:2px"></span></button>
-        <button onclick="cloudRestore()" id="btnRestore" class="header-btn" data-hover-color="#3B82F6">☁️ 雲端還原</button>
+        <button onclick="cloudRestore()" id="btnRestore" class="header-btn" data-hover-color="#57534E">☁️ 雲端還原</button>
     </div>
     <div class="mobile-setting-menu" id="mobileSettingMenu">
         <button onclick="openTrash();closeMobileSetting()">🗑️ 資源回收桶</button>
@@ -1252,7 +1252,7 @@
                     </div>
                     <div id="rTenantList" style="display:none"></div>
                     <!-- 指定房東 -->
-                    <div style="border:1px solid var(--border);border-left:4px solid #0891B2;border-radius:10px;padding:10px;margin-top:10px;background:#F0FDFA">
+                    <div style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:10px;margin-top:10px;background:#F0FDFA">
                         <div style="font-size:12px;font-weight:700;color:#0E7490;margin-bottom:6px">連結房東</div>
                         <div style="display:flex;gap:8px;align-items:center">
                             <input id="f-linkedLandlord" readonly placeholder="點擊選擇房東" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:white;cursor:pointer" onclick="pickLandlord()">
@@ -1463,7 +1463,7 @@
         <div class="modal-head">
             <div class="modal-title">📋 常用範本</div>
             <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
-                <button id="tplAddBtn" onclick="tplAddByTab()" style="padding:5px 12px;border:none;border-radius:8px;background:#0891B2;color:white;cursor:pointer;font-size:12px;font-weight:600">＋ 新增</button>
+                <button id="tplAddBtn" onclick="tplAddByTab()" style="padding:5px 12px;border:none;border-radius:8px;background:#57534E;color:white;cursor:pointer;font-size:12px;font-weight:600">＋ 新增</button>
                 <button class="btn-x" onclick="closeTemplates()">✕</button>
             </div>
         </div>
@@ -3514,7 +3514,7 @@ function renderDashboard() {
         var doneBtn = s.personal
             ? '<button class="btn-ic" onclick="completePersonalSchedule('+s.psIdx+')" title="完成" style="font-size:13px;padding:2px 4px">✅</button>'
             : '<button class="btn-ic" onclick="completeSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="完成" style="font-size:13px;padding:2px 4px">✅</button>';
-        var memoHtml = s.memo ? '<div class="dash-sched-memo"'+(s.personal?' style="color:#0891B2"':'')+'>'+esc(s.memo)+'</div>' : (s.personal ? '<div class="dash-sched-memo" style="color:#0891B2">個人行程</div>' : '');
+        var memoHtml = s.memo ? '<div class="dash-sched-memo"'+(s.personal?' style="color:#0891B2"':'')+'>'+esc(s.memo)+'</div>' : (s.personal ? '<div class="dash-sched-memo" style="color:#8B7355">個人行程</div>' : '');
         return '<div class="dash-item dash-sched-item">' +
             '<div class="dash-sched-row1">' +
                 '<span class="dash-item-info" style="color:'+(s.days===0?'#EF4444':'')+'">'+esc(isoToMDW(s.date))+(s.time?' '+s.time:'')+'</span>' +
@@ -3575,7 +3575,7 @@ function renderDashboard() {
             '<span class="dash-item-info" style="color:'+(b.days===0?'#EF4444':'')+'">'+esc(isoToMDW(b.date))+'</span>' +
             '<span class="dash-item-name" onclick="showDet(\''+esc(b.id)+'\')" style="white-space:nowrap">'+(b.who?esc(b.who)+'<span style="font-weight:400;color:#64748B">（'+esc(b.name)+'）</span>':esc(b.name))+'</span>' +
             '<span style="font-size:11px;color:#64748B;white-space:nowrap;flex-shrink:0">'+esc(isoToROC(b.date))+'</span>' +
-            (age ? '<span style="font-size:11px;font-weight:600;color:#1E40AF;background:#EFF6FF;padding:1px 8px;border-radius:10px;white-space:nowrap;flex-shrink:0">'+esc(age)+'</span>' : '') +
+            (age ? '<span style="font-size:11px;font-weight:600;color:#5C4A32;background:#F5F0EB;padding:1px 8px;border-radius:10px;white-space:nowrap;flex-shrink:0">'+esc(age)+'</span>' : '') +
             '<button class="btn-ic" onclick="event.stopPropagation();_dismissAlert(\''+esc(b.dismissKey)+'\',\'確定已祝福「'+esc(b.who||b.name)+'」？\')" title="已祝福" style="font-size:13px;padding:2px 4px;flex-shrink:0">✅</button></div>';
     }).join('') : '<div class="dash-empty">近7天內沒有客戶生日</div>';
 
@@ -3804,7 +3804,7 @@ function renderCard(c) {
                 if (_schedFilter && s.schedType && s.schedType !== _schedFilter) return false;
                 return true;
             }).sort(function(a,b){ return (a.date+(a.time||'')).localeCompare(b.date+(b.time||'')); })[0];
-            if (_nextSched) meta += `<div style="margin-bottom:3px;font-size:14px;line-height:1.4"><span style="color:var(--muted)">行程</span> <span style="color:#1E40AF;font-weight:700">${esc(isoToMDW(_nextSched.date))}${_nextSched.time?' '+_nextSched.time:''}</span>${_nextSched.memo?'<div style="color:#1E40AF;font-weight:700;word-break:break-word">'+esc(_nextSched.memo)+'</div>':''}</div>`;
+            if (_nextSched) meta += `<div style="margin-bottom:3px;font-size:14px;line-height:1.4"><span style="color:var(--muted)">行程</span> <span style="color:#57534E;font-weight:700">${esc(isoToMDW(_nextSched.date))}${_nextSched.time?' '+_nextSched.time:''}</span>${_nextSched.memo?'<div style="color:#57534E;font-weight:700;word-break:break-word">'+esc(_nextSched.memo)+'</div>':''}</div>`;
         }
         if (showType==='經營買方') {
             // 選擇要顯示的需求：有篩選時顯示符合的需求，否則顯示第一組
@@ -4645,8 +4645,8 @@ function showDet(id, viewAs) {
             ${(function(){
                 if (!c.schedules || !c.schedules.length) return '';
                 var sorted = c.schedules.slice().sort(function(a,b){ return (a.date+(a.time||'')).localeCompare(b.date+(b.time||'')); });
-                return '<div style="font-weight:700;font-size:12px;color:#1E40AF;margin-top:8px;margin-bottom:4px">預排行程</div>' +
-                    sorted.map(function(s){ return '<div class="det-row"><span class="det-key" style="color:#292524;font-weight:700;width:auto;white-space:nowrap;margin-right:12px">'+esc(isoToROC(s.date)+(s.time?' '+s.time:''))+'</span><span class="det-val" style="color:#1E40AF">'+esc(s.memo||'')+'</span></div>'; }).join('');
+                return '<div style="font-weight:700;font-size:12px;color:#57534E;margin-top:8px;margin-bottom:4px">預排行程</div>' +
+                    sorted.map(function(s){ return '<div class="det-row"><span class="det-key" style="color:#292524;font-weight:700;width:auto;white-space:nowrap;margin-right:12px">'+esc(isoToROC(s.date)+(s.time?' '+s.time:''))+'</span><span class="det-val" style="color:#57534E">'+esc(s.memo||'')+'</span></div>'; }).join('');
             })()}
             ${(function(){
                 var _nLabels={'經營買方':'買方備註','庫存屋主':'庫存備註','房東':'房東備註','租客':'租客備註','成交客戶':'成交備註','商機募集':'商機備註'};
@@ -6186,7 +6186,7 @@ function openTimePicker(inputEl) {
         '<div style="display:flex;gap:8px">' +
             '<button id="tp-cancel" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
             '<button id="tp-clear" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:#F1F5F9;font-size:14px;cursor:pointer;font-family:inherit">清除</button>' +
-            '<button id="tp-ok" style="flex:1;padding:10px;border:none;border-radius:8px;background:#0891B2;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">確定</button>' +
+            '<button id="tp-ok" style="flex:1;padding:10px;border:none;border-radius:8px;background:#57534E;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">確定</button>' +
         '</div>';
     overlay.appendChild(box);
     document.body.appendChild(overlay);
@@ -6197,7 +6197,7 @@ function openTimePicker(inputEl) {
         var html = '';
         for (var i = 0; i < count; i++) {
             var val = String(i).padStart(2, '0');
-            html += '<div data-val="'+i+'" style="height:'+itemH+'px;display:flex;align-items:center;justify-content:center;font-size:20px;scroll-snap-align:center;cursor:pointer;border-radius:6px;transition:background 0.1s'+(i===sel?';background:#E0F2FE;font-weight:700;color:#0891B2':'')+'">' + val + '</div>';
+            html += '<div data-val="'+i+'" style="height:'+itemH+'px;display:flex;align-items:center;justify-content:center;font-size:20px;scroll-snap-align:center;cursor:pointer;border-radius:6px;transition:background 0.1s'+(i===sel?';background:#F5F0EB;font-weight:700;color:#0891B2':'')+'">' + val + '</div>';
         }
         wrap.innerHTML = html;
         wrap.scrollTop = sel * itemH - (180 - itemH) / 2;
@@ -6212,7 +6212,7 @@ function openTimePicker(inputEl) {
         items.forEach(function(el, i) {
             var top = tops[i], bot = top + itemH;
             if (top <= mid && bot > mid) {
-                el.style.background = '#E0F2FE'; el.style.fontWeight = '700'; el.style.color = '#0891B2';
+                el.style.background = '#F5F0EB'; el.style.fontWeight = '700'; el.style.color = '#0891B2';
             } else {
                 el.style.background = ''; el.style.fontWeight = ''; el.style.color = '';
             }
@@ -6439,8 +6439,8 @@ function addScheduleRow(data) {
     if (_schedTypeVal === 'all') _schedTypeVal = '';
     var _stOpts = [['','不限'],['經營買方','買方'],['庫存屋主','庫存'],['房東','房東'],['租客','租客'],['成交客戶','成交'],['商機募集','商機']];
     var _stHtml = _stOpts.map(function(o){ return '<option value="'+o[0]+'"'+(_schedTypeVal===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('');
-    var html = '<div class="c-row" id="sched-'+schedId+'" style="border:1px solid var(--border);border-left:4px solid #0891B2;border-radius:10px;padding:8px 10px;margin-bottom:8px;background:#FAFAF9;flex-wrap:wrap;gap:6px">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:2px"><span style="font-size:12px;font-weight:700;color:#0891B2">行程 '+localNum+'</span><button type="button" class="c-del" onclick="this.parentElement.parentElement.remove()">✕</button></div>' +
+    var html = '<div class="c-row" id="sched-'+schedId+'" style="border:1px solid var(--border);border-left:4px solid #8B7355;border-radius:10px;padding:8px 10px;margin-bottom:8px;background:#FAFAF9;flex-wrap:wrap;gap:6px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:2px"><span style="font-size:12px;font-weight:700;color:#8B7355">行程 '+localNum+'</span><button type="button" class="c-del" onclick="this.parentElement.parentElement.remove()">✕</button></div>' +
         '<select class="sched-type" style="width:70px;flex-shrink:0;padding:6px 4px;border:1px solid var(--border);border-radius:6px;font-size:12px">'+_stHtml+'</select>' +
         '<div class="roc-date-wrap" style="width:160px;flex-shrink:0"><input type="text" placeholder="日期" style="min-width:0;flex:1" value="'+esc(d.date?isoToROC(d.date):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div>' +
         '<select class="sched-time" style="width:80px;flex-shrink:0">' + buildTimeOptions(d.time||'') + '</select>' +
@@ -6493,7 +6493,7 @@ function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo, prefillT
         '<div style="margin-bottom:12px"><input id="qs-memo" type="text" placeholder="事項說明（如：帶看、回電、簽約…）" value="'+esc(prefillMemo||'')+'" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit"></div>' +
         '<div style="display:flex;gap:8px">' +
             '<button onclick="this.closest(\'.fill-overlay\').remove()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
-            '<button id="qs-save" style="flex:1;padding:10px;border:none;border-radius:8px;background:#0891B2;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">儲存</button>' +
+            '<button id="qs-save" style="flex:1;padding:10px;border:none;border-radius:8px;background:#57534E;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">儲存</button>' +
         '</div>';
     overlay.appendChild(box);
     document.body.appendChild(overlay);
@@ -6531,7 +6531,7 @@ function confirmAction(msg, onConfirm) {
     box.innerHTML = '<div style="font-size:15px;margin-bottom:16px;line-height:1.5">'+msg+'</div>' +
         '<div style="display:flex;gap:8px">' +
             '<button id="cf-no" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
-            '<button id="cf-yes" style="flex:1;padding:10px;border:none;border-radius:8px;background:#0891B2;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">確定</button>' +
+            '<button id="cf-yes" style="flex:1;padding:10px;border:none;border-radius:8px;background:#57534E;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">確定</button>' +
         '</div>';
     overlay.appendChild(box);
     document.body.appendChild(overlay);
@@ -6705,7 +6705,7 @@ function addPersonalSchedule(prefillIdx) {
         '<div style="margin-bottom:12px"><input id="ps-memo" type="text" placeholder="事項說明" value="'+esc(ps.memo||'')+'" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit"></div>' +
         '<div style="display:flex;gap:8px">' +
             '<button onclick="this.closest(\'.fill-overlay\').remove()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
-            '<button id="ps-save" style="flex:1;padding:10px;border:none;border-radius:8px;background:#0891B2;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">儲存</button>' +
+            '<button id="ps-save" style="flex:1;padding:10px;border:none;border-radius:8px;background:#57534E;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">儲存</button>' +
         '</div>';
     overlay.appendChild(box);
     document.body.appendChild(overlay);
@@ -6820,7 +6820,7 @@ function filterAllSchedList() {
             separator = '<div style="height:1px;background:var(--border);margin:12px 0"></div>';
         }
         prevYear = sYear;
-        var nameColor = s.personal ? '#0891B2' : '#1E40AF';
+        var nameColor = s.personal ? '#8B7355' : '#57534E';
         var nameText = s.personal ? (s.memo || '個人行程') : s.clientName;
         var memoText = s.personal ? '' : (s.memo ? ' <span style="color:#475569">/ '+esc(s.memo)+'</span>' : '');
         var editBtn = s.personal
@@ -6872,7 +6872,7 @@ function filterDoneList() {
     if (!el) return;
     el.innerHTML = filtered.length ? filtered.map(function(d, i) {
         var realIdx = q ? list.indexOf(d) : i;
-        var nameColor = d.personal ? '#0891B2' : '#1E40AF';
+        var nameColor = d.personal ? '#8B7355' : '#57534E';
         return '<div style="padding:8px 0;border-bottom:1px solid #F1F5F9;display:flex;align-items:center;gap:8px">' +
             '<div style="flex:1">' +
                 '<div style="font-size:14px;color:#334155;font-weight:600">'+esc(isoToMDW(d.date))+(d.time?' '+d.time:'')+'</div>' +
@@ -7157,13 +7157,13 @@ function cardSetDriveFolder(clientId, src, propIdx) {
         '<div style="font-size:13px;color:var(--muted);margin-bottom:8px">步驟 1：複製建議名稱，到 Google Drive 新建資料夾</div>' +
         '<div style="display:flex;gap:6px;margin-bottom:12px">' +
             '<input id="cardFolderName" value="'+esc(folderName)+'" readonly style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg)">' +
-            '<button type="button" id="cardCopyNameBtn" style="padding:8px 12px;border:none;border-radius:8px;background:#8B5CF6;color:white;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap">複製</button>' +
+            '<button type="button" id="cardCopyNameBtn" style="padding:8px 12px;border:none;border-radius:8px;background:#57534E;color:white;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap">複製</button>' +
         '</div>' +
         '<div style="font-size:13px;color:var(--muted);margin-bottom:8px">步驟 2：將資料夾連結貼到下方</div>' +
         '<input id="cardFolderUrl" placeholder="貼上雲端資料夾連結" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:12px" value="'+esc(prop[urlKey]||'')+'">' +
         '<div style="display:flex;gap:8px;justify-content:flex-end">' +
             '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
-            '<button type="button" id="cardFolderSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#8B5CF6;color:white;cursor:pointer;font-size:14px;font-weight:600">儲存</button>' +
+            '<button type="button" id="cardFolderSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#57534E;color:white;cursor:pointer;font-size:14px;font-weight:600">儲存</button>' +
         '</div>';
     overlay.appendChild(box);
     overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
@@ -7224,7 +7224,7 @@ function showSameLandlord(llName, llPhone, currentId) {
         if (c.rProperties && c.rProperties.length) addr = c.rProperties[0].rAddr || c.rProperties[0].rCommunity || '';
         if (!addr) addr = c.rAddr || c.rCommunity || '';
         var isCurrent = c.id === currentId;
-        html += '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;margin-bottom:6px;border:1px solid '+(isCurrent?'#0891B2':'var(--border)')+';border-radius:8px;background:'+(isCurrent?'#ECFEFF':'white')+';cursor:pointer;font-size:13px" onclick="this.closest(\'.fill-overlay\').remove();showDetByView(\''+esc(c.id)+'\',\'landlord\')">' +
+        html += '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;margin-bottom:6px;border:1px solid '+(isCurrent?'#8B7355':'var(--border)')+';border-radius:8px;background:'+(isCurrent?'#F5F0EB':'white')+';cursor:pointer;font-size:13px" onclick="this.closest(\'.fill-overlay\').remove();showDetByView(\''+esc(c.id)+'\',\'landlord\')">' +
             '<div style="flex:1">' +
                 '<div style="font-weight:600">'+esc(ttName)+' <span style="color:#DB2777;font-size:11px">租客</span>'+(isCurrent?' <span style="color:#0891B2;font-size:11px">（目前）</span>':'')+'</div>' +
                 (addr?'<div style="color:var(--muted);font-size:12px;margin-top:2px">'+esc(addr)+'</div>':'') +
@@ -8021,7 +8021,7 @@ function pickLandlord() {
         html += '<button type="button" class="ll-pick-item" data-search="'+esc((c.llName||c.name||'').toLowerCase()+' '+(c.llPhone||c.phone||''))+'" data-llid="'+esc(c.id)+'" style="display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:4px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px">';
         html += '<div style="font-weight:700">'+esc(c.llName||c.name||'未填姓名')+' <span style="color:var(--muted);font-weight:400">'+esc(c.llPhone||c.phone||'')+'</span></div>';
         if (propInfo) html += '<div style="font-size:12px;color:var(--muted);margin-top:2px">📍 '+esc(propInfo)+'</div>';
-        if (props.length > 1) html += '<div style="font-size:11px;color:#0891B2">共 '+props.length+' 筆物件</div>';
+        if (props.length > 1) html += '<div style="font-size:11px;color:#8B7355">共 '+props.length+' 筆物件</div>';
         html += '</button>';
     });
     html += '</div>';
@@ -8943,7 +8943,7 @@ function renderPerformance() {
         html += '<button type="button" class="perf-tab" data-range="'+t+'" onclick="setPerfRange(\''+t+'\')" style="padding:6px 14px;border:1px solid var(--border);border-radius:8px;background:'+(range===t?'var(--deep)':'white')+';color:'+(range===t?'white':'var(--text)')+';cursor:pointer;font-size:13px;font-weight:600">'+tabLabels[t]+'</button>';
     });
     html += '<div style="flex:1"></div>' +
-        (range !== 'dealAnalysis' ? '<button type="button" onclick="addPerfRecord()" style="padding:6px 14px;border:none;border-radius:8px;background:#8B5CF6;color:white;cursor:pointer;font-size:13px;font-weight:600">＋ 新增紀錄</button>' : '') +
+        (range !== 'dealAnalysis' ? '<button type="button" onclick="addPerfRecord()" style="padding:6px 14px;border:none;border-radius:8px;background:#57534E;color:white;cursor:pointer;font-size:13px;font-weight:600">＋ 新增紀錄</button>' : '') +
     '</div>';
     // 成交分析頁籤
     if (range === 'dealAnalysis') {
@@ -8978,7 +8978,7 @@ function renderPerformance() {
                     '<span style="font-size:16px;color:var(--muted)">～</span>' +
                     '<div style="flex:1"><div class="roc-date-wrap"><input id="perfHistEnd" type="text" value="'+esc(_perfHistEnd?isoToROC(_perfHistEnd):'')+'" placeholder="結束日" style="width:100%;font-size:14px"><button type="button" class="cal-btn" onclick="openCal(this)">📅</button></div></div>' +
                     '<button type="button" onclick="_perfHistStart=\'\';_perfHistEnd=\'\';renderPerformance()" style="padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:13px;color:var(--text);white-space:nowrap">清除</button>' +
-                    '<button type="button" onclick="_perfHistStart=rocToISO(document.getElementById(\'perfHistStart\').value);_perfHistEnd=rocToISO(document.getElementById(\'perfHistEnd\').value);renderPerformance()" style="padding:6px 12px;border:none;border-radius:6px;background:#8B5CF6;color:white;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap">查詢</button>' +
+                    '<button type="button" onclick="_perfHistStart=rocToISO(document.getElementById(\'perfHistStart\').value);_perfHistEnd=rocToISO(document.getElementById(\'perfHistEnd\').value);renderPerformance()" style="padding:6px 12px;border:none;border-radius:6px;background:#57534E;color:white;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap">查詢</button>' +
                 '</div>';
         }
         html += '</div>';
@@ -9040,7 +9040,7 @@ function renderPerformance() {
             '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:#92400E">實收</span><span style="font-size:13px;font-weight:800;color:#B45309">'+buyFeeNoTax.toLocaleString()+'</span></div>' +
             (buyFeeOtherIncome ? '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:#92400E">自訂收入</span><span style="font-size:13px;font-weight:800;color:#B45309">'+buyFeeOtherIncome.toLocaleString()+'</span></div>' : '') +
         '</div>' +
-        '<div style="background:#EDE9FE;border-radius:8px;padding:6px 8px">' +
+        '<div style="background:#F5F0EB;border-radius:8px;padding:6px 8px">' +
             '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px"><span style="font-size:11px;color:#6D28D9;font-weight:600">'+rangeLabel+'租賃案</span><span style="font-size:14px;font-weight:800;color:#5B21B6">'+rentCount+'<span style="font-size:10px;font-weight:600"> 筆</span></span></div>' +
             '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:#6D28D9">業績</span><span style="font-size:13px;font-weight:800;color:#5B21B6">'+(rentFeeTax+rentFeeOtherAmt).toLocaleString()+'</span></div>' +
             '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:10px;color:#6D28D9">實收</span><span style="font-size:13px;font-weight:800;color:#5B21B6">'+rentFeeNoTax.toLocaleString()+'</span></div>' +
@@ -9140,7 +9140,7 @@ function renderPerfList(filtered) {
                     '<span style="padding:2px 6px;border-radius:4px;font-size:13px;font-weight:600;background:'+catBg+';color:'+catColor+'">'+esc(r.category||'')+'</span>' +
                     '<span style="flex:1"></span>' +
                     '<span style="color:#047857;text-align:right">'+(feeDetail?feeDetail+'元':'')+'</span>' +
-                    '<button type="button" onclick="editPerfRecord('+idx+')" style="background:none;border:none;cursor:pointer;color:#8B5CF6;font-size:13px" title="修改">✏️</button>' +
+                    '<button type="button" onclick="editPerfRecord('+idx+')" style="background:none;border:none;cursor:pointer;color:#57534E;font-size:13px" title="修改">✏️</button>' +
                     '<button type="button" onclick="deletePerfRecord('+idx+')" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px" title="刪除">✕</button>' +
                 '</div>' +
                 '<div style="padding-left:76px;margin-top:2px">' +
@@ -9196,7 +9196,7 @@ function renderDealAnalysis() {
             '<div style="font-size:18px;font-weight:800;color:#B45309">'+h1Count+' <span style="font-size:12px;font-weight:600">件</span></div>' +
             '<div style="font-size:14px;font-weight:700;color:#92400E">'+h1Sum.toLocaleString()+' <span style="font-size:11px">萬</span></div>' +
         '</div>' +
-        '<div style="background:#EDE9FE;border-radius:8px;padding:8px 12px;text-align:center">' +
+        '<div style="background:#F5F0EB;border-radius:8px;padding:8px 12px;text-align:center">' +
             '<div style="font-size:12px;color:#5B21B6;font-weight:600;margin-bottom:4px">下半年（7-12月）</div>' +
             '<div style="font-size:18px;font-weight:800;color:#7C3AED">'+h2Count+' <span style="font-size:12px;font-weight:600">件</span></div>' +
             '<div style="font-size:14px;font-weight:700;color:#5B21B6">'+h2Sum.toLocaleString()+' <span style="font-size:11px">萬</span></div>' +
@@ -9344,17 +9344,17 @@ function addPerfRecord() {
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">實收（不報稅）</label><div class="input-grp"><input id="perfFeeNoTax" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
         '</div>' +
         '<div id="perfOtherWrap" style="margin-bottom:8px">' +
-            '<button type="button" id="perfOtherToggle" onclick="togglePerfOther(\'perf\')" style="font-size:12px;font-weight:600;color:#8B5CF6;background:none;border:1px dashed #8B5CF6;border-radius:6px;padding:4px 10px;cursor:pointer">＋ 自訂業績比例</button>' +
+            '<button type="button" id="perfOtherToggle" onclick="togglePerfOther(\'perf\')" style="font-size:12px;font-weight:600;color:#57534E;background:none;border:1px dashed #8B7355;border-radius:6px;padding:4px 10px;cursor:pointer">＋ 自訂業績比例</button>' +
             '<div id="perfOtherFields" style="display:none;margin-top:6px;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:end">' +
                 '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">業績金額</label><div class="input-grp"><input id="perfOtherAmt" oninput="calcPerfOther(\'perf\')" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
                 '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">自訂比例</label><input id="perfOtherRate" oninput="calcPerfOther(\'perf\')" placeholder="例：0.5" style="min-width:0"></div>' +
-                '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">= 收入</label><div id="perfOtherResult" style="padding:8px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE9FE;color:#5B21B6;text-align:center">0 元</div></div>' +
+                '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">= 收入</label><div id="perfOtherResult" style="padding:8px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#F5F0EB;color:#5B21B6;text-align:center">0 元</div></div>' +
             '</div>' +
         '</div>' +
         '<div class="fg" style="margin-bottom:12px"><label style="font-size:12px">備註</label><input id="perfMemo" placeholder=""></div>' +
         '<div style="display:flex;gap:8px;justify-content:flex-end">' +
             '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
-            '<button type="button" id="perfSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#8B5CF6;color:white;cursor:pointer;font-size:14px;font-weight:600">儲存</button>' +
+            '<button type="button" id="perfSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#57534E;color:white;cursor:pointer;font-size:14px;font-weight:600">儲存</button>' +
         '</div>';
     overlay.appendChild(box);
     overlay.onclick = function(e){ if(e.target===overlay) { confirmAction('確定要關閉？尚未儲存的資料將會遺失', function(){ overlay.remove(); }); } };
@@ -9449,7 +9449,7 @@ function editPerfRecord(idx) {
     var cats = caseType === '買賣案' ? ['買方','庫存','中人'] : ['租客','房東','中人'];
     var catBtnsHtml = cats.map(function(c) {
         var isSel = c === r.category;
-        return '<button type="button" class="epCatBtn" data-cat="'+esc(c)+'" style="flex:1;padding:8px;border:2px solid '+(isSel?'#8B5CF6':'var(--border)')+';border-radius:8px;background:'+(isSel?'#EDE9FE':'white')+';color:'+(isSel?'#5B21B6':'var(--text)')+';cursor:pointer;font-size:13px;font-weight:'+(isSel?'700':'600')+'">'+esc(c)+'</button>';
+        return '<button type="button" class="epCatBtn" data-cat="'+esc(c)+'" style="flex:1;padding:8px;border:2px solid '+(isSel?'#8B7355':'var(--border)')+';border-radius:8px;background:'+(isSel?'#EDE9FE':'white')+';color:'+(isSel?'#5B21B6':'var(--text)')+';cursor:pointer;font-size:13px;font-weight:'+(isSel?'700':'600')+'">'+esc(c)+'</button>';
     }).join('');
     box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">修改業績紀錄</div>' +
         '<div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">案件類型</label>' +
@@ -9467,17 +9467,17 @@ function editPerfRecord(idx) {
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">實收（不報稅）</label><div class="input-grp"><input id="epFeeNoTax" value="'+esc(r.feeNoTax||'')+'" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
         '</div>' +
         '<div id="epOtherWrap" style="margin-bottom:8px">' +
-            '<button type="button" id="epOtherToggle" onclick="togglePerfOther(\'ep\')" style="font-size:12px;font-weight:600;color:#8B5CF6;background:none;border:1px dashed #8B5CF6;border-radius:6px;padding:4px 10px;cursor:pointer;'+(r.feeOther?'display:none':'')+'">＋ 自訂業績比例</button>' +
+            '<button type="button" id="epOtherToggle" onclick="togglePerfOther(\'ep\')" style="font-size:12px;font-weight:600;color:#57534E;background:none;border:1px dashed #8B7355;border-radius:6px;padding:4px 10px;cursor:pointer;'+(r.feeOther?'display:none':'')+'">＋ 自訂業績比例</button>' +
             '<div id="epOtherFields" style="'+(r.feeOther?'display:grid;':'display:none;')+'margin-top:6px;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:end">' +
                 '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">業績金額</label><div class="input-grp"><input id="epOtherAmt" value="'+esc(r.feeOtherAmt||'')+'" oninput="calcPerfOther(\'ep\')" style="min-width:0;flex:1"><span class="input-sfx">元</span></div></div>' +
                 '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">自訂比例</label><input id="epOtherRate" value="'+esc(r.feeOtherRate||'')+'" oninput="calcPerfOther(\'ep\')" placeholder="例：0.5" style="min-width:0"></div>' +
-                '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">= 收入</label><div id="epOtherResult" style="padding:8px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#EDE9FE;color:#5B21B6;text-align:center">'+(r.feeOther?parseInt(r.feeOther).toLocaleString()+' 元':'0 元')+'</div></div>' +
+                '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">= 收入</label><div id="epOtherResult" style="padding:8px 10px;border-radius:8px;font-size:14px;font-weight:700;background:#F5F0EB;color:#5B21B6;text-align:center">'+(r.feeOther?parseInt(r.feeOther).toLocaleString()+' 元':'0 元')+'</div></div>' +
             '</div>' +
         '</div>' +
         '<div class="fg" style="margin-bottom:12px"><label style="font-size:12px">備註</label><input id="epMemo" value="'+esc(r.memo||'')+'" placeholder=""></div>' +
         '<div style="display:flex;gap:8px;justify-content:flex-end">' +
             '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
-            '<button type="button" id="epSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#8B5CF6;color:white;cursor:pointer;font-size:14px;font-weight:600">儲存</button>' +
+            '<button type="button" id="epSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#57534E;color:white;cursor:pointer;font-size:14px;font-weight:600">儲存</button>' +
         '</div>';
     overlay.appendChild(box);
     overlay.onclick = function(e){ if(e.target===overlay) { confirmAction('確定要關閉？尚未儲存的資料將會遺失', function(){ overlay.remove(); }); } };
@@ -9486,7 +9486,7 @@ function editPerfRecord(idx) {
         document.querySelectorAll('.epCatBtn').forEach(function(b) {
             b.onclick = function() {
                 document.querySelectorAll('.epCatBtn').forEach(function(x){ x.style.borderColor='var(--border)'; x.style.background='white'; x.style.color='var(--text)'; x.style.fontWeight='600'; });
-                this.style.borderColor='#8B5CF6'; this.style.background='#EDE9FE'; this.style.color='#5B21B6'; this.style.fontWeight='700';
+                this.style.borderColor='#8B7355'; this.style.background='#F5F0EB'; this.style.color='#5C4A32'; this.style.fontWeight='700';
             };
         });
     }
@@ -10153,7 +10153,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260412a1';
+var APP_VERSION = '20260412a2';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
@@ -10316,7 +10316,7 @@ function renderTemplateList() {
             html += '<div style="border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:white">' +
                 '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">' +
                     '<span style="font-size:15px;font-weight:700;flex:1">'+esc(tpl.title)+'</span>' +
-                    '<button type="button" onclick="copyTemplate('+i+')" style="padding:5px 12px;border:none;border-radius:6px;background:#0891B2;color:white;cursor:pointer;font-size:12px;font-weight:600">📋 複製</button>' +
+                    '<button type="button" onclick="copyTemplate('+i+')" style="padding:5px 12px;border:none;border-radius:6px;background:#57534E;color:white;cursor:pointer;font-size:12px;font-weight:600">📋 複製</button>' +
                     '<button type="button" onclick="editTemplate('+i+')" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:12px;color:var(--text)">✏️</button>' +
                     '<button type="button" onclick="deleteTemplate('+i+')" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:12px;color:#EF4444">✕</button>' +
                 '</div>' +
@@ -10346,7 +10346,7 @@ function renderStockTemplateList() {
                 html += '<div style="border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:white">' +
                     '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">' +
                         '<span style="font-size:15px;font-weight:700;flex:1">'+esc(mt.title)+'</span>' +
-                        '<button type="button" onclick="copyMktFromModal(\''+esc(c.id)+'\','+i+')" style="padding:5px 12px;border:none;border-radius:6px;background:#0891B2;color:white;cursor:pointer;font-size:12px;font-weight:600">📋 複製</button>' +
+                        '<button type="button" onclick="copyMktFromModal(\''+esc(c.id)+'\','+i+')" style="padding:5px 12px;border:none;border-radius:6px;background:#57534E;color:white;cursor:pointer;font-size:12px;font-weight:600">📋 複製</button>' +
                         '<button type="button" onclick="editMktFromModal(\''+esc(c.id)+'\','+i+')" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:12px;color:var(--text)">✏️</button>' +
                         '<button type="button" onclick="deleteMktFromModal(\''+esc(c.id)+'\','+i+')" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:12px;color:#EF4444">✕</button>' +
                     '</div>' +
@@ -10467,7 +10467,7 @@ function showTemplateEditor(idx, title, content) {
         '<textarea id="tplEditContent" placeholder="輸入範本內容…" style="width:100%;flex:1;min-height:200px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;line-height:1.6;resize:vertical;box-sizing:border-box">'+esc(content)+'</textarea></div>' +
         '<div style="display:flex;gap:8px;justify-content:flex-end">' +
             '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px">取消</button>' +
-            '<button type="button" id="tplSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#0891B2;color:white;cursor:pointer;font-size:13px;font-weight:600">儲存</button>' +
+            '<button type="button" id="tplSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#57534E;color:white;cursor:pointer;font-size:13px;font-weight:600">儲存</button>' +
         '</div>';
     overlay.appendChild(box);
     overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
@@ -10528,7 +10528,7 @@ function renderSigningTemplateList() {
             html += '<div style="border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:white">' +
                 '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">' +
                     '<span style="font-size:15px;font-weight:700;flex:1">'+esc(tpl.title)+'</span>' +
-                    '<button type="button" onclick="copySigningTemplate('+i+')" style="padding:5px 12px;border:none;border-radius:6px;background:#0891B2;color:white;cursor:pointer;font-size:12px;font-weight:600">📋 複製</button>' +
+                    '<button type="button" onclick="copySigningTemplate('+i+')" style="padding:5px 12px;border:none;border-radius:6px;background:#57534E;color:white;cursor:pointer;font-size:12px;font-weight:600">📋 複製</button>' +
                     '<button type="button" onclick="editSigningTemplate('+i+')" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:12px;color:var(--text)">✏️</button>' +
                     '<button type="button" onclick="deleteSigningTemplate('+i+')" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:12px;color:#EF4444">✕</button>' +
                 '</div>' +
@@ -10575,7 +10575,7 @@ function showSigningTemplateEditor(idx, title, content) {
         '<textarea id="stplEditContent" placeholder="輸入範本內容…" style="width:100%;flex:1;min-height:200px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;line-height:1.6;resize:vertical;box-sizing:border-box">'+esc(content)+'</textarea></div>' +
         '<div style="display:flex;gap:8px;justify-content:flex-end">' +
             '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px">取消</button>' +
-            '<button type="button" id="stplSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#0891B2;color:white;cursor:pointer;font-size:13px;font-weight:600">儲存</button>' +
+            '<button type="button" id="stplSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#57534E;color:white;cursor:pointer;font-size:13px;font-weight:600">儲存</button>' +
         '</div>';
     overlay.appendChild(box);
     overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
@@ -10624,7 +10624,7 @@ function openMktTemplates(clientId) {
     box.style.cssText = 'padding:16px;width:min(500px,90vw);max-height:85vh;display:flex;flex-direction:column';
     box.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">' +
         '<span style="font-weight:700;font-size:15px;flex:1">📋 行銷範本 — '+esc(c.sName||c.name)+'</span>' +
-        '<button type="button" onclick="addMktTemplate()" style="padding:4px 10px;border:none;border-radius:6px;background:#0891B2;color:white;cursor:pointer;font-size:12px;font-weight:600">＋ 新增</button>' +
+        '<button type="button" onclick="addMktTemplate()" style="padding:4px 10px;border:none;border-radius:6px;background:#57534E;color:white;cursor:pointer;font-size:12px;font-weight:600">＋ 新增</button>' +
         '<button type="button" onclick="closeMktOverlay()" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--muted)">✕</button>' +
     '</div>' +
     '<div id="mktBody" style="flex:1;overflow-y:auto"></div>';
@@ -10651,7 +10651,7 @@ function renderMktList() {
             html += '<div style="border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:white">' +
                 '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">' +
                     '<span style="font-size:14px;font-weight:700;flex:1">'+esc(tpl.title)+'</span>' +
-                    '<button type="button" onclick="copyMktTemplate('+i+')" style="padding:4px 10px;border:none;border-radius:6px;background:#0891B2;color:white;cursor:pointer;font-size:11px;font-weight:600">📋 複製</button>' +
+                    '<button type="button" onclick="copyMktTemplate('+i+')" style="padding:4px 10px;border:none;border-radius:6px;background:#57534E;color:white;cursor:pointer;font-size:11px;font-weight:600">📋 複製</button>' +
                     '<button type="button" onclick="editMktTemplate('+i+')" style="padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:11px">✏️</button>' +
                     '<button type="button" onclick="deleteMktTemplate('+i+')" style="padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:white;cursor:pointer;font-size:11px;color:#EF4444">✕</button>' +
                 '</div>' +
@@ -10697,7 +10697,7 @@ function showMktEditor(idx, title, content) {
         '<textarea id="mktEditContent" placeholder="輸入行銷文案…" style="width:100%;flex:1;min-height:180px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;line-height:1.6;resize:vertical;box-sizing:border-box">'+esc(content)+'</textarea></div>' +
         '<div style="display:flex;gap:8px;justify-content:flex-end">' +
             '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px">取消</button>' +
-            '<button type="button" id="mktSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#0891B2;color:white;cursor:pointer;font-size:13px;font-weight:600">儲存</button>' +
+            '<button type="button" id="mktSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#57534E;color:white;cursor:pointer;font-size:13px;font-weight:600">儲存</button>' +
         '</div>';
     overlay.appendChild(box);
     overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
