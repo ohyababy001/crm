@@ -3873,6 +3873,7 @@ function renderCard(c) {
         }
         // 中間欄 type-specific info
         let meta = '';
+        var _cardContractType = '';
         // 所有類型共用：顯示最近一筆預排行程（移至第三欄備註上方）
         var _schedHtml = '';
         if (c.schedules && c.schedules.length) {
@@ -3930,6 +3931,7 @@ function renderCard(c) {
             }
             if (_spCount > 1) { var _archN = _spCount - _spActiveCount; meta += `<div class="cmeta-row"><span class="cmeta-k">物件數</span><span class="cmeta-v" style="color:#8B7355;font-weight:700">${_spActiveCount} 間物件${_archN ? '<span style="color:var(--muted);font-weight:400">（'+_archN+'暫停）</span>' : ''}</span></div>`; }
             var _ct = cc.contractType || sp0.contractType || '';
+            _cardContractType = _ct;
             var _comm = cc.community || sp0.community || '';
             var _sAddr = cc.sAddr || sp0.addr || '';
             var _sPrice = cc.sPrice || sp0.price || '';
@@ -3944,19 +3946,13 @@ function renderCard(c) {
             var bldgSz = mainB+ancB+comB;
             var oldSz = parseFloat(String(cc.sSz||'').replace(/[坪,]/g,''))||0;
             var displaySz = bldgSz || oldSz;
+            var _pk = cc.parking || sp0.parking || '';
+            var _pkPrice = cc.parkingPrice || sp0.parkingPrice || '';
+            var priceNum = parseFloat(String(_sPrice||'').replace(/[萬,]/g,'')) || 0;
+            var pkPriceNum = parseFloat(String(_pkPrice||'').replace(/[萬,]/g,'')) || 0;
             if (displaySz) {
-                var _pk = cc.parking || sp0.parking || '';
-                var _pkPrice = cc.parkingPrice || sp0.parkingPrice || '';
-                const priceNum = parseFloat(String(_sPrice||'').replace(/[萬,]/g,'')) || 0;
-                const pkPriceNum = parseFloat(String(_pkPrice||'').replace(/[萬,]/g,'')) || 0;
                 let szDisp = displaySz.toFixed(2) + '坪';
-                if (priceNum && bldgSz) {
-                    const unitPrice = ((priceNum - pkPriceNum) / bldgSz).toFixed(2);
-                    szDisp += ` <span style="color:#6366F1;font-weight:600">@${unitPrice}萬</span>`;
-                }
-                if (_pk && _pk !== '無車位') {
-                    szDisp += ` <span style="color:#64748B">+${esc(_pk)}${_pkPrice ? ' ' + esc(_pkPrice) + (_pkPrice.includes('萬')?'':'萬') : ''}</span>`;
-                }
+                if (pkSz) szDisp += ` <span style="color:#64748B">+車位${pkSz}坪</span>`;
                 meta += `<div class="cmeta-row"><span class="cmeta-k">登記</span><span class="cmeta-v">${szDisp}</span></div>`;
             } else {
                 // 無建物坪數：顯示土地坪數及土地單價
@@ -3973,6 +3969,13 @@ function renderCard(c) {
             }
             if (_sPrice) {
                 let priceDisp = esc(_sPrice) + (_sPrice&&!_sPrice.includes('萬')?'萬':'');
+                if (priceNum && bldgSz) {
+                    const unitPrice = ((priceNum - pkPriceNum) / bldgSz).toFixed(2);
+                    priceDisp += ` <span style="color:#6366F1;font-weight:600">@${unitPrice}萬</span>`;
+                }
+                if (_pk && _pk !== '無車位') {
+                    priceDisp += ` <span style="color:#64748B">含${esc(_pk)}${_pkPrice ? ' ' + esc(_pkPrice) + (_pkPrice.includes('萬')?'':'萬') : ''}</span>`;
+                }
                 meta += `<div class="cmeta-row"><span class="cmeta-k">開價</span><span class="cmeta-v">${priceDisp}</span></div>`;
             }
             var mgmtTotal = (parseFloat(cc.sMgmtBuilding||sp0.mgmtBuilding)||0)+(parseFloat(cc.sMgmtCar||sp0.mgmtCar)||0)+(parseFloat(cc.sMgmtMoto||sp0.mgmtMoto)||0)+(parseFloat(cc.sMgmtOther||sp0.mgmtOther)||0);
@@ -10251,7 +10254,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260412b4';
+var APP_VERSION = '20260413a1';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
@@ -10374,7 +10377,7 @@ function closeMobileSetting() {
 document.addEventListener('click', function(e) {
     var menu = document.getElementById('mobileSettingMenu');
     var btn = document.getElementById('mobileSettingBtn');
-    if (menu && btn && !menu.contains(e.target) && e.target !== btn) {
+    if (menu && btn && !menu.contains(e.target) && !btn.contains(e.target)) {
         menu.classList.remove('show');
     }
 });
