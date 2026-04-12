@@ -14,9 +14,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
     <title>房仲客戶管理系統</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        .mi { font-family: 'Material Symbols Outlined'; font-size: 18px; vertical-align: middle; font-weight: normal; font-style: normal; line-height: 1; letter-spacing: normal; text-transform: none; display: inline-block; white-space: nowrap; word-wrap: normal; direction: ltr; -webkit-font-smoothing: antialiased; }
         :root {
             --primary: #78716C; --bg: #F7F5F3;
             --text: #1C1917; --muted: #78716C; --border: #E7E5E4;
@@ -738,9 +740,9 @@
     <div class="header-title">CRM</div>
     <div class="header-data-tools" style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin-top:16px;margin-left:16px;align-self:flex-end">
         <div style="display:flex;gap:6px;align-items:center">
-            <button onclick="exportCSV()" style="background:rgba(255,255,255,0.12);border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:14px;font-weight:400;color:#FAFAF9;white-space:nowrap">匯出</button>
-            <button onclick="document.getElementById('csvImportInput2').click()" style="background:rgba(255,255,255,0.12);border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:14px;font-weight:400;color:#FAFAF9;white-space:nowrap">匯入</button>
-            <button onclick="runDataCheck()" style="background:rgba(255,255,255,0.12);border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:14px;font-weight:400;color:#FAFAF9;white-space:nowrap">健檢</button>
+            <button onclick="exportCSV()" style="background:rgba(255,255,255,0.12);border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:14px;font-weight:400;color:#FAFAF9;white-space:nowrap;display:flex;align-items:center;gap:4px"><span class="mi" style="font-size:16px">download</span>匯出</button>
+            <button onclick="document.getElementById('csvImportInput2').click()" style="background:rgba(255,255,255,0.12);border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:14px;font-weight:400;color:#FAFAF9;white-space:nowrap;display:flex;align-items:center;gap:4px"><span class="mi" style="font-size:16px">upload</span>匯入</button>
+            <button onclick="runDataCheck()" style="background:rgba(255,255,255,0.12);border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:14px;font-weight:400;color:#FAFAF9;white-space:nowrap;display:flex;align-items:center;gap:4px"><span class="mi" style="font-size:16px">health_and_safety</span>健檢</button>
         </div>
         <div style="display:flex;gap:12px;padding-left:4px">
             <div id="exportTime" style="font-size:9px;color:#FFFFFF;white-space:nowrap"></div>
@@ -749,22 +751,22 @@
     </div>
     <div style="flex:1"></div>
     <div class="search-wrap">
-        <span class="search-icon">🔍</span>
+        <span class="search-icon"><span class="mi" style="font-size:16px">search</span></span>
         <input type="text" id="searchInput" placeholder="搜尋姓名、電話、社區、地址、備註…" oninput="debouncedRender()">
     </div>
     <button class="btn-add" onclick="openAdd()">＋ 新增客戶</button>
     <div class="mobile-cloud">
-        <button class="mc-main" onclick="openPerformance()">📊 業績</button>
-        <button class="mc-main" onclick="openTemplates()">📋 範本</button>
+        <button class="mc-main" onclick="openPerformance()"><span class="mi" style="font-size:16px">bar_chart</span> 業績</button>
+        <button class="mc-main" onclick="openTemplates()"><span class="mi" style="font-size:16px">description</span> 範本</button>
         <span style="flex:1"></span>
-        <button onclick="toggleMobileSetting()" id="mobileSettingBtn">⚙️</button>
+        <button onclick="toggleMobileSetting()" id="mobileSettingBtn"><span class="mi" style="font-size:18px">more_horiz</span></button>
     </div>
     <div style="flex:1"></div>
     <div class="header-tools" style="display:flex;gap:8px;align-items:center">
-        <button onclick="openTemplates()" class="header-btn" data-hover-color="#57534E">📋 常用範本</button>
-        <button onclick="openPerformance()" class="header-btn" data-hover-color="#57534E">📊 業績儀表板</button>
-        <button onclick="openTrash()" class="header-btn" data-hover-color="#EF4444">🗑️ 資源回收桶<span id="trashCount" style="font-size:11px;margin-left:2px"></span></button>
-        <button onclick="cloudRestore()" id="btnRestore" class="header-btn" data-hover-color="#57534E">☁️ 雲端還原</button>
+        <button onclick="openTemplates()" class="header-btn" data-hover-color="#57534E"><span class="mi" style="font-size:18px">description</span> 常用範本</button>
+        <button onclick="openPerformance()" class="header-btn" data-hover-color="#57534E"><span class="mi" style="font-size:18px">bar_chart</span> 業績儀表板</button>
+        <button onclick="openTrash()" class="header-btn" data-hover-color="#EF4444"><span class="mi" style="font-size:18px">delete</span> 資源回收桶<span id="trashCount" style="font-size:11px;margin-left:2px"></span></button>
+        <button onclick="cloudRestore()" id="btnRestore" class="header-btn" data-hover-color="#57534E"><span class="mi" style="font-size:18px">cloud_download</span> 雲端還原</button>
     </div>
     <div class="mobile-setting-menu" id="mobileSettingMenu">
         <button onclick="openTrash();closeMobileSetting()">🗑️ 資源回收桶</button>
@@ -10220,7 +10222,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260412a6';
+var APP_VERSION = '20260412a7';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
