@@ -2060,6 +2060,14 @@ function persist() {
     if (_syncTimer) clearTimeout(_syncTimer);
     _syncTimer = setTimeout(autoSync, 3000);
 }
+function persistAndSyncNow() {
+    _stampUpdatedAt();
+    _lastSyncJSON = JSON.stringify(DB);
+    try { localStorage.setItem('reCRM', _lastSyncJSON); } catch(e) { console.error('localStorage寫入失敗', e); }
+    _setDirty();
+    if (_syncTimer) clearTimeout(_syncTimer);
+    autoSync();
+}
 function persistPerf() {
     try { localStorage.setItem('perfRecords', JSON.stringify(_perfRecords)); } catch(e) { console.error('localStorage寫入失敗', e); }
     if (_syncTimer) clearTimeout(_syncTimer);
@@ -10222,7 +10230,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260412a8';
+var APP_VERSION = '20260412a9';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
