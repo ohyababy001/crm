@@ -3114,6 +3114,7 @@ function setFilter(type, btn) {
     }
     curFilter = type;
     showThisMonthMode = false;
+    var _ms = document.querySelector('.main-scroll'); if (_ms) _ms.scrollTop = 0;
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 const titles = { all:'總覽','經營買方':'買方','庫存屋主':'庫存','房東':'房東','租客':'租客','成交客戶':'成交','商機募集':'商機' };
@@ -3668,13 +3669,13 @@ function _alignSidebarToContent() {
     if (!ms) return;
     var q = document.getElementById('searchInput').value.trim();
     if (!q) return;
-    requestAnimationFrame(function(){
+    setTimeout(function(){
         var ov = document.querySelector('.filter-overview');
         var card = document.querySelector('.card') || document.querySelector('.empty');
-        if (!ov || !card) return;
+        if (!ov || !card || !q) return;
         var diff = Math.round(ov.getBoundingClientRect().top - card.getBoundingClientRect().top);
         if (diff > 0) ms.style.paddingTop = diff + 'px';
-    });
+    }, 50);
 }
 function render() {
     var _ms = document.querySelector('.main-scroll'); if (_ms) _ms.style.paddingTop = '';
@@ -10254,7 +10255,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260413a1';
+var APP_VERSION = '20260413a2';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
