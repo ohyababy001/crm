@@ -15,6 +15,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     <title>房仲客戶管理系統</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -740,32 +741,32 @@
     <div class="header-title">CRM</div>
     <div style="flex:1"></div>
     <div class="search-wrap">
-        <span class="search-icon"><span class="mi" style="font-size:16px">search</span></span>
+        <span class="search-icon"><i class="ti ti-search" style="font-size:16px"></i></span>
         <input type="text" id="searchInput" placeholder="搜尋姓名、電話、社區、地址、備註…" oninput="debouncedRender()">
     </div>
     <button class="btn-add" onclick="openAdd()">＋ 新增客戶</button>
     <div class="mobile-cloud">
-        <button class="mc-main" onclick="openPerformance()"><span class="mi" style="font-size:16px">bar_chart</span> 業績</button>
-        <button class="mc-main" onclick="openTemplates()"><span class="mi" style="font-size:16px">description</span> 範本</button>
+        <button class="mc-main" onclick="openPerformance()"><i class="ti ti-chart-bar" style="font-size:16px"></i> 業績</button>
+        <button class="mc-main" onclick="openTemplates()"><i class="ti ti-file-text" style="font-size:16px"></i> 範本</button>
         <span style="flex:1"></span>
-        <button onclick="toggleMobileSetting()" id="mobileSettingBtn"><span class="mi" style="font-size:18px">more_horiz</span></button>
+        <button onclick="toggleMobileSetting()" id="mobileSettingBtn"><i class="ti ti-dots" style="font-size:18px"></i></button>
     </div>
     <div style="flex:1"></div>
     <div class="header-tools" style="display:flex;gap:8px;align-items:center">
-        <button onclick="openTemplates()" class="header-btn" data-hover-color="#57534E"><span class="mi" style="font-size:18px">description</span> 常用範本</button>
-        <button onclick="openPerformance()" class="header-btn" data-hover-color="#57534E"><span class="mi" style="font-size:18px">bar_chart</span> 業績儀表板</button>
+        <button onclick="openTemplates()" class="header-btn" data-hover-color="#57534E"><i class="ti ti-file-text" style="font-size:18px"></i> 常用範本</button>
+        <button onclick="openPerformance()" class="header-btn" data-hover-color="#57534E"><i class="ti ti-chart-bar" style="font-size:18px"></i> 業績儀表板</button>
         <!-- 更多選單 -->
         <div style="position:relative">
             <button class="header-btn" onclick="toggleHeaderMore()" id="headerMoreBtn" data-hover-color="#57534E"><span class="mi" style="font-size:18px">more_horiz</span></button>
             <div id="headerMoreMenu" style="display:none;position:absolute;top:100%;right:0;margin-top:6px;background:white;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.15);border-top:3px solid #8B7355;min-width:180px;padding:6px 0;z-index:200">
-                <button onclick="openTrash();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><span class="mi" style="font-size:18px">delete</span>資源回收桶<span id="trashCount" style="font-size:11px;margin-left:2px"></span></button>
-                <button onclick="cloudRestore();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><span class="mi" style="font-size:18px">cloud_download</span>雲端還原</button>
+                <button onclick="openTrash();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><i class="ti ti-trash" style="font-size:18px"></i> 資源回收桶<span id="trashCount" style="font-size:11px;margin-left:2px"></span></button>
+                <button onclick="cloudRestore();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><i class="ti ti-cloud-download" style="font-size:18px"></i> 雲端還原</button>
                 <div style="height:1px;background:#E7E5E4;margin:4px 12px"></div>
-                <button onclick="exportCSV();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><span class="mi" style="font-size:18px">download</span>匯出</button>
-                <button onclick="document.getElementById('csvImportInput2').click();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><span class="mi" style="font-size:18px">upload</span>匯入</button>
-                <button onclick="runDataCheck();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><span class="mi" style="font-size:18px">health_and_safety</span>健檢</button>
+                <button onclick="exportCSV();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><i class="ti ti-download" style="font-size:18px"></i> 匯出</button>
+                <button onclick="document.getElementById('csvImportInput2').click();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><i class="ti ti-upload" style="font-size:18px"></i> 匯入</button>
+                <button onclick="runDataCheck();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><i class="ti ti-shield-check" style="font-size:18px"></i> 健檢</button>
                 <div style="height:1px;background:#E7E5E4;margin:4px 12px"></div>
-                <button onclick="clearCache();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><span class="mi" style="font-size:18px">refresh</span>重新載入</button>
+                <button onclick="clearCache();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><i class="ti ti-refresh" style="font-size:18px"></i> 重新載入</button>
             </div>
         </div>
     </div>
@@ -774,12 +775,12 @@
         <div id="importTime"></div>
     </div>
     <div class="mobile-setting-menu" id="mobileSettingMenu">
-        <button onclick="openTrash();closeMobileSetting()"><span class="mi" style="font-size:16px">delete</span> 資源回收桶</button>
-        <button onclick="cloudRestore();closeMobileSetting()"><span class="mi" style="font-size:16px">cloud_download</span> 雲端還原</button>
-        <button onclick="exportCSV();closeMobileSetting()"><span class="mi" style="font-size:16px">download</span> 匯出</button>
-        <button onclick="document.getElementById('csvImportInput2').click();closeMobileSetting()"><span class="mi" style="font-size:16px">upload</span> 匯入</button>
-        <button onclick="runDataCheck();closeMobileSetting()"><span class="mi" style="font-size:16px">health_and_safety</span> 健檢</button>
-        <button onclick="clearCache();closeMobileSetting()"><span class="mi" style="font-size:16px">refresh</span> 重新載入</button>
+        <button onclick="openTrash();closeMobileSetting()"><i class="ti ti-trash" style="font-size:16px"></i> 資源回收桶</button>
+        <button onclick="cloudRestore();closeMobileSetting()"><i class="ti ti-cloud-download" style="font-size:16px"></i> 雲端還原</button>
+        <button onclick="exportCSV();closeMobileSetting()"><i class="ti ti-download" style="font-size:16px"></i> 匯出</button>
+        <button onclick="document.getElementById('csvImportInput2').click();closeMobileSetting()"><i class="ti ti-upload" style="font-size:16px"></i> 匯入</button>
+        <button onclick="runDataCheck();closeMobileSetting()"><i class="ti ti-shield-check" style="font-size:16px"></i> 健檢</button>
+        <button onclick="clearCache();closeMobileSetting()"><i class="ti ti-refresh" style="font-size:16px"></i> 重新載入</button>
     </div>
 </header>
 <nav class="mobile-nav" id="mobileNav">
@@ -3587,16 +3588,16 @@ function renderDashboard() {
             : '<button class="btn-ic" onclick="completeSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="完成" style="font-size:13px;padding:2px 4px">✅</button>';
         var memoHtml = s.memo ? '<div class="dash-sched-memo">'+esc(s.memo)+'</div>' : (s.personal ? '<div class="dash-sched-memo">個人行程</div>' : '');
         var dateColor = s.expired ? '#DC2626' : (s.days===0 ? '#B45309' : '');
-        return '<div class="dash-item dash-sched-item">' +
+        var delBtn = s.personal
+            ? '<button class="btn-ic" onclick="deletePersonalSchedule('+s.psIdx+')" title="刪除" style="font-size:13px;padding:2px 4px">🗑️</button>'
+            : '<button class="btn-ic" onclick="deleteSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="刪除" style="font-size:13px;padding:2px 4px">🗑️</button>';
+        return '<div class="dash-item dash-sched-item" style="flex-direction:column;align-items:stretch">' +
             '<div class="dash-sched-row1">' +
                 '<span class="dash-item-info" style="color:'+dateColor+'">'+(s.expired?'⚠️ ':'')+esc(isoToMDW(s.date))+(s.time?' '+s.time:'')+(s.expired?' <span style="font-size:12px">已過期'+Math.abs(s.days)+'天</span>':'')+'</span>' +
                 nameHtml +
-                '<span style="display:flex;gap:2px;flex-shrink:0">' + editBtn + doneBtn +
-                (s.personal
-                    ? '<button class="btn-ic" onclick="deletePersonalSchedule('+s.psIdx+')" title="刪除" style="font-size:13px;padding:2px 4px">🗑️</button>'
-                    : '<button class="btn-ic" onclick="deleteSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="刪除" style="font-size:13px;padding:2px 4px">🗑️</button>') +
-                '</span>' +
-            '</div>' + memoHtml +
+                '<span style="display:flex;gap:2px;flex-shrink:0">' + editBtn + delBtn + '</span>' +
+            '</div>' +
+            '<div style="display:flex;align-items:center"><div style="flex:1">' + memoHtml + '</div>' + doneBtn + '</div>' +
         '</div>';
     }).join('') : '<div class="dash-empty">近15天內沒有預排行程</div>';
 
@@ -6939,16 +6940,21 @@ function filterAllSchedList() {
         var doneBtn = s.personal
             ? '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();completePersonalSchedule('+s.psIdx+')" title="完成" style="font-size:14px;padding:4px 8px">✅</button>'
             : '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();completeSchedule(\''+esc(s.clientId)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="完成" style="font-size:14px;padding:4px 8px">✅</button>';
-        return separator + '<div style="padding:8px 0;border-bottom:1px solid #F1F5F9;display:flex;align-items:center;gap:8px">' +
-            '<div style="flex:1">' +
-                '<div style="font-size:14px;color:#334155;font-weight:600">'+esc(isoToMDW(s.date,true))+(s.time?' '+s.time:'')+'</div>' +
-                '<div style="font-size:15px"><span style="color:'+nameColor+';font-weight:600">'+esc(nameText)+'</span>'+memoText+'</div>' +
+        var delBtn2 = s.personal
+            ? '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();deletePersonalSchedule('+s.psIdx+')" title="刪除" style="font-size:14px;padding:4px 8px">🗑️</button>'
+            : '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();deleteSchedule(\''+esc(s.clientId)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="刪除" style="font-size:14px;padding:4px 8px">🗑️</button>';
+        return separator + '<div style="padding:8px 0;border-bottom:1px solid #F1F5F9">' +
+            '<div style="display:flex;align-items:center;gap:8px">' +
+                '<div style="flex:1">' +
+                    '<div style="font-size:14px;color:#334155;font-weight:600">'+esc(isoToMDW(s.date,true))+(s.time?' '+s.time:'')+'</div>' +
+                    '<div style="font-size:15px"><span style="color:'+nameColor+';font-weight:600">'+esc(nameText)+'</span></div>' +
+                '</div>' +
+                '<span style="display:flex;gap:2px;flex-shrink:0">' + editBtn + delBtn2 + '</span>' +
             '</div>' +
-            '<span style="display:flex;gap:2px;flex-shrink:0">' + editBtn + doneBtn +
-            (s.personal
-                ? '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();deletePersonalSchedule('+s.psIdx+')" title="刪除" style="font-size:14px;padding:4px 8px">🗑️</button>'
-                : '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();deleteSchedule(\''+esc(s.clientId)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="刪除" style="font-size:14px;padding:4px 8px">🗑️</button>') +
-            '</span>' +
+            '<div style="display:flex;align-items:center;margin-top:2px">' +
+                (memoText ? '<div style="flex:1;font-size:14px;color:#64748B">'+memoText+'</div>' : '<div style="flex:1"></div>') +
+                doneBtn +
+            '</div>' +
         '</div>';
     }).join('') : '<div style="text-align:center;color:var(--muted);padding:20px;font-size:14px">'+(q?'沒有符合的行程':'目前沒有未來行程')+'</div>';
 }
@@ -10263,7 +10269,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260413a3';
+var APP_VERSION = '20260413a4';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
