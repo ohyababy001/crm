@@ -7070,7 +7070,7 @@ function _getAllDriveProps(c) {
             var _md = getMergedLandlordData(c, '庫存屋主');
             if (_md && _md.sProperties) sProps = _md.sProperties;
         }
-        sProps.forEach(function(p, i){ all.push({ type:'庫存', label: p.addr || p.community || '庫存物件 '+(i+1), url: p.spDriveUrl || '', urlKey:'spDriveUrl', src:'sProperties', idx:i, prop:p }); });
+        sProps.filter(function(p){ return !p.spArchived; }).forEach(function(p, i){ all.push({ type:'庫存', label: p.addr || p.community || '庫存物件 '+(i+1), url: p.spDriveUrl || '', urlKey:'spDriveUrl', src:'sProperties', idx:i, prop:p }); });
     }
     // 買方（含同房東聯動）
     var _hasBuyer = cTypes.includes('經營買方');
@@ -10222,7 +10222,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260412a3';
+var APP_VERSION = '20260412a4';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
