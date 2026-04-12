@@ -1,7 +1,7 @@
-var CACHE_NAME = 'crm-v20260412a2';
+var CACHE_NAME = 'crm-v20260412a3';
 var URLS_TO_CACHE = [
   './',
-  './房仲客戶管理系統.html'
+  './index.html'
 ];
 
 self.addEventListener('install', function(e) {

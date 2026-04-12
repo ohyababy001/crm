@@ -2,7 +2,7 @@
   "name": "房仲客戶管理系統",
   "short_name": "房仲CRM",
   "description": "房仲客戶管理系統 - 經營買方、庫存屋主、租案管理、成交客戶、商機募集",
-  "start_url": "./房仲客戶管理系統.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#F5F3F0",
   "theme_color": "#292524",

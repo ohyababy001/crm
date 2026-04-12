@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="robots" content="noindex, nofollow">
     <meta name="description" content="房仲客戶管理系統 — 買方、庫存屋主、房東、租客、成交、商機一站式 CRM 管理工具">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -169,10 +170,9 @@
         .cmeta-v { font-weight: 700; color: var(--text); white-space: normal; word-break: break-word; overflow-wrap: break-word; }
         .cmeta-v.full { white-space: normal; word-break: break-word; }
         .card-notes-col { flex: 1; min-width: 0; }
-        .notes-inline { font-size: 13px; color: #1F2937; cursor: text; border: 1.5px solid transparent; border-radius: 6px; padding: 4px 7px; margin: -4px -7px; white-space: pre-line; word-break: break-word; transition: border-color 0.12s, background 0.12s; }
-        .notes-inline:hover { border-color: var(--border); background: var(--bg); }
-        .notes-inline.empty-note { color: #94A3B8; font-style: italic; }
-        .notes-edit-area { width: 100%; border: 1.5px solid var(--wood); border-radius: 6px; padding: 4px 7px; font-size: 13px; font-family: inherit; outline: none; resize: none; color: var(--text); box-shadow: 0 0 0 3px rgba(87,83,78,0.1); }
+        .notes-inline { font-size: 13px; color: #1F2937; cursor: text; white-space: pre-line; word-break: break-word; line-height: 1.4; }
+        .notes-inline.empty-note { color: #94A3B8; }
+        .notes-edit-area { flex:1; min-width:0; border: 1.5px solid var(--wood); border-radius: 6px; padding: 4px 7px; font-size: 14px; font-family: inherit; outline: none; resize: none; color: var(--text); box-shadow: 0 0 0 3px rgba(87,83,78,0.1); }
         .card-contact { font-size: 13px; color: var(--muted); margin-top: 4px; display: flex; align-items: center; gap: 6px; }
         .btn-history { background: none; border: 1px solid var(--border); border-radius: 4px; font-size: 11px; color: var(--muted); cursor: pointer; padding: 1px 6px; white-space: nowrap; }
         .btn-history:hover { background: var(--bg); color: var(--text); border-color: #94A3B8; }
@@ -213,7 +213,7 @@
         /* 帶入按鈕 */
         .btn-fill { background:none;border:1px solid var(--border);border-radius:6px;padding:1px 10px;cursor:pointer;font-size:13px;color:var(--muted);transition:all 0.12s;white-space:nowrap;vertical-align:middle;line-height:16px;margin-left:2px; }
         .btn-fill:hover { background:#EFF6FF;color:#1D4ED8;border-color:#93C5FD; }
-        .fill-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.3);z-index:9999;display:flex;align-items:center;justify-content:center; }
+        .fill-overlay { position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.3);z-index:9999;display:flex;align-items:center;justify-content:center;touch-action:none;overscroll-behavior:contain; -webkit-overflow-scrolling:auto; }
         .fill-menu { background:white;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.15);min-width:240px;max-width:90vw;padding:8px 0;overflow:hidden;border-top:3px solid #8B7355; }
         .fill-menu-title { padding:10px 16px;font-size:14px;font-weight:700;color:var(--text);border-bottom:1px solid var(--border);text-align:center; }
         .fill-menu-item { padding:12px 16px;cursor:pointer;font-size:15px;color:var(--text);display:flex;justify-content:space-between;align-items:center;gap:10px; }
@@ -385,6 +385,7 @@
             html { overflow-x: hidden !important; overflow-y: auto !important; width: 100% !important; }
             body { overflow-x: hidden !important; overflow-y: auto !important; width: 100% !important; }
             * { box-sizing: border-box !important; }
+            body.overlay-lock { overflow-y: hidden !important; position: fixed !important; width: 100% !important; }
             .modal-body input, .modal-body select, .modal-body textarea { max-width: 100% !important; }
             .fill-overlay { align-items: flex-start !important; padding-top: 15vh; }
 
@@ -1492,6 +1493,14 @@
 <!-- ============================================================ -->
 <script>
 window.onerror = function(msg, url, line, col, err) { if (msg === 'Script error.' && line === 0) return true; console.error('JS錯誤:', msg, '行號:', line, err); try { showToast('⚠️ 系統發生錯誤，請重新整理', 'error', 4000); } catch(e) {} };
+// ── 全域 overlay 防止背景滾動 ──
+(function(){
+    var ms = document.querySelector('.main-scroll');
+    var isMobile = window.matchMedia('(max-width:768px)');
+    var _savedScrollY = 0;
+    new MutationObserver(function(){ var has = !!document.querySelector('.fill-overlay'); if(isMobile.matches){ if(has){ document.body.style.overflow = 'hidden'; } else { document.body.style.overflow = ''; } } else { document.body.style.overflow = has ? 'hidden' : ''; } if(ms) ms.style.overflowY = has ? 'hidden' : (isMobile.matches ? '' : 'auto'); }).observe(document.body, {childList:true});
+    document.addEventListener('touchmove', function(e){ if(document.querySelector('.fill-overlay') && !e.target.closest('.fill-menu')) e.preventDefault(); }, {passive:false});
+})();
 // ── 搜尋 debounce（避免每鍵觸發完整 render）──
 var _searchTimer = null;
 function debouncedRender() {
@@ -2044,11 +2053,12 @@ function _stampUpdatedAt() {
     try { var old = JSON.parse(_lastSyncJSON || '[]'); old.forEach(function(c){ if(c.id) oldMap[c.id] = JSON.stringify(c); }); } catch(e){}
     DB.forEach(function(c) { if (!c.id) return; if (oldMap[c.id] !== JSON.stringify(c)) c.updatedAt = now; });
 }
+function _setDirty() { _localDirtyUntil = Date.now() + 60000; try { localStorage.setItem('_localDirtyUntil', String(_localDirtyUntil)); } catch(e){} }
 function persist() {
     _stampUpdatedAt();
     _lastSyncJSON = JSON.stringify(DB);
     try { localStorage.setItem('reCRM', _lastSyncJSON); } catch(e) { console.error('localStorage寫入失敗', e); }
-    _localDirtyUntil = Date.now() + 60000;
+    _setDirty();
     if (_syncTimer) clearTimeout(_syncTimer);
     _syncTimer = setTimeout(autoSync, 3000);
 }
@@ -2062,17 +2072,23 @@ function autoSync() {
     if (status) status.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#F59E0B;margin-right:4px;vertical-align:middle"></span>同步中…';
     var syncData = DB.filter(function(c){ return !c.__perfRecords && !c.__templates && !c.__signingTemplates; }).concat([{__perfRecords: true, records: _perfRecords}]).concat([{__templates: true, items: _templates}]).concat([{__signingTemplates: true, items: _signingTemplates}]);
     var payload = JSON.stringify(syncData);
-    // 嘗試多種方式確保 POST 送達
-    // 方式1: sendBeacon（最可靠的跨域 POST）
-    if (navigator.sendBeacon) {
-        var sent = navigator.sendBeacon(CLOUD_URL, new URLSearchParams({payload: payload}));
+    // 方式1: fetch（最可靠，有回傳結果）
+    if (window.fetch) {
+        fetch(CLOUD_URL, { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:'payload='+encodeURIComponent(payload), mode:'no-cors' })
+        .then(function() { setTimeout(function(){ verifySyncResult(status); }, 8000); })
+        .catch(function() { syncViaIframe(payload, status); });
+        return;
+    }
+    // 方式2: sendBeacon（payload < 60KB 才用，避免靜默失敗）
+    var encoded = new URLSearchParams({payload: payload});
+    if (navigator.sendBeacon && encoded.toString().length < 60000) {
+        var sent = navigator.sendBeacon(CLOUD_URL, encoded);
         if (sent) {
-            // 8秒後驗證（等雲端處理完成）
             setTimeout(function() { verifySyncResult(status); }, 8000);
             return;
         }
     }
-    // 方式2: iframe fallback
+    // 方式3: iframe fallback
     syncViaIframe(payload, status);
     // Fallback timeout
     setTimeout(function() {
@@ -2095,7 +2111,8 @@ function verifySyncResult(status) {
                 // 雲端筆數 >= 本地，確認上傳成功
                 var _dispCnt = data.filter(function(c){ return !c.__perfRecords && !c.__templates && !c.__signingTemplates && !c._system; }).length;
                 if (status) status.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#22C55E;margin-right:4px;vertical-align:middle"></span>已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + _dispCnt + '筆）';
-                _localDirtyUntil = 0;
+                showToast('☁️ 已同步至雲端', 'ok', 2000);
+                _localDirtyUntil = 0; try { localStorage.removeItem('_localDirtyUntil'); } catch(e){}
                 _lastSyncJSON = JSON.stringify(DB);
             } else {
                 if (status) status.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#F59E0B;margin-right:4px;vertical-align:middle"></span>同步中…';
@@ -2149,11 +2166,17 @@ function syncViaIframe(payload, status) {
 // ── 自動雲端同步（頁面載入+每5分鐘）──
 var _checkTimer = null;
 var _lastSyncJSON = JSON.stringify(DB);
-var _localDirtyUntil = 0; // 本機有未上傳的變更時，暫停拉雲端
+var _localDirtyUntil = parseInt(localStorage.getItem('_localDirtyUntil') || '0', 10); // 本機有未上傳的變更時，暫停拉雲端
 function startAutoCheck() {
     if (_checkTimer) clearInterval(_checkTimer);
-    // 頁面載入5秒後自動拉雲端（避免和 autoSync 的 3 秒延遲競爭）
-    setTimeout(autoFetchCloud, 5000);
+    if (Date.now() < _localDirtyUntil) {
+        // 本地有未上傳的變更：先上傳，再拉雲端
+        setTimeout(autoSync, 2000);
+        setTimeout(autoFetchCloud, 12000);
+    } else {
+        // 本地沒有未上傳的變更：直接拉雲端取最新資料
+        setTimeout(autoFetchCloud, 3000);
+    }
     _checkTimer = setInterval(autoFetchCloud, 5 * 60 * 1000);
 }
 function autoFetchCloud() {
@@ -2721,6 +2744,40 @@ function showToast(msg, type, duration) {
 }
 
 // ── 電話號碼正規化（搜尋比對用）──
+function getTabLastContact(c, tab) {
+    function _toDate(s) { return s ? String(s).slice(0,10) : ''; }
+    var _fallback = _toDate(c.lastContact);
+    if (!c.contactLog || !c.contactLog.length) return _fallback;
+    var _t = tab && tab !== 'all' ? tab : '';
+    if (!_t) return _fallback;
+    var filtered = c.contactLog.filter(function(log){ return !log.tab || log.tab === _t; });
+    if (!filtered.length) return _fallback;
+    var logMax = filtered.reduce(function(m, log){
+        var d = log.date || _toDate(log.time);
+        return d > m ? d : m;
+    }, '');
+    return logMax > _fallback ? logMax : _fallback;
+}
+
+function getTabLastContactSortKey(c, tab) {
+    function _toDate(s) { return s ? String(s).slice(0,10) : ''; }
+    var _t = tab && tab !== 'all' ? tab : '';
+    var hasLog = false, logMax = '';
+    if (c.contactLog && c.contactLog.length && _t) {
+        var filtered = c.contactLog.filter(function(log){ return !log.tab || log.tab === _t; });
+        if (filtered.length) {
+            hasLog = true;
+            logMax = filtered.reduce(function(m, log){
+                var d = log.date || _toDate(log.time);
+                return d > m ? d : m;
+            }, '');
+        }
+    }
+    var fallback = _toDate(c.lastContact);
+    if (hasLog) return '1|' + (logMax > fallback ? logMax : fallback);
+    return '0|' + fallback;
+}
+
 function normalizePhone(p) { return String(p||'').replace(/[\s\-\(\)＋+]/g, ''); }
 
 // ── 社區名自動完成 ──
@@ -3220,20 +3277,6 @@ function getData() {
         list = list.filter(function(c){ if(c.sProperties&&c.sProperties.length){ return c.sProperties.some(function(sp){ return !sp.spArchived && sp.grade===bfSGrade; }); } return (c.sGrade||'')===bfSGrade; });
     }
     var isRentalTab = curFilter === '房東' || curFilter === '租客';
-    // 排序用 key：有具體 contactLog 紀錄者一律優先於只有 c.lastContact 系統戳記者
-    // 前綴 '1|' = 有紀錄、'0|' = 只有戳記，後接 YYYY-MM-DD，確保有紀錄者恆勝
-    function _getLastContactSort(c) {
-        function _toDate(s) { return s ? String(s).slice(0,10) : ''; }
-        var fallback = _toDate(c.lastContact);
-        if (c.contactLog && c.contactLog.length) {
-            var logMax = c.contactLog.reduce(function(m, log){
-                var d = log.date || _toDate(log.time);
-                return d > m ? d : m;
-            }, '');
-            if (logMax) return '1|' + (logMax > fallback ? logMax : fallback);
-        }
-        return '0|' + fallback;
-    }
     const s = document.getElementById('sortSel').value;
     if (s === 'nextSchedule') {
         var _today = localDateISO();
@@ -3272,7 +3315,7 @@ function getData() {
         if (s==='newest') return (b.created||'').localeCompare(a.created||'');
         if (s==='oldest') return (a.created||'').localeCompare(b.created||'');
         if (s==='name')   return a.name.localeCompare(b.name,'zh');
-        if (s==='lastContact') return (_getLastContactSort(b)).localeCompare(_getLastContactSort(a));
+        if (s==='lastContact') return (getTabLastContactSortKey(b,curFilter)).localeCompare(getTabLastContactSortKey(a,curFilter));
         if (s==='nextSchedule') {
             var aDate = a._nextSchedDate || '9999-12-31';
             var bDate = b._nextSchedDate || '9999-12-31';
@@ -3298,7 +3341,7 @@ function getData() {
                 }
                 return _getRentalEnd2(a).localeCompare(_getRentalEnd2(b));
             }
-            return (_getLastContactSort(b)).localeCompare(_getLastContactSort(a));
+            return (getTabLastContactSortKey(b,curFilter)).localeCompare(getTabLastContactSortKey(a,curFilter));
         }
         return 0;
     });
@@ -3492,7 +3535,7 @@ function renderDashboard() {
         c.schedules.forEach(function(s) {
             if (!s.date) return;
             var diff = daysUntilExpire(s.date);
-            if (diff >= 0 && diff <= 15) schedList.push({ id:c.id, name:c.name, date:s.date, time:s.time||'', memo:s.memo||'', days:diff, community:c.dCommunity||'' });
+            if (diff >= -30 && diff <= 15) schedList.push({ id:c.id, name:c.name, date:s.date, time:s.time||'', memo:s.memo||'', days:diff, community:c.dCommunity||'', expired: diff < 0 });
         });
     });
     // 合併個人行程
@@ -3500,11 +3543,16 @@ function renderDashboard() {
     psList.forEach(function(s, idx) {
         if (!s.date) return;
         var diff = daysUntilExpire(s.date);
-        if (diff >= 0 && diff <= 15) schedList.push({ id:'_ps', psIdx:idx, name:'個人行程', date:s.date, time:s.time||'', memo:s.memo||'', days:diff, community:'', personal:true });
+        if (diff >= -30 && diff <= 15) schedList.push({ id:'_ps', psIdx:idx, name:'個人行程', date:s.date, time:s.time||'', memo:s.memo||'', days:diff, community:'', personal:true, expired: diff < 0 });
     });
-    schedList.sort(function(a,b) { return (a.date+a.time).localeCompare(b.date+b.time); });
+    // 已過期的排前面（由近到遠），未過期的排後面（由近到遠）
+    schedList.sort(function(a,b) {
+        if (a.expired !== b.expired) return a.expired ? -1 : 1;
+        if (a.expired) return (b.date+b.time).localeCompare(a.date+a.time);
+        return (a.date+a.time).localeCompare(b.date+b.time);
+    });
     document.getElementById('dashSchedule').innerHTML = schedList.length ? schedList.map(function(s) {
-        var dayLabel = s.days === 0 ? '今天' : s.days + '天後';
+        var dayLabel = s.days === 0 ? '今天' : s.expired ? '已過期'+Math.abs(s.days)+'天' : s.days + '天後';
         var nameHtml = s.personal
             ? '<span style="flex:1"></span>'
             : '<span class="dash-item-name" style="cursor:pointer" onclick="showDet(\''+esc(s.id)+'\')">'+esc(s.name)+'</span>';
@@ -3514,10 +3562,11 @@ function renderDashboard() {
         var doneBtn = s.personal
             ? '<button class="btn-ic" onclick="completePersonalSchedule('+s.psIdx+')" title="完成" style="font-size:13px;padding:2px 4px">✅</button>'
             : '<button class="btn-ic" onclick="completeSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="完成" style="font-size:13px;padding:2px 4px">✅</button>';
-        var memoHtml = s.memo ? '<div class="dash-sched-memo"'+(s.personal?' style="color:#0891B2"':'')+'>'+esc(s.memo)+'</div>' : (s.personal ? '<div class="dash-sched-memo" style="color:#8B7355">個人行程</div>' : '');
+        var memoHtml = s.memo ? '<div class="dash-sched-memo">'+esc(s.memo)+'</div>' : (s.personal ? '<div class="dash-sched-memo">個人行程</div>' : '');
+        var dateColor = s.expired ? '#DC2626' : (s.days===0 ? '#B45309' : '');
         return '<div class="dash-item dash-sched-item">' +
             '<div class="dash-sched-row1">' +
-                '<span class="dash-item-info" style="color:'+(s.days===0?'#EF4444':'')+'">'+esc(isoToMDW(s.date))+(s.time?' '+s.time:'')+'</span>' +
+                '<span class="dash-item-info" style="color:'+dateColor+'">'+(s.expired?'⚠️ ':'')+esc(isoToMDW(s.date))+(s.time?' '+s.time:'')+(s.expired?' <span style="font-size:12px">已過期'+Math.abs(s.days)+'天</span>':'')+'</span>' +
                 nameHtml +
                 '<span style="display:flex;gap:2px;flex-shrink:0">' + editBtn + doneBtn +
                 (s.personal
@@ -3768,7 +3817,8 @@ function renderCard(c) {
         }).join('');
         const statusTag = !cTypes.includes('經營買方') && c.status ? `<span class="tag s-${esc(c.status)}">${esc(c.status)}</span>` : '';
         const notesText = (getTypeNote(c, showType) || (curFilter==='all' ? getAllNotes(c) : getTypeNote(c, curFilter)) || '').trim();
-        const dateLabel = c.lastContact ? '📞 '+relTime(c.lastContact) : '';
+        const _tabLC = getTabLastContact(c, curFilter);
+        const dateLabel = _tabLC ? '📞 '+relTime(_tabLC) : '';
         const createdLabel = c.created ? '建檔 '+isoToROC((c.created||'').slice(0,10)) : '';
 
         // 到期提醒標籤（只在對應分類頁面顯示，同時到期時用 += 串接）
@@ -3794,7 +3844,8 @@ function renderCard(c) {
         }
         // 中間欄 type-specific info
         let meta = '';
-        // 所有類型共用：顯示最近一筆預排行程（置頂，依頁籤篩選）
+        // 所有類型共用：顯示最近一筆預排行程（移至第三欄備註上方）
+        var _schedHtml = '';
         if (c.schedules && c.schedules.length) {
             var _todayISO = localDateISO();
             var _30d = localDateISO(new Date(Date.now() + 30*86400000));
@@ -3804,7 +3855,7 @@ function renderCard(c) {
                 if (_schedFilter && s.schedType && s.schedType !== _schedFilter) return false;
                 return true;
             }).sort(function(a,b){ return (a.date+(a.time||'')).localeCompare(b.date+(b.time||'')); })[0];
-            if (_nextSched) meta += `<div style="margin-bottom:3px;font-size:14px;line-height:1.4"><span style="color:var(--muted)">行程</span> <span style="color:#57534E;font-weight:700">${esc(isoToMDW(_nextSched.date))}${_nextSched.time?' '+_nextSched.time:''}</span>${_nextSched.memo?'<div style="color:#57534E;font-weight:700;word-break:break-word">'+esc(_nextSched.memo)+'</div>':''}</div>`;
+            if (_nextSched) _schedHtml = `<div style="margin-bottom:4px;font-size:13px;line-height:1.4;display:flex;gap:6px"><span style="color:var(--muted);flex-shrink:0">行程</span><div><span style="color:#57534E;font-weight:700">${esc(isoToMDW(_nextSched.date))}${_nextSched.time?' '+_nextSched.time:''}</span>${_nextSched.memo?'<div style="color:#57534E;word-break:break-word">'+esc(_nextSched.memo)+'</div>':''}</div></div>`;
         }
         if (showType==='經營買方') {
             // 選擇要顯示的需求：有篩選時顯示符合的需求，否則顯示第一組
@@ -4054,14 +4105,19 @@ function renderCard(c) {
             <div class="card-notes-col" onclick="event.stopPropagation()">
                 ${(function(){
                     if (!c.contactLog || !c.contactLog.length) return '';
-                    var indexed = c.contactLog.map(function(log,i){ return {log:log,idx:i}; }).sort(function(a,b){ return (b.log.date||'').localeCompare(a.log.date||''); });
+                    var _curTab = curFilter && curFilter !== 'all' ? curFilter : '';
+                    var indexed = c.contactLog.map(function(log,i){ return {log:log,idx:i}; })
+                        .filter(function(item){ return !_curTab || !item.log.tab || item.log.tab === _curTab; })
+                        .sort(function(a,b){ return (b.log.date||'').localeCompare(a.log.date||''); });
+                    if (!indexed.length) return '';
                     var show = indexed.slice(0, 3);
                     return '<div style="margin-bottom:4px;font-size:13px;line-height:1.4;display:flex;gap:6px"><span style="color:var(--muted);flex-shrink:0">紀錄</span><div>' +
                         show.map(function(item){ return '<div style="color:#374151;cursor:pointer" onclick="event.stopPropagation();quickContactLog(\''+_eid+'\','+item.idx+')"><span style="color:#059669;font-weight:600">'+esc(isoToROC(item.log.date))+'</span> '+esc(item.log.memo)+'</div>'; }).join('') +
                         (indexed.length > 3 ? '<div style="font-size:11px;color:var(--muted);cursor:pointer" onclick="event.stopPropagation();showContactLog(\''+_eid+'\')">還有 '+(indexed.length-3)+' 筆…</div>' : '') +
                     '</div></div>';
                 })()}
-                <div class="notes-inline${notesText?'':' empty-note'}" onclick="editNoteInline('${_eid}',this,'${esc(showType)}')">${notesText ? esc(notesText) : '<span style="font-size:10px">點擊新增備註…</span>'}</div>
+                ${_schedHtml}
+                <div class="notes-inline${notesText?'':' empty-note'}" onclick="editNoteInline('${_eid}',this,'${esc(showType)}')" style="display:flex;gap:6px"><span style="color:var(--muted);flex-shrink:0">備註</span><div style="word-break:break-word">${notesText ? esc(notesText) : '<span style="color:#94A3B8;font-size:10px">點擊新增備註…</span>'}</div></div>
                 <div class="card-contact">
                     ${dateLabel ? `<span>${esc(dateLabel)}</span>` : ''}
                     ${c.history && c.history.length ? `<button class="btn-history" onclick="event.stopPropagation();showHistory('${_eid}')">歷程</button>` : ''}
@@ -4095,6 +4151,7 @@ function editNoteInline(id, el, noteType) {
     // 讀取值：優先 typeNotes[key]，fallback 找第一個有值的 typeNote，最後用 notes
     var original = (c.typeNotes && key && c.typeNotes[key]) || '';
     if (!original && c.typeNotes) {
+        // key 對不上時，找第一個有值的 typeNote，並更新 key
         var foundKey = Object.keys(c.typeNotes).find(function(k){ return c.typeNotes[k]; });
         if (foundKey) { original = c.typeNotes[foundKey]; if (!key) key = foundKey; }
     }
@@ -4105,7 +4162,14 @@ function editNoteInline(id, el, noteType) {
     ta.className = 'notes-edit-area';
     ta.value = original;
     ta.rows = 2;
-    el.replaceWith(ta);
+    // 保留「備註」標籤，只替換內容區域
+    var contentDiv = el.querySelector('div');
+    if (contentDiv) {
+        contentDiv.replaceWith(ta);
+    } else {
+        el.replaceWith(ta);
+    }
+    el.onclick = null;
     ta.focus();
 
     var _saved = false;
@@ -6514,7 +6578,7 @@ function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo, prefillT
         }
         var _qsTypeEl = document.getElementById('qs-type'); var _qsType = _qsTypeEl ? _qsTypeEl.value : '';
         c.schedules.push({ date:date, time:time, memo:memo, schedType:_qsType });
-        persist();
+        persistAndSyncNow();
         overlay.remove();
         render();
     };
@@ -6553,7 +6617,7 @@ function completeSchedule(clientId, date, time) {
         if (!c.history) c.history = [];
         c.history.push({ type:'schedule_done', time:new Date().toISOString(), detail:'【已完成行程】' + isoToROC(date) + (time ? ' ' + time : '') + (memo ? ' ' + memo : '') });
         _addDoneSchedule({ clientId:clientId, clientName:c.name, date:date, time:time, memo:memo, doneAt:new Date().toISOString() });
-        persist();
+        persistAndSyncNow();
         render();
     });
 }
@@ -6594,11 +6658,12 @@ function quickContactLog(clientId, editIdx) {
         if (!memo) { showToast('請輸入紀錄內容', 'warn'); return; }
         if (!c.contactLog) c.contactLog = [];
         if (editing && old) {
-            c.contactLog[editIdx] = { date:date, memo:memo, time:new Date().toISOString() };
+            var _logTab = curFilter && curFilter !== 'all' ? curFilter : '';
+        c.contactLog[editIdx] = { date:date, memo:memo, time:new Date().toISOString(), tab: old.tab || _logTab };
         } else {
-            c.contactLog.unshift({ date:date, memo:memo, time:new Date().toISOString() });
+            c.contactLog.unshift({ date:date, memo:memo, time:new Date().toISOString(), tab: _logTab });
         }
-        c.lastContact = new Date().toISOString();
+        if (!_logTab) c.lastContact = new Date().toISOString();
         persistAndSyncNow();
         overlay.remove();
         render();
@@ -6610,7 +6675,11 @@ function quickContactLog(clientId, editIdx) {
 function showContactLog(clientId) {
     var c = DB.find(function(x){ return x.id === clientId; });
     if (!c || !c.contactLog || !c.contactLog.length) return;
-    var sorted = c.contactLog.slice().sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+    var _curTab = curFilter && curFilter !== 'all' ? curFilter : '';
+    var sorted = c.contactLog.slice()
+        .filter(function(log){ return !_curTab || !log.tab || log.tab === _curTab; })
+        .sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+    if (!sorted.length) return;
     var overlay = document.createElement('div');
     overlay.className = 'fill-overlay';
     var box = document.createElement('div');
@@ -6661,7 +6730,7 @@ function _getPSRecord() {
     return rec;
 }
 function _getPS() { return _getPSRecord().schedules || []; }
-function _savePS(arr) { _getPSRecord().schedules = arr; persist(); }
+function _savePS(arr) { _getPSRecord().schedules = arr; persistAndSyncNow(); }
 function _getDismissed() { return _getPSRecord().dismissed || {}; }
 function _dismissAlert(key, msg) {
     if (msg) {
@@ -6752,7 +6821,7 @@ function deleteSchedule(clientId, date, time) {
         c.schedules = c.schedules.filter(function(s) {
             return !(s.date === date && (s.time||'') === (time||''));
         });
-        persist();
+        persistAndSyncNow();
         render();
     });
 }
@@ -8216,7 +8285,7 @@ function openEdit(id, viewAs) {
     setVal('f-bank', _ll0.bank||c.llBank||c.bank||'');
     setVal('f-bankCode', _ll0.bankCode||c.llBankCode||c.bankCode||'');
     setVal('f-bankAccount', _ll0.bankAccount||c.llBankAccount||c.bankAccount||'');
-    setVal('fs',c.status||'待聯絡'); setVal('flc',isoToROC(c.lastContact)); setVal('fnotes',c.notes);
+    setVal('fs',c.status||'待聯絡'); setVal('flc',isoToROC(getTabLastContact(c,curFilter))); setVal('fnotes',c.notes);
     renderTypeNotes(c);
     // 買方需求區塊
     if (c.bDemands && c.bDemands.length) {
@@ -10153,7 +10222,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260412a2';
+var APP_VERSION = '20260412a3';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
