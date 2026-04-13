@@ -752,8 +752,8 @@
     </div>
     <button class="btn-add" onclick="openAdd()">＋ 新增客戶</button>
     <div class="mobile-cloud">
-        <button class="mc-main" onclick="openPerformance()"><i class="ti ti-chart-bar" style="font-size:16px"></i> 業績</button>
-        <button class="mc-main" onclick="openTemplates()"><i class="ti ti-file-text" style="font-size:16px"></i> 範本</button>
+        <button class="mc-main" onclick="openPerformance()"><i class="ti ti-chart-bar" style="font-size:16px;color:#2563EB"></i> 業績</button>
+        <button class="mc-main" onclick="openTemplates()"><i class="ti ti-file-text" style="font-size:16px;color:#8B7355"></i> 範本</button>
         <span style="flex:1"></span>
         <button onclick="toggleMobileSetting()" id="mobileSettingBtn"><i class="ti ti-dots" style="font-size:18px"></i></button>
     </div>
@@ -781,12 +781,12 @@
         <div id="importTime"></div>
     </div>
     <div class="mobile-setting-menu" id="mobileSettingMenu">
-        <button onclick="openTrash();closeMobileSetting()"><i class="ti ti-trash" style="font-size:16px"></i> 資源回收桶</button>
-        <button onclick="cloudRestore();closeMobileSetting()"><i class="ti ti-cloud-download" style="font-size:16px"></i> 雲端還原</button>
-        <button onclick="exportCSV();closeMobileSetting()"><i class="ti ti-download" style="font-size:16px"></i> 匯出</button>
-        <button onclick="document.getElementById('csvImportInput2').click();closeMobileSetting()"><i class="ti ti-upload" style="font-size:16px"></i> 匯入</button>
-        <button onclick="runDataCheck();closeMobileSetting()"><i class="ti ti-shield-check" style="font-size:16px"></i> 健檢</button>
-        <button onclick="clearCache();closeMobileSetting()"><i class="ti ti-refresh" style="font-size:16px"></i> 重新載入</button>
+        <button onclick="openTrash();closeMobileSetting()"><i class="ti ti-trash" style="font-size:16px;color:#DC2626"></i> 資源回收桶</button>
+        <button onclick="cloudRestore();closeMobileSetting()"><i class="ti ti-cloud-download" style="font-size:16px;color:#2563EB"></i> 雲端還原</button>
+        <button onclick="exportCSV();closeMobileSetting()"><i class="ti ti-download" style="font-size:16px;color:#059669"></i> 匯出</button>
+        <button onclick="document.getElementById('csvImportInput2').click();closeMobileSetting()"><i class="ti ti-upload" style="font-size:16px;color:#D97706"></i> 匯入</button>
+        <button onclick="runDataCheck();closeMobileSetting()"><i class="ti ti-shield-check" style="font-size:16px;color:#059669"></i> 健檢</button>
+        <button onclick="clearCache();closeMobileSetting()"><i class="ti ti-refresh" style="font-size:16px;color:#57534E"></i> 重新載入</button>
     </div>
 </header>
 <nav class="mobile-nav" id="mobileNav">
@@ -3101,8 +3101,15 @@ function renderTypeNotes(c) {
         var label = _NOTE_LABELS[t] || '備註';
         // 優先用表單中已輸入的值，其次用資料庫的值
         var val = (existing[t] !== undefined) ? existing[t] : (tn[t] || '');
-        return '<div class="fg" style="margin-bottom:6px"><label style="font-size:12px">'+label+'</label><textarea data-type-note="'+esc(t)+'" placeholder="" style="min-height:50px">'+esc(val)+'</textarea></div>';
+        return '<div class="fg" style="margin-bottom:6px"><label style="font-size:12px">'+label+'</label><textarea data-type-note="'+esc(t)+'" placeholder="" style="min-height:50px;overflow:hidden" oninput="this.style.height=\'auto\';this.style.height=this.scrollHeight+\'px\'">'+esc(val)+'</textarea></div>';
     }).join('');
+    // 初始載入時自動調整高度
+    setTimeout(function() {
+        area.querySelectorAll('textarea[data-type-note]').forEach(function(ta) {
+            ta.style.height = 'auto';
+            ta.style.height = ta.scrollHeight + 'px';
+        });
+    }, 0);
 }
 function collectTypeNotes() {
     var tn = {};
@@ -4192,6 +4199,7 @@ function renderCard(c) {
 
 // ── Inline Note Edit ──
 function editNoteInline(id, el, noteType) {
+    closeCardMenu();
     const c = DB.find(x => x.id === id);
     if (!c) return;
     // 解析 key：確保是有效的備註類型
@@ -10361,12 +10369,14 @@ function openCardMenu(e, id, viewAs, isArchived) {
     menu.style.top = top + 'px';
     setTimeout(function() {
         document.addEventListener('click', closeCardMenuOnClick);
+        document.addEventListener('scroll', closeCardMenu, true);
     }, 0);
 }
 function closeCardMenu() {
     var m = document.getElementById('cardMenuPopup');
     if (m) m.remove();
     document.removeEventListener('click', closeCardMenuOnClick);
+    document.removeEventListener('scroll', closeCardMenu, true);
 }
 function closeCardMenuOnClick(e) {
     var m = document.getElementById('cardMenuPopup');
