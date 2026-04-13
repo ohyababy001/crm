@@ -10403,7 +10403,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260413c5';
+var APP_VERSION = '20260413c6';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
@@ -10537,19 +10537,38 @@ document.addEventListener('click', function(e) {
         closeHeaderMore();
     }
 });
+var _msScrollHandler = null;
 function toggleMobileSetting() {
     var menu = document.getElementById('mobileSettingMenu');
+    var show = !menu.classList.contains('show');
     menu.classList.toggle('show');
+    if (show) {
+        setTimeout(function() {
+            _msScrollHandler = function() { closeMobileSetting(); };
+            window.addEventListener('scroll', _msScrollHandler, true);
+            document.addEventListener('touchmove', _msScrollHandler, {passive:true});
+        }, 50);
+    } else {
+        _removeMsScroll();
+    }
+}
+function _removeMsScroll() {
+    if (_msScrollHandler) {
+        window.removeEventListener('scroll', _msScrollHandler, true);
+        document.removeEventListener('touchmove', _msScrollHandler);
+        _msScrollHandler = null;
+    }
 }
 function closeMobileSetting() {
     var menu = document.getElementById('mobileSettingMenu');
     menu.classList.remove('show');
+    _removeMsScroll();
 }
 document.addEventListener('click', function(e) {
     var menu = document.getElementById('mobileSettingMenu');
     var btn = document.getElementById('mobileSettingBtn');
     if (menu && btn && !menu.contains(e.target) && !btn.contains(e.target)) {
-        menu.classList.remove('show');
+        closeMobileSetting();
     }
 });
 
