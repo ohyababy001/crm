@@ -6352,7 +6352,9 @@ function calcNextRecurDate(dateStr, rule) {
             while (d.getDay() !== mwDow) d.setDate(d.getDate() + 1);
             d.setDate(d.getDate() + (mwNth - 1) * 7);
         } else if (unit === 'm') {
+            var mday = parts[1] ? parseInt(parts[1]) : 0;
             d.setMonth(d.getMonth() + num);
+            if (mday) { var maxDay = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate(); d.setDate(Math.min(mday, maxDay)); }
         } else if (unit === 'y') {
             d.setFullYear(d.getFullYear() + num);
         } else {
@@ -6410,7 +6412,10 @@ function recurLabel(rule) {
             var nthNames = ['','第1個','第2個','第3個','第4個'];
             return '每' + (num > 1 ? num : '') + '個月' + nthNames[mwVals[0]] + '星期' + wkNames[mwVals[1]];
         }
-        if (unit === 'm') return '每' + (num > 1 ? num : '') + '個月';
+        if (unit === 'm') {
+            var mday = parts[1] ? parseInt(parts[1]) : 0;
+            return '每' + (num > 1 ? num : '') + '個月' + (mday ? mday + '日' : '');
+        }
         if (unit === 'y') return '每' + (num > 1 ? num : '') + '年';
         return '自訂';
     }
@@ -6443,12 +6448,16 @@ function openCustomRecur(selectEl, currentVal) {
     }).join('');
     // 月模式：同日 vs 同週幾
     var curMmode = 'day'; // day or weekday
-    var curMnth = 1, curMdow = 1;
+    var curMnth = 1, curMdow = 1, curMday = 1;
     if (curUnit === 'mw' && cur) {
         curMmode = 'weekday';
         var mwParts = cur.substring(7).split(':');
         if (mwParts[1]) { var mwVals = mwParts[1].split(','); curMnth = parseInt(mwVals[0])||1; curMdow = parseInt(mwVals[1])||1; }
+    } else if (curUnit === 'm' && cur) {
+        var mdParts = cur.substring(7).split(':');
+        if (mdParts[1]) curMday = parseInt(mdParts[1]) || 1;
     }
+    var mdayHtml = ''; for (var _md=1;_md<=31;_md++) mdayHtml += '<option value="'+_md+'"'+(_md===curMday?' selected':'')+'>'+_md+' 日</option>';
     var nthOpts = [[1,'第1個'],[2,'第2個'],[3,'第3個'],[4,'第4個']];
     var dowOpts = [[0,'日'],[1,'一'],[2,'二'],[3,'三'],[4,'四'],[5,'五'],[6,'六']];
     var nthHtml = nthOpts.map(function(o){ return '<option value="'+o[0]+'"'+(curMnth===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('');
@@ -6463,8 +6472,9 @@ function openCustomRecur(selectEl, currentVal) {
         '</div>' +
         '<div id="cr-days-row" style="display:'+(curUnit==='w'?'flex':'none')+';flex-wrap:wrap;gap:6px;margin-bottom:14px">' + daysHtml + '</div>' +
         '<div id="cr-month-row" style="display:'+((showMonth)?'block':'none')+';margin-bottom:14px">' +
-            '<label style="display:flex;align-items:center;gap:6px;margin-bottom:8px;cursor:pointer;font-size:14px"><input type="radio" name="cr-mmode" value="day"'+(curMmode==='day'?' checked':'')+' onchange="document.getElementById(\'cr-mw-row\').style.display=\'none\'"> 每月同一天</label>' +
-            '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px"><input type="radio" name="cr-mmode" value="weekday"'+(curMmode==='weekday'?' checked':'')+' onchange="document.getElementById(\'cr-mw-row\').style.display=\'flex\'"> 每月的第幾個星期幾</label>' +
+            '<label style="display:flex;align-items:center;gap:6px;margin-bottom:8px;cursor:pointer;font-size:14px"><input type="radio" name="cr-mmode" value="day"'+(curMmode==='day'?' checked':'')+' onchange="document.getElementById(\'cr-md-row\').style.display=\'flex\';document.getElementById(\'cr-mw-row\').style.display=\'none\'"> 每月的第幾天</label>' +
+            '<div id="cr-md-row" style="display:'+(curMmode==='day'?'flex':'none')+';gap:8px;margin-bottom:8px;padding-left:24px"><select id="cr-mday" style="padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px">'+mdayHtml+'</select></div>' +
+            '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px"><input type="radio" name="cr-mmode" value="weekday"'+(curMmode==='weekday'?' checked':'')+' onchange="document.getElementById(\'cr-md-row\').style.display=\'none\';document.getElementById(\'cr-mw-row\').style.display=\'flex\'"> 每月的第幾個星期幾</label>' +
             '<div id="cr-mw-row" style="display:'+(curMmode==='weekday'?'flex':'none')+';gap:8px;margin-top:8px;padding-left:24px">' +
                 '<select id="cr-nth" style="padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px">'+nthHtml+'</select>' +
                 '<select id="cr-dow" style="padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px">'+dowHtml+'</select>' +
@@ -6508,6 +6518,9 @@ function openCustomRecur(selectEl, currentVal) {
                 var nth = document.getElementById('cr-nth').value;
                 var dow = document.getElementById('cr-dow').value;
                 val = 'custom:' + num + 'mw:' + nth + ',' + dow;
+            } else {
+                var mday = document.getElementById('cr-mday').value;
+                val = 'custom:' + num + 'm:' + mday;
             }
         }
         // 更新 select：替換或新增 custom option
@@ -10577,7 +10590,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260413d1';
+var APP_VERSION = '20260413d2';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
