@@ -4809,6 +4809,23 @@ function showDet(id, viewAs) {
 }
 var _detFromPerf = false;
 function closeDet(){ document.getElementById('dModal').style.display='none'; if(_detFromPerf){ _detFromPerf=false; document.getElementById('perfModal').style.display='flex'; } detListCache=[]; currentDetId=null; currentDetIdx=-1; }
+// 手機版：詳情頁向下滑關閉
+(function(){
+    var modal = document.querySelector('#dModal .modal');
+    if (!modal) return;
+    var startY = 0, startX = 0, startScroll = 0;
+    modal.addEventListener('touchstart', function(e) {
+        startY = e.touches[0].clientY;
+        startX = e.touches[0].clientX;
+        startScroll = modal.scrollTop;
+    }, {passive:true});
+    modal.addEventListener('touchend', function(e) {
+        var dy = e.changedTouches[0].clientY - startY;
+        var dx = Math.abs(e.changedTouches[0].clientX - startX);
+        // 向下滑超過 80px、水平移動少、且已在頂部
+        if (dy > 80 && dx < 60 && startScroll <= 0) closeDet();
+    }, {passive:true});
+})();
 function switchBdTab(btn, idx) {
     var tabs = btn.closest('[data-bd-tabs]');
     var container = tabs.parentElement;
@@ -10386,7 +10403,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260413c2';
+var APP_VERSION = '20260413c3';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
