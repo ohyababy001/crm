@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <style>
 :root {
     --bg: #F7F5F3;
@@ -92,7 +93,7 @@ body::before {
     align-items: center;
     gap: 12px;
 }
-.header-btns { display: flex; gap: 8px; align-items: flex-end; }
+.header-btns { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; justify-content: flex-end; }
 .header-btns button {
     background: rgba(255,255,255,.1);
     border: 1px solid rgba(200,164,90,.4);
@@ -698,12 +699,19 @@ th.sortable.sort-active { color: var(--lux-navy); }
 th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; }
 
 @media (max-width: 600px) {
+    html, body { overflow-x: hidden; }
+    body { padding-top: 155px; }
+    .header { padding: 6px 12px; }
+    .header h1 { font-size: 20px; letter-spacing: 2px; }
+    .header-btns { gap: 5px; flex-wrap: nowrap; }
+    .header-btns button { padding: 5px 10px; font-size: 11px; }
+    #last-export { display: none; }
     .summary-cards { grid-template-columns: repeat(3, 1fr); }
     .stock-summary { grid-template-columns: repeat(2, 1fr); }
     .s-card .value { font-size: 18px; }
     .container { padding: 10px; }
-    table { font-size: 13px; }
-    thead th, tbody td, tfoot td { padding: 6px 8px; }
+    table { font-size: 12px; }
+    thead th, tbody td, tfoot td { padding: 5px 4px; }
     .tab-btn { padding: 10px 16px; font-size: 13px; }
     .tab-bar-inner { grid-template-columns: repeat(3, 1fr); }
     .asset-acc-row { flex-wrap: wrap; }
@@ -1243,7 +1251,8 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
         <button onclick="exportData()">匯出</button>
         <button onclick="document.getElementById('importFile').click()">匯入</button>
         <button onclick="showRestoreDialog()" title="從自動快照還原台股資料">還原</button>
-        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+        <button onclick="showConfirm2('確定清除本機所有資料？\n清除後此裝置的資料將無法復原。',function(){localStorage.clear();location.reload();},null,{title:'清除資料',okText:'確定清除',okStyle:'background:var(--red)'})" style="background:rgba(200,50,50,.3);border-color:rgba(200,100,100,.5)" title="清除此裝置的所有資料">清除</button>
+        <input type="file" id="importFile" accept=".json,.xlsx" style="display:none" onchange="importData(event)">
     </div>
 </div>
 
@@ -1282,10 +1291,10 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
 // ── 常數 ──
 var MONTH_LABELS = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
 
-var DEFAULT_INCOME_CATS = ['租賃代管','股利','獎金','投資獲利','兼職','借款利息','優惠回饋','其他','利息所得','發票','保險'];
-var DEFAULT_EXPENSE_CATS = ['牙牙費用','投資虧損','租屋支出','飲食','服飾','社交禮金','醫療','公務支出','住家','家泰家悅','代墊往來','公用事業','交通','訂閱會籍','觀光旅遊','休閒娛樂','手續費','保險','質押利息','稅金'];
-var DEFAULT_PASSIVE_SOURCES = ['股利','放款','代管'];
-var DEFAULT_YEARS = ['113','114','115'];
+var DEFAULT_INCOME_CATS = [];
+var DEFAULT_EXPENSE_CATS = [];
+var DEFAULT_PASSIVE_SOURCES = [];
+var DEFAULT_YEARS = ['115'];
 
 var DATA = null;
 var currentTab = 'income';
@@ -1404,42 +1413,7 @@ function saveData() {
 }
 
 function prefillData() {
-    // 收入
-    var inc = {
-        '113': {租賃代管:521774,股利:310170,獎金:1543761,投資獲利:145612,兼職:627649,借款利息:643200,優惠回饋:16070,其他:20000,利息所得:6625,發票:2200,保險:11641},
-        '114': {租賃代管:303635,股利:521000,獎金:1708648,投資獲利:239567,兼職:226572,借款利息:586000,優惠回饋:16126,其他:58904,利息所得:11520,發票:1200,保險:27243},
-        '115': {租賃代管:169682,股利:92336,獎金:65360,投資獲利:56465,兼職:41267,借款利息:30000,優惠回饋:11467,其他:2011,利息所得:808,發票:200,保險:0}
-    };
-    // 支出
-    var exp = {
-        '113': {牙牙費用:99687,投資虧損:26517,租屋支出:67400,飲食:146869,服飾:20642,社交禮金:165338,醫療:4450,公務支出:43127,住家:65124,家泰家悅:0,代墊往來:0,公用事業:27935,交通:41643,訂閱會籍:14500,觀光旅遊:16248,休閒娛樂:44618,手續費:436,保險:107392,質押利息:19397,稅金:95402},
-        '114': {牙牙費用:267111,投資虧損:1500,租屋支出:253000,飲食:179283,服飾:20919,社交禮金:434969,醫療:87460,公務支出:85946,住家:25890,家泰家悅:5500,代墊往來:0,公用事業:29369,交通:64991,訂閱會籍:13964,觀光旅遊:44692,休閒娛樂:43502,手續費:3434,保險:112262,質押利息:1447,稅金:450},
-        '115': {牙牙費用:86939,投資虧損:65924,租屋支出:63000,飲食:41064,服飾:34612,社交禮金:34404,醫療:19210,公務支出:13749,住家:12324,家泰家悅:9100,代墊往來:6800,公用事業:5920,交通:5444,訂閱會籍:4251,觀光旅遊:2171,休閒娛樂:1650,手續費:323,保險:179,質押利息:34,稅金:0}
-    };
-    // 被動收入
-    var pas = {
-        '114': {
-            '股利': {1:32390,2:59510,3:48378,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0},
-            '放款': {1:15000,2:15000,3:15000,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0},
-            '代管': {1:4600,2:4600,3:4600,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0}
-        },
-        '115': {
-            '股利': {1:4600,2:4600,3:4600,4:2300,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0},
-            '放款': {1:15000,2:15000,3:15000,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0},
-            '代管': {1:4600,2:4600,3:4600,4:2300,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0}
-        }
-    };
-    ['113','114','115'].forEach(function(y){
-        if (inc[y]) Object.keys(inc[y]).forEach(function(k){ DATA.income[y][k] = inc[y][k]; });
-        if (exp[y]) Object.keys(exp[y]).forEach(function(k){ DATA.expense[y][k] = exp[y][k]; });
-        if (pas[y]) {
-            Object.keys(pas[y]).forEach(function(s){
-                if (!DATA.passive[y][s]) DATA.passive[y][s] = {};
-                Object.keys(pas[y][s]).forEach(function(m){ DATA.passive[y][s][m] = pas[y][s][m]; });
-            });
-        }
-    });
-    saveData();
+    // 初次使用不預填資料，使用者自行輸入
 }
 
 // ── 計算 ──
@@ -1611,61 +1585,7 @@ function renderIncomeExpense(section) {
     var cats = showArchived ? allCats : allCats.filter(function(c){ return !isCatArchived(section, c); });
     var container = document.getElementById('tab-' + section);
 
-    // 摘要表格（可開合，預設為合）
-    var ovOpen = !!_overviewOpen[section];
-    var ovArrow = ovOpen ? '▼' : '▶';
-    var html = '<div style="background:var(--card);border-radius:var(--radius);margin-bottom:10px;box-shadow:var(--shadow);overflow:hidden">';
-    html += '<div onclick="toggleOverview(\'' + section + '\')" style="cursor:pointer;user-select:none;padding:12px 18px;font-weight:800;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--lux-navy);background:' + (ovOpen ? '#FFFBF0' : 'var(--card)') + ';border-bottom:' + (ovOpen ? '1px solid var(--border)' : 'none') + '">' + ovArrow + ' 總覽</div>';
-    if (!ovOpen) {
-        html += '</div>';
-    } else {
-    html += '<div class="table-wrap"><table style="margin:0"><thead><tr>';
-    html += '<th style="text-align:left">項目</th>';
-    years.forEach(function(y) { html += '<th>' + y + '年</th>'; });
-    html += '<th>日均變動</th></tr></thead><tbody>';
-    // 總收入
-    html += '<tr><td style="font-weight:700">總收入</td>';
-    years.forEach(function(y) { html += '<td style="color:var(--green);font-weight:700">' + fmt(sumYear('income', y)) + '</td>'; });
-    if (years.length >= 2) {
-        var _iCur = sumYear('income', years[years.length-1]), _iPrev = sumYear('income', years[years.length-2]);
-        var _iCY = parseInt(years[years.length-1])+1911, _iPY = parseInt(years[years.length-2])+1911;
-        var _now = new Date();
-        var _iCD = (_iCY === _now.getFullYear()) ? dayOfYear(_now) : daysInYear(_iCY);
-        var _iPD = daysInYear(_iPY);
-        var _iRate = _iPrev > 0 ? (((_iCur/_iCD)/(_iPrev/_iPD))-1)*100 : null;
-        html += '<td class="rate-cell ' + rateClass(_iRate) + '">' + fmtRate(_iRate) + '</td>';
-    } else { html += '<td>-</td>'; }
-    html += '</tr>';
-    // 總支出
-    html += '<tr><td style="font-weight:700">總支出</td>';
-    years.forEach(function(y) { html += '<td style="color:var(--red);font-weight:700">' + fmt(sumYear('expense', y)) + '</td>'; });
-    if (years.length >= 2) {
-        var _eCur = sumYear('expense', years[years.length-1]), _ePrev = sumYear('expense', years[years.length-2]);
-        var _eCY = parseInt(years[years.length-1])+1911, _ePY = parseInt(years[years.length-2])+1911;
-        var _eCD = (_eCY === _now.getFullYear()) ? dayOfYear(_now) : daysInYear(_eCY);
-        var _ePD = daysInYear(_ePY);
-        var _eRate = _ePrev > 0 ? (((_eCur/_eCD)/(_ePrev/_ePD))-1)*100 : null;
-        html += '<td class="rate-cell ' + rateClass(_eRate) + '">' + fmtRate(_eRate) + '</td>';
-    } else { html += '<td>-</td>'; }
-    html += '</tr>';
-    // 盈餘
-    html += '<tr style="border-top:2px solid var(--border)"><td style="font-weight:700">盈餘</td>';
-    years.forEach(function(y) {
-        var surplus = sumYear('income', y) - sumYear('expense', y);
-        html += '<td style="font-weight:700" class="' + (surplus>=0?'pos':'neg') + '">' + fmt(surplus) + '</td>';
-    });
-    if (years.length >= 2) {
-        var _sCur = sumYear('income', years[years.length-1]) - sumYear('expense', years[years.length-1]);
-        var _sPrev = sumYear('income', years[years.length-2]) - sumYear('expense', years[years.length-2]);
-        var _sCD = (_iCY === _now.getFullYear()) ? dayOfYear(_now) : daysInYear(_iCY);
-        var _sPD = daysInYear(_iPY);
-        var _sRate = _sPrev > 0 ? (((_sCur/_sCD)/(_sPrev/_sPD))-1)*100 : null;
-        html += '<td class="rate-cell ' + rateClass(_sRate) + '">' + fmtRate(_sRate) + '</td>';
-    } else { html += '<td>-</td>'; }
-    html += '</tr>';
-    html += '</tbody></table></div>';
-    html += '</div>';
-    } // end else (overview open)
+    var html = '';
 
     // 工具列
     html += '<div class="toolbar">';
@@ -1745,7 +1665,7 @@ function renderPassive() {
     });
     html += '</select>';
     html += '<button class="btn-add" onclick="addYear()">＋ 新增年份</button>';
-    html += '<button class="btn-add" onclick="addPassiveSource()">＋ 新增來源</button>';
+    html += '<button class="btn-add" onclick="managePassiveSources()"><i class="ti ti-settings"></i> 管理來源</button>';
     html += '<button onclick="manageRecurring()" style="margin-left:auto"><i class="ti ti-repeat"></i> 定期收入管理</button>';
     html += '</div>';
 
@@ -1982,6 +1902,51 @@ function manageYears() {
         '<div style="margin-top:8px"><button onclick="this.closest(\'.overlay\').remove()" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--card);font-size:14px;cursor:pointer;font-family:inherit">關閉</button></div></div>';
     document.body.appendChild(ov);
     // 已移除點空白關閉行為（避免誤觸）
+}
+
+function managePassiveSources() {
+    var sources = getSourceNames();
+    var ov = document.createElement('div');
+    ov.className = 'overlay';
+    var rows = sources.map(function(s) {
+        return '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">' +
+            '<span style="font-size:14px">' + esc(s) + '</span>' +
+            '<div style="display:flex;gap:6px">' +
+                '<button onclick="this.closest(\'.overlay\').remove();renamePassiveSource(\'' + esc(s) + '\')" style="padding:4px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;cursor:pointer;background:var(--card);font-family:inherit"><i class="ti ti-pencil" style="font-size:13px"></i> 重命名</button>' +
+                '<button onclick="this.closest(\'.overlay\').remove();deletePassiveSource(\'' + esc(s) + '\')" style="padding:4px 10px;border:none;border-radius:6px;font-size:13px;cursor:pointer;background:var(--red);color:white;font-family:inherit"><i class="ti ti-x" style="font-size:14px"></i></button>' +
+            '</div></div>';
+    }).join('');
+    if (sources.length === 0) rows = '<div style="padding:16px;text-align:center;color:var(--muted)">尚無來源</div>';
+    ov.innerHTML = '<div class="modal" style="max-height:80vh;overflow-y:auto"><h3>管理被動收入來源</h3>' + rows +
+        '<div style="margin-top:12px"><button onclick="this.closest(\'.overlay\').remove();addPassiveSource()" style="width:100%;padding:10px;border:none;border-radius:8px;background:var(--lux-navy);color:white;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">＋ 新增來源</button></div>' +
+        '<div style="margin-top:8px"><button onclick="this.closest(\'.overlay\').remove()" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--card);font-size:14px;cursor:pointer;font-family:inherit">關閉</button></div></div>';
+    document.body.appendChild(ov);
+}
+
+function renamePassiveSource(oldName) {
+    showModal('重命名來源', '新名稱', oldName, function(newName) {
+        if (!newName || newName === oldName) return;
+        var names = getSourceNames();
+        if (names.indexOf(newName) >= 0) { toast('名稱已存在'); return; }
+        DATA.settings.passiveSources.forEach(function(s, i) {
+            var n = typeof s === 'string' ? s : s.name;
+            if (n === oldName) {
+                if (typeof s === 'string') DATA.settings.passiveSources[i] = newName;
+                else s.name = newName;
+            }
+        });
+        DATA.settings.years.forEach(function(y) {
+            if (DATA.passive[y] && DATA.passive[y][oldName]) {
+                DATA.passive[y][newName] = DATA.passive[y][oldName];
+                delete DATA.passive[y][oldName];
+            }
+        });
+        (DATA.recurring || []).forEach(function(r) {
+            if (r.source === oldName) r.source = newName;
+        });
+        saveData();
+        render();
+    });
 }
 
 function addPassiveSource() {
@@ -2319,17 +2284,124 @@ function deleteRecurring(id) {
 
 // ── 匯出匯入 ──
 function exportData() {
+    var ov = document.createElement('div');
+    ov.className = 'overlay';
+    ov.innerHTML = '<div class="modal" style="max-width:360px"><h3><i class="ti ti-download"></i> 匯出格式</h3>' +
+        '<div class="modal-btns" style="gap:10px;justify-content:center">' +
+        '<button class="btn-primary" id="exp-json" style="min-width:120px"><i class="ti ti-file-text"></i> JSON</button>' +
+        '<button class="btn-primary" id="exp-xlsx" style="min-width:120px;background:var(--green)"><i class="ti ti-table"></i> Excel</button>' +
+        '</div>' +
+        '<div style="text-align:center;margin-top:8px"><button id="exp-cancel" style="background:transparent;color:var(--muted);border:none;font-size:13px">取消</button></div></div>';
+    document.body.appendChild(ov);
+    document.getElementById('exp-json').onclick = function() { ov.remove(); exportJSON(); };
+    document.getElementById('exp-xlsx').onclick = function() { ov.remove(); exportExcel(); };
+    document.getElementById('exp-cancel').onclick = function() { ov.remove(); };
+}
+
+function exportJSON() {
     var exportObj = { finance: DATA, stock: stockData };
     var blob = new Blob([JSON.stringify(exportObj, null, 2)], {type:'application/json'});
     var a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = '財務追蹤_備份_' + new Date().toISOString().slice(0,10) + '.json';
     a.click();
-    // 記錄匯出時間
+    _recordExport();
+    toast('已匯出 JSON 備份');
+}
+
+function exportExcel() {
+    var wb = XLSX.utils.book_new();
+    var years = (DATA.settings.years || []).slice();
+
+    // 1) 收入 — 每年一列，各分類一欄
+    var incCats = (DATA.settings.incomeCategories || []).map(function(c){ return typeof c === 'string' ? c : c.name; });
+    var incRows = years.map(function(y) {
+        var row = { '年度': y };
+        incCats.forEach(function(c){ row[c] = (DATA.income[y] && DATA.income[y][c]) || 0; });
+        return row;
+    });
+    if (incRows.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(incRows), '收入');
+
+    // 2) 支出
+    var expCats = (DATA.settings.expenseCategories || []).map(function(c){ return typeof c === 'string' ? c : c.name; });
+    var expRows = years.map(function(y) {
+        var row = { '年度': y };
+        expCats.forEach(function(c){ row[c] = (DATA.expense[y] && DATA.expense[y][c]) || 0; });
+        return row;
+    });
+    if (expRows.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(expRows), '支出');
+
+    // 3) 被動收入 — 來源×月份
+    var pSources = (DATA.settings.passiveSources || []).map(function(s){ return typeof s === 'string' ? s : s.name; });
+    var passRows = [];
+    years.forEach(function(y) {
+        pSources.forEach(function(src) {
+            var row = { '年度': y, '來源': src };
+            for (var m = 1; m <= 12; m++) row[m + '月'] = (DATA.passive[y] && DATA.passive[y][src] && DATA.passive[y][src][m]) || 0;
+            passRows.push(row);
+        });
+    });
+    if (passRows.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(passRows), '被動收入');
+
+    // 4) 月記錄
+    var monthRows = (DATA.monthly || []).map(function(r) {
+        return { '月份': r.month, '收入': r.income || 0, '支出': r.expense || 0, '備註': r.note || '' };
+    });
+    if (monthRows.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(monthRows), '月記錄');
+
+    // 5) 持股
+    var holdRows = (stockData.holdings || []).map(function(h) {
+        return { '代號': h.id, '名稱': h.name || '', '股數': h.shares || 0, '成本': h.cost || 0 };
+    });
+    if (holdRows.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(holdRows), '持股');
+
+    // 6) 股利
+    var divRows = (stockData.dividends || []).map(function(d) {
+        return { '日期': d.date || '', '代號': d.stockId || '', '名稱': d.stockName || '', '現金股利': d.cash || 0, '股票股利(股)': d.stockShares || 0 };
+    });
+    if (divRows.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(divRows), '股利');
+
+    // 7) 質押
+    var pledgeRows = (stockData.pledges || []).map(function(p) {
+        return { '日期': p.date || '', '代號': p.stockId || '', '名稱': p.stockName || '', '股數': p.shares || 0, '借款金額': p.amount || 0, '利率': p.rate || 0 };
+    });
+    if (pledgeRows.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(pledgeRows), '質押');
+
+    // 8) 淨資產各分類
+    ['liquid', 'invest', 'fixed', 'receivable', 'debt'].forEach(function(key) {
+        var labels = { liquid: '流動資金', invest: '投資', fixed: '固定資產', receivable: '應收款', debt: '負債' };
+        var items = DATA.assets[key] || [];
+        if (!items.length) return;
+        var rows = items.map(function(a) {
+            return { '名稱': a.name || '', '金額': a.amount || 0, '幣別': a.currency || 'TWD', '匯率': a.rate || '', '備註': a.memo || '' };
+        });
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), labels[key]);
+    });
+
+    // 9) 設定（分類名稱、年份清單等，匯入時需要）
+    var settingsRows = [];
+    settingsRows.push({ '鍵': '_format', '值': 'CashFlow_Excel_v1' });
+    settingsRows.push({ '鍵': 'years', '值': (DATA.settings.years || []).join(',') });
+    settingsRows.push({ '鍵': 'incomeCategories', '值': incCats.join(',') });
+    settingsRows.push({ '鍵': 'expenseCategories', '值': expCats.join(',') });
+    settingsRows.push({ '鍵': 'passiveSources', '值': pSources.join(',') });
+    if (DATA.settings.archivedYears && DATA.settings.archivedYears.length)
+        settingsRows.push({ '鍵': 'archivedYears', '值': DATA.settings.archivedYears.join(',') });
+    if (DATA.settings.archivedIncomeCats && DATA.settings.archivedIncomeCats.length)
+        settingsRows.push({ '鍵': 'archivedIncomeCats', '值': DATA.settings.archivedIncomeCats.join(',') });
+    if (DATA.settings.archivedExpenseCats && DATA.settings.archivedExpenseCats.length)
+        settingsRows.push({ '鍵': 'archivedExpenseCats', '值': DATA.settings.archivedExpenseCats.join(',') });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(settingsRows), '設定');
+
+    XLSX.writeFile(wb, '財務追蹤_備份_' + new Date().toISOString().slice(0,10) + '.xlsx');
+    _recordExport();
+    toast('已匯出 Excel 備份');
+}
+
+function _recordExport() {
     var now = new Date().toLocaleString('zh-TW');
     localStorage.setItem('finTracker_lastExport', now);
     updateLastExportLabel();
-    toast('已匯出備份（含台股資料）');
 }
 
 function updateLastExportLabel() {
@@ -2342,39 +2414,124 @@ function updateLastExportLabel() {
 function importData(e) {
     var file = e.target.files[0];
     if (!file) return;
-    var reader = new FileReader();
-    reader.onload = function(ev) {
-        var d;
-        try {
-            d = JSON.parse(ev.target.result);
-        } catch(err) {
-            toast('匯入失敗：' + err.message, true);
-            e.target.value = '';
-            return;
-        }
+    var isExcel = /\.xlsx$/i.test(file.name);
 
-        // ★ 預覽匯入檔案的筆數，讓使用者確認
-        var incomingDivCount = (d.stock && d.stock.dividends && d.stock.dividends.length) || 0;
-        var currentDivCount = (stockData && stockData.dividends && stockData.dividends.length) || 0;
-        var msg = '即將匯入資料，將覆蓋現在所有內容。\n\n' +
-                  '目前股利紀錄：' + currentDivCount + ' 筆\n' +
-                  '匯入檔案股利：' + incomingDivCount + ' 筆\n';
-        if (incomingDivCount < currentDivCount) {
-            msg += '\n<i class="ti ti-alert-triangle"></i> 警告：匯入檔案的股利筆數比現在少！\n';
-        }
-        msg += '\n確定要繼續嗎？（會自動備份現在的資料到快照）';
-
-        showConfirm2(msg, function onYes() {
+    if (isExcel) {
+        var reader = new FileReader();
+        reader.onload = function(ev) {
             try {
-                // 匯入前自動備份：單一舊備份 + 推進快照輪替
-                try {
-                    localStorage.setItem('finTracker_autoBackup', JSON.stringify({
-                        finance: DATA, stock: stockData, time: new Date().toISOString()
-                    }));
-                    var curRaw = localStorage.getItem(STOCK_KEY);
-                    if (curRaw) pushSnapshot(curRaw);
-                } catch(_e) {}
+                var wb = XLSX.read(ev.target.result, { type: 'array' });
+                // 驗證格式標記
+                var settingsSheet = wb.Sheets['設定'];
+                if (!settingsSheet) { toast('此 Excel 非 CashFlow 匯出格式（缺少「設定」工作表）', true); return; }
+                var settingsRows = XLSX.utils.sheet_to_json(settingsSheet);
+                var settingsMap = {};
+                settingsRows.forEach(function(r) { settingsMap[r['鍵']] = r['值']; });
+                if (settingsMap['_format'] !== 'CashFlow_Excel_v1') { toast('此 Excel 非 CashFlow 匯出格式', true); return; }
 
+                _confirmAndImport('Excel', function() {
+                    // 還原 settings
+                    var years = (settingsMap['years'] || '').split(',').filter(Boolean);
+                    var incCats = (settingsMap['incomeCategories'] || '').split(',').filter(Boolean);
+                    var expCats = (settingsMap['expenseCategories'] || '').split(',').filter(Boolean);
+                    var pSources = (settingsMap['passiveSources'] || '').split(',').filter(Boolean);
+                    var newData = getDefaults();
+                    newData.settings.years = years;
+                    newData.settings.incomeCategories = incCats;
+                    newData.settings.expenseCategories = expCats;
+                    newData.settings.passiveSources = pSources.map(function(s){ return {name:s, memo:''}; });
+                    if (settingsMap['archivedYears']) newData.settings.archivedYears = settingsMap['archivedYears'].split(',').filter(Boolean);
+                    if (settingsMap['archivedIncomeCats']) newData.settings.archivedIncomeCats = settingsMap['archivedIncomeCats'].split(',').filter(Boolean);
+                    if (settingsMap['archivedExpenseCats']) newData.settings.archivedExpenseCats = settingsMap['archivedExpenseCats'].split(',').filter(Boolean);
+
+                    // 初始化資料結構
+                    newData.income = {}; newData.expense = {}; newData.passive = {};
+                    years.forEach(function(y) {
+                        newData.income[y] = {}; newData.expense[y] = {}; newData.passive[y] = {};
+                        incCats.forEach(function(c){ newData.income[y][c] = 0; });
+                        expCats.forEach(function(c){ newData.expense[y][c] = 0; });
+                        pSources.forEach(function(s){ newData.passive[y][s] = {}; for (var m=1;m<=12;m++) newData.passive[y][s][m]=0; });
+                    });
+
+                    // 讀取收入
+                    _sheetToJson(wb, '收入').forEach(function(row) {
+                        var y = String(row['年度']);
+                        if (!newData.income[y]) newData.income[y] = {};
+                        incCats.forEach(function(c){ if (row[c] != null) newData.income[y][c] = Number(row[c]) || 0; });
+                    });
+
+                    // 讀取支出
+                    _sheetToJson(wb, '支出').forEach(function(row) {
+                        var y = String(row['年度']);
+                        if (!newData.expense[y]) newData.expense[y] = {};
+                        expCats.forEach(function(c){ if (row[c] != null) newData.expense[y][c] = Number(row[c]) || 0; });
+                    });
+
+                    // 讀取被動收入
+                    _sheetToJson(wb, '被動收入').forEach(function(row) {
+                        var y = String(row['年度']), src = row['來源'];
+                        if (!newData.passive[y]) newData.passive[y] = {};
+                        if (!newData.passive[y][src]) newData.passive[y][src] = {};
+                        for (var m=1; m<=12; m++) newData.passive[y][src][m] = Number(row[m+'月']) || 0;
+                    });
+
+                    // 讀取月記錄
+                    newData.monthly = _sheetToJson(wb, '月記錄').map(function(row) {
+                        return { month: row['月份'] || '', income: Number(row['收入']) || 0, expense: Number(row['支出']) || 0, note: row['備註'] || '' };
+                    });
+
+                    // 讀取淨資產
+                    newData.assets = getDefaultAssets();
+                    var assetMap = { '流動資金':'liquid', '投資':'invest', '固定資產':'fixed', '應收款':'receivable', '負債':'debt' };
+                    Object.keys(assetMap).forEach(function(label) {
+                        var key = assetMap[label];
+                        newData.assets[key] = _sheetToJson(wb, label).map(function(row) {
+                            var obj = { name: row['名稱'] || '', amount: Number(row['金額']) || 0 };
+                            if (row['幣別'] && row['幣別'] !== 'TWD') { obj.currency = row['幣別']; if (row['匯率']) obj.rate = Number(row['匯率']); }
+                            else obj.currency = 'TWD';
+                            if (row['備註']) obj.memo = row['備註'];
+                            return obj;
+                        });
+                    });
+
+                    // 讀取台股
+                    var newStock = { holdings: [], dividends: [], pledges: [], lastUpdate: null, prices: {} };
+                    newStock.holdings = _sheetToJson(wb, '持股').map(function(row) {
+                        return { id: String(row['代號']), name: row['名稱'] || '', shares: Number(row['股數']) || 0, cost: Number(row['成本']) || 0 };
+                    });
+                    newStock.dividends = _sheetToJson(wb, '股利').map(function(row) {
+                        return { date: row['日期'] || '', stockId: String(row['代號']), stockName: row['名稱'] || '', cash: Number(row['現金股利']) || 0, stockShares: Number(row['股票股利(股)']) || 0 };
+                    });
+                    newStock.pledges = _sheetToJson(wb, '質押').map(function(row) {
+                        return { date: row['日期'] || '', stockId: String(row['代號']), stockName: row['名稱'] || '', shares: Number(row['股數']) || 0, amount: Number(row['借款金額']) || 0, rate: Number(row['利率']) || 0 };
+                    });
+
+                    DATA = newData;
+                    stockData = newStock;
+                    _healDataStructure();
+                    saveData();
+                    saveStockData();
+                    render();
+                    toast('已從 Excel 匯入資料');
+                });
+            } catch(err) {
+                toast('Excel 匯入失敗：' + err.message, true);
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    } else {
+        // JSON 匯入（原有邏輯）
+        var reader = new FileReader();
+        reader.onload = function(ev) {
+            var d;
+            try {
+                d = JSON.parse(ev.target.result);
+            } catch(err) {
+                toast('匯入失敗：' + err.message, true);
+                e.target.value = '';
+                return;
+            }
+            _confirmAndImport('JSON', function() {
                 // 新格式（含台股）
                 if (d.finance && d.stock) {
                     DATA = d.finance;
@@ -2384,7 +2541,6 @@ function importData(e) {
                     if (!stockData.pledges) stockData.pledges = [];
                     if (!stockData.prices) stockData.prices = {};
                     delete stockData._loadFailed;
-                    // ★ 匯入後執行完整結構防呆，避免舊備份缺欄位造成崩潰
                     _healDataStructure();
                     saveData();
                     saveStockData();
@@ -2395,20 +2551,47 @@ function importData(e) {
                 // 舊格式（純財務）
                 if (!d.settings || !d.income) { toast('檔案格式不正確', true); return; }
                 DATA = d;
-                // ★ 匯入後執行完整結構防呆
                 _healDataStructure();
                 saveData();
                 render();
                 toast('已匯入資料');
-            } catch(err) {
-                toast('匯入失敗：' + err.message, true);
-            }
-        }, function onNo() {
-            toast('已取消匯入');
-        }, { title: '<i class="ti ti-download"></i> 確認匯入', okText: '確定匯入', cancelText: '取消' });
-    };
-    reader.readAsText(file);
+            });
+        };
+        reader.readAsText(file);
+    }
     e.target.value = '';
+}
+
+// 匯入前確認 + 自動備份（JSON / Excel 共用）
+function _confirmAndImport(formatLabel, doImport) {
+    var currentDivCount = (stockData && stockData.dividends && stockData.dividends.length) || 0;
+    var msg = '即將從 ' + formatLabel + ' 匯入資料，將覆蓋現在所有內容。\n\n' +
+              '目前股利紀錄：' + currentDivCount + ' 筆\n' +
+              '\n確定要繼續嗎？（會自動備份現在的資料到快照）';
+
+    showConfirm2(msg, function onYes() {
+        try {
+            // 匯入前自動備份
+            try {
+                localStorage.setItem('finTracker_autoBackup', JSON.stringify({
+                    finance: DATA, stock: stockData, time: new Date().toISOString()
+                }));
+                var curRaw = localStorage.getItem(STOCK_KEY);
+                if (curRaw) pushSnapshot(curRaw);
+            } catch(_e) {}
+            doImport();
+        } catch(err) {
+            toast('匯入失敗：' + err.message, true);
+        }
+    }, function onNo() {
+        toast('已取消匯入');
+    }, { title: '<i class="ti ti-download"></i> 確認匯入（' + formatLabel + '）', okText: '確定匯入', cancelText: '取消' });
+}
+
+// 安全讀取工作表，不存在時回空陣列
+function _sheetToJson(wb, name) {
+    var s = wb.Sheets[name];
+    return s ? XLSX.utils.sheet_to_json(s) : [];
 }
 
 // ── UI 工具 ──
@@ -2547,6 +2730,45 @@ var STOCK_SNAPSHOT_KEY = 'finTracker_stock_snapshots'; // 輪替快照：最多�
 var STOCK_LAST_COUNT_KEY = 'finTracker_stock_lastCount'; // 上次啟動時的筆數
 var stockData = null;
 var stockSubTab = 'holdings'; // holdings | dividend | pledge
+
+// 台股持股欄位可見性
+var STOCK_COLUMNS = [
+    { key: 'shares',   label: '股數',     default: true },
+    { key: 'cost',     label: '買入均價', default: true },
+    { key: 'price',    label: '現價',     default: true },
+    { key: 'totalCost',label: '投入成本', default: false },
+    { key: 'market',   label: '現值',     default: true },
+    { key: 'pl',       label: '損益',     default: true },
+    { key: 'rate',     label: '報酬率',   default: true },
+    { key: 'dayPL',    label: '今日損益', default: false },
+    { key: 'weight',   label: '佔比',     default: false }
+];
+var _stockColVisible = null;
+function getStockColVisible() {
+    if (_stockColVisible) return _stockColVisible;
+    try { _stockColVisible = JSON.parse(localStorage.getItem('stockColVisible')); } catch(e) {}
+    if (!_stockColVisible) {
+        _stockColVisible = {};
+        STOCK_COLUMNS.forEach(function(c) { _stockColVisible[c.key] = c.default; });
+    }
+    return _stockColVisible;
+}
+function saveStockColVisible() {
+    localStorage.setItem('stockColVisible', JSON.stringify(_stockColVisible));
+}
+function toggleStockColumn() {
+    var vis = getStockColVisible();
+    var html = '<div style="display:flex;flex-direction:column;gap:6px">';
+    STOCK_COLUMNS.forEach(function(c) {
+        var checked = vis[c.key] !== false ? ' checked' : '';
+        html += '<label style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg);border-radius:var(--radius-xs);cursor:pointer;white-space:nowrap">';
+        html += '<input type="checkbox" style="width:18px;height:18px;flex-shrink:0" onchange="getStockColVisible()[\'' + c.key + '\']=this.checked;saveStockColVisible()" ' + checked + '>';
+        html += '<span style="font-size:15px">' + c.label + '</span></label>';
+    });
+    html += '</div>';
+    html += '<div style="margin-top:12px;text-align:center"><button onclick="renderStock();document.querySelector(\'.modal-overlay\').remove()" style="padding:6px 20px;border:1px solid var(--border);border-radius:var(--radius-xs);background:var(--lux-navy);color:#fff;cursor:pointer">套用</button></div>';
+    showAlert(html, '自訂顯示欄位');
+}
 
 // 讀取輪替快照清單（陣列，每筆 {time, data}）
 function getSnapshots() {
@@ -3689,6 +3911,7 @@ function renderStockHoldings() {
     html += '<div class="stock-refresh-bar">';
     html += '<button class="btn-refresh" id="btn-fetch-price" onclick="refreshPrices()"><i class="ti ti-antenna-bars-5"></i> 更新股價</button>';
     html += '<button class="btn-refresh" style="background:var(--lux-navy)" onclick="addHolding()">＋ 新增持股</button>';
+    html += '<button class="btn-refresh" style="background:linear-gradient(135deg,#0f2847 0%,#1a3a5c 50%,#2a5a8c 100%);border:1px solid var(--lux-gold)" onclick="toggleStockColumn()"><i class="ti ti-columns"></i> 欄位</button>';
     if (stockData.lastUpdate) {
         html += '<span class="last-update">最後更新：' + esc(stockData.lastUpdate) + '</span>';
     }
@@ -3732,8 +3955,19 @@ function renderStockHoldings() {
         return html;
     }
 
+    var vis = getStockColVisible();
     html += '<div class="table-wrap"><table class="stock-table"><thead><tr>';
-    html += '<th>股票</th><th>股數</th><th>買入均價</th><th>現價</th><th>投入成本</th><th>現值</th><th>損益</th><th>報酬率</th><th>今日損益</th><th>佔比</th><th></th>';
+    html += '<th>股票</th>';
+    if (vis.shares) html += '<th>股數</th>';
+    if (vis.cost) html += '<th>買入均價</th>';
+    if (vis.price) html += '<th>現價</th>';
+    if (vis.totalCost) html += '<th>投入成本</th>';
+    if (vis.market) html += '<th>現值</th>';
+    if (vis.pl) html += '<th>損益</th>';
+    if (vis.rate) html += '<th>報酬率</th>';
+    if (vis.dayPL) html += '<th>今日損益</th>';
+    if (vis.weight) html += '<th>佔比</th>';
+    html += '<th></th>';
     html += '</tr></thead><tbody>';
 
     stockData.holdings.forEach(function(h, idx) {
@@ -3747,18 +3981,22 @@ function renderStockHoldings() {
 
         html += '<tr>';
         html += '<td class="stock-name-cell" style="cursor:pointer" onclick="editHolding(' + idx + ')">' + esc(h.id) + '<br><span style="font-size:12px;color:var(--muted);font-weight:400">' + esc(h.name) + '</span></td>';
-        var pledgedShares = 0;
-        if (stockData.pledges) stockData.pledges.forEach(function(p){ if (p.stockId === h.id) pledgedShares += p.shares; });
-        html += '<td>' + fmt(h.shares) + (pledgedShares > 0 ? '<br><span style="font-size:11px;color:var(--muted)">質押 ' + fmt(pledgedShares) + '</span>' : '') + '</td>';
-        html += '<td>' + h.cost.toFixed(2) + '</td>';
-        html += '<td>' + (curPrice ? curPrice.toFixed(2) : '<span style="color:var(--muted)">-</span>') + '</td>';
-        html += '<td>' + fmt(cost) + '</td>';
-        html += '<td style="font-weight:600">' + (market !== null ? fmt(market) : '-') + '</td>';
-        html += '<td class="' + (pl !== null ? (pl>=0?'pos':'neg') : '') + '" style="font-weight:600">' + (pl !== null ? (pl>=0?'+':'') + fmt(pl) : '-') + '</td>';
-        html += '<td class="rate-cell ' + rateClass(rate) + '">' + (rate !== null ? fmtRate(rate) : '-') + '</td>';
-        var dayPL = (p && p.change) ? h.shares * p.change : null;
-        html += '<td class="' + (dayPL !== null ? (dayPL>=0?'pos':'neg') : '') + '" style="font-weight:600">' + (dayPL !== null ? (dayPL>=0?'+':'') + fmt(dayPL) : '-') + '</td>';
-        html += '<td>' + (weight !== null ? weight.toFixed(1) + '%' : '-') + '</td>';
+        if (vis.shares) {
+            var pledgedShares = 0;
+            if (stockData.pledges) stockData.pledges.forEach(function(p){ if (p.stockId === h.id) pledgedShares += p.shares; });
+            html += '<td>' + fmt(h.shares) + (pledgedShares > 0 ? '<br><span style="font-size:11px;color:var(--muted)">質押 ' + fmt(pledgedShares) + '</span>' : '') + '</td>';
+        }
+        if (vis.cost) html += '<td>' + h.cost.toFixed(2) + '</td>';
+        if (vis.price) html += '<td>' + (curPrice ? curPrice.toFixed(2) : '<span style="color:var(--muted)">-</span>') + '</td>';
+        if (vis.totalCost) html += '<td>' + fmt(cost) + '</td>';
+        if (vis.market) html += '<td style="font-weight:600">' + (market !== null ? fmt(market) : '-') + '</td>';
+        if (vis.pl) html += '<td class="' + (pl !== null ? (pl>=0?'pos':'neg') : '') + '" style="font-weight:600">' + (pl !== null ? (pl>=0?'+':'') + fmt(pl) : '-') + '</td>';
+        if (vis.rate) html += '<td class="rate-cell ' + rateClass(rate) + '">' + (rate !== null ? fmtRate(rate) : '-') + '</td>';
+        if (vis.dayPL) {
+            var dayPL = (p && p.change) ? h.shares * p.change : null;
+            html += '<td class="' + (dayPL !== null ? (dayPL>=0?'pos':'neg') : '') + '" style="font-weight:600">' + (dayPL !== null ? (dayPL>=0?'+':'') + fmt(dayPL) : '-') + '</td>';
+        }
+        if (vis.weight) html += '<td>' + (weight !== null ? weight.toFixed(1) + '%' : '-') + '</td>';
         html += '<td><button class="btn-del" onclick="deleteHolding(' + idx + ')"><i class="ti ti-x" style="font-size:14px"></i></button></td>';
         html += '</tr>';
     });
@@ -3783,27 +4021,22 @@ function toggleDivYear(year) {
 function renderStockDividend() {
     var html = '';
 
-    // 累積股利統計方塊（特定股票）
-    var trackedStocks = [
-        { id: '00400A', label: '00400A' },
-        { id: '00937B', label: '00937B' },
-        { id: '00981A', label: '00981A' },
-        { id: '2812',   label: '台中銀' }
-    ];
+    // 累積股利統計方塊（依持股動態產生）
     var totals = {};
-    trackedStocks.forEach(function(s){ totals[s.id] = 0; });
+    stockData.holdings.forEach(function(h) { totals[h.id] = { label: h.name || h.id, sum: 0 }; });
     stockData.dividends.forEach(function(d) {
-        if (totals.hasOwnProperty(d.stockId)) {
-            totals[d.stockId] += (d.cash || 0);
+        if (totals[d.stockId]) {
+            totals[d.stockId].sum += (d.cash || 0);
         }
     });
 
     html += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">';
     html += '<button class="btn-refresh" style="background:var(--lux-navy)" onclick="addDividend()">＋ 新增股利</button>';
-    trackedStocks.forEach(function(s) {
+    stockData.holdings.forEach(function(h) {
+        var t = totals[h.id];
         html += '<div style="padding:8px 14px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);font-size:13px">';
-        html += '<div style="color:var(--muted);font-size:11px">' + esc(s.label) + ' 累積股利</div>';
-        html += '<div style="font-weight:700;color:var(--lux-navy);font-size:15px">$' + fmt(totals[s.id]) + '</div>';
+        html += '<div style="color:var(--muted);font-size:11px">' + esc(t.label) + ' 累積股利</div>';
+        html += '<div style="font-weight:700;color:var(--lux-navy);font-size:15px">$' + fmt(t.sum) + '</div>';
         html += '</div>';
     });
     html += '</div>';
