@@ -6712,7 +6712,7 @@ function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo, prefillT
         render();
     };
     box.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('qs-save').click(); } });
-    document.getElementById('qs-memo').focus();
+    if (!isMobile.matches) document.getElementById('qs-memo').focus();
 }
 
 function confirmAction(msg, onConfirm) {
@@ -6812,7 +6812,7 @@ function quickContactLog(clientId, editIdx) {
         render();
     };
     box.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('cl-save').click(); } });
-    document.getElementById('cl-memo').focus();
+    if (!isMobile.matches) document.getElementById('cl-memo').focus();
 }
 
 function showContactLog(clientId) {
@@ -6941,7 +6941,7 @@ function addPersonalSchedule(prefillIdx) {
         render();
     };
     box.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('ps-save').click(); } });
-    document.getElementById('ps-memo').focus();
+    if (!isMobile.matches) document.getElementById('ps-memo').focus();
 }
 
 function editPersonalSchedule(idx) { addPersonalSchedule(idx); }
@@ -10386,7 +10386,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260413b8';
+var APP_VERSION = '20260413b9';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
