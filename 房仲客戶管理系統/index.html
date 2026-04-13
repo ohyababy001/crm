@@ -6343,6 +6343,14 @@ function calcNextRecurDate(dateStr, rule) {
             } else {
                 d.setDate(d.getDate() + num * 7);
             }
+        } else if (unit === 'mw') {
+            // 每N個月的第nth個星期dow
+            var mwVals = parts[1] ? parts[1].split(',').map(Number) : [1,1];
+            var mwNth = mwVals[0] || 1, mwDow = mwVals[1] || 1;
+            d.setMonth(d.getMonth() + num);
+            d.setDate(1);
+            while (d.getDay() !== mwDow) d.setDate(d.getDate() + 1);
+            d.setDate(d.getDate() + (mwNth - 1) * 7);
         } else if (unit === 'm') {
             d.setMonth(d.getMonth() + num);
         } else if (unit === 'y') {
@@ -6397,6 +6405,11 @@ function recurLabel(rule) {
             var base = '每' + (num > 1 ? num : '') + '週';
             return days.length ? base + '（' + days.map(function(d){ return wkNames[d]; }).join('、') + '）' : base;
         }
+        if (unit === 'mw') {
+            var mwVals = parts[1] ? parts[1].split(',').map(Number) : [1,1];
+            var nthNames = ['','第1個','第2個','第3個','第4個'];
+            return '每' + (num > 1 ? num : '') + '個月' + nthNames[mwVals[0]] + '星期' + wkNames[mwVals[1]];
+        }
         if (unit === 'm') return '每' + (num > 1 ? num : '') + '個月';
         if (unit === 'y') return '每' + (num > 1 ? num : '') + '年';
         return '自訂';
@@ -6419,21 +6432,44 @@ function openCustomRecur(selectEl, currentVal) {
     var box = document.createElement('div');
     box.className = 'fill-menu';
     box.style.cssText = 'padding:16px;min-width:280px;max-width:340px';
+    var selUnit = (curUnit === 'mw') ? 'm' : curUnit;
     var unitOpts = [['d','天'],['w','週'],['m','個月'],['y','年']];
-    var unitHtml = unitOpts.map(function(u){ return '<option value="'+u[0]+'"'+(curUnit===u[0]?' selected':'')+'>'+u[1]+'</option>'; }).join('');
+    var unitHtml = unitOpts.map(function(u){ return '<option value="'+u[0]+'"'+(selUnit===u[0]?' selected':'')+'>'+u[1]+'</option>'; }).join('');
     var wkNames = ['日','一','二','三','四','五','六'];
     var daysHtml = wkNames.map(function(n, i){
         var checked = curDays.indexOf(i) >= 0 ? ' checked' : '';
         return '<label style="display:inline-flex;align-items:center;gap:2px;cursor:pointer;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:14px;min-width:40px;justify-content:center'+(curDays.indexOf(i)>=0?';background:#E0F2FE;border-color:#0891B2':'')+'">' +
             '<input type="checkbox" value="'+i+'" style="display:none"'+checked+'>' + n + '</label>';
     }).join('');
+    // 月模式：同日 vs 同週幾
+    var curMmode = 'day'; // day or weekday
+    var curMnth = 1, curMdow = 1;
+    if (curUnit === 'mw' && cur) {
+        curMmode = 'weekday';
+        var mwParts = cur.substring(7).split(':');
+        if (mwParts[1]) { var mwVals = mwParts[1].split(','); curMnth = parseInt(mwVals[0])||1; curMdow = parseInt(mwVals[1])||1; }
+    }
+    var nthOpts = [[1,'第1個'],[2,'第2個'],[3,'第3個'],[4,'第4個']];
+    var dowOpts = [[0,'日'],[1,'一'],[2,'二'],[3,'三'],[4,'四'],[5,'五'],[6,'六']];
+    var nthHtml = nthOpts.map(function(o){ return '<option value="'+o[0]+'"'+(curMnth===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('');
+    var dowHtml = dowOpts.map(function(o){ return '<option value="'+o[0]+'"'+(curMdow===o[0]?' selected':'')+'>星期'+o[1]+'</option>'; }).join('');
+    // 月單位在 select 裡仍是 m，用 radio 切換子模式
+    var showMonth = (selUnit === 'm');
     box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:14px"><i class="ti ti-repeat" style="color:#0E7490"></i> 自訂循環</div>' +
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">' +
             '<span style="font-size:14px;flex-shrink:0">每</span>' +
             '<input id="cr-num" type="number" min="1" max="99" value="'+curNum+'" style="width:60px;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:16px;text-align:center">' +
-            '<select id="cr-unit" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px" onchange="document.getElementById(\'cr-days-row\').style.display=this.value===\'w\'?\'flex\':\'none\'">'+unitHtml+'</select>' +
+            '<select id="cr-unit" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px" onchange="document.getElementById(\'cr-days-row\').style.display=this.value===\'w\'?\'flex\':\'none\';document.getElementById(\'cr-month-row\').style.display=this.value===\'m\'?\'block\':\'none\'">'+unitHtml+'</select>' +
         '</div>' +
         '<div id="cr-days-row" style="display:'+(curUnit==='w'?'flex':'none')+';flex-wrap:wrap;gap:6px;margin-bottom:14px">' + daysHtml + '</div>' +
+        '<div id="cr-month-row" style="display:'+((showMonth)?'block':'none')+';margin-bottom:14px">' +
+            '<label style="display:flex;align-items:center;gap:6px;margin-bottom:8px;cursor:pointer;font-size:14px"><input type="radio" name="cr-mmode" value="day"'+(curMmode==='day'?' checked':'')+' onchange="document.getElementById(\'cr-mw-row\').style.display=\'none\'"> 每月同一天</label>' +
+            '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px"><input type="radio" name="cr-mmode" value="weekday"'+(curMmode==='weekday'?' checked':'')+' onchange="document.getElementById(\'cr-mw-row\').style.display=\'flex\'"> 每月的第幾個星期幾</label>' +
+            '<div id="cr-mw-row" style="display:'+(curMmode==='weekday'?'flex':'none')+';gap:8px;margin-top:8px;padding-left:24px">' +
+                '<select id="cr-nth" style="padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px">'+nthHtml+'</select>' +
+                '<select id="cr-dow" style="padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px">'+dowHtml+'</select>' +
+            '</div>' +
+        '</div>' +
         '<div style="display:flex;gap:8px">' +
             '<button id="cr-cancel" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
             '<button id="cr-ok" style="flex:1;padding:10px;border:none;border-radius:8px;background:#57534E;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">確定</button>' +
@@ -6462,6 +6498,14 @@ function openCustomRecur(selectEl, currentVal) {
             var days = [];
             box.querySelectorAll('#cr-days-row input:checked').forEach(function(cb){ days.push(cb.value); });
             if (days.length) val += ':' + days.join(',');
+        }
+        if (unit === 'm') {
+            var mmode = box.querySelector('input[name="cr-mmode"]:checked');
+            if (mmode && mmode.value === 'weekday') {
+                var nth = document.getElementById('cr-nth').value;
+                var dow = document.getElementById('cr-dow').value;
+                val = 'custom:' + num + 'mw:' + nth + ',' + dow;
+            }
         }
         // 更新 select：替換或新增 custom option
         var existCustom = selectEl.querySelector('option[value^="custom:"]');
@@ -10530,7 +10574,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260413c8';
+var APP_VERSION = '20260413c9';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
