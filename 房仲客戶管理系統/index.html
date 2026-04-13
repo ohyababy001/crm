@@ -10403,7 +10403,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260413c3';
+var APP_VERSION = '20260413c4';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
@@ -10518,6 +10518,10 @@ document.addEventListener('click', function(e) {
     }
 });
 window.addEventListener('scroll', closeHeaderMore, true);
+document.addEventListener('touchmove', function() {
+    var menu = document.getElementById('headerMoreMenu');
+    if (menu && menu.style.display !== 'none') closeHeaderMore();
+}, {passive:true});
 function toggleMobileSetting() {
     var menu = document.getElementById('mobileSettingMenu');
     menu.classList.toggle('show');
