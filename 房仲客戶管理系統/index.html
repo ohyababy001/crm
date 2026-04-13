@@ -10386,7 +10386,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260413c1';
+var APP_VERSION = '20260413c2';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
@@ -10500,6 +10500,7 @@ document.addEventListener('click', function(e) {
         menu.style.display = 'none';
     }
 });
+window.addEventListener('scroll', closeHeaderMore, true);
 function toggleMobileSetting() {
     var menu = document.getElementById('mobileSettingMenu');
     menu.classList.toggle('show');
