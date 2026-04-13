@@ -6478,12 +6478,15 @@ function openCustomRecur(selectEl, currentVal) {
     document.body.appendChild(overlay);
     // 星期幾 toggle 樣式
     box.querySelectorAll('#cr-days-row label').forEach(function(lb){
-        lb.onclick = function(e){
+        lb.addEventListener('click', function(e){
+            e.preventDefault();
             var cb = lb.querySelector('input');
-            if (e.target !== cb) { cb.checked = !cb.checked; }
+            cb.checked = !cb.checked;
             lb.style.background = cb.checked ? '#E0F2FE' : '';
-            lb.style.borderColor = cb.checked ? '#0891B2' : '';
-        };
+            lb.style.borderColor = cb.checked ? '#0891B2' : 'var(--border)';
+            lb.style.fontWeight = cb.checked ? '700' : '';
+            lb.style.color = cb.checked ? '#0E7490' : '';
+        });
     });
     document.getElementById('cr-cancel').onclick = function(){
         // 還原 select 回之前的值
@@ -10574,7 +10577,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260413c9';
+var APP_VERSION = '20260413d1';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
