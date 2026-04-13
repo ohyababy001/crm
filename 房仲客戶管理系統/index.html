@@ -6304,16 +6304,54 @@ var RECUR_OPTIONS = [
     { value:'biweekly', label:'每兩週' },
     { value:'monthly_day', label:'每月同日' },
     { value:'monthly_weekday', label:'每月同週幾' },
-    { value:'yearly', label:'每年' }
+    { value:'yearly', label:'每年' },
+    { value:'custom', label:'自訂…' }
 ];
 function buildRecurOptions(sel) {
+    var isCustom = sel && sel.indexOf('custom:') === 0;
     return RECUR_OPTIONS.map(function(o) {
-        return '<option value="'+o.value+'"'+(sel===o.value?' selected':'')+'>'+o.label+'</option>';
+        if (o.value === 'custom' && isCustom) return '<option value="'+esc(sel)+'" selected>'+esc(recurLabel(sel))+'</option>';
+        return '<option value="'+o.value+'"'+(!isCustom && sel===o.value?' selected':'')+'>'+o.label+'</option>';
     }).join('');
+}
+function _fmtDateISO(d) {
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
 }
 function calcNextRecurDate(dateStr, rule) {
     if (!rule || !dateStr) return null;
     var d = new Date(dateStr + 'T00:00:00');
+    // 自訂規則：custom:Nu 或 custom:Nw:0,1,3
+    if (rule.indexOf('custom:') === 0) {
+        var parts = rule.substring(7).split(':');
+        var num = parseInt(parts[0]) || 1;
+        var unit = parts[0].replace(/[0-9]/g, '');
+        if (unit === 'd') {
+            d.setDate(d.getDate() + num);
+        } else if (unit === 'w') {
+            var days = parts[1] ? parts[1].split(',').map(Number) : [];
+            if (days.length) {
+                // 找下一個符合的星期幾
+                for (var i = 0; i < num * 7 + 7; i++) {
+                    d.setDate(d.getDate() + 1);
+                    var weekStart = Math.floor((d - new Date(dateStr + 'T00:00:00')) / (7 * 86400000));
+                    if (weekStart > 0 && weekStart % num === 0 && days.indexOf(d.getDay()) >= 0) return _fmtDateISO(d);
+                    if (weekStart === 0 && d.getDay() > new Date(dateStr + 'T00:00:00').getDay() && days.indexOf(d.getDay()) >= 0) return _fmtDateISO(d);
+                }
+                // fallback
+                d = new Date(dateStr + 'T00:00:00');
+                d.setDate(d.getDate() + num * 7);
+            } else {
+                d.setDate(d.getDate() + num * 7);
+            }
+        } else if (unit === 'm') {
+            d.setMonth(d.getMonth() + num);
+        } else if (unit === 'y') {
+            d.setFullYear(d.getFullYear() + num);
+        } else {
+            return null;
+        }
+        return _fmtDateISO(d);
+    }
     switch (rule) {
         case 'daily':
             d.setDate(d.getDate() + 1);
@@ -6345,11 +6383,101 @@ function calcNextRecurDate(dateStr, rule) {
         default:
             return null;
     }
-    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    return _fmtDateISO(d);
 }
 function recurLabel(rule) {
+    if (rule && rule.indexOf('custom:') === 0) {
+        var parts = rule.substring(7).split(':');
+        var num = parseInt(parts[0]) || 1;
+        var unit = parts[0].replace(/[0-9]/g, '');
+        var wkNames = ['日','一','二','三','四','五','六'];
+        if (unit === 'd') return '每' + (num > 1 ? num : '') + '天';
+        if (unit === 'w') {
+            var days = parts[1] ? parts[1].split(',').map(Number) : [];
+            var base = '每' + (num > 1 ? num : '') + '週';
+            return days.length ? base + '（' + days.map(function(d){ return wkNames[d]; }).join('、') + '）' : base;
+        }
+        if (unit === 'm') return '每' + (num > 1 ? num : '') + '個月';
+        if (unit === 'y') return '每' + (num > 1 ? num : '') + '年';
+        return '自訂';
+    }
     var opt = RECUR_OPTIONS.find(function(o){ return o.value === rule; });
     return opt ? opt.label : '';
+}
+// 自訂循環設定彈窗
+function openCustomRecur(selectEl, currentVal) {
+    var cur = (currentVal && currentVal.indexOf('custom:') === 0) ? currentVal : '';
+    var curNum = 1, curUnit = 'w', curDays = [];
+    if (cur) {
+        var pp = cur.substring(7).split(':');
+        curNum = parseInt(pp[0]) || 1;
+        curUnit = pp[0].replace(/[0-9]/g, '') || 'w';
+        if (pp[1]) curDays = pp[1].split(',').map(Number);
+    }
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.cssText = 'padding:16px;min-width:280px;max-width:340px';
+    var unitOpts = [['d','天'],['w','週'],['m','個月'],['y','年']];
+    var unitHtml = unitOpts.map(function(u){ return '<option value="'+u[0]+'"'+(curUnit===u[0]?' selected':'')+'>'+u[1]+'</option>'; }).join('');
+    var wkNames = ['日','一','二','三','四','五','六'];
+    var daysHtml = wkNames.map(function(n, i){
+        var checked = curDays.indexOf(i) >= 0 ? ' checked' : '';
+        return '<label style="display:inline-flex;align-items:center;gap:2px;cursor:pointer;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:14px;min-width:40px;justify-content:center'+(curDays.indexOf(i)>=0?';background:#E0F2FE;border-color:#0891B2':'')+'">' +
+            '<input type="checkbox" value="'+i+'" style="display:none"'+checked+'>' + n + '</label>';
+    }).join('');
+    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:14px"><i class="ti ti-repeat" style="color:#0E7490"></i> 自訂循環</div>' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">' +
+            '<span style="font-size:14px;flex-shrink:0">每</span>' +
+            '<input id="cr-num" type="number" min="1" max="99" value="'+curNum+'" style="width:60px;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:16px;text-align:center">' +
+            '<select id="cr-unit" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px" onchange="document.getElementById(\'cr-days-row\').style.display=this.value===\'w\'?\'flex\':\'none\'">'+unitHtml+'</select>' +
+        '</div>' +
+        '<div id="cr-days-row" style="display:'+(curUnit==='w'?'flex':'none')+';flex-wrap:wrap;gap:6px;margin-bottom:14px">' + daysHtml + '</div>' +
+        '<div style="display:flex;gap:8px">' +
+            '<button id="cr-cancel" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
+            '<button id="cr-ok" style="flex:1;padding:10px;border:none;border-radius:8px;background:#57534E;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">確定</button>' +
+        '</div>';
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    // 星期幾 toggle 樣式
+    box.querySelectorAll('#cr-days-row label').forEach(function(lb){
+        lb.onclick = function(e){
+            var cb = lb.querySelector('input');
+            if (e.target !== cb) { cb.checked = !cb.checked; }
+            lb.style.background = cb.checked ? '#E0F2FE' : '';
+            lb.style.borderColor = cb.checked ? '#0891B2' : '';
+        };
+    });
+    document.getElementById('cr-cancel').onclick = function(){
+        // 還原 select 回之前的值
+        if (!cur) selectEl.value = '';
+        overlay.remove();
+    };
+    document.getElementById('cr-ok').onclick = function(){
+        var num = parseInt(document.getElementById('cr-num').value) || 1;
+        var unit = document.getElementById('cr-unit').value;
+        var val = 'custom:' + num + unit;
+        if (unit === 'w') {
+            var days = [];
+            box.querySelectorAll('#cr-days-row input:checked').forEach(function(cb){ days.push(cb.value); });
+            if (days.length) val += ':' + days.join(',');
+        }
+        // 更新 select：替換或新增 custom option
+        var existCustom = selectEl.querySelector('option[value^="custom:"]');
+        if (existCustom) existCustom.remove();
+        var opt = document.createElement('option');
+        opt.value = val;
+        opt.textContent = recurLabel(val);
+        opt.selected = true;
+        selectEl.insertBefore(opt, selectEl.querySelector('option[value="custom"]'));
+        selectEl.querySelector('option[value="custom"]').style.display = 'none';
+        selectEl.style.color = '#0E7490';
+        if (selectEl.previousElementSibling && selectEl.previousElementSibling.classList && selectEl.previousElementSibling.classList.contains('ti')) {
+            selectEl.previousElementSibling.style.color = '#0E7490';
+        }
+        overlay.remove();
+    };
 }
 
 // ── 預排行程 ──
@@ -6642,7 +6770,7 @@ function addScheduleRow(data) {
         '<div class="roc-date-wrap" style="width:160px;flex-shrink:0"><input type="text" placeholder="日期" style="min-width:0;flex:1" value="'+esc(d.date?isoToROC(d.date):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div>' +
         '<select class="sched-time" style="width:80px;flex-shrink:0">' + buildTimeOptions(d.time||'') + '</select>' +
         '<input type="text" style="flex:1" placeholder="備註" value="'+esc(d.memo||'')+'">' +
-        '<select class="sched-recur" style="width:110px;flex-shrink:0;padding:6px 4px;border:1px solid var(--border);border-radius:6px;font-size:12px;color:'+(d.recurrence?'#0E7490':'inherit')+'" onchange="this.style.color=this.value?\'#0E7490\':\'inherit\'">' + buildRecurOptions(d.recurrence||'') + '</select>' +
+        '<select class="sched-recur" style="width:110px;flex-shrink:0;padding:6px 4px;border:1px solid var(--border);border-radius:6px;font-size:12px;color:'+(d.recurrence?'#0E7490':'inherit')+'" onchange="if(this.value===\'custom\'){openCustomRecur(this,\'\');return;}this.style.color=this.value?\'#0E7490\':\'inherit\'">' + buildRecurOptions(d.recurrence||'') + '</select>' +
     '</div>';
     document.getElementById('scheduleList').insertAdjacentHTML('beforeend', html);
 }
@@ -6695,7 +6823,7 @@ function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo, prefillT
         '<div style="margin-bottom:12px"><input id="qs-memo" type="text" placeholder="事項說明（如：帶看、回電、簽約…）" value="'+esc(prefillMemo||'')+'" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit"></div>' +
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">' +
             '<i class="ti ti-repeat" style="color:'+(prefillRecur?'#0E7490':'#A8A29E')+';font-size:18px"></i>' +
-            '<select id="qs-recur" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:'+(prefillRecur?'#0E7490':'inherit')+'" onchange="this.style.color=this.value?\'#0E7490\':\'inherit\';this.previousElementSibling.style.color=this.value?\'#0E7490\':\'#A8A29E\'">' + buildRecurOptions(prefillRecur||'') + '</select>' +
+            '<select id="qs-recur" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:'+(prefillRecur?'#0E7490':'inherit')+'" onchange="if(this.value===\'custom\'){openCustomRecur(this,\'\');return;}this.style.color=this.value?\'#0E7490\':\'inherit\';this.previousElementSibling.style.color=this.value?\'#0E7490\':\'#A8A29E\'">' + buildRecurOptions(prefillRecur||'') + '</select>' +
         '</div>' +
         '<div style="display:flex;gap:8px">' +
             '<button onclick="this.closest(\'.fill-overlay\').remove()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
@@ -6933,7 +7061,7 @@ function addPersonalSchedule(prefillIdx) {
         '<div style="margin-bottom:12px"><input id="ps-memo" type="text" placeholder="事項說明" value="'+esc(ps.memo||'')+'" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit"></div>' +
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">' +
             '<i class="ti ti-repeat" style="color:'+(ps.recurrence?'#0E7490':'#A8A29E')+';font-size:18px"></i>' +
-            '<select id="ps-recur" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:'+(ps.recurrence?'#0E7490':'inherit')+'" onchange="this.style.color=this.value?\'#0E7490\':\'inherit\';this.previousElementSibling.style.color=this.value?\'#0E7490\':\'#A8A29E\'">' + buildRecurOptions(ps.recurrence||'') + '</select>' +
+            '<select id="ps-recur" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:'+(ps.recurrence?'#0E7490':'inherit')+'" onchange="if(this.value===\'custom\'){openCustomRecur(this,\'\');return;}this.style.color=this.value?\'#0E7490\':\'inherit\';this.previousElementSibling.style.color=this.value?\'#0E7490\':\'#A8A29E\'">' + buildRecurOptions(ps.recurrence||'') + '</select>' +
         '</div>' +
         '<div style="display:flex;gap:8px">' +
             '<button onclick="this.closest(\'.fill-overlay\').remove()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
@@ -10402,7 +10530,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260413c7';
+var APP_VERSION = '20260413c8';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
