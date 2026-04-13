@@ -10403,7 +10403,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260413c4';
+var APP_VERSION = '20260413c5';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
@@ -10504,24 +10504,39 @@ function closeCardMenuOnClick(e) {
 }
 
 // ── 手機設定選單 ──
+var _hmScrollHandler = null;
 function toggleHeaderMore() {
     var menu = document.getElementById('headerMoreMenu');
-    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    var show = menu.style.display === 'none';
+    menu.style.display = show ? 'block' : 'none';
+    if (show) {
+        // 延遲綁定，避免開啟時的觸控被誤判
+        setTimeout(function() {
+            _hmScrollHandler = function() { closeHeaderMore(); };
+            window.addEventListener('scroll', _hmScrollHandler, true);
+            document.addEventListener('touchmove', _hmScrollHandler, {passive:true});
+        }, 50);
+    } else {
+        _removeHmScroll();
+    }
+}
+function _removeHmScroll() {
+    if (_hmScrollHandler) {
+        window.removeEventListener('scroll', _hmScrollHandler, true);
+        document.removeEventListener('touchmove', _hmScrollHandler);
+        _hmScrollHandler = null;
+    }
 }
 function closeHeaderMore() {
     document.getElementById('headerMoreMenu').style.display = 'none';
+    _removeHmScroll();
 }
 document.addEventListener('click', function(e) {
     var menu = document.getElementById('headerMoreMenu');
     if (menu && menu.style.display !== 'none' && !e.target.closest('#headerMoreBtn') && !e.target.closest('#headerMoreMenu')) {
-        menu.style.display = 'none';
+        closeHeaderMore();
     }
 });
-window.addEventListener('scroll', closeHeaderMore, true);
-document.addEventListener('touchmove', function() {
-    var menu = document.getElementById('headerMoreMenu');
-    if (menu && menu.style.display !== 'none') closeHeaderMore();
-}, {passive:true});
 function toggleMobileSetting() {
     var menu = document.getElementById('mobileSettingMenu');
     menu.classList.toggle('show');
