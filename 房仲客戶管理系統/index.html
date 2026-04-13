@@ -4809,21 +4809,20 @@ function showDet(id, viewAs) {
 }
 var _detFromPerf = false;
 function closeDet(){ document.getElementById('dModal').style.display='none'; if(_detFromPerf){ _detFromPerf=false; document.getElementById('perfModal').style.display='flex'; } detListCache=[]; currentDetId=null; currentDetIdx=-1; }
-// 手機版：詳情頁向下滑關閉
+// 手機版：詳情頁左右滑關閉
 (function(){
     var modal = document.querySelector('#dModal .modal');
     if (!modal) return;
-    var startY = 0, startX = 0, startScroll = 0;
+    var startX = 0, startY = 0;
     modal.addEventListener('touchstart', function(e) {
-        startY = e.touches[0].clientY;
         startX = e.touches[0].clientX;
-        startScroll = modal.scrollTop;
+        startY = e.touches[0].clientY;
     }, {passive:true});
     modal.addEventListener('touchend', function(e) {
-        var dy = e.changedTouches[0].clientY - startY;
         var dx = Math.abs(e.changedTouches[0].clientX - startX);
-        // 向下滑超過 80px、水平移動少、且已在頂部
-        if (dy > 80 && dx < 60 && startScroll <= 0) closeDet();
+        var dy = Math.abs(e.changedTouches[0].clientY - startY);
+        // 水平滑超過 80px、且水平大於垂直（避免上下滾動誤觸）
+        if (dx > 80 && dx > dy) closeDet();
     }, {passive:true});
 })();
 function switchBdTab(btn, idx) {
@@ -10403,7 +10402,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260413c6';
+var APP_VERSION = '20260413c7';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
