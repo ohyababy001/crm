@@ -47,7 +47,7 @@ body {
 }
 .top-fixed {
     position: fixed; top: 8px; left: 50%; transform: translateX(-50%);
-    width: calc(100% - 16px); max-width: 880px; z-index: 100;
+    width: calc(100% - 16px); max-width: 861px; z-index: 100;
     background: var(--bg);
     border-radius: var(--radius);
     overflow: hidden;
@@ -66,7 +66,7 @@ body::before {
 .header {
     background: linear-gradient(135deg, #0f2847 0%, #1a3a5c 50%, #2a5a8c 100%);
     color: #FAFAF9;
-    padding: 10px 22px;
+    padding: 6px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -91,12 +91,6 @@ body::before {
     display: flex;
     align-items: center;
     gap: 12px;
-}
-.header h1::before {
-    content: '';
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--lux-gold);
-    box-shadow: 0 0 10px rgba(200,164,90,.6);
 }
 .header-btns { display: flex; gap: 8px; align-items: flex-end; }
 .header-btns button {
@@ -124,7 +118,7 @@ body::before {
 }
 body { padding-top: 110px; }
 .tab-bar-wrap {
-    max-width: 880px;
+    max-width: 860px;
     margin: 0 auto;
     padding: 8px 14px 10px 14px;
 }
@@ -172,7 +166,7 @@ body { padding-top: 110px; }
     background: linear-gradient(90deg, var(--lux-gold), var(--lux-gold-light), var(--lux-gold));
 }
 
-.container { width: calc(100% - 16px); max-width: 880px; margin: 0 auto; padding: 20px 0; }
+.container { width: calc(100% - 16px); max-width: 860px; margin: 0 auto; padding: 10px 0; }
 
 .summary-cards {
     display: grid;
@@ -1537,7 +1531,7 @@ function switchTab(tab) {
     currentTab = tab;
     sortState = { col: null, year: null, dir: 'desc' };
     document.querySelectorAll('.tab-btn').forEach(function(b, i) {
-        b.classList.toggle('active', ['income','expense','passive','stock','trend','assets'][i] === tab);
+        b.classList.toggle('active', ['income','expense','trend','stock','passive','assets'][i] === tab);
     });
     document.querySelectorAll('.tab-content').forEach(function(el) {
         el.classList.remove('active');
@@ -1620,7 +1614,7 @@ function renderIncomeExpense(section) {
     // 摘要表格（可開合，預設為合）
     var ovOpen = !!_overviewOpen[section];
     var ovArrow = ovOpen ? '▼' : '▶';
-    var html = '<div style="background:var(--card);border-radius:var(--radius);margin-bottom:16px;box-shadow:var(--shadow);overflow:hidden">';
+    var html = '<div style="background:var(--card);border-radius:var(--radius);margin-bottom:10px;box-shadow:var(--shadow);overflow:hidden">';
     html += '<div onclick="toggleOverview(\'' + section + '\')" style="cursor:pointer;user-select:none;padding:12px 18px;font-weight:800;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--lux-navy);background:' + (ovOpen ? '#FFFBF0' : 'var(--card)') + ';border-bottom:' + (ovOpen ? '1px solid var(--border)' : 'none') + '">' + ovArrow + ' 總覽</div>';
     if (!ovOpen) {
         html += '</div>';

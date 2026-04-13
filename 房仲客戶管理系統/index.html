@@ -36,7 +36,8 @@
         html::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.3); }
 
         /* Header */
-        .header { background: linear-gradient(135deg, #0f2847 0%, #1a3a5c 50%, #2a5a8c 100%); color: #FAFAF9; padding: 6px 20px; display: flex; align-items: center; gap: 12px; box-shadow: 0 6px 24px rgba(15,40,71,0.35); position: fixed; top: 0; left: 50%; transform: translateX(-50%); z-index: 100; overflow: visible; border-bottom: 1px solid rgba(200,164,90,0.3); width: 100%; max-width: 1450px; border-radius: 0 0 16px 16px; }
+        .header { background: linear-gradient(135deg, #0f2847 0%, #1a3a5c 50%, #2a5a8c 100%); color: #FAFAF9; padding: 6px 20px; display: flex; align-items: center; gap: 12px; box-shadow: 0 6px 24px rgba(15,40,71,0.35); position: fixed; top: 8px; left: 50%; transform: translateX(-50%); z-index: 100; overflow: visible; border: 1px solid rgba(200,164,90,0.3); border-radius: var(--radius); width: calc(100% - 16px); max-width: 1450px; }
+        .header::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: linear-gradient(90deg, transparent 0%, var(--lux-gold) 50%, transparent 100%); }
         .header-title { font-family: 'Cinzel', serif; font-size: 28px; font-weight: 700; white-space: nowrap; letter-spacing: 6px; margin-left: 48px; }
         .search-wrap { flex: 3; max-width: 700px; position: relative; }
         .search-wrap input { width: 100%; padding: 10px 16px 10px 38px; border-radius: 10px; border: none; font-size: 14px; background: rgba(255,255,255,0.15); color: #FAFAF9; outline: none; font-family: inherit; backdrop-filter: blur(4px); }
@@ -6645,6 +6646,8 @@ function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo, prefillT
 function confirmAction(msg, onConfirm) {
     var overlay = document.createElement('div');
     overlay.className = 'fill-overlay';
+    overlay.style.alignItems = 'center';
+    overlay.style.paddingTop = '0';
     var box = document.createElement('div');
     box.className = 'fill-menu';
     box.style.cssText = 'padding:20px;min-width:260px;max-width:320px;text-align:center';
