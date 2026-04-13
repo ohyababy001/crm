@@ -3574,7 +3574,7 @@ function renderDashboard() {
         c.schedules.forEach(function(s) {
             if (!s.date) return;
             var diff = daysUntilExpire(s.date);
-            if (diff >= -30 && diff <= 15) schedList.push({ id:c.id, name:c.name, date:s.date, time:s.time||'', memo:s.memo||'', days:diff, community:c.dCommunity||'', expired: diff < 0 });
+            if (diff >= -30 && diff <= 15) schedList.push({ id:c.id, name:c.name, date:s.date, time:s.time||'', memo:s.memo||'', days:diff, community:c.dCommunity||'', expired: diff < 0, recurrence:s.recurrence||'' });
         });
     });
     // 合併個人行程
@@ -3582,7 +3582,7 @@ function renderDashboard() {
     psList.forEach(function(s, idx) {
         if (!s.date) return;
         var diff = daysUntilExpire(s.date);
-        if (diff >= -30 && diff <= 15) schedList.push({ id:'_ps', psIdx:idx, name:'個人行程', date:s.date, time:s.time||'', memo:s.memo||'', days:diff, community:'', personal:true, expired: diff < 0 });
+        if (diff >= -30 && diff <= 15) schedList.push({ id:'_ps', psIdx:idx, name:'個人行程', date:s.date, time:s.time||'', memo:s.memo||'', days:diff, community:'', personal:true, expired: diff < 0, recurrence:s.recurrence||'' });
     });
     // 已過期的排前面（由近到遠），未過期的排後面（由近到遠）
     schedList.sort(function(a,b) {
@@ -3593,7 +3593,7 @@ function renderDashboard() {
     document.getElementById('dashSchedule').innerHTML = schedList.length ? schedList.map(function(s) {
         var dayLabel = s.days === 0 ? '今天' : s.expired ? '已過期'+Math.abs(s.days)+'天' : s.days + '天後';
         var nameHtml = s.personal
-            ? '<span style="flex:1"></span>'
+            ? '<span class="dash-item-name" style="color:#3D2F1A">個人行程</span>'
             : '<span class="dash-item-name" style="cursor:pointer" onclick="showDet(\''+esc(s.id)+'\')">'+esc(s.name)+'</span>';
         var editBtn = s.personal
             ? '<button class="btn-ic" onclick="editPersonalSchedule('+s.psIdx+')" title="編輯" style="font-size:13px;padding:2px 4px"><i class="ti ti-pencil" style="color:#57534E"></i></button>'
@@ -3601,7 +3601,8 @@ function renderDashboard() {
         var doneBtn = s.personal
             ? '<button class="btn-ic" onclick="completePersonalSchedule('+s.psIdx+')" title="完成" style="font-size:13px;padding:2px 4px"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button>'
             : '<button class="btn-ic" onclick="completeSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="完成" style="font-size:13px;padding:2px 4px"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button>';
-        var memoHtml = s.memo ? '<div class="dash-sched-memo">'+esc(s.memo)+'</div>' : (s.personal ? '<div class="dash-sched-memo">個人行程</div>' : '');
+        var recurIcon = s.recurrence ? '<span title="'+esc(recurLabel(s.recurrence))+'" style="color:#0E7490;font-size:12px;font-weight:600;margin-left:4px"><i class="ti ti-repeat" style="font-size:13px"></i> '+esc(recurLabel(s.recurrence))+'</span>' : '';
+        var memoHtml = s.memo ? '<div class="dash-sched-memo">/ '+esc(s.memo)+recurIcon+'</div>' : (recurIcon ? '<div class="dash-sched-memo">'+recurIcon+'</div>' : '');
         var dateColor = s.expired ? '#DC2626' : (s.days===0 ? '#B45309' : '');
         var delBtn = s.personal
             ? '<button class="btn-ic" onclick="deletePersonalSchedule('+s.psIdx+')" title="刪除" style="font-size:13px;padding:2px 4px"><i class="ti ti-trash" style="color:#DC2626"></i></button>'
@@ -3910,7 +3911,7 @@ function renderCard(c) {
                 if (_schedFilter && s.schedType && s.schedType !== _schedFilter) return false;
                 return true;
             }).sort(function(a,b){ return (a.date+(a.time||'')).localeCompare(b.date+(b.time||'')); })[0];
-            if (_nextSched) _schedHtml = `<div style="margin-bottom:4px;font-size:13px;line-height:1.4;display:flex;gap:6px"><span style="color:var(--muted);flex-shrink:0">行程</span><div><span style="color:#1E40AF;font-weight:700">${esc(isoToMDW(_nextSched.date))}${_nextSched.time?' '+_nextSched.time:''}</span>${_nextSched.memo?'<div style="color:#1E40AF;word-break:break-word">'+esc(_nextSched.memo)+'</div>':''}</div></div>`;
+            if (_nextSched) { var _rIcon = _nextSched.recurrence ? ' <i class="ti ti-repeat" style="font-size:11px;color:#0E7490" title="'+esc(recurLabel(_nextSched.recurrence))+'"></i>' : ''; _schedHtml = `<div style="margin-bottom:4px;font-size:13px;line-height:1.4;display:flex;gap:6px"><span style="color:var(--muted);flex-shrink:0">行程</span><div><span style="color:#1E40AF;font-weight:700">${esc(isoToMDW(_nextSched.date))}${_nextSched.time?' '+_nextSched.time:''}${_rIcon}</span>${_nextSched.memo?'<div style="color:#1E40AF;word-break:break-word">'+esc(_nextSched.memo)+'</div>':''}</div></div>`; }
         }
         if (showType==='經營買方') {
             // 選擇要顯示的需求：有篩選時顯示符合的需求，否則顯示第一組
@@ -6277,6 +6278,63 @@ function clearRentalProperties() { document.getElementById('rPropertyList').inne
 // renewLease 已由 renewRpContract 取代
 // renderRRenewals 已由 showRpRenewalHistory 取代
 
+// ── 循環行程工具 ──
+var RECUR_OPTIONS = [
+    { value:'', label:'不重複' },
+    { value:'daily', label:'每天' },
+    { value:'weekday', label:'平日（一～五）' },
+    { value:'weekly', label:'每週' },
+    { value:'biweekly', label:'每兩週' },
+    { value:'monthly_day', label:'每月同日' },
+    { value:'monthly_weekday', label:'每月同週幾' },
+    { value:'yearly', label:'每年' }
+];
+function buildRecurOptions(sel) {
+    return RECUR_OPTIONS.map(function(o) {
+        return '<option value="'+o.value+'"'+(sel===o.value?' selected':'')+'>'+o.label+'</option>';
+    }).join('');
+}
+function calcNextRecurDate(dateStr, rule) {
+    if (!rule || !dateStr) return null;
+    var d = new Date(dateStr + 'T00:00:00');
+    switch (rule) {
+        case 'daily':
+            d.setDate(d.getDate() + 1);
+            break;
+        case 'weekday':
+            do { d.setDate(d.getDate() + 1); } while (d.getDay() === 0 || d.getDay() === 6);
+            break;
+        case 'weekly':
+            d.setDate(d.getDate() + 7);
+            break;
+        case 'biweekly':
+            d.setDate(d.getDate() + 14);
+            break;
+        case 'monthly_day':
+            d.setMonth(d.getMonth() + 1);
+            break;
+        case 'monthly_weekday': {
+            var dow = d.getDay();
+            var nth = Math.ceil(d.getDate() / 7);
+            d.setMonth(d.getMonth() + 1);
+            d.setDate(1);
+            while (d.getDay() !== dow) d.setDate(d.getDate() + 1);
+            d.setDate(d.getDate() + (nth - 1) * 7);
+            break;
+        }
+        case 'yearly':
+            d.setFullYear(d.getFullYear() + 1);
+            break;
+        default:
+            return null;
+    }
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function recurLabel(rule) {
+    var opt = RECUR_OPTIONS.find(function(o){ return o.value === rule; });
+    return opt ? opt.label : '';
+}
+
 // ── 預排行程 ──
 function buildTimeOptions(sel) {
     var opts = '<option value="">時間</option>';
@@ -6567,6 +6625,7 @@ function addScheduleRow(data) {
         '<div class="roc-date-wrap" style="width:160px;flex-shrink:0"><input type="text" placeholder="日期" style="min-width:0;flex:1" value="'+esc(d.date?isoToROC(d.date):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div>' +
         '<select class="sched-time" style="width:80px;flex-shrink:0">' + buildTimeOptions(d.time||'') + '</select>' +
         '<input type="text" style="flex:1" placeholder="備註" value="'+esc(d.memo||'')+'">' +
+        '<select class="sched-recur" style="width:110px;flex-shrink:0;padding:6px 4px;border:1px solid var(--border);border-radius:6px;font-size:12px;color:'+(d.recurrence?'#0E7490':'inherit')+'" onchange="this.style.color=this.value?\'#0E7490\':\'inherit\'">' + buildRecurOptions(d.recurrence||'') + '</select>' +
     '</div>';
     document.getElementById('scheduleList').insertAdjacentHTML('beforeend', html);
 }
@@ -6582,7 +6641,11 @@ function getSchedules() {
         var time = timeSelect ? timeSelect.value : '';
         var memo = memoInput ? memoInput.value.trim() : '';
         var schedType = typeSelect ? typeSelect.value : '';
-        if (date || time || memo) r.push({ date:date, time:time, memo:memo, schedType:schedType });
+        var recurSelect = row.querySelector('.sched-recur');
+        var recurrence = recurSelect ? recurSelect.value : '';
+        var obj = { date:date, time:time, memo:memo, schedType:schedType };
+        if (recurrence) obj.recurrence = recurrence;
+        if (date || time || memo) r.push(obj);
     });
     return r;
 }
@@ -6595,7 +6658,7 @@ function clearSchedules() { document.getElementById('scheduleList').innerHTML = 
 <!-- ============================================================ -->
 <script>
 // ── 卡片一鍵預排行程 ──
-function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo, prefillType) {
+function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo, prefillType, prefillRecur) {
     var c = DB.find(function(x){ return x.id === clientId; });
     if (!c) return;
     var _qsTypeVal = prefillType || (curFilter && curFilter !== 'all' ? curFilter : '');
@@ -6613,6 +6676,10 @@ function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo, prefillT
             '<select id="qs-time" style="width:90px;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px">' + buildTimeOptions(prefillTime||'') + '</select>' +
         '</div>' +
         '<div style="margin-bottom:12px"><input id="qs-memo" type="text" placeholder="事項說明（如：帶看、回電、簽約…）" value="'+esc(prefillMemo||'')+'" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit"></div>' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">' +
+            '<i class="ti ti-repeat" style="color:'+(prefillRecur?'#0E7490':'#A8A29E')+';font-size:18px"></i>' +
+            '<select id="qs-recur" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:'+(prefillRecur?'#0E7490':'inherit')+'" onchange="this.style.color=this.value?\'#0E7490\':\'inherit\';this.previousElementSibling.style.color=this.value?\'#0E7490\':\'#A8A29E\'">' + buildRecurOptions(prefillRecur||'') + '</select>' +
+        '</div>' +
         '<div style="display:flex;gap:8px">' +
             '<button onclick="this.closest(\'.fill-overlay\').remove()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
             '<button id="qs-save" style="flex:1;padding:10px;border:none;border-radius:8px;background:#57534E;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">儲存</button>' +
@@ -6635,7 +6702,10 @@ function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo, prefillT
             });
         }
         var _qsTypeEl = document.getElementById('qs-type'); var _qsType = _qsTypeEl ? _qsTypeEl.value : '';
-        c.schedules.push({ date:date, time:time, memo:memo, schedType:_qsType });
+        var _qsRecurEl = document.getElementById('qs-recur'); var _qsRecur = _qsRecurEl ? _qsRecurEl.value : '';
+        var _qsObj = { date:date, time:time, memo:memo, schedType:_qsType };
+        if (_qsRecur) _qsObj.recurrence = _qsRecur;
+        c.schedules.push(_qsObj);
         persistAndSyncNow();
         overlay.remove();
         render();
@@ -6669,12 +6739,26 @@ function completeSchedule(clientId, date, time) {
             return s.date === date && (s.time||'') === (time||'');
         });
         var memo = found ? found.memo : '';
+        var recurrence = found ? found.recurrence : '';
+        var schedType = found ? found.schedType : '';
         c.schedules = c.schedules.filter(function(s) {
             return !(s.date === date && (s.time||'') === (time||''));
         });
-        if (!c.history) c.history = [];
-        c.history.push({ type:'schedule_done', time:new Date().toISOString(), detail:'【已完成行程】' + isoToROC(date) + (time ? ' ' + time : '') + (memo ? ' ' + memo : '') });
-        _addDoneSchedule({ clientId:clientId, clientName:c.name, date:date, time:time, memo:memo, doneAt:new Date().toISOString() });
+        // 循環行程：自動產生下一筆
+        if (recurrence) {
+            var nextDate = calcNextRecurDate(date, recurrence);
+            if (nextDate) {
+                var nextObj = { date:nextDate, time:time, memo:memo, recurrence:recurrence };
+                if (schedType) nextObj.schedType = schedType;
+                c.schedules.push(nextObj);
+                showToast('已產生下一筆循環行程：' + isoToROC(nextDate), 'ok');
+            }
+        }
+        if (!recurrence) {
+            if (!c.history) c.history = [];
+            c.history.push({ type:'schedule_done', time:new Date().toISOString(), detail:'【已完成行程】' + isoToROC(date) + (time ? ' ' + time : '') + (memo ? ' ' + memo : '') });
+            _addDoneSchedule({ clientId:clientId, clientName:c.name, date:date, time:time, memo:memo, doneAt:new Date().toISOString() });
+        }
         persistAndSyncNow();
         render();
     });
@@ -6771,7 +6855,7 @@ function editDashSchedule(clientId, date, time) {
     var s = c.schedules.find(function(s) {
         return s.date === date && (s.time||'') === (time||'');
     });
-    quickSchedule(clientId, date, time, s ? s.memo : '', s ? s.schedType||'' : '');
+    quickSchedule(clientId, date, time, s ? s.memo : '', s ? s.schedType||'' : '', s ? s.recurrence||'' : '');
 }
 
 // ── 個人行程 ──
@@ -6830,6 +6914,10 @@ function addPersonalSchedule(prefillIdx) {
             '<select id="ps-time" style="width:90px;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px">' + buildTimeOptions(ps.time||'') + '</select>' +
         '</div>' +
         '<div style="margin-bottom:12px"><input id="ps-memo" type="text" placeholder="事項說明" value="'+esc(ps.memo||'')+'" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit"></div>' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">' +
+            '<i class="ti ti-repeat" style="color:'+(ps.recurrence?'#0E7490':'#A8A29E')+';font-size:18px"></i>' +
+            '<select id="ps-recur" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:'+(ps.recurrence?'#0E7490':'inherit')+'" onchange="this.style.color=this.value?\'#0E7490\':\'inherit\';this.previousElementSibling.style.color=this.value?\'#0E7490\':\'#A8A29E\'">' + buildRecurOptions(ps.recurrence||'') + '</select>' +
+        '</div>' +
         '<div style="display:flex;gap:8px">' +
             '<button onclick="this.closest(\'.fill-overlay\').remove()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
             '<button id="ps-save" style="flex:1;padding:10px;border:none;border-radius:8px;background:#57534E;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">儲存</button>' +
@@ -6841,9 +6929,12 @@ function addPersonalSchedule(prefillIdx) {
         var time = document.getElementById('ps-time').value;
         var memo = document.getElementById('ps-memo').value.trim();
         if (!date) { showToast('請選擇日期', 'warn'); return; }
+        var _psRecurEl = document.getElementById('ps-recur'); var _psRecur = _psRecurEl ? _psRecurEl.value : '';
         var arr = _getPS();
-        if (editing) { arr[prefillIdx] = { date:date, time:time, memo:memo }; }
-        else { arr.push({ date:date, time:time, memo:memo }); }
+        var _psObj = { date:date, time:time, memo:memo };
+        if (_psRecur) _psObj.recurrence = _psRecur;
+        if (editing) { arr[prefillIdx] = _psObj; }
+        else { arr.push(_psObj); }
         _savePS(arr);
         overlay.remove();
         render();
@@ -6859,8 +6950,17 @@ function completePersonalSchedule(idx) {
         var arr = _getPS();
         var item = arr[idx];
         arr.splice(idx, 1);
+        // 循環行程：自動產生下一筆
+        if (item && item.recurrence) {
+            var nextDate = calcNextRecurDate(item.date, item.recurrence);
+            if (nextDate) {
+                var nextObj = { date:nextDate, time:item.time, memo:item.memo, recurrence:item.recurrence };
+                arr.push(nextObj);
+                showToast('已產生下一筆循環行程：' + isoToROC(nextDate), 'ok');
+            }
+        }
         _savePS(arr);
-        if (item) _addDoneSchedule({ clientId:'', clientName:'個人行程', date:item.date, time:item.time, memo:item.memo, doneAt:new Date().toISOString(), personal:true });
+        if (item && !item.recurrence) _addDoneSchedule({ clientId:'', clientName:'個人行程', date:item.date, time:item.time, memo:item.memo, doneAt:new Date().toISOString(), personal:true });
         render();
     });
 }
@@ -6901,12 +7001,12 @@ function _getAllFutureSchedules() {
         if (c._deleted || c._system || c.archived || !c.schedules) return;
         c.schedules.forEach(function(s) {
             if (!s.date || s.date < todayISO) return;
-            all.push({ clientId:c.id, clientName:c.name, date:s.date, time:s.time||'', memo:s.memo||'', personal:false });
+            all.push({ clientId:c.id, clientName:c.name, date:s.date, time:s.time||'', memo:s.memo||'', personal:false, recurrence:s.recurrence||'' });
         });
     });
     _getPS().forEach(function(s, idx) {
         if (!s.date || s.date < todayISO) return;
-        all.push({ clientId:'', clientName:'個人行程', psIdx:idx, date:s.date, time:s.time||'', memo:s.memo||'', personal:true });
+        all.push({ clientId:'', clientName:'個人行程', psIdx:idx, date:s.date, time:s.time||'', memo:s.memo||'', personal:true, recurrence:s.recurrence||'' });
     });
     all.sort(function(a,b) { return (a.date+a.time).localeCompare(b.date+b.time); });
     return all;
@@ -6947,9 +7047,9 @@ function filterAllSchedList() {
             separator = '<div style="height:1px;background:var(--border);margin:12px 0"></div>';
         }
         prevYear = sYear;
-        var nameColor = s.personal ? '#8B7355' : '#1E40AF';
-        var nameText = s.personal ? (s.memo || '個人行程') : s.clientName;
-        var memoText = s.personal ? '' : (s.memo ? ' <span style="color:#475569">/ '+esc(s.memo)+'</span>' : '');
+        var nameColor = s.personal ? '#3D2F1A' : '#1E40AF';
+        var nameText = s.personal ? '個人行程' : s.clientName;
+        var memoText = s.memo ? ' <span style="color:#475569">/ '+esc(s.memo)+'</span>' : '';
         var editBtn = s.personal
             ? '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();editPersonalSchedule('+s.psIdx+')" title="編輯" style="font-size:14px;padding:4px 8px"><i class="ti ti-pencil" style="color:#57534E"></i></button>'
             : '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();editDashSchedule(\''+esc(s.clientId)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="編輯" style="font-size:14px;padding:4px 8px"><i class="ti ti-pencil" style="color:#57534E"></i></button>';
@@ -6962,7 +7062,7 @@ function filterAllSchedList() {
         return separator + '<div style="padding:8px 0;border-bottom:1px solid #F1F5F9">' +
             '<div style="display:flex;align-items:center;gap:8px">' +
                 '<div style="flex:1">' +
-                    '<div style="font-size:14px;color:#334155;font-weight:600">'+esc(isoToMDW(s.date,true))+(s.time?' '+s.time:'')+'</div>' +
+                    '<div style="font-size:14px;color:#334155;font-weight:600">'+esc(isoToMDW(s.date,true))+(s.time?' '+s.time:'')+(s.recurrence?' <i class="ti ti-repeat" style="font-size:12px;color:#0E7490" title="'+esc(recurLabel(s.recurrence))+'"></i>':'')+'</div>' +
                     '<div style="font-size:15px"><span style="color:'+nameColor+';font-weight:600">'+esc(nameText)+'</span></div>' +
                 '</div>' +
                 '<span style="display:flex;gap:2px;flex-shrink:0">' + editBtn + delBtn2 + '</span>' +
@@ -10285,7 +10385,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260413a5';
+var APP_VERSION = '20260413b4';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
