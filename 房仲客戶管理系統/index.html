@@ -9262,7 +9262,14 @@ function openEdit(id, viewAs) {
   } catch(e) { console.error('編輯錯誤:', e); showToast('編輯發生錯誤，請重試', 'error', 4000); }
 }
 
-function closeForm(skipConfirm){ if(!skipConfirm){ confirmAction('確定關閉？未儲存的資料將會遺失', function(){ document.getElementById('fModal').style.display='none'; }); return; } document.getElementById('fModal').style.display='none'; }
+function closeForm(skipConfirm){
+    function _hide() {
+        try { var a = document.activeElement; if (a && a.blur && a !== document.body) a.blur(); } catch(e) {}
+        setTimeout(function(){ document.getElementById('fModal').style.display='none'; }, 50);
+    }
+    if(!skipConfirm){ confirmAction('確定關閉？未儲存的資料將會遺失', _hide); return; }
+    _hide();
+}
 
 // ── 編輯頁左右切換 ──
 var editListCache = [];
@@ -10942,7 +10949,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260414b8';
+var APP_VERSION = '20260414b9';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
