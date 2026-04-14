@@ -7029,11 +7029,15 @@ function confirmAction(msg, onConfirm) {
     var box = document.createElement('div');
     box.className = 'fill-menu';
     box.style.cssText = 'padding:20px;min-width:260px;max-width:320px;text-align:center';
-    box.innerHTML = '<div style="font-size:15px;margin-bottom:16px;line-height:1.5">'+msg+'</div>' +
-        '<div style="display:flex;gap:8px">' +
-            '<button id="cf-no" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
-            '<button id="cf-yes" style="flex:1;padding:10px;border:none;border-radius:8px;background:#57534E;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">確定</button>' +
-        '</div>';
+    var msgDiv = document.createElement('div');
+    msgDiv.style.cssText = 'font-size:15px;margin-bottom:16px;line-height:1.5;white-space:pre-line';
+    msgDiv.textContent = String(msg == null ? '' : msg);
+    box.appendChild(msgDiv);
+    var btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex;gap:8px';
+    btnRow.innerHTML = '<button id="cf-no" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
+        '<button id="cf-yes" style="flex:1;padding:10px;border:none;border-radius:8px;background:#57534E;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">確定</button>';
+    box.appendChild(btnRow);
     overlay.appendChild(box);
     document.body.appendChild(overlay);
     document.getElementById('cf-no').onclick = function() { overlay.remove(); };
@@ -8501,7 +8505,7 @@ function fillSearchDB(val, target, overlay) {
     matches = matches.filter(function(m) { var k = m.name+'_'+m.phone; if(seen[k]) return false; seen[k]=true; return true; });
     if (matches.length > 10) matches = matches.slice(0, 10);
     results.innerHTML = matches.map(function(s) {
-        return '<div class="fill-menu-item" style="cursor:pointer" onclick="applyFill(\''+target+'\',JSON.parse(this.getAttribute(\'data-s\')));closeOverlay(this.closest(\'.fill-overlay\'))" data-s=\''+esc(JSON.stringify(s))+'\'>' +
+        return '<div class="fill-menu-item" style="cursor:pointer" onclick="applyFill(\''+target+'\',JSON.parse(decodeURIComponent(this.getAttribute(\'data-s\'))));closeOverlay(this.closest(\'.fill-overlay\'))" data-s="'+encodeURIComponent(JSON.stringify(s))+'">' +
             '<span>' + esc(s.name) + (s.phone ? ' ' + esc(s.phone) : '') + '</span><span class="fill-src">' + esc(s.src) + '</span></div>';
     }).join('') || '<div style="padding:8px;color:var(--muted);font-size:12px">找不到符合的客戶</div>';
 }
@@ -11008,7 +11012,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260415d5';
+var APP_VERSION = '20260415d6';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }

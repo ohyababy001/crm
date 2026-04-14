@@ -1,4 +1,4 @@
-var CACHE_NAME = 'crm-v20260415d5';
+var CACHE_NAME = 'crm-v20260415d6';
 var URLS_TO_CACHE = [
   './',
   './index.html'
@@ -30,15 +30,21 @@ self.addEventListener('fetch', function(e) {
   if (e.request.url.includes('script.google.com') || e.request.url.includes('drive.google.com')) {
     return;
   }
+  // 只快取 GET 且同源的請求
+  if (e.request.method !== 'GET') return;
   e.respondWith(
     fetch(e.request).then(function(resp) {
-      // 更新快取
-      var clone = resp.clone();
-      caches.open(CACHE_NAME).then(function(cache) { cache.put(e.request, clone); });
+      // 只快取 2xx 且非 opaque 的回應
+      if (resp && resp.ok && resp.type === 'basic') {
+        var clone = resp.clone();
+        caches.open(CACHE_NAME).then(function(cache) { cache.put(e.request, clone); });
+      }
       return resp;
     }).catch(function() {
-      // 離線時用快取
-      return caches.match(e.request);
+      // 離線時用快取，找不到就回 503
+      return caches.match(e.request).then(function(cached) {
+        return cached || new Response('離線且無快取', { status: 503, statusText: 'Offline' });
+      });
     })
   );
 });
