@@ -364,11 +364,16 @@
         .dash-sections { display: grid; grid-template-columns: 1.5fr 1.1fr 1.1fr; gap: 10px; margin-top: 34px; grid-template-areas: "sched todo seller" "sched bday rental"; }
         .dash-section { background: #FFFFFF; border-radius: var(--radius); padding: 12px; border: 2px solid var(--lux-navy); box-shadow: 0 1px 4px rgba(28,25,23,0.04); min-height: 240px; transition: all 0.2s; }
         .dash-section:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(28,25,23,0.08); }
-        .dash-section.dash-schedule { grid-area: sched; background: #FFFFFF; align-self: start; }
-        .dash-section.dash-todo { grid-area: todo; background: #FFFFFF; }
-        .dash-section.dash-seller { grid-area: seller; background: #FFFFFF; }
-        .dash-section.dash-bday { grid-area: bday; background: #FFFFFF; }
-        .dash-section.dash-rental { grid-area: rental; background: #FFFFFF; }
+        .dash-section.dash-schedule { grid-area: sched; background: #FFFFFF; align-self: stretch; display: flex; flex-direction: column; }
+        .dash-section.dash-schedule > #dashSchedule { flex: 1; min-height: 0; max-height: none; }
+        .dash-section.dash-todo { grid-area: todo; background: #FFFFFF; height: 300px; display: flex; flex-direction: column; }
+        .dash-section.dash-seller { grid-area: seller; background: #FFFFFF; height: 300px; display: flex; flex-direction: column; }
+        .dash-section.dash-bday { grid-area: bday; background: #FFFFFF; height: 300px; display: flex; flex-direction: column; }
+        .dash-section.dash-rental { grid-area: rental; background: #FFFFFF; height: 300px; display: flex; flex-direction: column; }
+        .dash-section.dash-todo > #dashTodo,
+        .dash-section.dash-seller > #dashExpiringSeller,
+        .dash-section.dash-bday > #dashBirthday,
+        .dash-section.dash-rental > #dashExpiringRental { flex: 1; min-height: 0; overflow-x: hidden; overflow-y: auto; }
         .dash-sec-title { font-size: 17px; font-weight: 800; color: #475569; margin: -12px -12px 10px -12px; padding: 10px 12px; background: linear-gradient(135deg, #F0F4FA 0%, #F7F9FF 100%); border-bottom: 1px solid rgba(26,58,92,0.1); border-radius: 12px 12px 0 0; white-space: nowrap; }
         .dash-list { font-size: 18px; }
         .dash-item { padding: 6px 8px; margin: 0 -8px; border-bottom: 1px solid rgba(200,164,90,0.15); display: flex; align-items: center; gap: 8px; border-radius: 6px; transition: background 0.15s; }
@@ -654,7 +659,8 @@
 
             /* 總覽方塊 */
             .dash-sections { grid-template-columns: 1fr !important; grid-template-areas: none !important; }
-            .dash-section.dash-schedule, .dash-section.dash-todo, .dash-section.dash-seller, .dash-section.dash-bday, .dash-section.dash-rental { grid-area: auto; align-self: start; min-height: auto; }
+            .dash-section.dash-schedule, .dash-section.dash-todo, .dash-section.dash-seller, .dash-section.dash-bday, .dash-section.dash-rental { grid-area: auto; align-self: start; min-height: auto; height: auto !important; display: block !important; }
+            .dash-section.dash-todo > #dashTodo, .dash-section.dash-seller > #dashExpiringSeller, .dash-section.dash-bday > #dashBirthday, .dash-section.dash-rental > #dashExpiringRental { overflow: visible !important; }
             #dashSchedule { max-height: 560px !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
             .dash-cards { grid-template-columns: repeat(4, 1fr) !important; gap: 6px !important; }
             .dash-card { padding: 10px 4px !important; border-radius: 10px !important; }
@@ -3681,7 +3687,7 @@ function renderDashboard() {
         if (b.date) { var by = parseInt(b.date.substring(0,4)); if(by>0) { age = (now.getFullYear()-by)+'歲'; } }
         return '<div class="dash-item" style="cursor:pointer;flex-wrap:nowrap">' +
             '<span class="dash-item-info" style="color:'+(b.days===0?'#EF4444':'')+'">'+esc(isoToMDW(b.date))+'</span>' +
-            '<span class="dash-item-name" onclick="showDet(\''+esc(b.id)+'\')" style="white-space:nowrap">'+(b.who?esc(b.who)+'<span style="font-weight:400;color:#475569">（'+esc(b.name)+'）</span>':esc(b.name))+'</span>' +
+            '<span class="dash-item-name" onclick="showDet(\''+esc(b.id)+'\')" title="'+esc(b.who?b.who+'（'+b.name+'）':b.name)+'" style="white-space:nowrap">'+esc(b.who||b.name)+'</span>' +
             '<span style="font-size:11px;color:#475569;white-space:nowrap;flex-shrink:0">'+esc(isoToROC(b.date))+'</span>' +
             (age ? '<span style="font-size:11px;font-weight:600;color:#5C4A32;background:#F5F0EB;padding:1px 8px;border-radius:10px;white-space:nowrap;flex-shrink:0">'+esc(age)+'</span>' : '') +
             '<button class="btn-ic" onclick="event.stopPropagation();_dismissAlert(\''+esc(b.dismissKey)+'\',\'確定已祝福「'+esc(b.who||b.name)+'」？\')" title="已祝福" style="font-size:13px;padding:2px 4px;flex-shrink:0"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button></div>';
@@ -10949,7 +10955,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260414b9';
+var APP_VERSION = '20260415b2';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
