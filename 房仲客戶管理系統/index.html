@@ -2130,18 +2130,43 @@ function _stampUpdatedAt() {
     DB.forEach(function(c) { if (!c.id) return; if (oldMap[c.id] !== JSON.stringify(c)) c.updatedAt = now; });
 }
 function _setDirty() { _localDirtyUntil = Date.now() + 60000; try { localStorage.setItem('_localDirtyUntil', String(_localDirtyUntil)); } catch(e){} }
+// 多分頁衝突偵測：其他分頁寫入 reCRM 時提示
+var _tabConflictWarned = false;
+window.addEventListener('storage', function(e) {
+    if (e.key === 'reCRM' && e.newValue && e.newValue !== _lastSyncJSON && !_tabConflictWarned) {
+        _tabConflictWarned = true;
+        if (typeof showToast === 'function') {
+            showToast('偵測到其他分頁已修改資料，請重新整理避免覆蓋', 'warn', 8000);
+        }
+    }
+});
+var _quotaWarned = false;
+function _safeSetItem(key, value) {
+    try { localStorage.setItem(key, value); return true; }
+    catch(e) {
+        console.error('localStorage寫入失敗 key=' + key, e);
+        if (e && (e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014)) {
+            if (!_quotaWarned) {
+                _quotaWarned = true;
+                if (typeof showToast === 'function') showToast('本機儲存空間已滿，請匯出備份後清除快取', 'error', 6000);
+            }
+        }
+        return false;
+    }
+}
 function persist() {
     _stampUpdatedAt();
     _lastSyncJSON = JSON.stringify(DB);
-    try { localStorage.setItem('reCRM', _lastSyncJSON); } catch(e) { console.error('localStorage寫入失敗', e); }
+    var ok = _safeSetItem('reCRM', _lastSyncJSON);
     _setDirty();
     if (_syncTimer) clearTimeout(_syncTimer);
     _syncTimer = setTimeout(autoSync, 3000);
+    return ok;
 }
 function persistAndSyncNow() {
     _stampUpdatedAt();
     _lastSyncJSON = JSON.stringify(DB);
-    try { localStorage.setItem('reCRM', _lastSyncJSON); } catch(e) { console.error('localStorage寫入失敗', e); }
+    _safeSetItem('reCRM', _lastSyncJSON);
     _setDirty();
     if (_syncTimer) clearTimeout(_syncTimer);
     autoSync();
@@ -2163,9 +2188,11 @@ function autoSync() {
         .catch(function() { syncViaIframe(payload, status); });
         return;
     }
-    // 方式2: sendBeacon（payload < 60KB 才用，避免靜默失敗）
+    // 方式2: sendBeacon（payload < 50KB 才用，避免靜默失敗；用 Blob 測真實 byte 大小）
     var encoded = new URLSearchParams({payload: payload});
-    if (navigator.sendBeacon && encoded.toString().length < 60000) {
+    var encodedStr = encoded.toString();
+    var byteLen = (typeof Blob === 'function') ? new Blob([encodedStr]).size : encodedStr.length * 3;
+    if (navigator.sendBeacon && byteLen < 50000) {
         var sent = navigator.sendBeacon(CLOUD_URL, encoded);
         if (sent) {
             setTimeout(function() { verifySyncResult(status); }, 8000);
@@ -2200,11 +2227,12 @@ function verifySyncResult(status) {
                 _lastSyncJSON = JSON.stringify(DB);
                 _syncRetryCount = 0;
             } else {
-                if (status) status.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#F59E0B;margin-right:4px;vertical-align:middle"></span>同步中…';
-                // 筆數不符，不解除保護，下次 autoSync 重試
+                // 筆數不符，不解除保護，走失敗重試流程
+                _onSyncFail(status);
             }
         } else {
-            if (status) status.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#EF4444;margin-right:4px;vertical-align:middle"></span>同步可能失敗，請重試';
+            // 雲端回傳空或格式異常，走失敗重試
+            _onSyncFail(status);
         }
     };
     vScript.src = CLOUD_URL + '?callback=' + vCb + '&t=' + Date.now();
@@ -9785,8 +9813,16 @@ function permanentDel(id) {
     var c = DB.find(function(x){ return x.id===id; });
     if (!c) return;
     confirmAction('確定要永久刪除「'+c.name+'」？此操作無法復原！', function() {
+        var snapshot = DB;
         DB = DB.filter(function(x){ return x.id !== id; });
-        persist(); renderTrash();
+        var ok = persist();
+        if (!ok) {
+            // 寫入失敗，rollback
+            DB = snapshot;
+            showToast('刪除失敗：本機儲存寫入失敗，已還原', 'error', 4000);
+            return;
+        }
+        renderTrash();
     });
 }
 </script>
@@ -11026,7 +11062,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260415d7';
+var APP_VERSION = '20260415d8';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
