@@ -4208,6 +4208,7 @@ function renderCard(c) {
             ${meta ? `<div class="card-divider"></div><div class="card-meta">${meta}</div>` : ''}
             <div class="card-divider"></div>
             <div class="card-notes-col" onclick="event.stopPropagation()">
+                ${_schedHtml}
                 ${(function(){
                     if (!c.contactLog || !c.contactLog.length) return '';
                     var _curTab = curFilter && curFilter !== 'all' ? curFilter : '';
@@ -4221,7 +4222,6 @@ function renderCard(c) {
                         (indexed.length > 3 ? '<div style="font-size:11px;color:var(--muted);cursor:pointer" onclick="event.stopPropagation();showContactLog(\''+_eid+'\')">還有 '+(indexed.length-3)+' 筆…</div>' : '') +
                     '</div></div>';
                 })()}
-                ${_schedHtml}
                 <div class="notes-inline${notesText?'':' empty-note'}" onclick="editNoteInline('${_eid}',this,'${esc(showType)}')" style="display:flex;gap:6px"><span style="color:var(--muted);flex-shrink:0">備註</span><div style="word-break:break-word">${notesText ? esc(notesText) : '<span style="color:#78716C;font-size:10px">點擊新增備註…</span>'}</div></div>
                 <div class="card-contact">
                     ${dateLabel ? `<span>${esc(dateLabel)}</span>` : ''}
@@ -10940,7 +10940,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260414b4';
+var APP_VERSION = '20260414b5';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
