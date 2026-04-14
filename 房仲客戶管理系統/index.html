@@ -782,7 +782,7 @@
         <button class="mc-main" onclick="openPerformance()"><i class="ti ti-chart-bar" style="font-size:16px;color:#2563EB"></i> 業績</button>
         <button class="mc-main" onclick="openTemplates()"><i class="ti ti-file-text" style="font-size:16px;color:#8B7355"></i> 範本</button>
         <span style="flex:1"></span>
-        <button onclick="toggleMobileSetting()" id="mobileSettingBtn"><i class="ti ti-dots" style="font-size:18px"></i></button>
+        <button onclick="toggleMobileSetting()" id="mobileSettingBtn" aria-label="更多選項" title="更多選項"><i class="ti ti-dots" style="font-size:18px"></i></button>
     </div>
     <div style="flex:1"></div>
     <div class="header-tools" style="display:flex;gap:8px;align-items:center">
@@ -790,7 +790,7 @@
         <button onclick="openPerformance()" class="header-btn" data-hover-color="#57534E"><i class="ti ti-chart-bar" style="font-size:18px;color:#2563EB"></i> 業績儀表板</button>
         <!-- 更多選單 -->
         <div style="position:relative">
-            <button class="header-btn" onclick="toggleHeaderMore()" id="headerMoreBtn" data-hover-color="#57534E"><i class="ti ti-dots" style="font-size:18px"></i></button>
+            <button class="header-btn" onclick="toggleHeaderMore()" id="headerMoreBtn" data-hover-color="#57534E" aria-label="更多選項" title="更多選項"><i class="ti ti-dots" style="font-size:18px"></i></button>
             <div id="headerMoreMenu" style="display:none;position:absolute;top:100%;right:0;margin-top:6px;background:white;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.15);border-top:3px solid #8B7355;min-width:180px;padding:6px 0;z-index:200">
                 <button onclick="openTrash();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><i class="ti ti-trash" style="font-size:18px;color:#DC2626"></i> 資源回收桶<span id="trashCount" style="font-size:11px;margin-left:2px"></span></button>
                 <button onclick="cloudRestore();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><i class="ti ti-cloud-download" style="font-size:18px;color:#2563EB"></i> 雲端還原</button>
@@ -2198,6 +2198,7 @@ function verifySyncResult(status) {
                 showToast('已同步至雲端', 'ok', 2000);
                 _localDirtyUntil = 0; try { localStorage.removeItem('_localDirtyUntil'); } catch(e){}
                 _lastSyncJSON = JSON.stringify(DB);
+                _syncRetryCount = 0;
             } else {
                 if (status) status.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#F59E0B;margin-right:4px;vertical-align:middle"></span>同步中…';
                 // 筆數不符，不解除保護，下次 autoSync 重試
@@ -2210,8 +2211,21 @@ function verifySyncResult(status) {
     vScript.onerror = function() { delete window[vCb]; if (vScript.parentNode) vScript.parentNode.removeChild(vScript); _onSyncFail(status); };
     document.body.appendChild(vScript);
 }
+var _syncRetryCount = 0;
+var _syncRetryTimer = null;
 function _onSyncFail(status) {
-    if (status) status.innerHTML = '同步失敗 <button onclick="autoSync()" style="background:none;border:1px solid var(--border);border-radius:6px;padding:2px 8px;cursor:pointer;font-size:11px;margin-left:4px">重試</button>';
+    // 自動重試 3 次，指數退避（2s, 5s, 10s）
+    if (_syncRetryCount < 3) {
+        var delay = [2000, 5000, 10000][_syncRetryCount];
+        _syncRetryCount++;
+        if (status) status.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#F59E0B;margin-right:4px;vertical-align:middle"></span>同步失敗，' + Math.round(delay/1000) + ' 秒後重試（' + _syncRetryCount + '/3）';
+        if (_syncRetryTimer) clearTimeout(_syncRetryTimer);
+        _syncRetryTimer = setTimeout(function() { autoSync(); }, delay);
+        return;
+    }
+    // 重試都失敗，提供手動重試
+    _syncRetryCount = 0;
+    if (status) status.innerHTML = '同步失敗 <button onclick="_syncRetryCount=0;autoSync()" style="background:none;border:1px solid var(--border);border-radius:6px;padding:2px 8px;cursor:pointer;font-size:11px;margin-left:4px">重試</button>';
     showToast('雲端同步失敗', 'warn', 3000);
 }
 function syncViaIframe(payload, status) {
@@ -2250,7 +2264,7 @@ function syncViaIframe(payload, status) {
 // ── 自動雲端同步（頁面載入+每5分鐘）──
 var _checkTimer = null;
 var _lastSyncJSON = JSON.stringify(DB);
-var _localDirtyUntil = parseInt(localStorage.getItem('_localDirtyUntil') || '0', 10); // 本機有未上傳的變更時，暫停拉雲端
+var _localDirtyUntil = (function(){ try { return parseInt(localStorage.getItem('_localDirtyUntil') || '0', 10) || 0; } catch(e){ return 0; } })(); // 本機有未上傳的變更時，暫停拉雲端
 function startAutoCheck() {
     if (_checkTimer) clearInterval(_checkTimer);
     if (Date.now() < _localDirtyUntil) {
@@ -10472,7 +10486,7 @@ function exportCSV() {
     a.click();
     var now = new Date().toLocaleString('zh-TW');
     document.getElementById('exportTime').textContent = '上次匯出：' + now;
-    localStorage.setItem('lastExportTime', now);
+    try { localStorage.setItem('lastExportTime', now); } catch(e) { console.error('localStorage寫入失敗', e); }
 }
 
 // ── 匯入 CSV ──
@@ -10571,7 +10585,7 @@ function importCSV(file) {
         persist(); render();
         var now = new Date().toLocaleString('zh-TW');
         document.getElementById('importTime').textContent = '上次匯入：' + now;
-        localStorage.setItem('lastImportTime', now);
+        try { localStorage.setItem('lastImportTime', now); } catch(e) { console.error('localStorage寫入失敗', e); }
         var msg = '匯入完成：';
         if (count || skip) msg += '客戶 ' + count + ' 筆' + (skip ? '（跳過 ' + skip + ' 筆重複）' : '');
         if (perfCount) msg += (count || skip ? '，' : '') + '業績 ' + perfCount + ' 筆';
@@ -11012,15 +11026,15 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260415d6';
+var APP_VERSION = '20260415d7';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
 // 更新後檢查版本是否變更
 (function(){
-    var oldVer = localStorage.getItem('_appOldVersion');
+    var oldVer; try { oldVer = localStorage.getItem('_appOldVersion'); } catch(e) { oldVer = null; }
     if (oldVer) {
-        localStorage.removeItem('_appOldVersion');
+        try { localStorage.removeItem('_appOldVersion'); } catch(e) {}
         if (oldVer !== APP_VERSION) {
             setTimeout(function(){ showUpdateMsg('更新成功！', '版本：' + APP_VERSION); }, 500);
         } else {
@@ -11057,7 +11071,7 @@ function clearCache() {
     document.body.appendChild(ov);
 }
 function doClearCache() {
-    localStorage.setItem('_appOldVersion', APP_VERSION);
+    try { localStorage.setItem('_appOldVersion', APP_VERSION); } catch(e) { console.error('localStorage寫入失敗', e); }
     if ('caches' in window) {
         caches.keys().then(function(names) {
             return Promise.all(names.map(function(n) { return caches.delete(n); }));
