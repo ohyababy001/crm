@@ -2796,22 +2796,21 @@ function getTabLastContact(c, tab) {
     var _fallback = _toDate(c.lastContact);
     if (!c.contactLog || !c.contactLog.length) return _fallback;
     var _t = tab && tab !== 'all' ? tab : '';
-    if (!_t) return _fallback;
-    var filtered = c.contactLog.filter(function(log){ return _getLogTab(log,c) === _t || !_getLogTab(log,c); });
+    var filtered = _t ? c.contactLog.filter(function(log){ return _getLogTab(log,c) === _t || !_getLogTab(log,c); }) : c.contactLog;
     if (!filtered.length) return _fallback;
     var logMax = filtered.reduce(function(m, log){
         var d = log.date || _toDate(log.time);
         return d > m ? d : m;
     }, '');
-    return logMax > _fallback ? logMax : _fallback;
+    return logMax || _fallback;
 }
 
 function getTabLastContactSortKey(c, tab) {
     function _toDate(s) { return s ? String(s).slice(0,10) : ''; }
     var _t = tab && tab !== 'all' ? tab : '';
     var hasLog = false, logMax = '';
-    if (c.contactLog && c.contactLog.length && _t) {
-        var filtered = c.contactLog.filter(function(log){ return _getLogTab(log,c) === _t || !_getLogTab(log,c); });
+    if (c.contactLog && c.contactLog.length) {
+        var filtered = _t ? c.contactLog.filter(function(log){ return _getLogTab(log,c) === _t || !_getLogTab(log,c); }) : c.contactLog;
         if (filtered.length) {
             hasLog = true;
             logMax = filtered.reduce(function(m, log){
@@ -2821,7 +2820,7 @@ function getTabLastContactSortKey(c, tab) {
         }
     }
     var fallback = _toDate(c.lastContact);
-    if (hasLog) return '1|' + (logMax > fallback ? logMax : fallback);
+    if (hasLog) return '1|' + logMax;
     return '0|' + fallback;
 }
 
@@ -4214,7 +4213,7 @@ function renderCard(c) {
                     var _curTab = curFilter && curFilter !== 'all' ? curFilter : '';
                     var indexed = c.contactLog.map(function(log,i){ return {log:log,idx:i}; })
                         .filter(function(item){ var lt = _getLogTab(item.log,c); return !_curTab || lt === _curTab || !lt; })
-                        .sort(function(a,b){ return (b.log.date||'').localeCompare(a.log.date||''); });
+                        .sort(function(a,b){ var d = (b.log.date||'').localeCompare(a.log.date||''); return d !== 0 ? d : (b.log.time||'').localeCompare(a.log.time||''); });
                     if (!indexed.length) return '';
                     var show = indexed.slice(0, 3);
                     return '<div style="margin-bottom:4px;font-size:13px;line-height:1.4;display:flex;gap:6px"><span style="color:var(--muted);flex-shrink:0">紀錄</span><div>' +
@@ -7072,7 +7071,7 @@ function showContactLog(clientId) {
     var _curTab = curFilter && curFilter !== 'all' ? curFilter : '';
     var sorted = c.contactLog.slice()
         .filter(function(log){ var lt = _getLogTab(log,c); return !_curTab || lt === _curTab || !lt; })
-        .sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+        .sort(function(a,b){ var d = (b.date||'').localeCompare(a.date||''); return d !== 0 ? d : (b.time||'').localeCompare(a.time||''); });
     if (!sorted.length) return;
     var overlay = document.createElement('div');
     overlay.className = 'fill-overlay';
@@ -7225,8 +7224,11 @@ function addTodo(prefill) {
         if (!q) { listEl.style.display = 'none'; updateHint(); return; }
         var matches = DB.filter(function(c){
             if (c._deleted || c._system || c.archived) return false;
-            var pool = (c.name||'') + ' ' + (c.phone||'') + ' ' + (c.bPhone||'') + ' ' + (c.sPhone||'') + ' ' + (c.llPhone||'') + ' ' + (c.ttPhone||'') + ' ' + (c.dCommunity||'') + ' ' + (c.community||'');
-            return pool.toLowerCase().indexOf(q) !== -1;
+            var parts = [c.name, c.phone, c.bName, c.bPhone, c.sName, c.sPhone, c.llName, c.llPhone, c.ttName, c.ttPhone, c.cName, c.cPhone, c.dName, c.dPhone, c.dCommunity, c.community];
+            ['bPersons','sPersons','dPersons','llPersons','ttPersons','cContacts','contacts'].forEach(function(key){
+                if (Array.isArray(c[key])) c[key].forEach(function(p){ if (p) { parts.push(p.name); parts.push(p.phone); } });
+            });
+            return parts.join(' ').toLowerCase().indexOf(q) !== -1;
         }).slice(0, 20);
         if (!matches.length) { listEl.innerHTML = '<div style="padding:10px;color:#94A3B8;font-size:13px;text-align:center">沒有符合的客戶</div>'; listEl.style.display = 'block'; updateHint(); return; }
         listEl.innerHTML = matches.map(function(c){
@@ -10940,7 +10942,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260414b5';
+var APP_VERSION = '20260414b8';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
