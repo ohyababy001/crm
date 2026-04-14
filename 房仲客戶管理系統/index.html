@@ -6113,7 +6113,7 @@ function addRentalProperty(data) {
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">起租日</label><div class="roc-date-wrap"><input data-f="startDate" type="text" value="'+esc(d.rStartDate?isoToROC(d.rStartDate):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div></div>' +
             '<div class="fg" style="margin-bottom:0"><label style="font-size:12px">到期日</label><div class="roc-date-wrap"><input data-f="endDate" type="text" value="'+esc(d.rEndDate?isoToROC(d.rEndDate):'')+'"><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div></div>' +
             '<button type="button" class="bf-chip" onclick="renewRpContract(this)" style="padding:10px 14px;font-size:14px;text-align:center;white-space:nowrap">續約</button>' +
-            '<button type="button" class="bf-chip" onclick="showRpRenewalHistory(this)" style="padding:10px 14px;font-size:13px;background:#F5F0EB;color:#5B21B6;border:1px solid #D6CFC7;white-space:nowrap"><i class="ti ti-history" style="font-size:13px"></i> 歷程</button>' +
+            '<button type="button" class="bf-chip" onclick="showRpRenewalHistory(this)" style="padding:10px 14px;font-size:14px;background:#F5F0EB;color:#5B21B6;border:1px solid #D6CFC7;text-align:center;white-space:nowrap">歷程</button>' +
         '</div>' +
         // 附屬設備
         '<div class="rp-equip-toggle equip-toggle" style="margin-top:8px" onclick="var b=this.nextElementSibling;b.classList.toggle(\'on\');this.querySelector(\'span:last-child\').innerHTML=b.classList.contains(\'on\')?\'<i class=\\\'ti ti-chevron-down\\\'></i>\':\'<i class=\\\'ti ti-chevron-right\\\'></i>\'">' +
@@ -10607,7 +10607,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260414a4';
+var APP_VERSION = '20260414a5';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
