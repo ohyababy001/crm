@@ -361,10 +361,11 @@
         .dash-card:hover { box-shadow: 0 8px 24px rgba(28,25,23,0.1); border-color: #D6D3D1; transform: translateY(-2px); }
         .dash-card .dash-num { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
         .dash-card .dash-label { font-size: 13px; color: var(--muted); font-weight: 600; }
-        .dash-sections { display: grid; grid-template-columns: 1.5fr 1.1fr 1.1fr; gap: 10px; margin-top: 34px; grid-template-areas: "sched seller bday" "sched rental bday"; }
+        .dash-sections { display: grid; grid-template-columns: 1.5fr 1.1fr 1.1fr; gap: 10px; margin-top: 34px; grid-template-areas: "sched todo seller" "sched bday rental"; }
         .dash-section { background: #FFFFFF; border-radius: var(--radius); padding: 12px; border: 2px solid var(--lux-navy); box-shadow: 0 1px 4px rgba(28,25,23,0.04); min-height: 240px; transition: all 0.2s; }
         .dash-section:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(28,25,23,0.08); }
         .dash-section.dash-schedule { grid-area: sched; background: #FFFFFF; align-self: start; }
+        .dash-section.dash-todo { grid-area: todo; background: #FFFFFF; }
         .dash-section.dash-seller { grid-area: seller; background: #FFFFFF; }
         .dash-section.dash-bday { grid-area: bday; background: #FFFFFF; }
         .dash-section.dash-rental { grid-area: rental; background: #FFFFFF; }
@@ -653,7 +654,7 @@
 
             /* 總覽方塊 */
             .dash-sections { grid-template-columns: 1fr !important; grid-template-areas: none !important; }
-            .dash-section.dash-schedule, .dash-section.dash-seller, .dash-section.dash-bday, .dash-section.dash-rental { grid-area: auto; align-self: start; min-height: auto; }
+            .dash-section.dash-schedule, .dash-section.dash-todo, .dash-section.dash-seller, .dash-section.dash-bday, .dash-section.dash-rental { grid-area: auto; align-self: start; min-height: auto; }
             #dashSchedule { max-height: 560px !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
             .dash-cards { grid-template-columns: repeat(4, 1fr) !important; gap: 6px !important; }
             .dash-card { padding: 10px 4px !important; border-radius: 10px !important; }
@@ -910,6 +911,10 @@
                 <div class="dash-section dash-schedule">
                     <div class="dash-sec-title" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center"><span><i class="ti ti-calendar-event" style="color:#2563EB"></i> 近期行程<span style="font-size:14px">（15天內）</span></span><span class="dash-sched-btns" style="display:flex;gap:12px;align-items:center"><button class="btn-ic" onclick="showAllSchedules()" title="全部行程" style="font-size:15px;padding:3px 8px"><i class="ti ti-list" style="color:#57534E"></i>全部</button><button class="btn-ic" onclick="showDoneSchedules()" title="已完成" style="font-size:15px;padding:3px 8px"><i class="ti ti-circle-check" style="color:#059669"></i>已完成</button><button class="btn-ic" onclick="addPersonalSchedule()" title="新增個人行程" style="font-size:16px;padding:2px 6px"><i class="ti ti-plus" style="color:#2563EB"></i></button></span></div>
                     <div class="dash-list" id="dashSchedule"></div>
+                </div>
+                <div class="dash-section dash-todo">
+                    <div class="dash-sec-title" style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center"><span><i class="ti ti-checkbox" style="color:#7C3AED"></i> 待辦事項</span><span style="display:flex;gap:12px;align-items:center"><button class="btn-ic" onclick="showDoneTodos()" title="已完成" style="font-size:15px;padding:3px 8px"><i class="ti ti-circle-check" style="color:#059669"></i>已完成</button><button class="btn-ic" onclick="addTodo()" title="新增待辦" style="font-size:16px;padding:2px 6px"><i class="ti ti-plus" style="color:#7C3AED"></i></button></span></div>
+                    <div class="dash-list" id="dashTodo"></div>
                 </div>
                 <div class="dash-section dash-seller">
                     <div class="dash-sec-title"><i class="ti ti-alert-triangle" style="color:#D97706"></i> 庫存合約即將到期<span style="font-size:14px">（15天內）</span></div>
@@ -3621,11 +3626,12 @@ function renderDashboard() {
         var delBtn = s.personal
             ? '<button class="btn-ic" onclick="deletePersonalSchedule('+s.psIdx+')" title="刪除" style="font-size:13px;padding:2px 4px"><i class="ti ti-trash" style="color:#DC2626"></i></button>'
             : '<button class="btn-ic" onclick="deleteSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="刪除" style="font-size:13px;padding:2px 4px"><i class="ti ti-trash" style="color:#DC2626"></i></button>';
+        var toTodoBtn = s.recurrence ? '' : '<button class="btn-ic" onclick="scheduleToTodo(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="轉為待辦" style="font-size:13px;padding:2px 4px"><i class="ti ti-checkbox" style="color:#7C3AED"></i></button>';
         return '<div class="dash-item dash-sched-item" style="flex-direction:column;align-items:stretch">' +
             '<div class="dash-sched-row1">' +
                 '<span class="dash-item-info" style="color:'+dateColor+'">'+(s.expired?'<i class="ti ti-alert-triangle" style="color:#DC2626;font-size:12px"></i> ':'')+esc(isoToMDW(s.date))+(s.time?' '+s.time:'')+(s.expired?' <span style="font-size:12px">已過期'+Math.abs(s.days)+'天</span>':'')+'</span>' +
                 nameHtml +
-                '<span style="display:flex;gap:2px;flex-shrink:0">' + editBtn + delBtn + '</span>' +
+                '<span style="display:flex;gap:2px;flex-shrink:0">' + toTodoBtn + editBtn + delBtn + '</span>' +
             '</div>' +
             '<div style="display:flex;align-items:center"><div style="flex:1">' + memoHtml + '</div>' + doneBtn + '</div>' +
         '</div>';
@@ -3682,22 +3688,49 @@ function renderDashboard() {
             '<button class="btn-ic" onclick="event.stopPropagation();_dismissAlert(\''+esc(b.dismissKey)+'\',\'確定已祝福「'+esc(b.who||b.name)+'」？\')" title="已祝福" style="font-size:13px;padding:2px 4px;flex-shrink:0"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button></div>';
     }).join('') : '<div class="dash-empty">近7天內沒有客戶生日</div>';
 
-    // 手機版：近期行程固定最上面，其餘依最近期日期排序
-    if (window.innerWidth <= 768) {
+    // 待辦事項
+    var todoList = _getAllTodos();
+    document.getElementById('dashTodo').innerHTML = todoList.length ? todoList.map(function(t) {
+        var nameHtml = t.personal
+            ? '<span class="dash-item-name" style="color:#3D2F1A">個人</span>'
+            : '<span class="dash-item-name" style="cursor:pointer" onclick="showDet(\''+esc(t.clientId)+'\')">'+esc(t.clientName)+'</span>';
+        return '<div class="dash-item" style="flex-direction:column;align-items:stretch">' +
+            '<div style="display:flex;align-items:center;gap:8px;width:100%">' +
+                nameHtml +
+                '<span style="display:flex;gap:2px;flex-shrink:0">' +
+                    '<button class="btn-ic" onclick="todoToSchedule(\''+esc(t.id)+'\')" title="轉為行程" style="font-size:13px;padding:2px 4px"><i class="ti ti-calendar-plus" style="color:#2563EB"></i></button>' +
+                    '<button class="btn-ic" onclick="editTodo(\''+esc(t.id)+'\')" title="編輯" style="font-size:13px;padding:2px 4px"><i class="ti ti-pencil" style="color:#57534E"></i></button>' +
+                    '<button class="btn-ic" onclick="deleteTodo(\''+esc(t.id)+'\')" title="刪除" style="font-size:13px;padding:2px 4px"><i class="ti ti-trash" style="color:#DC2626"></i></button>' +
+                '</span>' +
+            '</div>' +
+            '<div style="display:flex;align-items:center"><div style="flex:1;font-size:15px;color:#475569">'+esc(t.memo||'')+'</div>' +
+                '<button class="btn-ic" onclick="completeTodo(\''+esc(t.id)+'\')" title="完成" style="font-size:13px;padding:2px 4px"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button>' +
+            '</div>' +
+        '</div>';
+    }).join('') : '<div class="dash-empty">目前沒有待辦事項</div>';
+
+    // 手機版：近期行程固定最上面，其餘依固定順序（待辦→庫存→房東→生日），且空內容整個隱藏
+    var isMobile = window.innerWidth <= 768;
+    var sectionMap = [
+        { id: 'dashTodo', hasContent: todoList.length > 0 },
+        { id: 'dashExpiringSeller', hasContent: expSeller.length > 0 },
+        { id: 'dashExpiringRental', hasContent: expRental.length > 0 },
+        { id: 'dashBirthday', hasContent: bdayList.length > 0 }
+    ];
+    if (isMobile) {
         var container = document.querySelector('.dash-sections');
-        // 行程固定第一
         var schedEl = document.getElementById('dashSchedule').parentElement;
         container.insertBefore(schedEl, container.firstChild);
-        // 其餘按日期排
-        var restOrder = [
-            { id: 'dashExpiringSeller', minDays: expSeller.length ? daysUntilExpire(expSeller[0].contractEnd) : Infinity },
-            { id: 'dashExpiringRental', minDays: expRental.length ? daysUntilExpire(expRental[0].rEndDate) : Infinity },
-            { id: 'dashBirthday', minDays: bdayList.length ? bdayList[0].days : Infinity }
-        ];
-        restOrder.sort(function(a, b) { return a.minDays !== b.minDays ? a.minDays - b.minDays : a.id.localeCompare(b.id); });
-        restOrder.forEach(function(s) {
+        sectionMap.forEach(function(s) {
             var el = document.getElementById(s.id).parentElement;
             container.appendChild(el);
+            el.style.display = s.hasContent ? '' : 'none';
+        });
+    } else {
+        // 桌面版恢復顯示所有區塊
+        sectionMap.forEach(function(s) {
+            var el = document.getElementById(s.id).parentElement;
+            el.style.display = '';
         });
     }
 
@@ -7119,6 +7152,305 @@ function _addDoneSchedule(item) {
     persist();
 }
 
+// ── 待辦事項 ──
+function _getPT() { return _getPSRecord().todos || []; }
+function _savePT(arr) { _getPSRecord().todos = arr; persistAndSyncNow(); }
+function _getDoneTodos() { return _getPSRecord().doneTodos || []; }
+function _addDoneTodo(item) {
+    var rec = _getPSRecord();
+    if (!rec.doneTodos) rec.doneTodos = [];
+    rec.doneTodos.unshift(item);
+    persist();
+}
+function _newTodoId() { return 't_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+// 取得所有待辦（合併客戶 c.todos 和個人 _getPT），最舊在前
+function _getAllTodos() {
+    var list = [];
+    DB.forEach(function(c) {
+        if (c._deleted || c._system || c.archived || !c.todos) return;
+        c.todos.forEach(function(t) {
+            list.push({ id:t.id, memo:t.memo||'', addedAt:t.addedAt||'', clientId:c.id, clientName:c.name, personal:false });
+        });
+    });
+    _getPT().forEach(function(t) {
+        list.push({ id:t.id, memo:t.memo||'', addedAt:t.addedAt||'', clientId:'', clientName:'個人', personal:true });
+    });
+    list.sort(function(a,b) { return (a.addedAt||'').localeCompare(b.addedAt||''); });
+    return list;
+}
+
+// 新增/編輯待辦彈窗
+function addTodo(prefill) {
+    var pre = prefill || {};
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.padding = '16px'; box.style.minWidth = '300px'; box.style.maxWidth = '360px';
+    var preClient = pre.clientId ? DB.find(function(x){ return x.id === pre.clientId; }) : null;
+    var preName = preClient ? preClient.name : '';
+    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px"><i class="ti ti-checkbox" style="color:#7C3AED"></i> 待辦事項</div>' +
+        '<div style="margin-bottom:10px;position:relative">' +
+            '<label style="font-size:12px;color:#64748B;display:block;margin-bottom:4px">關聯客戶（可留空=個人待辦）</label>' +
+            '<input id="td-client-search" type="text" placeholder="搜尋姓名、電話、社區…" value="'+esc(preName)+'" autocomplete="off" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit">' +
+            '<input id="td-client-id" type="hidden" value="'+esc(pre.clientId||'')+'">' +
+            '<div id="td-client-hint" style="font-size:12px;color:'+(preClient?'#7C3AED':'#94A3B8')+';margin-top:4px">'+(preClient?'✓ 已選取：'+esc(preName):'未輸入=個人待辦')+'</div>' +
+            '<div id="td-client-list" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1px solid var(--border);border-radius:8px;max-height:200px;overflow-y:auto;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,0.1);margin-top:2px"></div>' +
+        '</div>' +
+        '<div style="margin-bottom:12px"><input id="td-memo" type="text" placeholder="待辦內容" value="'+esc(pre.memo||'')+'" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit"></div>' +
+        '<div style="display:flex;gap:8px">' +
+            '<button onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
+            '<button id="td-save" style="flex:1;padding:10px;border:none;border-radius:8px;background:#7C3AED;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">儲存</button>' +
+        '</div>';
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    var searchEl = document.getElementById('td-client-search');
+    var idEl = document.getElementById('td-client-id');
+    var listEl = document.getElementById('td-client-list');
+    var hintEl = document.getElementById('td-client-hint');
+    function updateHint() {
+        if (idEl.value) {
+            var c = DB.find(function(x){ return x.id === idEl.value; });
+            hintEl.innerHTML = c ? '✓ 已選取：'+esc(c.name) : '';
+            hintEl.style.color = '#7C3AED';
+        } else {
+            hintEl.innerHTML = searchEl.value.trim() ? '未選取客戶，將存為個人待辦' : '未輸入=個人待辦';
+            hintEl.style.color = '#94A3B8';
+        }
+    }
+    searchEl.oninput = function() {
+        idEl.value = '';
+        var q = searchEl.value.trim().toLowerCase();
+        if (!q) { listEl.style.display = 'none'; updateHint(); return; }
+        var matches = DB.filter(function(c){
+            if (c._deleted || c._system || c.archived) return false;
+            var pool = (c.name||'') + ' ' + (c.phone||'') + ' ' + (c.bPhone||'') + ' ' + (c.sPhone||'') + ' ' + (c.llPhone||'') + ' ' + (c.ttPhone||'') + ' ' + (c.dCommunity||'') + ' ' + (c.community||'');
+            return pool.toLowerCase().indexOf(q) !== -1;
+        }).slice(0, 20);
+        if (!matches.length) { listEl.innerHTML = '<div style="padding:10px;color:#94A3B8;font-size:13px;text-align:center">沒有符合的客戶</div>'; listEl.style.display = 'block'; updateHint(); return; }
+        listEl.innerHTML = matches.map(function(c){
+            var sub = c.dCommunity || c.community || c.phone || c.bPhone || c.sPhone || c.llPhone || c.ttPhone || '';
+            return '<div class="td-client-opt" data-id="'+esc(c.id)+'" data-name="'+esc(c.name)+'" style="padding:8px 12px;cursor:pointer;border-bottom:1px solid #F1F5F9;font-size:14px"><div style="font-weight:600;color:#1E40AF">'+esc(c.name)+'</div>'+(sub?'<div style="font-size:12px;color:#64748B">'+esc(sub)+'</div>':'')+'</div>';
+        }).join('');
+        listEl.style.display = 'block';
+        listEl.querySelectorAll('.td-client-opt').forEach(function(el) {
+            el.onmouseenter = function(){ el.style.background = '#F5F0FF'; };
+            el.onmouseleave = function(){ el.style.background = ''; };
+            el.onclick = function() {
+                idEl.value = el.dataset.id;
+                searchEl.value = el.dataset.name;
+                listEl.style.display = 'none';
+                updateHint();
+            };
+        });
+        updateHint();
+    };
+    document.getElementById('td-save').onclick = function() {
+        var memo = document.getElementById('td-memo').value.trim();
+        var clientId = idEl.value;
+        if (!memo) { showToast('請輸入待辦內容', 'warn'); return; }
+        var now = new Date().toISOString();
+        if (pre.editing) {
+            _removeTodoById(pre.editing);
+        }
+        if (clientId) {
+            var c = DB.find(function(x){ return x.id === clientId; });
+            if (!c) { showToast('客戶不存在', 'error'); return; }
+            if (!c.todos) c.todos = [];
+            c.todos.push({ id:_newTodoId(), memo:memo, addedAt:now });
+            persistAndSyncNow();
+        } else {
+            var arr = _getPT();
+            arr.push({ id:_newTodoId(), memo:memo, addedAt:now });
+            _savePT(arr);
+        }
+        overlay.remove();
+        render();
+    };
+    box.addEventListener('keydown', function(e) { if (e.key === 'Enter' && e.target.id !== 'td-client-search') { e.preventDefault(); document.getElementById('td-save').click(); } });
+    if (!window.matchMedia('(max-width:768px)').matches) document.getElementById('td-memo').focus();
+}
+
+function editTodo(todoId) {
+    var all = _getAllTodos();
+    var t = all.find(function(x){ return x.id === todoId; });
+    if (!t) return;
+    addTodo({ editing: todoId, memo: t.memo, clientId: t.clientId });
+}
+
+function _removeTodoById(todoId) {
+    var c = DB.find(function(x){ return !x._deleted && x.todos && x.todos.some(function(t){ return t.id === todoId; }); });
+    if (c) {
+        c.todos = c.todos.filter(function(t){ return t.id !== todoId; });
+        return { clientId:c.id, clientName:c.name, memo:'' };
+    }
+    var arr = _getPT();
+    var found = arr.find(function(t){ return t.id === todoId; });
+    if (found) {
+        _savePT(arr.filter(function(t){ return t.id !== todoId; }));
+        return { clientId:'', clientName:'個人', memo:found.memo, personal:true };
+    }
+    return null;
+}
+
+function completeTodo(todoId) {
+    confirmAction('確定完成此待辦？', function() {
+        var all = _getAllTodos();
+        var t = all.find(function(x){ return x.id === todoId; });
+        if (!t) return;
+        _removeTodoById(todoId);
+        _addDoneTodo({ clientId:t.clientId, clientName:t.clientName, memo:t.memo, personal:t.personal, addedAt:t.addedAt, doneAt:new Date().toISOString() });
+        persistAndSyncNow();
+        render();
+    });
+}
+
+function deleteTodo(todoId) {
+    confirmAction('確定刪除此待辦？', function() {
+        _removeTodoById(todoId);
+        persistAndSyncNow();
+        render();
+    });
+}
+
+// 待辦轉近期行程：彈窗輸入日期時間
+function todoToSchedule(todoId) {
+    var all = _getAllTodos();
+    var t = all.find(function(x){ return x.id === todoId; });
+    if (!t) return;
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.padding = '16px'; box.style.minWidth = '300px'; box.style.maxWidth = '360px';
+    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px"><i class="ti ti-calendar-plus" style="color:#2563EB"></i> 轉為行程</div>' +
+        '<div style="margin-bottom:10px;font-size:13px;color:#475569"><span style="color:#1E40AF;font-weight:600">'+esc(t.clientName)+'</span> / '+esc(t.memo)+'</div>' +
+        '<div style="display:flex;gap:8px;margin-bottom:12px">' +
+            '<div class="roc-date-wrap" style="flex:1"><input id="td2s-date" type="text" placeholder="日期" value="'+esc(isoToROC(localDateISO()))+'"><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div>' +
+            '<select id="td2s-time" style="width:90px;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px">' + buildTimeOptions('') + '</select>' +
+        '</div>' +
+        '<div style="display:flex;gap:8px">' +
+            '<button onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
+            '<button id="td2s-save" style="flex:1;padding:10px;border:none;border-radius:8px;background:#2563EB;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">轉為行程</button>' +
+        '</div>';
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    document.getElementById('td2s-save').onclick = function() {
+        var date = rocToISO(document.getElementById('td2s-date').value);
+        var time = document.getElementById('td2s-time').value;
+        if (!date) { showToast('請選擇日期', 'warn'); return; }
+        _removeTodoById(todoId);
+        if (t.personal) {
+            var arr = _getPS();
+            arr.push({ date:date, time:time, memo:t.memo });
+            _savePS(arr);
+        } else {
+            var c = DB.find(function(x){ return x.id === t.clientId; });
+            if (!c) { showToast('客戶不存在', 'error'); return; }
+            if (!c.schedules) c.schedules = [];
+            c.schedules.push({ date:date, time:time, memo:t.memo });
+            persistAndSyncNow();
+        }
+        overlay.remove();
+        render();
+        showToast('已轉為行程', 'ok');
+    };
+}
+
+// 近期行程轉待辦：直接轉，不需彈窗（日期丟掉，memo 保留）
+function scheduleToTodo(clientId, date, time) {
+    confirmAction('將此行程轉為待辦（會取消日期）？', function() {
+        var now = new Date().toISOString();
+        if (clientId === '_ps') {
+            var arr = _getPS();
+            var sIdx = arr.findIndex(function(s){ return s.date === date && (s.time||'') === (time||''); });
+            if (sIdx < 0) return;
+            var s = arr[sIdx];
+            arr.splice(sIdx, 1);
+            _savePS(arr);
+            var pt = _getPT();
+            pt.push({ id:_newTodoId(), memo:s.memo||'', addedAt:now });
+            _savePT(pt);
+        } else {
+            var c = DB.find(function(x){ return x.id === clientId; });
+            if (!c || !c.schedules) return;
+            var found = c.schedules.find(function(s){ return s.date === date && (s.time||'') === (time||''); });
+            if (!found) return;
+            c.schedules = c.schedules.filter(function(s){ return !(s.date === date && (s.time||'') === (time||'')); });
+            if (!c.todos) c.todos = [];
+            c.todos.push({ id:_newTodoId(), memo:found.memo||'', addedAt:now });
+            persistAndSyncNow();
+        }
+        render();
+        showToast('已轉為待辦', 'ok');
+    });
+}
+
+// 已完成待辦列表
+function showDoneTodos() {
+    var overlay = document.createElement('div');
+    overlay.className = 'fill-overlay';
+    overlay.onclick = function(e){ if (e.target === overlay) overlay.remove(); };
+    var box = document.createElement('div');
+    box.className = 'fill-menu';
+    box.style.cssText = 'padding:16px;width:90vw;max-width:500px;max-height:80vh;display:flex;flex-direction:column';
+    var list = _getDoneTodos();
+    box.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">' +
+            '<span style="font-weight:700;font-size:15px"><i class="ti ti-circle-check" style="color:#059669"></i> 已完成待辦</span>' +
+            '<button onclick="this.closest(\'.fill-overlay\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)">✕</button>' +
+        '</div>' +
+        '<div style="flex:1;overflow-y:auto">' + (list.length ? list.map(function(t,i){
+            var who = t.personal ? '個人' : (t.clientName||'');
+            var when = t.doneAt ? new Date(t.doneAt).toLocaleString('zh-TW', {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
+            return '<div style="padding:8px 0;border-bottom:1px solid #F1F5F9;display:flex;gap:8px;align-items:center">' +
+                '<div style="flex:1">' +
+                    '<div style="font-size:14px;color:'+(t.personal?'#3D2F1A':'#1E40AF')+';font-weight:600">'+esc(who)+'</div>' +
+                    '<div style="font-size:13px;color:#475569">'+esc(t.memo||'')+'</div>' +
+                    '<div style="font-size:11px;color:#94A3B8">完成於 '+esc(when)+'</div>' +
+                '</div>' +
+                '<button class="btn-ic" onclick="_restoreDoneTodo('+i+')" title="還原" style="font-size:13px;padding:4px 8px"><i class="ti ti-arrow-back-up" style="color:#7C3AED"></i></button>' +
+                '<button class="btn-ic" onclick="_deleteDoneTodo('+i+',this)" title="刪除" style="font-size:13px;padding:4px 8px"><i class="ti ti-trash" style="color:#DC2626"></i></button>' +
+            '</div>';
+        }).join('') : '<div style="text-align:center;color:var(--muted);padding:30px 0;font-size:14px">沒有已完成的待辦</div>') + '</div>';
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+}
+
+function _restoreDoneTodo(idx) {
+    var rec = _getPSRecord();
+    if (!rec.doneTodos || !rec.doneTodos[idx]) return;
+    var t = rec.doneTodos[idx];
+    rec.doneTodos.splice(idx, 1);
+    var now = new Date().toISOString();
+    if (t.personal || !t.clientId) {
+        var arr = _getPT();
+        arr.push({ id:_newTodoId(), memo:t.memo||'', addedAt:t.addedAt||now });
+        _savePT(arr);
+    } else {
+        var c = DB.find(function(x){ return x.id === t.clientId; });
+        if (c) {
+            if (!c.todos) c.todos = [];
+            c.todos.push({ id:_newTodoId(), memo:t.memo||'', addedAt:t.addedAt||now });
+        }
+    }
+    persistAndSyncNow();
+    document.querySelectorAll('.fill-overlay').forEach(function(m){ m.remove(); });
+    showDoneTodos();
+    render();
+}
+
+function _deleteDoneTodo(idx) {
+    confirmAction('確定刪除此已完成待辦？', function() {
+        var rec = _getPSRecord();
+        if (!rec.doneTodos) return;
+        rec.doneTodos.splice(idx, 1);
+        persistAndSyncNow();
+        document.querySelectorAll('.fill-overlay').forEach(function(m){ m.remove(); });
+        showDoneTodos();
+    });
+}
+
 function addPersonalSchedule(prefillIdx) {
     var editing = prefillIdx !== undefined;
     var ps = editing ? _getPS()[prefillIdx] || {} : {};
@@ -7281,13 +7613,14 @@ function filterAllSchedList() {
         var delBtn2 = s.personal
             ? '<button class="btn-ic" onclick="closeOverlay(this.closest(\'.fill-overlay\'));deletePersonalSchedule('+s.psIdx+')" title="刪除" style="font-size:14px;padding:4px 8px"><i class="ti ti-trash" style="color:#DC2626"></i></button>'
             : '<button class="btn-ic" onclick="closeOverlay(this.closest(\'.fill-overlay\'));deleteSchedule(\''+esc(s.clientId)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="刪除" style="font-size:14px;padding:4px 8px"><i class="ti ti-trash" style="color:#DC2626"></i></button>';
+        var toTodoBtn2 = s.recurrence ? '' : '<button class="btn-ic" onclick="closeOverlay(this.closest(\'.fill-overlay\'));scheduleToTodo(\''+(s.personal?'_ps':esc(s.clientId))+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="轉為待辦" style="font-size:14px;padding:4px 8px"><i class="ti ti-checkbox" style="color:#7C3AED"></i></button>';
         return separator + '<div style="padding:8px 0;border-bottom:1px solid #F1F5F9">' +
             '<div style="display:flex;align-items:center;gap:8px">' +
                 '<div style="flex:1">' +
                     '<div style="font-size:14px;color:#334155;font-weight:600">'+esc(isoToMDW(s.date,true))+(s.time?' '+s.time:'')+(s.recurrence?' <i class="ti ti-repeat" style="font-size:12px;color:#0E7490" title="'+esc(recurLabel(s.recurrence))+'"></i>':'')+'</div>' +
                     '<div style="font-size:15px"><span style="color:'+nameColor+';font-weight:600">'+esc(nameText)+'</span></div>' +
                 '</div>' +
-                '<span style="display:flex;gap:2px;flex-shrink:0">' + editBtn + delBtn2 + '</span>' +
+                '<span style="display:flex;gap:2px;flex-shrink:0">' + toTodoBtn2 + editBtn + delBtn2 + '</span>' +
             '</div>' +
             '<div style="display:flex;align-items:center;margin-top:2px">' +
                 (memoText ? '<div style="flex:1;font-size:14px;color:#475569">'+memoText+'</div>' : '<div style="flex:1"></div>') +
@@ -10607,7 +10940,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260414a5';
+var APP_VERSION = '20260414b4';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
