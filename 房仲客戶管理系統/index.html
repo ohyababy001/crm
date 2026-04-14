@@ -361,31 +361,31 @@
         .dash-card:hover { box-shadow: 0 8px 24px rgba(28,25,23,0.1); border-color: #D6D3D1; transform: translateY(-2px); }
         .dash-card .dash-num { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
         .dash-card .dash-label { font-size: 13px; color: var(--muted); font-weight: 600; }
-        .dash-sections { display: grid; grid-template-columns: 1.5fr 1.1fr 1.1fr; gap: 10px; margin-top: 34px; grid-template-areas: "sched todo seller" "sched bday rental"; }
+        .dash-sections { display: grid; grid-template-columns: 450px 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; gap: 10px; margin-top: 34px; grid-template-areas: "sched todo seller" "sched todo bday" "sched todo rental"; }
         .dash-section { background: #FFFFFF; border-radius: var(--radius); padding: 12px; border: 2px solid var(--lux-navy); box-shadow: 0 1px 4px rgba(28,25,23,0.04); min-height: 240px; transition: all 0.2s; }
         .dash-section:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(28,25,23,0.08); }
-        .dash-section.dash-schedule { grid-area: sched; background: #FFFFFF; align-self: start; height: 560px; display: flex; flex-direction: column; }
+        .dash-section.dash-schedule { grid-area: sched; background: #FFFFFF; align-self: start; height: 630px; display: flex; flex-direction: column; }
         .dash-section.dash-schedule > #dashSchedule { flex: 1; min-height: 0; }
-        .dash-section.dash-todo { grid-area: todo; background: #FFFFFF; height: 275px; display: flex; flex-direction: column; }
-        .dash-section.dash-seller { grid-area: seller; background: #FFFFFF; height: 275px; display: flex; flex-direction: column; }
-        .dash-section.dash-bday { grid-area: bday; background: #FFFFFF; height: 275px; display: flex; flex-direction: column; }
-        .dash-section.dash-rental { grid-area: rental; background: #FFFFFF; height: 275px; display: flex; flex-direction: column; }
+        .dash-section.dash-todo { grid-area: todo; background: #FFFFFF; height: 630px; display: flex; flex-direction: column; }
+        .dash-section.dash-seller { grid-area: seller; background: #FFFFFF; height: auto; min-height: 0; display: flex; flex-direction: column; }
+        .dash-section.dash-bday { grid-area: bday; background: #FFFFFF; height: auto; min-height: 0; display: flex; flex-direction: column; }
+        .dash-section.dash-rental { grid-area: rental; background: #FFFFFF; height: auto; min-height: 0; display: flex; flex-direction: column; }
         .dash-section.dash-todo > #dashTodo,
         .dash-section.dash-seller > #dashExpiringSeller,
         .dash-section.dash-bday > #dashBirthday,
         .dash-section.dash-rental > #dashExpiringRental { flex: 1; min-height: 0; overflow-x: hidden; overflow-y: auto; }
-        .dash-sec-title { font-size: 17px; font-weight: 800; color: #475569; margin: -12px -12px 10px -12px; padding: 10px 12px; background: linear-gradient(135deg, #F0F4FA 0%, #F7F9FF 100%); border-bottom: 1px solid rgba(26,58,92,0.1); border-radius: 12px 12px 0 0; white-space: nowrap; }
+        .dash-sec-title { font-size: 17px; font-weight: 800; color: #475569; margin: -12px -12px 5px -12px; padding: 10px 12px; background: linear-gradient(135deg, #F0F4FA 0%, #F7F9FF 100%); border-bottom: 1px solid rgba(26,58,92,0.1); border-radius: 12px 12px 0 0; white-space: nowrap; }
         .dash-list { font-size: 18px; }
-        .dash-item { padding: 6px 8px; margin: 0 -8px; border-bottom: 1px solid rgba(200,164,90,0.15); display: flex; align-items: center; gap: 8px; border-radius: 6px; transition: background 0.15s; }
+        .dash-item { padding: 3px 8px; margin: 0 -8px; border-bottom: 1px solid rgba(200,164,90,0.15); display: flex; align-items: center; gap: 8px; border-radius: 6px; transition: background 0.15s; }
         .dash-item:last-child { border-bottom: none; }
         .dash-item:hover { background: #F0F4F8; }
         .dash-item-info { color: #1C1917; font-size: 16px; font-weight: 700; white-space: nowrap; flex-shrink: 0; min-width: 90px; }
         .dash-item-name { font-weight: 600; flex: 1; min-width: 0; color: #1E40AF; font-size: 18px; }
         .dash-empty { color: var(--muted); text-align: center; padding: 16px 0; font-size: 13px; }
-        .dash-sched-item { flex-wrap: wrap; }
+        .dash-sched-item { flex-wrap: wrap; gap: 2px; }
         .dash-sched-row1 { display: flex; align-items: center; gap: 8px; width: 100%; }
         .dash-sched-memo { font-size: 15px; color: #475569; }
-        #dashSchedule { max-height: 560px; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: rgba(200,164,90,0.3) transparent; }
+        #dashSchedule { max-height: 630px; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: rgba(200,164,90,0.3) transparent; }
         #dashSchedule::-webkit-scrollbar { width: 5px; }
         #dashSchedule::-webkit-scrollbar-track { background: transparent; margin: 4px 0; }
         #dashSchedule::-webkit-scrollbar-thumb { background: rgba(200,164,90,0.3); border-radius: 4px; }
@@ -661,7 +661,7 @@
             .dash-sections { grid-template-columns: 1fr !important; grid-template-areas: none !important; }
             .dash-section.dash-schedule, .dash-section.dash-todo, .dash-section.dash-seller, .dash-section.dash-bday, .dash-section.dash-rental { grid-area: auto; align-self: start; min-height: auto; height: auto !important; display: block !important; }
             .dash-section.dash-todo > #dashTodo, .dash-section.dash-seller > #dashExpiringSeller, .dash-section.dash-bday > #dashBirthday, .dash-section.dash-rental > #dashExpiringRental { overflow: visible !important; }
-            #dashSchedule { max-height: 560px !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
+            #dashSchedule { max-height: 630px !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
             .dash-cards { grid-template-columns: repeat(4, 1fr) !important; gap: 6px !important; }
             .dash-card { padding: 10px 4px !important; border-radius: 10px !important; }
             .dash-card .dash-num { font-size: 20px !important; }
@@ -3626,19 +3626,20 @@ function renderDashboard() {
             ? '<button class="btn-ic" onclick="completePersonalSchedule('+s.psIdx+')" title="完成" style="font-size:13px;padding:2px 4px"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button>'
             : '<button class="btn-ic" onclick="completeSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="完成" style="font-size:13px;padding:2px 4px"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button>';
         var recurIcon = s.recurrence ? '<span title="'+esc(recurLabel(s.recurrence))+'" style="color:#0E7490;font-size:12px;font-weight:600;margin-left:4px"><i class="ti ti-repeat" style="font-size:13px"></i> '+esc(recurLabel(s.recurrence))+'</span>' : '';
-        var memoHtml = s.memo ? '<div class="dash-sched-memo">/ '+esc(s.memo)+recurIcon+'</div>' : (recurIcon ? '<div class="dash-sched-memo">'+recurIcon+'</div>' : '');
+        var memoHtml = s.memo ? '<div class="dash-sched-memo">'+esc(s.memo)+recurIcon+'</div>' : (recurIcon ? '<div class="dash-sched-memo">'+recurIcon+'</div>' : '');
         var dateColor = s.expired ? '#DC2626' : (s.days===0 ? '#B45309' : '');
         var delBtn = s.personal
             ? '<button class="btn-ic" onclick="deletePersonalSchedule('+s.psIdx+')" title="刪除" style="font-size:13px;padding:2px 4px"><i class="ti ti-trash" style="color:#DC2626"></i></button>'
             : '<button class="btn-ic" onclick="deleteSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="刪除" style="font-size:13px;padding:2px 4px"><i class="ti ti-trash" style="color:#DC2626"></i></button>';
         var toTodoBtn = s.recurrence ? '' : '<button class="btn-ic" onclick="scheduleToTodo(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="轉為待辦" style="font-size:13px;padding:2px 4px"><i class="ti ti-checkbox" style="color:#7C3AED"></i></button>';
-        return '<div class="dash-item dash-sched-item" style="flex-direction:column;align-items:stretch">' +
+        return '<div class="dash-item dash-sched-item" style="flex-direction:column;align-items:stretch;position:relative">' +
             '<div class="dash-sched-row1">' +
                 '<span class="dash-item-info" style="color:'+dateColor+'">'+(s.expired?'<i class="ti ti-alert-triangle" style="color:#DC2626;font-size:12px"></i> ':'')+esc(isoToMDW(s.date))+(s.time?' '+s.time:'')+(s.expired?' <span style="font-size:12px">已過期'+Math.abs(s.days)+'天</span>':'')+'</span>' +
                 nameHtml +
                 '<span style="display:flex;gap:2px;flex-shrink:0">' + toTodoBtn + editBtn + delBtn + '</span>' +
             '</div>' +
-            '<div style="display:flex;align-items:center"><div style="flex:1">' + memoHtml + '</div>' + doneBtn + '</div>' +
+            '<div style="padding-right:70px">' + memoHtml + '</div>' +
+            '<span style="position:absolute;right:8px;top:30px">' + doneBtn + '</span>' +
         '</div>';
     }).join('') : '<div class="dash-empty">近15天內沒有預排行程</div>';
 
@@ -3699,7 +3700,7 @@ function renderDashboard() {
         var nameHtml = t.personal
             ? '<span class="dash-item-name" style="color:#3D2F1A">個人</span>'
             : '<span class="dash-item-name" style="cursor:pointer" onclick="showDet(\''+esc(t.clientId)+'\')">'+esc(t.clientName)+'</span>';
-        return '<div class="dash-item" style="flex-direction:column;align-items:stretch">' +
+        return '<div class="dash-item" style="flex-direction:column;align-items:stretch;gap:2px">' +
             '<div style="display:flex;align-items:center;gap:8px;width:100%">' +
                 nameHtml +
                 '<span style="display:flex;gap:2px;flex-shrink:0">' +
@@ -10955,7 +10956,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260415b5';
+var APP_VERSION = '20260415d1';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
