@@ -3570,10 +3570,12 @@ function renderDashboard() {
 
     // 近期行程（15天內）
     var schedList = [];
+    var _todayISO = _fmtDateISO(new Date());
     DB.forEach(function(c) {
         if (c._deleted || c._system || c.archived || !c.schedules) return;
         c.schedules.forEach(function(s) {
             if (!s.date) return;
+            if (s.hideBeforeDate && _todayISO < s.hideBeforeDate) return;
             var diff = daysUntilExpire(s.date);
             if (diff >= -30 && diff <= 15) schedList.push({ id:c.id, name:c.name, date:s.date, time:s.time||'', memo:s.memo||'', days:diff, community:c.dCommunity||'', expired: diff < 0, recurrence:s.recurrence||'' });
         });
@@ -3582,6 +3584,7 @@ function renderDashboard() {
     var psList = _getPS();
     psList.forEach(function(s, idx) {
         if (!s.date) return;
+        if (s.hideBeforeDate && _todayISO < s.hideBeforeDate) return;
         var diff = daysUntilExpire(s.date);
         if (diff >= -30 && diff <= 15) schedList.push({ id:'_ps', psIdx:idx, name:'個人行程', date:s.date, time:s.time||'', memo:s.memo||'', days:diff, community:'', personal:true, expired: diff < 0, recurrence:s.recurrence||'' });
     });
@@ -6949,11 +6952,12 @@ function completeSchedule(clientId, date, time) {
         c.schedules = c.schedules.filter(function(s) {
             return !(s.date === date && (s.time||'') === (time||''));
         });
-        // 循環行程：自動產生下一筆
+        // 循環行程：自動產生下一筆（僅「每天」循環需等到隔日 00:00 才顯示）
         if (recurrence) {
             var nextDate = calcNextRecurDate(date, recurrence);
             if (nextDate) {
                 var nextObj = { date:nextDate, time:time, memo:memo, recurrence:recurrence };
+                if (recurrence === 'daily' || recurrence === 'custom:1d') nextObj.hideBeforeDate = nextDate;
                 if (schedType) nextObj.schedType = schedType;
                 c.schedules.push(nextObj);
                 showToast('已產生下一筆循環行程：' + isoToROC(nextDate), 'ok');
@@ -7155,11 +7159,12 @@ function completePersonalSchedule(idx) {
         var arr = _getPS();
         var item = arr[idx];
         arr.splice(idx, 1);
-        // 循環行程：自動產生下一筆
+        // 循環行程：自動產生下一筆（僅「每天」循環需等到隔日 00:00 才顯示）
         if (item && item.recurrence) {
             var nextDate = calcNextRecurDate(item.date, item.recurrence);
             if (nextDate) {
                 var nextObj = { date:nextDate, time:item.time, memo:item.memo, recurrence:item.recurrence };
+                if (item.recurrence === 'daily' || item.recurrence === 'custom:1d') nextObj.hideBeforeDate = nextDate;
                 arr.push(nextObj);
                 showToast('已產生下一筆循環行程：' + isoToROC(nextDate), 'ok');
             }
@@ -7206,11 +7211,13 @@ function _getAllFutureSchedules() {
         if (c._deleted || c._system || c.archived || !c.schedules) return;
         c.schedules.forEach(function(s) {
             if (!s.date || s.date < todayISO) return;
+            if (s.hideBeforeDate && todayISO < s.hideBeforeDate) return;
             all.push({ clientId:c.id, clientName:c.name, date:s.date, time:s.time||'', memo:s.memo||'', personal:false, recurrence:s.recurrence||'' });
         });
     });
     _getPS().forEach(function(s, idx) {
         if (!s.date || s.date < todayISO) return;
+        if (s.hideBeforeDate && todayISO < s.hideBeforeDate) return;
         all.push({ clientId:'', clientName:'個人行程', psIdx:idx, date:s.date, time:s.time||'', memo:s.memo||'', personal:true, recurrence:s.recurrence||'' });
     });
     all.sort(function(a,b) { return (a.date+a.time).localeCompare(b.date+b.time); });
@@ -10590,7 +10597,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260413d2';
+var APP_VERSION = '20260414a2';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
@@ -11239,6 +11246,7 @@ function deleteMktTemplate(idx) {
         showToast('已刪除行銷範本');
     });
 }
+
 </script>
 </body>
 </html>
