@@ -1536,7 +1536,14 @@
 <!-- 區塊 1：基礎資料（區域、郵遞區號、地址自動帶入）               -->
 <!-- ============================================================ -->
 <script>
-window.onerror = function(msg, url, line, col, err) { if (msg === 'Script error.' && line === 0) return true; console.error('JS錯誤:', msg, '行號:', line, err); try { showToast('系統發生錯誤，請重新整理', 'error', 4000); } catch(e) {} };
+window.onerror = function(msg, url, line, col, err) {
+    if (msg === 'Script error.' && line === 0) return true;
+    if (window._inErrorHandler) return; // 防遞迴
+    window._inErrorHandler = true;
+    try { console.error('JS錯誤:', msg, '行號:', line, err); } catch(_e){}
+    try { showToast('系統發生錯誤，請重新整理', 'error', 4000); } catch(_e){}
+    window._inErrorHandler = false;
+};
 // ── 全域 overlay 防止背景滾動 ──
 (function(){
     var ms = document.querySelector('.main-scroll');
@@ -2520,8 +2527,8 @@ function toggleShowArchived() {
 function isoToROC(isoStr) {
     if (!isoStr) return '';
     var parts = isoStr.split('-');
-    if (parts.length !== 3) return isoStr;
-    return (parseInt(parts[0]) - 1911) + '/' + parts[1] + '/' + parts[2];
+    if (parts.length !== 3 || !/^\d{4}$/.test(parts[0])) return isoStr;
+    return (parseInt(parts[0], 10) - 1911) + '/' + parts[1] + '/' + parts[2];
 }
 function isoToMDW(isoStr, showYear) {
     if (!isoStr) return '';
@@ -3778,7 +3785,7 @@ function renderDashboard() {
     document.getElementById('dashBirthday').innerHTML = bdayList.length ? bdayList.map(function(b) {
         var label = b.days === 0 ? '今天生日！' : b.days + '天後';
         var age = '';
-        if (b.date) { var by = parseInt(b.date.substring(0,4)); if(by>0) { age = (now.getFullYear()-by)+'歲'; } }
+        if (b.date && /^\d{4}-/.test(b.date)) { var by = parseInt(b.date.substring(0,4), 10); if (by > 1800 && by < 2200) age = (now.getFullYear()-by)+'歲'; }
         return '<div class="dash-item" style="cursor:pointer;flex-wrap:nowrap">' +
             '<span class="dash-item-info" style="color:'+(b.days===0?'#EF4444':'')+'">'+esc(isoToMDW(b.date))+'</span>' +
             '<span class="dash-item-name" onclick="showDet(\''+esc(b.id)+'\')" title="'+esc(b.who?b.who+'（'+b.name+'）':b.name)+'" style="white-space:nowrap">'+esc(b.who||b.name)+'</span>' +
@@ -11062,7 +11069,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260415d8';
+var APP_VERSION = '20260415d9';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
