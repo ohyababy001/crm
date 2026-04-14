@@ -1659,7 +1659,7 @@ function showCustomDistDialog(city) {
     box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">新增自訂區域</div>' +
         '<input type="text" id="customDistInput" placeholder="例：八里區" style="width:100%;padding:8px 11px;border:1px solid var(--border);border-radius:8px;font-size:14px;box-sizing:border-box;margin-bottom:12px">' +
         '<div style="display:flex;gap:8px;justify-content:flex-end">' +
-            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
+            '<button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
             '<button type="button" id="confirmCustomDistBtn" style="padding:8px 16px;border:none;border-radius:8px;background:var(--deep);color:white;cursor:pointer;font-size:14px">確定</button>' +
         '</div>';
     overlay.appendChild(box);
@@ -1672,7 +1672,7 @@ function confirmCustomDist(city) {
     var input = document.getElementById('customDistInput');
     var name = input ? input.value.trim() : '';
     if (!name) return;
-    var _ov = document.querySelector('.fill-overlay'); if(_ov) _ov.remove();
+    closeOverlay(document.querySelector('.fill-overlay'));
     _insertCustomDist(city, name, true);
 }
 function _insertCustomDist(city, name, autoSelect) {
@@ -1703,7 +1703,7 @@ function deleteCustomDist(btn, name) {
     box.style.padding = '16px'; box.style.minWidth = '260px';
     box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px">確定刪除自訂區域「'+esc(name)+'」？</div>' +
         '<div style="display:flex;gap:8px;justify-content:flex-end">' +
-            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
+            '<button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
             '<button type="button" id="confirmDelDist" style="padding:8px 16px;border:none;border-radius:8px;background:#DC2626;color:white;cursor:pointer;font-size:14px">刪除</button>' +
         '</div>';
     overlay.appendChild(box);
@@ -2755,6 +2755,16 @@ function relTime(dateStr) {
     return Math.floor(diffDay/365) + '年前';
 }
 
+// ── 關閉彈窗：先 blur 掉 focus 元素（收起手機鍵盤）再移除，避免畫面跳動 ──
+function closeOverlay(el) {
+    if (!el) return;
+    try {
+        var a = document.activeElement;
+        if (a && a.blur && a !== document.body) a.blur();
+    } catch(e) {}
+    setTimeout(function(){ if (el && el.parentNode) el.parentNode.removeChild(el); }, 50);
+}
+
 // ── Toast 提示 ──
 function showToast(msg, type, duration) {
     var el = document.getElementById('_toast');
@@ -3038,7 +3048,7 @@ function _showDataCheckResult(issues) {
     box.style.cssText = 'padding:16px;width:90vw;max-width:520px;max-height:80vh;display:flex;flex-direction:column';
     var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">' +
         '<span style="font-weight:700;font-size:16px"><i class="ti ti-shield-check" style="color:#059669"></i> 資料健檢結果</span>' +
-        '<button onclick="this.closest(\'.fill-overlay\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)">✕</button></div>';
+        '<button onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)">✕</button></div>';
     if (!issues.length) {
         html += '<div style="text-align:center;padding:30px 0;color:#059669;font-size:15px;font-weight:600"><i class="ti ti-circle-check" style="color:#059669"></i> 所有資料正常，沒有發現問題！</div>';
     } else {
@@ -3051,8 +3061,8 @@ function _showDataCheckResult(issues) {
             var color = issue.severity === 'error' ? '#DC2626' : issue.severity === 'warn' ? '#D97706' : '#6B7280';
             var bg = issue.severity === 'error' ? '#FEF2F2' : issue.severity === 'warn' ? '#FFFBEB' : '#F9FAFB';
             var clickAttr = '';
-            if (issue.clientId) clickAttr = ' onclick="this.closest(\'.fill-overlay\').remove();openEdit(\''+esc(issue.clientId)+'\')" style="cursor:pointer"';
-            else if (issue.clients && issue.clients[0]) clickAttr = ' onclick="this.closest(\'.fill-overlay\').remove();openEdit(\''+esc(issue.clients[0].id)+'\')" style="cursor:pointer"';
+            if (issue.clientId) clickAttr = ' onclick="closeOverlay(this.closest(\'.fill-overlay\'));openEdit(\''+esc(issue.clientId)+'\')" style="cursor:pointer"';
+            else if (issue.clients && issue.clients[0]) clickAttr = ' onclick="closeOverlay(this.closest(\'.fill-overlay\'));openEdit(\''+esc(issue.clients[0].id)+'\')" style="cursor:pointer"';
             html += '<div'+clickAttr+' style="padding:8px 10px;margin-bottom:6px;border-radius:8px;background:'+bg+';border-left:3px solid '+color+';font-size:13px;color:#1F2937;'+(clickAttr?'cursor:pointer':'')+'">'+esc(issue.msg)+'</div>';
         });
         html += '</div>';
@@ -5115,7 +5125,7 @@ function openSpDetailSz(btn) {
             '<span style="font-size:14px;font-weight:700">合計：<span id="spSz-total">0</span> 坪</span>' +
         '</div>' +
         '<div style="display:flex;gap:8px;justify-content:flex-end">' +
-            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
+            '<button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
             '<button type="button" id="spSzConfirm" style="padding:8px 16px;border:none;border-radius:8px;background:var(--deep);color:white;cursor:pointer;font-size:14px">確定</button>' +
         '</div>';
     overlay.appendChild(box);
@@ -5243,7 +5253,7 @@ function showSpFieldHistory(btn, field) {
     html += '<div style="padding:6px 0;font-size:13px;font-weight:700;color:var(--deep)">現行'+labels[field]+'：'+esc(curVal)+(curVal?suffix[field]:'')+'</div>';
     html += '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">' +
         '<button type="button" class="sp-fh-del-btn" style="padding:8px 16px;border:none;border-radius:8px;background:#DC2626;color:white;cursor:pointer;font-size:14px;display:none">刪除勾選</button>' +
-        '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">關閉</button></div>';
+        '<button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">關閉</button></div>';
     box.innerHTML = html;
     box.addEventListener('change', function() {
         var checked = box.querySelectorAll('input[data-sp-fh-idx]:checked').length;
@@ -5292,7 +5302,7 @@ function showSpRenewalHistory(btn) {
     html += '<div style="padding:6px 0;font-size:13px;font-weight:700;color:var(--deep)">現行到期日：'+esc(curEnd)+'</div>';
     html += '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">' +
         '<button type="button" class="sp-rn-del-btn" style="padding:8px 16px;border:none;border-radius:8px;background:#DC2626;color:white;cursor:pointer;font-size:14px;display:none">刪除勾選</button>' +
-        '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">關閉</button></div>';
+        '<button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">關閉</button></div>';
     box.innerHTML = html;
     box.addEventListener('change', function() {
         var checked = box.querySelectorAll('input[data-sp-rn-idx]:checked').length;
@@ -5354,7 +5364,7 @@ function showPriceHistory(field) {
     }).join('');
     html += '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">' +
         '<button type="button" class="ph-del-btn" style="padding:8px 16px;border:none;border-radius:8px;background:#DC2626;color:white;cursor:pointer;font-size:14px;display:none">刪除勾選</button>' +
-        '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">關閉</button></div>';
+        '<button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">關閉</button></div>';
     box.innerHTML = html;
     // 勾選時顯示/隱藏刪除按鈕
     box.addEventListener('change', function() {
@@ -5439,7 +5449,7 @@ function openDetailSz() {
             '<span style="font-size:14px;font-weight:700">合計：<span id="dSz-total">0</span> 坪</span>' +
         '</div>' +
         '<div style="display:flex;gap:8px;justify-content:flex-end">' +
-            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
+            '<button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
             '<button type="button" onclick="saveDetailSz()" style="padding:8px 16px;border:none;border-radius:8px;background:var(--deep);color:white;cursor:pointer;font-size:14px">確定</button>' +
         '</div>';
     overlay.appendChild(box);
@@ -5472,7 +5482,7 @@ function saveDetailSz() {
     // 車位坪數顯示
     var label = document.getElementById('parkingSzLabel');
     if (label) label.textContent = parking > 0 ? '(' + parking + '坪)' : '';
-    var _ov2 = document.querySelector('.fill-overlay'); if(_ov2) _ov2.remove();
+    closeOverlay(document.querySelector('.fill-overlay'));
 }
 
 // ── 權狀坪數（卡片查看） ──
@@ -5501,7 +5511,7 @@ function showDetailSzView(id) {
             '<span>公設比 <span style="color:#6366F1">'+ratio+'%</span></span>' +
             '<span>合計 <span style="color:#059669">'+(total+pk).toFixed(2)+' 坪</span></span>' +
         '</div>' +
-        '<div style="text-align:center;margin-top:12px"><button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 24px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">關閉</button></div>';
+        '<div style="text-align:center;margin-top:12px"><button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="padding:8px 24px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">關閉</button></div>';
     overlay.appendChild(box);
     overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
     document.body.appendChild(overlay);
@@ -5617,7 +5627,7 @@ function showRenewalHistory() {
     html += '<div style="padding:6px 0;font-size:13px;font-weight:700;color:var(--deep)">現行到期日：'+esc(curEnd)+'</div>';
     html += '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">' +
         '<button type="button" class="rn-del-btn" style="padding:8px 16px;border:none;border-radius:8px;background:#DC2626;color:white;cursor:pointer;font-size:14px;display:none">刪除勾選</button>' +
-        '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">關閉</button></div>';
+        '<button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">關閉</button></div>';
     box.innerHTML = html;
     box.addEventListener('change', function() {
         var checked = box.querySelectorAll('input[data-rn-idx]:checked').length;
@@ -6265,7 +6275,7 @@ function showRpRenewalHistory(btn) {
     html += '<div style="padding:6px 0;font-size:13px;font-weight:700;color:var(--deep)">現行到期日：'+esc(curEnd)+'</div>';
     html += '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">' +
         '<button type="button" class="rp-rn-del-btn" style="padding:8px 16px;border:none;border-radius:8px;background:#DC2626;color:white;cursor:pointer;font-size:14px;display:none">刪除勾選</button>' +
-        '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">關閉</button></div>';
+        '<button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">關閉</button></div>';
     box.innerHTML = html;
     box.addEventListener('change', function() {
         var checked = box.querySelectorAll('input[data-rp-rn-idx]:checked').length;
@@ -6889,7 +6899,7 @@ function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo, prefillT
             '<select id="qs-recur" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:'+(prefillRecur?'#0E7490':'inherit')+'" onchange="if(this.value===\'custom\'){openCustomRecur(this,\'\');return;}this.style.color=this.value?\'#0E7490\':\'inherit\';this.previousElementSibling.style.color=this.value?\'#0E7490\':\'#A8A29E\'">' + buildRecurOptions(prefillRecur||'') + '</select>' +
         '</div>' +
         '<div style="display:flex;gap:8px">' +
-            '<button onclick="this.closest(\'.fill-overlay\').remove()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
+            '<button onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
             '<button id="qs-save" style="flex:1;padding:10px;border:none;border-radius:8px;background:#57534E;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">儲存</button>' +
         '</div>';
     overlay.appendChild(box);
@@ -6990,7 +7000,7 @@ function quickContactLog(clientId, editIdx) {
         '</div>' +
         '<div style="margin-bottom:12px"><input id="cl-memo" type="text" placeholder="紀錄內容（如：帶看XX、電聯回報…）" value="'+esc(old?old.memo:'')+'" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit"></div>' +
         '<div style="display:flex;gap:8px">' +
-            '<button onclick="this.closest(\'.fill-overlay\').remove()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
+            '<button onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
             (editing ? '<button id="cl-del" style="padding:10px 14px;border:none;border-radius:8px;background:#EF4444;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">刪除</button>' : '') +
             '<button id="cl-save" style="flex:1;padding:10px;border:none;border-radius:8px;background:#059669;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">儲存</button>' +
         '</div>';
@@ -7036,13 +7046,13 @@ function showContactLog(clientId) {
     var box = document.createElement('div');
     box.className = 'fill-menu';
     box.style.padding = '16px'; box.style.minWidth = '320px'; box.style.maxWidth = '420px'; box.style.maxHeight = '80vh'; box.style.overflowY = 'auto';
-    box.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-weight:700;font-size:15px"><i class="ti ti-notebook" style="color:#8B7355"></i> 聯繫紀錄 — '+esc(c.name)+'</span><button onclick="this.closest(\'.fill-overlay\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)">✕</button></div>' +
+    box.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-weight:700;font-size:15px"><i class="ti ti-notebook" style="color:#8B7355"></i> 聯繫紀錄 — '+esc(c.name)+'</span><button onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)">✕</button></div>' +
         sorted.map(function(log, i) {
             return '<div style="padding:8px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start">' +
                 '<div><div style="font-weight:600;color:#059669;font-size:13px">'+esc(isoToROC(log.date))+'</div><div style="font-size:14px;color:#374151;margin-top:2px">'+esc(log.memo)+'</div></div>' +
-                '<div style="display:flex;gap:4px;flex-shrink:0"><button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();quickContactLog(\''+esc(clientId)+'\','+i+')" title="編輯" style="font-size:12px;padding:2px 4px"><i class="ti ti-pencil" style="color:#57534E"></i></button><button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();deleteContactLog(\''+esc(clientId)+'\','+i+')" title="刪除" style="font-size:12px;padding:2px 4px"><i class="ti ti-trash" style="color:#DC2626"></i></button></div></div>';
+                '<div style="display:flex;gap:4px;flex-shrink:0"><button class="btn-ic" onclick="closeOverlay(this.closest(\'.fill-overlay\'));quickContactLog(\''+esc(clientId)+'\','+i+')" title="編輯" style="font-size:12px;padding:2px 4px"><i class="ti ti-pencil" style="color:#57534E"></i></button><button class="btn-ic" onclick="closeOverlay(this.closest(\'.fill-overlay\'));deleteContactLog(\''+esc(clientId)+'\','+i+')" title="刪除" style="font-size:12px;padding:2px 4px"><i class="ti ti-trash" style="color:#DC2626"></i></button></div></div>';
         }).join('') +
-        '<div style="margin-top:12px"><button onclick="this.closest(\'.fill-overlay\').remove();quickContactLog(\''+esc(clientId)+'\')" style="width:100%;padding:10px;border:none;border-radius:8px;background:#059669;color:white;font-size:14px;font-weight:700;cursor:pointer">＋ 新增紀錄</button></div>';
+        '<div style="margin-top:12px"><button onclick="closeOverlay(this.closest(\'.fill-overlay\'));quickContactLog(\''+esc(clientId)+'\')" style="width:100%;padding:10px;border:none;border-radius:8px;background:#059669;color:white;font-size:14px;font-weight:700;cursor:pointer">＋ 新增紀錄</button></div>';
     overlay.appendChild(box);
     document.body.appendChild(overlay);
     overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
@@ -7128,7 +7138,7 @@ function addPersonalSchedule(prefillIdx) {
             '<select id="ps-recur" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px;color:'+(ps.recurrence?'#0E7490':'inherit')+'" onchange="if(this.value===\'custom\'){openCustomRecur(this,\'\');return;}this.style.color=this.value?\'#0E7490\':\'inherit\';this.previousElementSibling.style.color=this.value?\'#0E7490\':\'#A8A29E\'">' + buildRecurOptions(ps.recurrence||'') + '</select>' +
         '</div>' +
         '<div style="display:flex;gap:8px">' +
-            '<button onclick="this.closest(\'.fill-overlay\').remove()" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
+            '<button onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
             '<button id="ps-save" style="flex:1;padding:10px;border:none;border-radius:8px;background:#57534E;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">儲存</button>' +
         '</div>';
     overlay.appendChild(box);
@@ -7233,7 +7243,7 @@ function showAllSchedules() {
     box.style.cssText = 'padding:16px;width:90vw;max-width:500px;max-height:80vh;display:flex;flex-direction:column';
     box.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">' +
             '<span style="font-weight:700;font-size:15px"><i class="ti ti-list" style="color:#57534E"></i> 全部行程</span>' +
-            '<button onclick="this.closest(\'.fill-overlay\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)">✕</button>' +
+            '<button onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)">✕</button>' +
         '</div>' +
         '<input id="all-sched-search" type="text" placeholder="搜尋客戶名或事項…" oninput="filterAllSchedList()" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:12px">' +
         '<div id="all-sched-list" style="flex:1;overflow-y:auto"></div>';
@@ -7263,14 +7273,14 @@ function filterAllSchedList() {
         var nameText = s.personal ? '個人行程' : s.clientName;
         var memoText = s.memo ? ' <span style="color:#475569">/ '+esc(s.memo)+'</span>' : '';
         var editBtn = s.personal
-            ? '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();editPersonalSchedule('+s.psIdx+')" title="編輯" style="font-size:14px;padding:4px 8px"><i class="ti ti-pencil" style="color:#57534E"></i></button>'
-            : '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();editDashSchedule(\''+esc(s.clientId)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="編輯" style="font-size:14px;padding:4px 8px"><i class="ti ti-pencil" style="color:#57534E"></i></button>';
+            ? '<button class="btn-ic" onclick="closeOverlay(this.closest(\'.fill-overlay\'));editPersonalSchedule('+s.psIdx+')" title="編輯" style="font-size:14px;padding:4px 8px"><i class="ti ti-pencil" style="color:#57534E"></i></button>'
+            : '<button class="btn-ic" onclick="closeOverlay(this.closest(\'.fill-overlay\'));editDashSchedule(\''+esc(s.clientId)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="編輯" style="font-size:14px;padding:4px 8px"><i class="ti ti-pencil" style="color:#57534E"></i></button>';
         var doneBtn = s.personal
-            ? '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();completePersonalSchedule('+s.psIdx+')" title="完成" style="font-size:14px;padding:4px 8px"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button>'
-            : '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();completeSchedule(\''+esc(s.clientId)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="完成" style="font-size:14px;padding:4px 8px"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button>';
+            ? '<button class="btn-ic" onclick="closeOverlay(this.closest(\'.fill-overlay\'));completePersonalSchedule('+s.psIdx+')" title="完成" style="font-size:14px;padding:4px 8px"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button>'
+            : '<button class="btn-ic" onclick="closeOverlay(this.closest(\'.fill-overlay\'));completeSchedule(\''+esc(s.clientId)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="完成" style="font-size:14px;padding:4px 8px"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button>';
         var delBtn2 = s.personal
-            ? '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();deletePersonalSchedule('+s.psIdx+')" title="刪除" style="font-size:14px;padding:4px 8px"><i class="ti ti-trash" style="color:#DC2626"></i></button>'
-            : '<button class="btn-ic" onclick="this.closest(\'.fill-overlay\').remove();deleteSchedule(\''+esc(s.clientId)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="刪除" style="font-size:14px;padding:4px 8px"><i class="ti ti-trash" style="color:#DC2626"></i></button>';
+            ? '<button class="btn-ic" onclick="closeOverlay(this.closest(\'.fill-overlay\'));deletePersonalSchedule('+s.psIdx+')" title="刪除" style="font-size:14px;padding:4px 8px"><i class="ti ti-trash" style="color:#DC2626"></i></button>'
+            : '<button class="btn-ic" onclick="closeOverlay(this.closest(\'.fill-overlay\'));deleteSchedule(\''+esc(s.clientId)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="刪除" style="font-size:14px;padding:4px 8px"><i class="ti ti-trash" style="color:#DC2626"></i></button>';
         return separator + '<div style="padding:8px 0;border-bottom:1px solid #F1F5F9">' +
             '<div style="display:flex;align-items:center;gap:8px">' +
                 '<div style="flex:1">' +
@@ -7297,7 +7307,7 @@ function showDoneSchedules() {
     box.style.cssText = 'padding:16px;width:90vw;max-width:500px;max-height:80vh;display:flex;flex-direction:column';
     box.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">' +
             '<span style="font-weight:700;font-size:15px"><i class="ti ti-circle-check" style="color:#059669"></i> 已完成行程</span>' +
-            '<button onclick="this.closest(\'.fill-overlay\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)">✕</button>' +
+            '<button onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)">✕</button>' +
         '</div>' +
         '<input id="done-search" type="text" placeholder="搜尋客戶名或事項…" oninput="filterDoneList()" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:12px">' +
         '<div id="done-list" style="flex:1;overflow-y:auto"></div>';
@@ -7539,7 +7549,7 @@ function openDriveFolder(clientId, viewAs) {
             html += '<button type="button" style="display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:6px;border:1px dashed var(--border);border-radius:8px;background:var(--bg);cursor:pointer;font-size:13px;color:var(--muted);word-break:break-word" onclick="cardSetDriveFolder(\''+esc(clientId)+'\',\''+esc(a.src)+'\','+(parseInt(a.idx)||0)+')"><i class="ti ti-folder" style="color:#A8A29E"></i> '+tag+esc(a.label)+' — 點擊設定</button>';
         }
     });
-    html += '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="display:block;width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;margin-top:4px">關閉</button>';
+    html += '<button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="display:block;width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;margin-top:4px">關閉</button>';
     box.innerHTML = html;
     overlay.appendChild(box);
     overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
@@ -7606,7 +7616,7 @@ function cardSetDriveFolder(clientId, src, propIdx) {
         '<div style="font-size:13px;color:var(--muted);margin-bottom:8px">步驟 2：將資料夾連結貼到下方</div>' +
         '<input id="cardFolderUrl" placeholder="貼上雲端資料夾連結" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:12px" value="'+esc(prop[urlKey]||'')+'">' +
         '<div style="display:flex;gap:8px;justify-content:flex-end">' +
-            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
+            '<button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
             '<button type="button" id="cardFolderSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#57534E;color:white;cursor:pointer;font-size:14px;font-weight:600">儲存</button>' +
         '</div>';
     overlay.appendChild(box);
@@ -7668,7 +7678,7 @@ function showSameLandlord(llName, llPhone, currentId) {
         if (c.rProperties && c.rProperties.length) addr = c.rProperties[0].rAddr || c.rProperties[0].rCommunity || '';
         if (!addr) addr = c.rAddr || c.rCommunity || '';
         var isCurrent = c.id === currentId;
-        html += '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;margin-bottom:6px;border:1px solid '+(isCurrent?'#8B7355':'var(--border)')+';border-radius:8px;background:'+(isCurrent?'#F5F0EB':'white')+';cursor:pointer;font-size:13px" onclick="this.closest(\'.fill-overlay\').remove();showDetByView(\''+esc(c.id)+'\',\'landlord\')">' +
+        html += '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;margin-bottom:6px;border:1px solid '+(isCurrent?'#8B7355':'var(--border)')+';border-radius:8px;background:'+(isCurrent?'#F5F0EB':'white')+';cursor:pointer;font-size:13px" onclick="closeOverlay(this.closest(\'.fill-overlay\'));showDetByView(\''+esc(c.id)+'\',\'landlord\')">' +
             '<div style="flex:1">' +
                 '<div style="font-weight:600">'+esc(ttName)+' <span style="color:#DB2777;font-size:11px">租客</span>'+(isCurrent?' <span style="color:#0891B2;font-size:11px">（目前）</span>':'')+'</div>' +
                 (addr?'<div style="color:var(--muted);font-size:12px;margin-top:2px">'+esc(addr)+'</div>':'') +
@@ -7676,7 +7686,7 @@ function showSameLandlord(llName, llPhone, currentId) {
             (c.rent?'<span style="color:#B45309;font-weight:600;font-size:12px">'+esc(c.rent)+'元</span>':'') +
         '</div>';
     });
-    html += '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="display:block;width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;margin-top:4px">關閉</button>';
+    html += '<button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="display:block;width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;margin-top:4px">關閉</button>';
     box.innerHTML = html;
     overlay.appendChild(box);
     overlay.onclick = function(e){ if(e.target===overlay) overlay.remove(); };
@@ -8097,7 +8107,7 @@ function fillSearchDB(val, target, overlay) {
     matches = matches.filter(function(m) { var k = m.name+'_'+m.phone; if(seen[k]) return false; seen[k]=true; return true; });
     if (matches.length > 10) matches = matches.slice(0, 10);
     results.innerHTML = matches.map(function(s) {
-        return '<div class="fill-menu-item" style="cursor:pointer" onclick="applyFill(\''+target+'\',JSON.parse(this.getAttribute(\'data-s\')));this.closest(\'.fill-overlay\').remove()" data-s=\''+esc(JSON.stringify(s))+'\'>' +
+        return '<div class="fill-menu-item" style="cursor:pointer" onclick="applyFill(\''+target+'\',JSON.parse(this.getAttribute(\'data-s\')));closeOverlay(this.closest(\'.fill-overlay\'))" data-s=\''+esc(JSON.stringify(s))+'\'>' +
             '<span>' + esc(s.name) + (s.phone ? ' ' + esc(s.phone) : '') + '</span><span class="fill-src">' + esc(s.src) + '</span></div>';
     }).join('') || '<div style="padding:8px;color:var(--muted);font-size:12px">找不到符合的客戶</div>';
 }
@@ -8469,7 +8479,7 @@ function pickLandlord() {
         html += '</button>';
     });
     html += '</div>';
-    html += '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="display:block;width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;margin-top:8px">取消</button>';
+    html += '<button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="display:block;width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;margin-top:8px">取消</button>';
     box.innerHTML = html;
     box.querySelectorAll('.ll-pick-item').forEach(function(btn){ btn.onclick = function(){ selectLandlord(btn.getAttribute('data-llid')); }; });
     overlay.appendChild(box);
@@ -8507,7 +8517,7 @@ function selectLandlord(id, propIdx) {
             if (period) html += '<div style="font-size:12px;color:var(--muted)">' + esc(period) + '</div>';
             html += '</button>';
         });
-        html += '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="display:block;width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;margin-top:8px">取消</button>';
+        html += '<button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="display:block;width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px;margin-top:8px">取消</button>';
         box.innerHTML = html;
         overlay.appendChild(box);
         overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
@@ -9797,7 +9807,7 @@ function addPerfRecord() {
         '</div>' +
         '<div class="fg" style="margin-bottom:12px"><label style="font-size:12px">備註</label><input id="perfMemo" placeholder=""></div>' +
         '<div style="display:flex;gap:8px;justify-content:flex-end">' +
-            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
+            '<button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
             '<button type="button" id="perfSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#57534E;color:white;cursor:pointer;font-size:14px;font-weight:600">儲存</button>' +
         '</div>';
     overlay.appendChild(box);
@@ -9868,7 +9878,7 @@ function deletePerfRecord(idx) {
     box.style.padding = '20px'; box.style.textAlign = 'center'; box.style.minWidth = '280px';
     box.innerHTML = '<div style="font-size:15px;font-weight:700;margin-bottom:16px">確定刪除這筆紀錄？</div>' +
         '<div style="display:flex;gap:8px;justify-content:center">' +
-            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 20px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
+            '<button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="padding:8px 20px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
             '<button type="button" id="_perfDelBtn" style="padding:8px 20px;border:none;border-radius:8px;background:#EF4444;color:white;cursor:pointer;font-size:14px;font-weight:600">刪除</button>' +
         '</div>';
     overlay.appendChild(box);
@@ -9920,7 +9930,7 @@ function editPerfRecord(idx) {
         '</div>' +
         '<div class="fg" style="margin-bottom:12px"><label style="font-size:12px">備註</label><input id="epMemo" value="'+esc(r.memo||'')+'" placeholder=""></div>' +
         '<div style="display:flex;gap:8px;justify-content:flex-end">' +
-            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
+            '<button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
             '<button type="button" id="epSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#57534E;color:white;cursor:pointer;font-size:14px;font-weight:600">儲存</button>' +
         '</div>';
     overlay.appendChild(box);
@@ -10324,8 +10334,8 @@ function cloudRestore() {
     bx.innerHTML = '<div style="font-size:16px;font-weight:700;margin-bottom:8px">確定要從雲端還原？</div>' +
         '<div style="font-size:13px;color:var(--muted);margin-bottom:20px">將覆蓋目前本機的所有資料</div>' +
         '<div style="display:flex;gap:10px;justify-content:center">' +
-            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 24px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
-            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove();doCloudRestore()" style="padding:8px 24px;border:none;border-radius:8px;background:#EF4444;color:white;cursor:pointer;font-size:14px;font-weight:600">還原</button>' +
+            '<button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="padding:8px 24px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
+            '<button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'));doCloudRestore()" style="padding:8px 24px;border:none;border-radius:8px;background:#EF4444;color:white;cursor:pointer;font-size:14px;font-weight:600">還原</button>' +
         '</div>';
     ov.appendChild(bx);
     ov.onclick = function(e){ if(e.target===ov) ov.remove(); };
@@ -10412,7 +10422,7 @@ function doCloudRestore() {
         });
         _h += '<div style="height:12px"></div>';
         _h += '<div style="font-size:14px;font-weight:700">業績還原→' + _perfRestoredCount + ' 筆</div>';
-        _h += '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="margin-top:20px;padding:8px 28px;border:none;border-radius:8px;background:var(--deep);color:white;cursor:pointer;font-size:14px;font-weight:600">確定</button>';
+        _h += '<button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="margin-top:20px;padding:8px 28px;border:none;border-radius:8px;background:var(--deep);color:white;cursor:pointer;font-size:14px;font-weight:600">確定</button>';
         _bx.innerHTML = _h;
         _ov.appendChild(_bx);
         _ov.onclick = function(e){ if(e.target===_ov) _ov.remove(); };
@@ -10597,7 +10607,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260414a2';
+var APP_VERSION = '20260414a4';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
@@ -10621,7 +10631,7 @@ function showUpdateMsg(title, msg) {
     bx.style.cssText = 'padding:24px 28px;text-align:center;min-width:240px';
     bx.innerHTML = '<div style="font-size:18px;font-weight:700;margin-bottom:12px">' + title + '</div>' +
         '<div style="font-size:14px;color:var(--muted);margin-bottom:20px;white-space:pre-line">' + msg + '</div>' +
-        '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 32px;border:none;border-radius:8px;background:var(--deep);color:white;cursor:pointer;font-size:14px;font-weight:600">確定</button>';
+        '<button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="padding:8px 32px;border:none;border-radius:8px;background:var(--deep);color:white;cursor:pointer;font-size:14px;font-weight:600">確定</button>';
     ov.appendChild(bx);
     ov.onclick = function(e){ if(e.target===ov) ov.remove(); };
     document.body.appendChild(ov);
@@ -10634,7 +10644,7 @@ function clearCache() {
     bx.style.cssText = 'padding:24px 28px;text-align:center;min-width:240px';
     bx.innerHTML = '<div style="font-size:16px;font-weight:700;margin-bottom:20px">清除快取並重新載入？</div>' +
         '<div style="display:flex;gap:10px;justify-content:center">' +
-            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 24px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
+            '<button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="padding:8px 24px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">取消</button>' +
             '<button type="button" onclick="doClearCache()" style="padding:8px 24px;border:none;border-radius:8px;background:var(--deep);color:white;cursor:pointer;font-size:14px;font-weight:600">確定</button>' +
         '</div>';
     ov.appendChild(bx);
@@ -10887,7 +10897,7 @@ function addMktFromModal() {
     stockClients.forEach(function(c) {
         var name = c.sName || c.name || '';
         var comm = (c.sProperties && c.sProperties.length) ? (c.sProperties[0].community || c.sProperties[0].addr || '') : (c.community || '');
-        listHtml += '<button type="button" onclick="selectMktClient(\''+esc(c.id)+'\');this.closest(\'.fill-overlay\').remove()" style="display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:4px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">'+esc(name)+(comm?' — '+esc(comm):'')+'</button>';
+        listHtml += '<button type="button" onclick="selectMktClient(\''+esc(c.id)+'\');closeOverlay(this.closest(\'.fill-overlay\'))" style="display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:4px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">'+esc(name)+(comm?' — '+esc(comm):'')+'</button>';
     });
     listHtml += '</div>';
     box.innerHTML = listHtml;
@@ -10964,7 +10974,7 @@ function showTemplateEditor(idx, title, content) {
         '<div style="margin-bottom:12px;flex:1;display:flex;flex-direction:column"><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">範本內容</label>' +
         '<textarea id="tplEditContent" placeholder="輸入範本內容…" style="width:100%;flex:1;min-height:200px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;line-height:1.6;resize:vertical;box-sizing:border-box">'+esc(content)+'</textarea></div>' +
         '<div style="display:flex;gap:8px;justify-content:flex-end">' +
-            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px">取消</button>' +
+            '<button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px">取消</button>' +
             '<button type="button" id="tplSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#57534E;color:white;cursor:pointer;font-size:13px;font-weight:600">儲存</button>' +
         '</div>';
     overlay.appendChild(box);
@@ -11072,7 +11082,7 @@ function showSigningTemplateEditor(idx, title, content) {
         '<div style="margin-bottom:12px;flex:1;display:flex;flex-direction:column"><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">範本內容</label>' +
         '<textarea id="stplEditContent" placeholder="輸入範本內容…" style="width:100%;flex:1;min-height:200px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;line-height:1.6;resize:vertical;box-sizing:border-box">'+esc(content)+'</textarea></div>' +
         '<div style="display:flex;gap:8px;justify-content:flex-end">' +
-            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px">取消</button>' +
+            '<button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px">取消</button>' +
             '<button type="button" id="stplSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#57534E;color:white;cursor:pointer;font-size:13px;font-weight:600">儲存</button>' +
         '</div>';
     overlay.appendChild(box);
@@ -11194,7 +11204,7 @@ function showMktEditor(idx, title, content) {
         '<div style="margin-bottom:12px;flex:1;display:flex;flex-direction:column"><label style="font-size:12px;font-weight:600;display:block;margin-bottom:4px">範本內容</label>' +
         '<textarea id="mktEditContent" placeholder="輸入行銷文案…" style="width:100%;flex:1;min-height:180px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;line-height:1.6;resize:vertical;box-sizing:border-box">'+esc(content)+'</textarea></div>' +
         '<div style="display:flex;gap:8px;justify-content:flex-end">' +
-            '<button type="button" onclick="this.closest(\'.fill-overlay\').remove()" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px">取消</button>' +
+            '<button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:13px">取消</button>' +
             '<button type="button" id="mktSaveBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#57534E;color:white;cursor:pointer;font-size:13px;font-weight:600">儲存</button>' +
         '</div>';
     overlay.appendChild(box);

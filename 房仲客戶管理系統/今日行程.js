@@ -19,6 +19,12 @@ function todayISO() {
   return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
 }
 
+function daysDiff(dateISO, todayISO) {
+  let d1 = new Date(dateISO + 'T00:00:00');
+  let d2 = new Date(todayISO + 'T00:00:00');
+  return Math.round((d1 - d2) / 86400000);
+}
+
 function getToday(db) {
   let today = todayISO();
   let list = [];
@@ -26,16 +32,28 @@ function getToday(db) {
     if (c._deleted || c._system || c.archived || !c.schedules) return;
     let name = c.llName || c.ttName || c.bName || c.sName || c.cName || c.dName || c.name || '未命名';
     c.schedules.forEach(function(s) {
-      if (s.date === today) list.push({ name: name, time: s.time || '', memo: s.memo || '' });
+      if (!s.date) return;
+      if (s.hideBeforeDate && today < s.hideBeforeDate) return;
+      if (s.date <= today) list.push({ name: name, time: s.time || '', memo: s.memo || '', date: s.date, expired: s.date < today });
     });
   });
   let ps = db.find(function(c) { return c.id === '_personalSchedules'; });
   if (ps && ps.schedules) {
     ps.schedules.forEach(function(s) {
-      if (s.date === today) list.push({ name: '📌 個人', time: s.time || '', memo: s.memo || '' });
+      if (!s.date) return;
+      if (s.hideBeforeDate && today < s.hideBeforeDate) return;
+      if (s.date <= today) list.push({ name: '📌 個人', time: s.time || '', memo: s.memo || '', date: s.date, expired: s.date < today });
     });
   }
-  list.sort(function(a, b) { return (a.time || '').localeCompare(b.time || ''); });
+  // 過期排前（愈早愈前），今日排後（按時間）
+  list.sort(function(a, b) {
+    if (a.expired !== b.expired) return a.expired ? -1 : 1;
+    if (a.date !== b.date) return a.date.localeCompare(b.date);
+    return (a.time || '').localeCompare(b.time || '');
+  });
+  list.forEach(function(s) {
+    if (s.expired) s.daysAgo = -daysDiff(s.date, today);
+  });
   return list;
 }
 
@@ -93,7 +111,13 @@ async function createWidget() {
 
     let row1 = card.addStack();
     row1.centerAlignContent();
-    if (s.time) {
+    if (s.expired) {
+      let parts = s.date.split('-');
+      let tag = row1.addText(parts[1] + '/' + parts[2] + (s.time ? ' ' + s.time : ''));
+      tag.font = Font.boldSystemFont(timeFont);
+      tag.textColor = new Color('#DC2626');
+      row1.addSpacer(6);
+    } else if (s.time) {
       let t = row1.addText(s.time);
       t.font = Font.boldSystemFont(timeFont);
       t.textColor = new Color('#F59E0B');
@@ -104,6 +128,11 @@ async function createWidget() {
     nm.textColor = new Color('#FAFAF9');
     nm.lineLimit = 1;
     row1.addSpacer();
+    if (s.expired) {
+      let exp = row1.addText('過期' + s.daysAgo + '天');
+      exp.font = Font.systemFont(memoFont);
+      exp.textColor = new Color('#DC2626');
+    }
 
     if (s.memo) {
       card.addSpacer(2);
