@@ -364,12 +364,12 @@
         .dash-sections { display: grid; grid-template-columns: 1.5fr 1.1fr 1.1fr; gap: 10px; margin-top: 34px; grid-template-areas: "sched todo seller" "sched bday rental"; }
         .dash-section { background: #FFFFFF; border-radius: var(--radius); padding: 12px; border: 2px solid var(--lux-navy); box-shadow: 0 1px 4px rgba(28,25,23,0.04); min-height: 240px; transition: all 0.2s; }
         .dash-section:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(28,25,23,0.08); }
-        .dash-section.dash-schedule { grid-area: sched; background: #FFFFFF; align-self: stretch; display: flex; flex-direction: column; }
-        .dash-section.dash-schedule > #dashSchedule { flex: 1; min-height: 0; max-height: none; }
-        .dash-section.dash-todo { grid-area: todo; background: #FFFFFF; height: 300px; display: flex; flex-direction: column; }
-        .dash-section.dash-seller { grid-area: seller; background: #FFFFFF; height: 300px; display: flex; flex-direction: column; }
-        .dash-section.dash-bday { grid-area: bday; background: #FFFFFF; height: 300px; display: flex; flex-direction: column; }
-        .dash-section.dash-rental { grid-area: rental; background: #FFFFFF; height: 300px; display: flex; flex-direction: column; }
+        .dash-section.dash-schedule { grid-area: sched; background: #FFFFFF; align-self: start; height: 560px; display: flex; flex-direction: column; }
+        .dash-section.dash-schedule > #dashSchedule { flex: 1; min-height: 0; }
+        .dash-section.dash-todo { grid-area: todo; background: #FFFFFF; height: 275px; display: flex; flex-direction: column; }
+        .dash-section.dash-seller { grid-area: seller; background: #FFFFFF; height: 275px; display: flex; flex-direction: column; }
+        .dash-section.dash-bday { grid-area: bday; background: #FFFFFF; height: 275px; display: flex; flex-direction: column; }
+        .dash-section.dash-rental { grid-area: rental; background: #FFFFFF; height: 275px; display: flex; flex-direction: column; }
         .dash-section.dash-todo > #dashTodo,
         .dash-section.dash-seller > #dashExpiringSeller,
         .dash-section.dash-bday > #dashBirthday,
@@ -10955,7 +10955,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260415b2';
+var APP_VERSION = '20260415b5';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
