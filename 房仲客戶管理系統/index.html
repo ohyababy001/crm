@@ -374,7 +374,7 @@
         .dash-section.dash-seller > #dashExpiringSeller,
         .dash-section.dash-bday > #dashBirthday,
         .dash-section.dash-rental > #dashExpiringRental { flex: 1; min-height: 0; overflow-x: hidden; overflow-y: auto; }
-        .dash-sec-title { font-size: 17px; font-weight: 800; color: #475569; margin: -12px -12px 5px -12px; padding: 10px 12px; background: linear-gradient(135deg, #F0F4FA 0%, #F7F9FF 100%); border-bottom: 1px solid rgba(26,58,92,0.1); border-radius: 12px 12px 0 0; white-space: nowrap; }
+        .dash-sec-title { font-size: 17px; font-weight: 800; color: #475569; margin: -12px -12px 5px -12px; padding: 10px 12px; background: linear-gradient(135deg, #F0F4FA 0%, #F7F9FF 100%); border-bottom: 1px solid rgba(26,58,92,0.1); border-radius: 12px 12px 0 0; }
         .dash-list { font-size: 18px; }
         .dash-item { padding: 3px 8px; margin: 0 -8px; border-bottom: 1px solid rgba(200,164,90,0.15); display: flex; align-items: center; gap: 8px; border-radius: 6px; transition: background 0.15s; }
         .dash-item:last-child { border-bottom: none; }
@@ -385,16 +385,33 @@
         .dash-sched-item { flex-wrap: wrap; gap: 2px; }
         .dash-sched-row1 { display: flex; align-items: center; gap: 8px; width: 100%; }
         .dash-sched-memo { font-size: 15px; color: #475569; }
-        #dashSchedule { max-height: 630px; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: rgba(200,164,90,0.3) transparent; }
-        #dashSchedule::-webkit-scrollbar { width: 5px; }
-        #dashSchedule::-webkit-scrollbar-track { background: transparent; margin: 4px 0; }
-        #dashSchedule::-webkit-scrollbar-thumb { background: rgba(200,164,90,0.3); border-radius: 4px; }
-        #dashSchedule::-webkit-scrollbar-thumb:hover { background: rgba(200,164,90,0.5); }
+        #dashSchedule { max-height: 630px; overflow-y: auto; overflow-x: hidden; }
+        #dashSchedule, #dashTodo, #dashExpiringSeller, #dashBirthday, #dashExpiringRental { scrollbar-width: thin; scrollbar-color: rgba(200,164,90,0.3) transparent; }
+        #dashSchedule::-webkit-scrollbar,
+        #dashTodo::-webkit-scrollbar,
+        #dashExpiringSeller::-webkit-scrollbar,
+        #dashBirthday::-webkit-scrollbar,
+        #dashExpiringRental::-webkit-scrollbar { width: 5px; }
+        #dashSchedule::-webkit-scrollbar-track,
+        #dashTodo::-webkit-scrollbar-track,
+        #dashExpiringSeller::-webkit-scrollbar-track,
+        #dashBirthday::-webkit-scrollbar-track,
+        #dashExpiringRental::-webkit-scrollbar-track { background: transparent; margin: 4px 0; }
+        #dashSchedule::-webkit-scrollbar-thumb,
+        #dashTodo::-webkit-scrollbar-thumb,
+        #dashExpiringSeller::-webkit-scrollbar-thumb,
+        #dashBirthday::-webkit-scrollbar-thumb,
+        #dashExpiringRental::-webkit-scrollbar-thumb { background: rgba(200,164,90,0.3); border-radius: 4px; }
+        #dashSchedule::-webkit-scrollbar-thumb:hover,
+        #dashTodo::-webkit-scrollbar-thumb:hover,
+        #dashExpiringSeller::-webkit-scrollbar-thumb:hover,
+        #dashBirthday::-webkit-scrollbar-thumb:hover,
+        #dashExpiringRental::-webkit-scrollbar-thumb:hover { background: rgba(200,164,90,0.5); }
         .dash-cards-wrap.collapsed .dash-cards { display: none !important; }
         .card-mobile-only { display: none !important; }
 
         @media (max-width: 768px) {
-            .dash-sched-memo { width: 100%; font-size: 14px; padding-left: 4px; margin-top: 2px; }
+            .dash-sched-memo { width: 100%; font-size: 14px; padding-left: 4px; }
             .dash-sched-btns { gap: 6px !important; }
             .dash-sched-btns .btn-ic { font-size: 14px !important; padding: 3px 6px !important; }
             /* 全域防溢出 */
@@ -658,7 +675,7 @@
             .det-phone { font-size: 28px; text-align: center; }
 
             /* 總覽方塊 */
-            .dash-sections { grid-template-columns: 1fr !important; grid-template-areas: none !important; }
+            .dash-sections { grid-template-columns: 1fr !important; grid-template-rows: none !important; grid-template-areas: none !important; }
             .dash-section.dash-schedule, .dash-section.dash-todo, .dash-section.dash-seller, .dash-section.dash-bday, .dash-section.dash-rental { grid-area: auto; align-self: start; min-height: auto; height: auto !important; display: block !important; }
             .dash-section.dash-todo > #dashTodo, .dash-section.dash-seller > #dashExpiringSeller, .dash-section.dash-bday > #dashBirthday, .dash-section.dash-rental > #dashExpiringRental { overflow: visible !important; }
             #dashSchedule { max-height: 630px !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
@@ -1525,7 +1542,39 @@ window.onerror = function(msg, url, line, col, err) { if (msg === 'Script error.
     var ms = document.querySelector('.main-scroll');
     var isMobile = window.matchMedia('(max-width:768px)');
     var _savedScrollY = 0;
-    new MutationObserver(function(){ var has = !!document.querySelector('.fill-overlay'); if(isMobile.matches){ if(has){ document.body.style.overflow = 'hidden'; } else { document.body.style.overflow = ''; } } else { document.body.style.overflow = has ? 'hidden' : ''; } if(ms) ms.style.overflowY = has ? 'hidden' : (isMobile.matches ? '' : 'auto'); }).observe(document.body, {childList:true});
+    var _locked = false;
+    function lock() {
+        if (_locked) return;
+        _locked = true;
+        _savedScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+        if (isMobile.matches) {
+            document.body.style.position = 'fixed';
+            document.body.style.top = '-' + _savedScrollY + 'px';
+            document.body.style.left = '0';
+            document.body.style.right = '0';
+            document.body.style.width = '100%';
+        }
+        document.body.style.overflow = 'hidden';
+        if (ms) ms.style.overflowY = 'hidden';
+    }
+    function unlock() {
+        if (!_locked) return;
+        _locked = false;
+        if (isMobile.matches) {
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.left = '';
+            document.body.style.right = '';
+            document.body.style.width = '';
+            window.scrollTo(0, _savedScrollY);
+        }
+        document.body.style.overflow = '';
+        if (ms) ms.style.overflowY = isMobile.matches ? '' : 'auto';
+    }
+    new MutationObserver(function(){
+        var has = !!document.querySelector('.fill-overlay');
+        if (has) lock(); else unlock();
+    }).observe(document.body, {childList:true});
     document.addEventListener('touchmove', function(e){ if(document.querySelector('.fill-overlay') && !e.target.closest('.fill-menu')) e.preventDefault(); }, {passive:false});
 })();
 // ── 搜尋 debounce（避免每鍵觸發完整 render）──
@@ -3578,13 +3627,15 @@ function renderDashboard() {
     }
     // 庫存合約即將到期（15天內）
     var expSeller = DB.filter(function(c) {
-        return !c._system && !c._deleted && !c.archived && hasType(c,'庫存屋主') && c.contractEnd && daysUntilExpire(c.contractEnd)<=15;
+        return !c._system && !c._deleted && !c.archived && hasType(c,'庫存屋主') && c.contractEnd && daysUntilExpire(c.contractEnd)<=15
+            && !_isDismissed('expire_' + c.id + '_' + (c.contractEnd || ''));
     }).sort(function(a,b) { return (a.contractEnd||'').localeCompare(b.contractEnd||''); });
     document.getElementById('dashExpiringSeller').innerHTML = _renderExpireCards(expSeller, 'contractEnd', function(c){ return c.community||c.sAddr||''; }, '目前沒有即將到期的庫存合約');
 
     // 租案合約即將到期（到期月前一個月1號起）
     var expRental = DB.filter(function(c) {
-        return !c._system && !c._deleted && !c.archived && hasType(c,'房東') && c.rEndDate && isRentalExpiring(c.rEndDate);
+        return !c._system && !c._deleted && !c.archived && hasType(c,'房東') && c.rEndDate && isRentalExpiring(c.rEndDate)
+            && !_isDismissed('expire_' + c.id + '_' + (c.rEndDate || ''));
     }).sort(function(a,b) { return (a.rEndDate||'').localeCompare(b.rEndDate||''); });
     document.getElementById('dashExpiringRental').innerHTML = _renderExpireCards(expRental, 'rEndDate', function(c){ return c.rCommunity||c.rAddr||''; }, '目前沒有即將到期的租案合約');
 
@@ -3730,13 +3781,14 @@ function renderDashboard() {
         sectionMap.forEach(function(s) {
             var el = document.getElementById(s.id).parentElement;
             container.appendChild(el);
-            el.style.display = s.hasContent ? '' : 'none';
+            if (s.hasContent) el.style.removeProperty('display');
+            else el.style.setProperty('display', 'none', 'important');
         });
     } else {
         // 桌面版恢復顯示所有區塊
         sectionMap.forEach(function(s) {
             var el = document.getElementById(s.id).parentElement;
-            el.style.display = '';
+            el.style.removeProperty('display');
         });
     }
 
@@ -10956,7 +11008,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260415d1';
+var APP_VERSION = '20260415d5';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
