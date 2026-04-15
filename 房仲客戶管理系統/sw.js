@@ -1,4 +1,4 @@
-var CACHE_NAME = 'crm-v20260415d9';
+var CACHE_NAME = 'crm-v20260415e1';
 var URLS_TO_CACHE = [
   './',
   './index.html'
