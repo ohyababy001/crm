@@ -3817,7 +3817,7 @@ function renderDashboard() {
                     '<span style="display:flex;gap:2px">' + toTodoBtn + doneBtn + '</span>' +
                 '</span>' +
             '</div>' +
-            (memoHtml ? '<div>' + memoHtml + '</div>' : '') +
+            '<div style="padding-right:70px">' + memoHtml + '</div>' +
         '</div>';
     }).join('') : '<div class="dash-empty">近15天內沒有預排行程</div>';
 
@@ -11190,7 +11190,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260416a3';
+var APP_VERSION = '20260416a4';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
