@@ -684,7 +684,7 @@
             .dash-sections { grid-template-columns: 1fr !important; grid-template-rows: none !important; grid-template-areas: none !important; }
             .dash-section.dash-schedule, .dash-section.dash-todo, .dash-section.dash-seller, .dash-section.dash-bday, .dash-section.dash-rental { grid-area: auto; align-self: start; min-height: auto; height: auto !important; display: block !important; }
             .dash-section.dash-todo > #dashTodo, .dash-section.dash-seller > #dashExpiringSeller, .dash-section.dash-bday > #dashBirthday, .dash-section.dash-rental > #dashExpiringRental { overflow: visible !important; }
-            #dashSchedule { max-height: 630px !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
+            #dashSchedule { max-height: none !important; overflow: visible !important; }
             .dash-cards { grid-template-columns: repeat(4, 1fr) !important; gap: 6px !important; }
             .dash-card { padding: 10px 4px !important; border-radius: 10px !important; }
             .dash-card .dash-num { font-size: 20px !important; }
@@ -11190,7 +11190,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260416a7';
+var APP_VERSION = '20260416a8';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
