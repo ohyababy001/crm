@@ -3744,7 +3744,7 @@ function renderDashboard() {
             var d = daysUntilExpire(c[dateField]);
             var label = d < 0 ? '已過期'+Math.abs(d)+'天' : d===0 ? '今天到期' : '剩'+d+'天';
             var dk = c._dk || ('expire_' + c.id + '_' + (c[dateField] || ''));
-            return '<div class="dash-item" style="cursor:pointer">' +
+            return '<div class="dash-item" style="cursor:pointer;align-items:flex-start">' +
                 '<span class="dash-item-info" style="color:'+(d<=0?'#EF4444':'')+'">'+label+'</span>' +
                 '<span class="dash-item-name" onclick="showDet(\''+esc(c.id)+'\')" style="display:flex;align-items:flex-start;gap:4px;white-space:normal;overflow:visible;text-overflow:clip">'+
                     '<span style="flex-shrink:0">'+esc(c.name)+'<span style="font-weight:400;color:#475569;font-size:14px"> ·</span></span>'+
@@ -11209,7 +11209,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260416c6';
+var APP_VERSION = '20260416c7';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
