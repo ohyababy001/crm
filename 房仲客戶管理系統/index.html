@@ -3747,8 +3747,8 @@ function renderDashboard() {
             return '<div class="dash-item" style="cursor:pointer">' +
                 '<span class="dash-item-info" style="color:'+(d<=0?'#EF4444':'')+'">'+label+'</span>' +
                 '<span class="dash-item-name" onclick="showDet(\''+esc(c.id)+'\')" style="display:flex;align-items:flex-start;gap:4px;white-space:normal;overflow:visible;text-overflow:clip">'+
-                    '<span style="flex-shrink:0">'+esc(c.name)+'</span>'+
-                    '<span style="font-weight:400;color:#475569;font-size:14px;flex:1;min-width:0;word-break:break-all;line-height:1.4">· '+esc(infoFn(c))+'</span>'+
+                    '<span style="flex-shrink:0">'+esc(c.name)+'<span style="font-weight:400;color:#475569;font-size:14px"> ·</span></span>'+
+                    '<span style="font-weight:400;color:#475569;font-size:14px;flex:1;min-width:0;word-break:break-all;line-height:1.4">'+esc(infoFn(c))+'</span>'+
                 '</span>' +
                 '<button class="btn-ic dash-done-btn" onclick="event.stopPropagation();_dismissAlert(\''+esc(dk)+'\',\'確定已處理「'+esc(c.name)+'」的到期提醒？\\n（續約後會重新出現）\')" title="已處理" style="font-size:13px;padding:2px 4px;flex-shrink:0"><i class="ti ti-circle-check" style="color:#059669"></i><span class="dash-done-txt"> 完成</span></button></div>';
         }).join('') : '<div class="dash-empty">'+emptyMsg+'</div>';
@@ -11209,7 +11209,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260416c5';
+var APP_VERSION = '20260416c6';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
