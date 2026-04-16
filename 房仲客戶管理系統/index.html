@@ -3812,7 +3812,10 @@ function renderDashboard() {
             '<div class="dash-sched-row1">' +
                 '<span class="dash-item-info" style="color:'+dateColor+'">'+(s.expired?'<i class="ti ti-alert-triangle" style="color:#DC2626;font-size:12px"></i> ':'')+esc(isoToMDW(s.date))+(s.time?' '+s.time:'')+(s.expired?' <span style="font-size:12px">已過期'+Math.abs(s.days)+'天</span>':'')+'</span>' +
                 nameHtml +
-                '<span style="display:flex;gap:2px;flex-shrink:0;margin-left:auto">' + toTodoBtn + editBtn + delBtn + doneBtn + '</span>' +
+                '<span style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;margin-left:auto;align-items:flex-end">' +
+                    '<span style="display:flex;gap:2px">' + editBtn + delBtn + '</span>' +
+                    '<span style="display:flex;gap:2px">' + toTodoBtn + doneBtn + '</span>' +
+                '</span>' +
             '</div>' +
             (memoHtml ? '<div>' + memoHtml + '</div>' : '') +
         '</div>';
@@ -11187,7 +11190,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260416a2';
+var APP_VERSION = '20260416a3';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
