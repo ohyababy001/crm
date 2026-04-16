@@ -3878,17 +3878,18 @@ function renderDashboard() {
         var nameHtml = t.personal
             ? '<span class="dash-item-name" style="color:#3D2F1A">個人</span>'
             : '<span class="dash-item-name" style="cursor:pointer" onclick="showDet(\''+esc(t.clientId)+'\')">'+esc(t.clientName)+'</span>';
+        var editBtn = '<button class="btn-ic" onclick="editTodo(\''+esc(t.id)+'\')" title="編輯" style="font-size:13px;padding:2px 4px"><i class="ti ti-pencil" style="color:#57534E"></i></button>';
+        var delBtn = '<button class="btn-ic" onclick="deleteTodo(\''+esc(t.id)+'\')" title="刪除" style="font-size:13px;padding:2px 4px"><i class="ti ti-trash" style="color:#DC2626"></i></button>';
+        var toSchedBtn = '<button class="btn-ic" onclick="todoToSchedule(\''+esc(t.id)+'\')" title="轉為行程" style="font-size:13px;padding:2px 4px"><i class="ti ti-calendar-plus" style="color:#2563EB"></i></button>';
+        var doneBtn = '<button class="btn-ic dash-done-btn" onclick="completeTodo(\''+esc(t.id)+'\')" title="完成" style="font-size:13px;padding:2px 4px"><i class="ti ti-circle-check" style="color:#059669"></i><span class="dash-done-txt"> 完成</span></button>';
         return '<div class="dash-item" style="flex-direction:column;align-items:stretch;gap:2px">' +
             '<div style="display:flex;align-items:center;gap:8px;width:100%">' +
                 nameHtml +
-                '<span style="display:flex;gap:2px;flex-shrink:0">' +
-                    '<button class="btn-ic" onclick="todoToSchedule(\''+esc(t.id)+'\')" title="轉為行程" style="font-size:13px;padding:2px 4px"><i class="ti ti-calendar-plus" style="color:#2563EB"></i></button>' +
-                    '<button class="btn-ic" onclick="editTodo(\''+esc(t.id)+'\')" title="編輯" style="font-size:13px;padding:2px 4px"><i class="ti ti-pencil" style="color:#57534E"></i></button>' +
-                    '<button class="btn-ic" onclick="deleteTodo(\''+esc(t.id)+'\')" title="刪除" style="font-size:13px;padding:2px 4px"><i class="ti ti-trash" style="color:#DC2626"></i></button>' +
-                '</span>' +
+                '<span style="display:flex;gap:2px;flex-shrink:0;margin-left:auto">' + editBtn + delBtn + '</span>' +
             '</div>' +
-            '<div style="display:flex;align-items:center"><div style="flex:1;font-size:15px;color:#475569">'+esc(t.memo||'')+'</div>' +
-                '<button class="btn-ic" onclick="completeTodo(\''+esc(t.id)+'\')" title="完成" style="font-size:13px;padding:2px 4px"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button>' +
+            '<div style="display:flex;align-items:flex-start;gap:6px">' +
+                '<div style="flex:1;min-width:0;font-size:15px;color:#475569">'+esc(t.memo||'')+'</div>' +
+                '<span style="display:flex;gap:2px;flex-shrink:0">' + toSchedBtn + doneBtn + '</span>' +
             '</div>' +
         '</div>';
     }).join('') : '<div class="dash-empty">目前沒有待辦事項</div>';
@@ -11190,7 +11191,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260416b5';
+var APP_VERSION = '20260416b6';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
