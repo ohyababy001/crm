@@ -417,6 +417,9 @@
             .dash-sched-memo { width: 100%; font-size: 14px; padding-left: 4px; }
             .dash-sched-btns { gap: 6px !important; }
             .dash-sched-btns .btn-ic { font-size: 14px !important; padding: 3px 6px !important; }
+            .dash-done-btn .dash-done-txt { display: none; }
+            .dash-sched-row1 { flex-wrap: wrap; }
+            .dash-sched-row1 .dash-item-name { font-size: 14px; }
             /* 全域防溢出 */
             html { overflow-x: hidden !important; overflow-y: auto !important; width: 100% !important; }
             body { overflow-x: hidden !important; overflow-y: auto !important; width: 100% !important; }
@@ -3796,8 +3799,8 @@ function renderDashboard() {
             ? '<button class="btn-ic" onclick="editPersonalSchedule(\''+esc(s.psId||'')+'\')" title="編輯" style="font-size:13px;padding:2px 4px"><i class="ti ti-pencil" style="color:#57534E"></i></button>'
             : '<button class="btn-ic" onclick="editDashSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\',this)" title="編輯" style="font-size:13px;padding:2px 4px"><i class="ti ti-pencil" style="color:#57534E"></i></button>';
         var doneBtn = s.personal
-            ? '<button class="btn-ic" onclick="completePersonalSchedule(\''+esc(s.psId||'')+'\')" title="完成" style="font-size:13px;padding:2px 4px"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button>'
-            : '<button class="btn-ic" onclick="completeSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="完成" style="font-size:13px;padding:2px 4px"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button>';
+            ? '<button class="btn-ic dash-done-btn" onclick="completePersonalSchedule(\''+esc(s.psId||'')+'\')" title="完成" style="font-size:13px;padding:2px 4px"><i class="ti ti-circle-check" style="color:#059669"></i><span class="dash-done-txt"> 完成</span></button>'
+            : '<button class="btn-ic dash-done-btn" onclick="completeSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="完成" style="font-size:13px;padding:2px 4px"><i class="ti ti-circle-check" style="color:#059669"></i><span class="dash-done-txt"> 完成</span></button>';
         var recurIcon = s.recurrence ? '<span title="'+esc(recurLabel(s.recurrence))+'" style="color:#0E7490;font-size:12px;font-weight:600;margin-left:4px"><i class="ti ti-repeat" style="font-size:13px"></i> '+esc(recurLabel(s.recurrence))+'</span>' : '';
         var memoHtml = s.memo ? '<div class="dash-sched-memo">'+esc(s.memo)+recurIcon+'</div>' : (recurIcon ? '<div class="dash-sched-memo">'+recurIcon+'</div>' : '');
         var dateColor = s.expired ? '#DC2626' : (s.days===0 ? '#B45309' : '');
@@ -3805,14 +3808,13 @@ function renderDashboard() {
             ? '<button class="btn-ic" onclick="deletePersonalSchedule(\''+esc(s.psId||'')+'\')" title="刪除" style="font-size:13px;padding:2px 4px"><i class="ti ti-trash" style="color:#DC2626"></i></button>'
             : '<button class="btn-ic" onclick="deleteSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="刪除" style="font-size:13px;padding:2px 4px"><i class="ti ti-trash" style="color:#DC2626"></i></button>';
         var toTodoBtn = s.recurrence ? '' : '<button class="btn-ic" onclick="scheduleToTodo(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="轉為待辦" style="font-size:13px;padding:2px 4px"><i class="ti ti-checkbox" style="color:#7C3AED"></i></button>';
-        return '<div class="dash-item dash-sched-item" style="flex-direction:column;align-items:stretch;position:relative">' +
+        return '<div class="dash-item dash-sched-item" style="flex-direction:column;align-items:stretch">' +
             '<div class="dash-sched-row1">' +
                 '<span class="dash-item-info" style="color:'+dateColor+'">'+(s.expired?'<i class="ti ti-alert-triangle" style="color:#DC2626;font-size:12px"></i> ':'')+esc(isoToMDW(s.date))+(s.time?' '+s.time:'')+(s.expired?' <span style="font-size:12px">已過期'+Math.abs(s.days)+'天</span>':'')+'</span>' +
                 nameHtml +
-                '<span style="display:flex;gap:2px;flex-shrink:0">' + toTodoBtn + editBtn + delBtn + '</span>' +
+                '<span style="display:flex;gap:2px;flex-shrink:0;margin-left:auto">' + toTodoBtn + editBtn + delBtn + doneBtn + '</span>' +
             '</div>' +
-            '<div style="padding-right:70px">' + memoHtml + '</div>' +
-            '<span style="position:absolute;right:8px;top:30px">' + doneBtn + '</span>' +
+            (memoHtml ? '<div>' + memoHtml + '</div>' : '') +
         '</div>';
     }).join('') : '<div class="dash-empty">近15天內沒有預排行程</div>';
 
@@ -11185,7 +11187,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260416a1';
+var APP_VERSION = '20260416a2';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
