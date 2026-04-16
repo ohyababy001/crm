@@ -36,7 +36,7 @@
         html::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.3); }
 
         /* Header */
-        .header { background: linear-gradient(135deg, #0f2847 0%, #1a3a5c 50%, #2a5a8c 100%); color: #FAFAF9; padding: 6px 20px; display: flex; align-items: center; gap: 12px; box-shadow: 0 6px 24px rgba(15,40,71,0.35); position: fixed; top: 8px; left: 50%; transform: translateX(-50%); z-index: 100; overflow: visible; border: 1px solid rgba(200,164,90,0.3); border-radius: var(--radius); width: calc(100% - 16px); max-width: 1450px; }
+        .header { background: linear-gradient(135deg, #0f2847 0%, #1a3a5c 50%, #2a5a8c 100%); color: #FAFAF9; padding: 6px 20px; display: flex; align-items: center; gap: 12px; box-shadow: 0 6px 24px rgba(15,40,71,0.35); position: fixed; top: 8px; left: 50%; transform: translateX(-50%); z-index: 100; overflow: visible; border: 1px solid rgba(200,164,90,0.3); border-radius: var(--radius); width: calc(100% - 16px); max-width: 1600px; }
         .header::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: linear-gradient(90deg, transparent 0%, var(--lux-gold) 50%, transparent 100%); }
         .header-title { font-family: 'Cinzel', serif; font-size: 28px; font-weight: 700; white-space: nowrap; letter-spacing: 6px; margin-left: 48px; }
         .search-wrap { flex: 3; max-width: 700px; position: relative; }
@@ -53,7 +53,7 @@
         .btn-add:hover { background: linear-gradient(135deg, #FAFAF9, #EDE8E0); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.22); }
 
         /* Layout */
-        .layout { display: flex; height: calc(100vh - var(--header-h)); margin-top: var(--header-h); max-width: 1450px; margin-left: auto; margin-right: auto; }
+        .layout { display: flex; height: calc(100vh - var(--header-h)); margin-top: var(--header-h); max-width: 1600px; margin-left: auto; margin-right: auto; }
 
         /* Sidebar */
         .sidebar { width: 180px; background: var(--bg); border-right: 1px solid var(--border); padding: 58px 0 10px; position: sticky; top: 0; height: 100%; overflow-y: auto; flex-shrink: 0; box-shadow: 2px 0 8px rgba(0,0,0,0.04); }
@@ -11206,7 +11206,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260416b9';
+var APP_VERSION = '20260416c1';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
