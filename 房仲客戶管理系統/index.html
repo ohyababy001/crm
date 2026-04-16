@@ -3737,25 +3737,40 @@ function renderDashboard() {
     // 共用到期卡片渲染函式（DRY 重構）
     function _renderExpireCards(items, dateField, infoFn, emptyMsg) {
         var visible = items.filter(function(c) {
-            var dk = 'expire_' + c.id + '_' + (c[dateField] || '');
+            var dk = c._dk || ('expire_' + c.id + '_' + (c[dateField] || ''));
             return !_isDismissed(dk);
         });
         return visible.length ? visible.map(function(c) {
             var d = daysUntilExpire(c[dateField]);
             var label = d < 0 ? '已過期'+Math.abs(d)+'天' : d===0 ? '今天到期' : '剩'+d+'天';
-            var dk = 'expire_' + c.id + '_' + (c[dateField] || '');
+            var dk = c._dk || ('expire_' + c.id + '_' + (c[dateField] || ''));
             return '<div class="dash-item" style="cursor:pointer">' +
                 '<span class="dash-item-info" style="color:'+(d<=0?'#EF4444':'')+'">'+label+'</span>' +
                 '<span class="dash-item-name" onclick="showDet(\''+esc(c.id)+'\')">'+esc(c.name)+'<span style="font-weight:400;color:#475569"> · '+esc(infoFn(c))+'</span></span>' +
                 '<button class="btn-ic" onclick="event.stopPropagation();_dismissAlert(\''+esc(dk)+'\',\'確定已處理「'+esc(c.name)+'」的到期提醒？\\n（續約後會重新出現）\')" title="已處理" style="font-size:13px;padding:2px 4px;flex-shrink:0"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button></div>';
         }).join('') : '<div class="dash-empty">'+emptyMsg+'</div>';
     }
-    // 庫存合約即將到期（15天內）
-    var expSeller = DB.filter(function(c) {
-        return !c._system && !c._deleted && !c.archived && hasType(c,'庫存屋主') && c.contractEnd && daysUntilExpire(c.contractEnd)<=15
-            && !_isDismissed('expire_' + c.id + '_' + (c.contractEnd || ''));
-    }).sort(function(a,b) { return (a.contractEnd||'').localeCompare(b.contractEnd||''); });
-    document.getElementById('dashExpiringSeller').innerHTML = _renderExpireCards(expSeller, 'contractEnd', function(c){ return c.community||c.sAddr||''; }, '目前沒有即將到期的庫存合約');
+    // 庫存合約即將到期（15天內）— 同時掃客戶主欄 contractEnd 與多物件 sProperties[*].contractEnd
+    var expSeller = [];
+    DB.forEach(function(c) {
+        if (c._system || c._deleted || c.archived || !hasType(c,'庫存屋主')) return;
+        // 主欄位（單物件或舊資料）
+        if (c.contractEnd && daysUntilExpire(c.contractEnd) <= 15 && !_isDismissed('expire_' + c.id + '_' + c.contractEnd)) {
+            expSeller.push({ id:c.id, name:c.name, contractEnd:c.contractEnd, info:(c.community||c.sAddr||'') });
+        }
+        // 多物件
+        if (c.sProperties && c.sProperties.length) {
+            c.sProperties.forEach(function(sp, idx) {
+                if (sp.spArchived || !sp.contractEnd) return;
+                if (daysUntilExpire(sp.contractEnd) > 15) return;
+                var dk = 'expire_' + c.id + '_sp' + idx + '_' + sp.contractEnd;
+                if (_isDismissed(dk)) return;
+                expSeller.push({ id:c.id, name:c.name, contractEnd:sp.contractEnd, info:(sp.community||sp.addr||''), _dk:dk });
+            });
+        }
+    });
+    expSeller.sort(function(a,b) { return (a.contractEnd||'').localeCompare(b.contractEnd||''); });
+    document.getElementById('dashExpiringSeller').innerHTML = _renderExpireCards(expSeller, 'contractEnd', function(c){ return c.info||''; }, '目前沒有即將到期的庫存合約');
 
     // 租案合約即將到期（到期月前一個月1號起）
     var expRental = DB.filter(function(c) {
@@ -11191,7 +11206,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260416b6';
+var APP_VERSION = '20260416b7';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
