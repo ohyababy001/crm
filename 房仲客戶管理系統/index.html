@@ -3814,7 +3814,7 @@ function renderDashboard() {
                 nameHtml +
                 '<span style="display:flex;gap:2px;flex-shrink:0;margin-left:auto">' + editBtn + delBtn + '</span>' +
             '</div>' +
-            '<div style="display:flex;align-items:center;gap:6px">' +
+            '<div style="display:flex;align-items:flex-end;gap:6px">' +
                 '<div style="flex:1;min-width:0">' + memoHtml + '</div>' +
                 '<span style="display:flex;gap:2px;flex-shrink:0">' + toTodoBtn + doneBtn + '</span>' +
             '</div>' +
@@ -11190,7 +11190,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260416a5';
+var APP_VERSION = '20260416a6';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
