@@ -3744,15 +3744,10 @@ function renderDashboard() {
             var d = daysUntilExpire(c[dateField]);
             var label = d < 0 ? '已過期'+Math.abs(d)+'天' : d===0 ? '今天到期' : '剩'+d+'天';
             var dk = c._dk || ('expire_' + c.id + '_' + (c[dateField] || ''));
-            var info = infoFn(c);
-            return '<div class="dash-item" style="cursor:pointer;flex-direction:column;align-items:stretch;gap:2px">' +
-                '<div style="display:flex;align-items:center;gap:8px">' +
-                    '<span class="dash-item-info" style="color:'+(d<=0?'#EF4444':'')+'">'+label+'</span>' +
-                    '<span class="dash-item-name" onclick="showDet(\''+esc(c.id)+'\')" style="flex:1;min-width:0">'+esc(c.name)+'</span>' +
-                    '<button class="btn-ic dash-done-btn" onclick="event.stopPropagation();_dismissAlert(\''+esc(dk)+'\',\'確定已處理「'+esc(c.name)+'」的到期提醒？\\n（續約後會重新出現）\')" title="已處理" style="font-size:13px;padding:2px 4px;flex-shrink:0"><i class="ti ti-circle-check" style="color:#059669"></i><span class="dash-done-txt"> 完成</span></button>' +
-                '</div>' +
-                (info ? '<div style="font-size:14px;color:#475569;word-break:break-all">'+esc(info)+'</div>' : '') +
-            '</div>';
+            return '<div class="dash-item" style="cursor:pointer">' +
+                '<span class="dash-item-info" style="color:'+(d<=0?'#EF4444':'')+'">'+label+'</span>' +
+                '<span class="dash-item-name" onclick="showDet(\''+esc(c.id)+'\')" style="white-space:normal;overflow:visible;text-overflow:clip;word-break:break-all">'+esc(c.name)+'<span style="font-weight:400;color:#475569;font-size:14px"> · '+esc(infoFn(c))+'</span></span>' +
+                '<button class="btn-ic dash-done-btn" onclick="event.stopPropagation();_dismissAlert(\''+esc(dk)+'\',\'確定已處理「'+esc(c.name)+'」的到期提醒？\\n（續約後會重新出現）\')" title="已處理" style="font-size:13px;padding:2px 4px;flex-shrink:0"><i class="ti ti-circle-check" style="color:#059669"></i><span class="dash-done-txt"> 完成</span></button></div>';
         }).join('') : '<div class="dash-empty">'+emptyMsg+'</div>';
     }
     // 庫存合約即將到期（15天內）— 同時掃客戶主欄 contractEnd 與多物件 sProperties[*].contractEnd
@@ -11211,7 +11206,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260416c3';
+var APP_VERSION = '20260416c4';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
