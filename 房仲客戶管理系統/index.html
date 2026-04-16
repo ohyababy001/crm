@@ -1854,6 +1854,25 @@ function migrateDB() {
         c.contacts = _all;
     });
     DB.forEach(function(c){ if (c._system) return; if (c.status === '待聯絡') c.status = ''; });
+    // 為 schedules / todos / doneSchedules / doneTodos 補 id，確保跨裝置合併可用穩定 key
+    function _fingerprint(s) { return 's_' + _hashStr((s.date||'') + '|' + (s.time||'') + '|' + (s.memo||'')); }
+    function _todoFingerprint(t) { return 't_' + _hashStr((t.addedAt||'') + '|' + (t.memo||'')); }
+    DB.forEach(function(c) {
+        if (c.schedules) c.schedules.forEach(function(s){ if (!s.id) s.id = _fingerprint(s); });
+        if (c.todos) c.todos.forEach(function(t){ if (!t.id) t.id = _todoFingerprint(t); });
+        if (c._system && c.id === '_personalSchedules') {
+            if (c.schedules) c.schedules.forEach(function(s){ if (!s.id) s.id = _fingerprint(s); });
+            if (c.todos) c.todos.forEach(function(t){ if (!t.id) t.id = _todoFingerprint(t); });
+            if (c.doneSchedules) c.doneSchedules.forEach(function(s){ if (!s.id) s.id = _fingerprint(s) + '_d' + (s.doneAt||''); });
+            if (c.doneTodos) c.doneTodos.forEach(function(t){ if (!t.id) t.id = _todoFingerprint(t) + '_d' + (t.doneAt||''); });
+        }
+    });
+}
+// 短 hash：給遷移用的穩定指紋（非加密用途）
+function _hashStr(s) {
+    var h = 5381; s = String(s||'');
+    for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+    return (h >>> 0).toString(36);
 }
 migrateDB();
 try { localStorage.setItem('reCRM', JSON.stringify(DB)); } catch(e) { console.error('localStorage寫入失敗', e); }
@@ -2395,14 +2414,49 @@ function autoFetchCloud() {
                 DB.forEach(function(c){ if(c.id) localMap[c.id] = c; });
                 var merged = [];
                 var cloudIds = {};
+                // 子陣列合併：按 id 比 updatedAt 保留較新者（含 _deleted），對沒 id 的舊資料 fallback 用 date+time+memo
+                function _mergeItemArr(localArr, cloudArr) {
+                    localArr = Array.isArray(localArr) ? localArr : [];
+                    cloudArr = Array.isArray(cloudArr) ? cloudArr : [];
+                    var map = {}; // key -> item
+                    function _k(it) { return it.id || ('_k_'+(it.date||'')+'|'+(it.time||'')+'|'+(it.memo||'')+'|'+(it.doneAt||'')+'|'+(it.addedAt||'')); }
+                    localArr.forEach(function(it){ map[_k(it)] = it; });
+                    cloudArr.forEach(function(it) {
+                        var k = _k(it);
+                        var cur = map[k];
+                        if (!cur) { map[k] = it; return; }
+                        var cu = it.updatedAt || '';
+                        var lu = cur.updatedAt || '';
+                        if (!lu || (cu && cu > lu)) map[k] = it;
+                    });
+                    return Object.keys(map).map(function(k){ return map[k]; });
+                }
                 cloudData.forEach(function(cc) {
                     cloudIds[cc.id] = true;
                     var local = localMap[cc.id];
                     if (!local) { merged.push(cc); return; }
+                    // 特殊紀錄 _personalSchedules：子陣列合併，updatedAt 不適用
+                    if (cc._system && cc.id === '_personalSchedules') {
+                        var rec = { id:'_personalSchedules', _system:true };
+                        rec.schedules = _mergeItemArr(local.schedules, cc.schedules);
+                        rec.todos = _mergeItemArr(local.todos, cc.todos);
+                        rec.doneSchedules = _mergeItemArr(local.doneSchedules, cc.doneSchedules);
+                        rec.doneTodos = _mergeItemArr(local.doneTodos, cc.doneTodos);
+                        // dismissed 物件：聯集（只要任一端 true 就 true）
+                        var d = {};
+                        Object.keys(local.dismissed||{}).forEach(function(k){ if ((local.dismissed||{})[k]) d[k] = true; });
+                        Object.keys(cc.dismissed||{}).forEach(function(k){ if ((cc.dismissed||{})[k]) d[k] = true; });
+                        rec.dismissed = d;
+                        merged.push(rec);
+                        return;
+                    }
                     var cTime = cc.updatedAt || '';
                     var lTime = local.updatedAt || '';
                     var useCloud = !lTime || (cTime && cTime > lTime);
                     var base = useCloud ? cc : local;
+                    // 一般客戶：對 schedules / todos 做子陣列合併（保留雙方較新的變更）
+                    base.schedules = _mergeItemArr(local.schedules, cc.schedules);
+                    base.todos = _mergeItemArr(local.todos, cc.todos);
                     if (local.rProperties && local.rProperties.length) {
                         if (!base.rProperties) base.rProperties = [];
                         local.rProperties.forEach(function(lp, i) {
@@ -3460,7 +3514,7 @@ function getData() {
         var _30d = localDateISO(new Date(Date.now() + 30*86400000));
         var _sf = (curFilter && curFilter !== 'all') ? curFilter : '';
         list.forEach(function(c) {
-            var next = (c.schedules||[]).filter(function(x){
+            var next = _liveItems(c.schedules||[]).filter(function(x){
                 if (x.date < _today || x.date > _30d) return false;
                 if (_sf && x.schedType && x.schedType !== _sf) return false;
                 return true;
@@ -3712,7 +3766,7 @@ function renderDashboard() {
     var _todayISO = _fmtDateISO(new Date());
     DB.forEach(function(c) {
         if (c._deleted || c._system || c.archived || !c.schedules) return;
-        c.schedules.forEach(function(s) {
+        _liveItems(c.schedules).forEach(function(s) {
             if (!s.date) return;
             if (s.hideBeforeDate && _todayISO < s.hideBeforeDate) return;
             var diff = daysUntilExpire(s.date);
@@ -3720,12 +3774,12 @@ function renderDashboard() {
         });
     });
     // 合併個人行程
-    var psList = _getPS();
-    psList.forEach(function(s, idx) {
+    var psList = _liveItems(_getPS());
+    psList.forEach(function(s) {
         if (!s.date) return;
         if (s.hideBeforeDate && _todayISO < s.hideBeforeDate) return;
         var diff = daysUntilExpire(s.date);
-        if (diff >= -30 && diff <= 15) schedList.push({ id:'_ps', psIdx:idx, name:'個人行程', date:s.date, time:s.time||'', memo:s.memo||'', days:diff, community:'', personal:true, expired: diff < 0, recurrence:s.recurrence||'' });
+        if (diff >= -30 && diff <= 15) schedList.push({ id:'_ps', psId:s.id, name:'個人行程', date:s.date, time:s.time||'', memo:s.memo||'', days:diff, community:'', personal:true, expired: diff < 0, recurrence:s.recurrence||'' });
     });
     // 已過期的排前面（由近到遠），未過期的排後面（由近到遠）
     schedList.sort(function(a,b) {
@@ -3739,16 +3793,16 @@ function renderDashboard() {
             ? '<span class="dash-item-name" style="color:#3D2F1A">個人行程</span>'
             : '<span class="dash-item-name" style="cursor:pointer" onclick="showDet(\''+esc(s.id)+'\')">'+esc(s.name)+'</span>';
         var editBtn = s.personal
-            ? '<button class="btn-ic" onclick="editPersonalSchedule('+s.psIdx+')" title="編輯" style="font-size:13px;padding:2px 4px"><i class="ti ti-pencil" style="color:#57534E"></i></button>'
+            ? '<button class="btn-ic" onclick="editPersonalSchedule(\''+esc(s.psId||'')+'\')" title="編輯" style="font-size:13px;padding:2px 4px"><i class="ti ti-pencil" style="color:#57534E"></i></button>'
             : '<button class="btn-ic" onclick="editDashSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\',this)" title="編輯" style="font-size:13px;padding:2px 4px"><i class="ti ti-pencil" style="color:#57534E"></i></button>';
         var doneBtn = s.personal
-            ? '<button class="btn-ic" onclick="completePersonalSchedule('+s.psIdx+')" title="完成" style="font-size:13px;padding:2px 4px"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button>'
+            ? '<button class="btn-ic" onclick="completePersonalSchedule(\''+esc(s.psId||'')+'\')" title="完成" style="font-size:13px;padding:2px 4px"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button>'
             : '<button class="btn-ic" onclick="completeSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="完成" style="font-size:13px;padding:2px 4px"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button>';
         var recurIcon = s.recurrence ? '<span title="'+esc(recurLabel(s.recurrence))+'" style="color:#0E7490;font-size:12px;font-weight:600;margin-left:4px"><i class="ti ti-repeat" style="font-size:13px"></i> '+esc(recurLabel(s.recurrence))+'</span>' : '';
         var memoHtml = s.memo ? '<div class="dash-sched-memo">'+esc(s.memo)+recurIcon+'</div>' : (recurIcon ? '<div class="dash-sched-memo">'+recurIcon+'</div>' : '');
         var dateColor = s.expired ? '#DC2626' : (s.days===0 ? '#B45309' : '');
         var delBtn = s.personal
-            ? '<button class="btn-ic" onclick="deletePersonalSchedule('+s.psIdx+')" title="刪除" style="font-size:13px;padding:2px 4px"><i class="ti ti-trash" style="color:#DC2626"></i></button>'
+            ? '<button class="btn-ic" onclick="deletePersonalSchedule(\''+esc(s.psId||'')+'\')" title="刪除" style="font-size:13px;padding:2px 4px"><i class="ti ti-trash" style="color:#DC2626"></i></button>'
             : '<button class="btn-ic" onclick="deleteSchedule(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="刪除" style="font-size:13px;padding:2px 4px"><i class="ti ti-trash" style="color:#DC2626"></i></button>';
         var toTodoBtn = s.recurrence ? '' : '<button class="btn-ic" onclick="scheduleToTodo(\''+esc(s.id)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="轉為待辦" style="font-size:13px;padding:2px 4px"><i class="ti ti-checkbox" style="color:#7C3AED"></i></button>';
         return '<div class="dash-item dash-sched-item" style="flex-direction:column;align-items:stretch;position:relative">' +
@@ -4079,7 +4133,7 @@ function renderCard(c) {
             var _todayISO = localDateISO();
             var _30d = localDateISO(new Date(Date.now() + 30*86400000));
             var _schedFilter = (curFilter && curFilter !== 'all') ? curFilter : '';
-            var _nextSched = c.schedules.filter(function(s){
+            var _nextSched = _liveItems(c.schedules).filter(function(s){
                 if (s.date < _todayISO || s.date > _30d) return false;
                 if (_schedFilter && s.schedType && s.schedType !== _schedFilter) return false;
                 return true;
@@ -4940,7 +4994,8 @@ function showDet(id, viewAs) {
             ${allTd}
             ${(function(){
                 if (!c.schedules || !c.schedules.length) return '';
-                var sorted = c.schedules.slice().sort(function(a,b){ return (a.date+(a.time||'')).localeCompare(b.date+(b.time||'')); });
+                var sorted = _liveItems(c.schedules).slice().sort(function(a,b){ return (a.date+(a.time||'')).localeCompare(b.date+(b.time||'')); });
+                if (!sorted.length) return '';
                 return '<div style="font-weight:700;font-size:12px;color:#1E40AF;margin-top:8px;margin-bottom:4px">預排行程</div>' +
                     sorted.map(function(s){ return '<div class="det-row"><span class="det-key" style="color:#292524;font-weight:700;width:auto;white-space:nowrap;margin-right:12px">'+esc(isoToROC(s.date)+(s.time?' '+s.time:''))+'</span><span class="det-val" style="color:#1E40AF">'+esc(s.memo||'')+'</span></div>'; }).join('');
             })()}
@@ -7072,15 +7127,17 @@ function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo, prefillT
         var memo = document.getElementById('qs-memo').value.trim();
         if (!date) { showToast('請選擇日期', 'warn'); return; }
         if (!c.schedules) c.schedules = [];
-        // 如果是編輯模式（有 prefillDate），先移除舊的
+        // 編輯模式：軟刪舊筆
         if (prefillDate) {
-            c.schedules = c.schedules.filter(function(s) {
-                return !(s.date === prefillDate && (s.time||'') === (prefillTime||''));
+            c.schedules.forEach(function(s) {
+                if (!s._deleted && s.date === prefillDate && (s.time||'') === (prefillTime||'')) {
+                    s._deleted = true; s.updatedAt = _nowISO();
+                }
             });
         }
         var _qsTypeEl = document.getElementById('qs-type'); var _qsType = _qsTypeEl ? _qsTypeEl.value : '';
         var _qsRecurEl = document.getElementById('qs-recur'); var _qsRecur = _qsRecurEl ? _qsRecurEl.value : '';
-        var _qsObj = { date:date, time:time, memo:memo, schedType:_qsType };
+        var _qsObj = { id:_newSchedId(), date:date, time:time, memo:memo, schedType:_qsType, updatedAt:_nowISO() };
         if (_qsRecur) _qsObj.recurrence = _qsRecur;
         c.schedules.push(_qsObj);
         persistAndSyncNow();
@@ -7117,19 +7174,22 @@ function completeSchedule(clientId, date, time) {
         var c = DB.find(function(x){ return x.id === clientId; });
         if (!c || !c.schedules) return;
         var found = c.schedules.find(function(s) {
-            return s.date === date && (s.time||'') === (time||'');
+            return !s._deleted && s.date === date && (s.time||'') === (time||'');
         });
         var memo = found ? found.memo : '';
         var recurrence = found ? found.recurrence : '';
         var schedType = found ? found.schedType : '';
-        c.schedules = c.schedules.filter(function(s) {
-            return !(s.date === date && (s.time||'') === (time||''));
+        // 軟刪命中筆
+        c.schedules.forEach(function(s) {
+            if (!s._deleted && s.date === date && (s.time||'') === (time||'')) {
+                s._deleted = true; s.updatedAt = _nowISO();
+            }
         });
         // 循環行程：自動產生下一筆（僅「每天」循環需等到隔日 00:00 才顯示）
         if (recurrence) {
             var nextDate = calcNextRecurDate(date, recurrence);
             if (nextDate) {
-                var nextObj = { date:nextDate, time:time, memo:memo, recurrence:recurrence };
+                var nextObj = { id:_newSchedId(), date:nextDate, time:time, memo:memo, recurrence:recurrence, updatedAt:_nowISO() };
                 if (recurrence === 'daily' || recurrence === 'custom:1d') nextObj.hideBeforeDate = nextDate;
                 if (schedType) nextObj.schedType = schedType;
                 c.schedules.push(nextObj);
@@ -7139,7 +7199,7 @@ function completeSchedule(clientId, date, time) {
         if (!recurrence) {
             if (!c.history) c.history = [];
             c.history.push({ type:'schedule_done', time:new Date().toISOString(), detail:'【已完成行程】' + isoToROC(date) + (time ? ' ' + time : '') + (memo ? ' ' + memo : '') });
-            _addDoneSchedule({ clientId:clientId, clientName:c.name, date:date, time:time, memo:memo, doneAt:new Date().toISOString() });
+            _addDoneSchedule({ id:_newSchedId(), clientId:clientId, clientName:c.name, date:date, time:time, memo:memo, doneAt:new Date().toISOString(), updatedAt:_nowISO() });
         }
         persistAndSyncNow();
         render();
@@ -7235,7 +7295,7 @@ function editDashSchedule(clientId, date, time) {
     var c = DB.find(function(x){ return x.id === clientId; });
     if (!c || !c.schedules) return;
     var s = c.schedules.find(function(s) {
-        return s.date === date && (s.time||'') === (time||'');
+        return !s._deleted && s.date === date && (s.time||'') === (time||'');
     });
     quickSchedule(clientId, date, time, s ? s.memo : '', s ? s.schedType||'' : '', s ? s.recurrence||'' : '');
 }
@@ -7253,7 +7313,9 @@ function _getPSRecord() {
     }
     return rec;
 }
-function _getPS() { return _getPSRecord().schedules || []; }
+// 回傳**原始陣列**（含 _deleted 標記），寫入邏輯直接操作此陣列的內容
+// 讀取/渲染端請用 _liveItems() 過濾
+function _getPS() { return _getPSRecord().schedules || (_getPSRecord().schedules = []); }
 function _savePS(arr) { _getPSRecord().schedules = arr; persistAndSyncNow(); }
 function _getDismissed() { return _getPSRecord().dismissed || {}; }
 function _dismissAlert(key, msg) {
@@ -7274,7 +7336,7 @@ function _dismissAlert(key, msg) {
     render();
 }
 function _isDismissed(key) { return !!(_getPSRecord().dismissed || {})[key]; }
-function _getDoneSchedules() { return _getPSRecord().doneSchedules || []; }
+function _getDoneSchedules() { return _liveItems(_getPSRecord().doneSchedules || []); }
 function _addDoneSchedule(item) {
     var rec = _getPSRecord();
     if (!rec.doneSchedules) rec.doneSchedules = [];
@@ -7283,9 +7345,9 @@ function _addDoneSchedule(item) {
 }
 
 // ── 待辦事項 ──
-function _getPT() { return _getPSRecord().todos || []; }
+function _getPT() { return _getPSRecord().todos || (_getPSRecord().todos = []); }
 function _savePT(arr) { _getPSRecord().todos = arr; persistAndSyncNow(); }
-function _getDoneTodos() { return _getPSRecord().doneTodos || []; }
+function _getDoneTodos() { return _liveItems(_getPSRecord().doneTodos || []); }
 function _addDoneTodo(item) {
     var rec = _getPSRecord();
     if (!rec.doneTodos) rec.doneTodos = [];
@@ -7293,17 +7355,29 @@ function _addDoneTodo(item) {
     persist();
 }
 function _newTodoId() { return 't_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function _newSchedId() { return 's_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function _nowISO() { return new Date().toISOString(); }
+// 軟刪：把 id 對應項標記 _deleted 並更新 updatedAt；若找不到 id（舊資料）就 fallback 真刪
+function _softDeleteById(arr, id) {
+    if (!arr || !id) return arr || [];
+    var hit = false;
+    arr.forEach(function(x){ if (x.id === id) { x._deleted = true; x.updatedAt = _nowISO(); hit = true; } });
+    if (!hit) return arr; // 沒有 id 時呼叫端自行處理
+    return arr;
+}
+// 讀取端：過濾掉 _deleted
+function _liveItems(arr) { return (arr||[]).filter(function(x){ return !x._deleted; }); }
 
 // 取得所有待辦（合併客戶 c.todos 和個人 _getPT），最舊在前
 function _getAllTodos() {
     var list = [];
     DB.forEach(function(c) {
         if (c._deleted || c._system || c.archived || !c.todos) return;
-        c.todos.forEach(function(t) {
+        _liveItems(c.todos).forEach(function(t) {
             list.push({ id:t.id, memo:t.memo||'', addedAt:t.addedAt||'', clientId:c.id, clientName:c.name, personal:false });
         });
     });
-    _getPT().forEach(function(t) {
+    _liveItems(_getPT()).forEach(function(t) {
         list.push({ id:t.id, memo:t.memo||'', addedAt:t.addedAt||'', clientId:'', clientName:'個人', personal:true });
     });
     list.sort(function(a,b) { return (a.addedAt||'').localeCompare(b.addedAt||''); });
@@ -7391,11 +7465,11 @@ function addTodo(prefill) {
             var c = DB.find(function(x){ return x.id === clientId; });
             if (!c) { showToast('客戶不存在', 'error'); return; }
             if (!c.todos) c.todos = [];
-            c.todos.push({ id:_newTodoId(), memo:memo, addedAt:now });
+            c.todos.push({ id:_newTodoId(), memo:memo, addedAt:now, updatedAt:now });
             persistAndSyncNow();
         } else {
             var arr = _getPT();
-            arr.push({ id:_newTodoId(), memo:memo, addedAt:now });
+            arr.push({ id:_newTodoId(), memo:memo, addedAt:now, updatedAt:now });
             _savePT(arr);
         }
         overlay.remove();
@@ -7413,15 +7487,16 @@ function editTodo(todoId) {
 }
 
 function _removeTodoById(todoId) {
-    var c = DB.find(function(x){ return !x._deleted && x.todos && x.todos.some(function(t){ return t.id === todoId; }); });
+    var c = DB.find(function(x){ return !x._deleted && x.todos && x.todos.some(function(t){ return t.id === todoId && !t._deleted; }); });
     if (c) {
-        c.todos = c.todos.filter(function(t){ return t.id !== todoId; });
+        c.todos.forEach(function(t){ if (t.id === todoId) { t._deleted = true; t.updatedAt = _nowISO(); } });
         return { clientId:c.id, clientName:c.name, memo:'' };
     }
     var arr = _getPT();
-    var found = arr.find(function(t){ return t.id === todoId; });
+    var found = arr.find(function(t){ return t.id === todoId && !t._deleted; });
     if (found) {
-        _savePT(arr.filter(function(t){ return t.id !== todoId; }));
+        found._deleted = true; found.updatedAt = _nowISO();
+        _savePT(arr);
         return { clientId:'', clientName:'個人', memo:found.memo, personal:true };
     }
     return null;
@@ -7476,13 +7551,13 @@ function todoToSchedule(todoId) {
         _removeTodoById(todoId);
         if (t.personal) {
             var arr = _getPS();
-            arr.push({ date:date, time:time, memo:t.memo });
+            arr.push({ id:_newSchedId(), date:date, time:time, memo:t.memo, updatedAt:_nowISO() });
             _savePS(arr);
         } else {
             var c = DB.find(function(x){ return x.id === t.clientId; });
             if (!c) { showToast('客戶不存在', 'error'); return; }
             if (!c.schedules) c.schedules = [];
-            c.schedules.push({ date:date, time:time, memo:t.memo });
+            c.schedules.push({ id:_newSchedId(), date:date, time:time, memo:t.memo, updatedAt:_nowISO() });
             persistAndSyncNow();
         }
         overlay.remove();
@@ -7494,25 +7569,28 @@ function todoToSchedule(todoId) {
 // 近期行程轉待辦：直接轉，不需彈窗（日期丟掉，memo 保留）
 function scheduleToTodo(clientId, date, time) {
     confirmAction('將此行程轉為待辦（會取消日期）？', function() {
-        var now = new Date().toISOString();
+        var now = _nowISO();
         if (clientId === '_ps') {
             var arr = _getPS();
-            var sIdx = arr.findIndex(function(s){ return s.date === date && (s.time||'') === (time||''); });
-            if (sIdx < 0) return;
-            var s = arr[sIdx];
-            arr.splice(sIdx, 1);
+            var s = arr.find(function(x){ return !x._deleted && x.date === date && (x.time||'') === (time||''); });
+            if (!s) return;
+            s._deleted = true; s.updatedAt = now;
             _savePS(arr);
             var pt = _getPT();
-            pt.push({ id:_newTodoId(), memo:s.memo||'', addedAt:now });
+            pt.push({ id:_newTodoId(), memo:s.memo||'', addedAt:now, updatedAt:now });
             _savePT(pt);
         } else {
             var c = DB.find(function(x){ return x.id === clientId; });
             if (!c || !c.schedules) return;
-            var found = c.schedules.find(function(s){ return s.date === date && (s.time||'') === (time||''); });
+            var found = c.schedules.find(function(s){ return !s._deleted && s.date === date && (s.time||'') === (time||''); });
             if (!found) return;
-            c.schedules = c.schedules.filter(function(s){ return !(s.date === date && (s.time||'') === (time||'')); });
+            c.schedules.forEach(function(s) {
+                if (!s._deleted && s.date === date && (s.time||'') === (time||'')) {
+                    s._deleted = true; s.updatedAt = now;
+                }
+            });
             if (!c.todos) c.todos = [];
-            c.todos.push({ id:_newTodoId(), memo:found.memo||'', addedAt:now });
+            c.todos.push({ id:_newTodoId(), memo:found.memo||'', addedAt:now, updatedAt:now });
             persistAndSyncNow();
         }
         render();
@@ -7552,19 +7630,22 @@ function showDoneTodos() {
 
 function _restoreDoneTodo(idx) {
     var rec = _getPSRecord();
-    if (!rec.doneTodos || !rec.doneTodos[idx]) return;
-    var t = rec.doneTodos[idx];
-    rec.doneTodos.splice(idx, 1);
-    var now = new Date().toISOString();
+    // idx 是依 _liveItems(doneTodos) 的順序取；這裡要轉成實際陣列 index
+    var live = _liveItems(rec.doneTodos || []);
+    var t = live[idx];
+    if (!t) return;
+    // 軟刪已完成紀錄
+    t._deleted = true; t.updatedAt = _nowISO();
+    var now = _nowISO();
     if (t.personal || !t.clientId) {
         var arr = _getPT();
-        arr.push({ id:_newTodoId(), memo:t.memo||'', addedAt:t.addedAt||now });
+        arr.push({ id:_newTodoId(), memo:t.memo||'', addedAt:t.addedAt||now, updatedAt:now });
         _savePT(arr);
     } else {
         var c = DB.find(function(x){ return x.id === t.clientId; });
         if (c) {
             if (!c.todos) c.todos = [];
-            c.todos.push({ id:_newTodoId(), memo:t.memo||'', addedAt:t.addedAt||now });
+            c.todos.push({ id:_newTodoId(), memo:t.memo||'', addedAt:t.addedAt||now, updatedAt:now });
         }
     }
     persistAndSyncNow();
@@ -7577,16 +7658,22 @@ function _deleteDoneTodo(idx) {
     confirmAction('確定刪除此已完成待辦？', function() {
         var rec = _getPSRecord();
         if (!rec.doneTodos) return;
-        rec.doneTodos.splice(idx, 1);
+        var live = _liveItems(rec.doneTodos);
+        var t = live[idx];
+        if (!t) return;
+        t._deleted = true; t.updatedAt = _nowISO();
         persistAndSyncNow();
         document.querySelectorAll('.fill-overlay').forEach(function(m){ m.remove(); });
         showDoneTodos();
     });
 }
 
-function addPersonalSchedule(prefillIdx) {
-    var editing = prefillIdx !== undefined;
-    var ps = editing ? _getPS()[prefillIdx] || {} : {};
+function addPersonalSchedule(editId) {
+    var editing = editId !== undefined && editId !== null && editId !== '';
+    var _arrForEdit = _getPS();
+    var prefillIdx = editing ? _arrForEdit.findIndex(function(s){ return s.id === editId && !s._deleted; }) : -1;
+    if (editing && prefillIdx < 0) { editing = false; }
+    var ps = editing ? _arrForEdit[prefillIdx] || {} : {};
     var overlay = document.createElement('div');
     overlay.className = 'fill-overlay';
     var box = document.createElement('div');
@@ -7615,10 +7702,16 @@ function addPersonalSchedule(prefillIdx) {
         if (!date) { showToast('請選擇日期', 'warn'); return; }
         var _psRecurEl = document.getElementById('ps-recur'); var _psRecur = _psRecurEl ? _psRecurEl.value : '';
         var arr = _getPS();
-        var _psObj = { date:date, time:time, memo:memo };
+        var _psObj = { date:date, time:time, memo:memo, updatedAt:_nowISO() };
         if (_psRecur) _psObj.recurrence = _psRecur;
-        if (editing) { arr[prefillIdx] = _psObj; }
-        else { arr.push(_psObj); }
+        if (editing) {
+            var _old = arr[prefillIdx];
+            _psObj.id = (_old && _old.id) ? _old.id : _newSchedId();
+            arr[prefillIdx] = _psObj;
+        } else {
+            _psObj.id = _newSchedId();
+            arr.push(_psObj);
+        }
         _savePS(arr);
         overlay.remove();
         render();
@@ -7627,32 +7720,33 @@ function addPersonalSchedule(prefillIdx) {
     if (!window.matchMedia('(max-width:768px)').matches) document.getElementById('ps-memo').focus();
 }
 
-function editPersonalSchedule(idx) { addPersonalSchedule(idx); }
+function editPersonalSchedule(id) { addPersonalSchedule(id); }
 
-function completePersonalSchedule(idx) {
+function completePersonalSchedule(id) {
     confirmAction('確定完成此行程？', function() {
         var arr = _getPS();
-        var item = arr[idx];
-        arr.splice(idx, 1);
-        // 循環行程：自動產生下一筆（僅「每天」循環需等到隔日 00:00 才顯示）
-        if (item && item.recurrence) {
+        var item = arr.find(function(s){ return s.id === id && !s._deleted; });
+        if (!item) return;
+        // 循環行程：保留原筆並產生下一筆（同一 id 更新 date，並新增一筆舊日期的歷史記錄？這裡採用：軟刪舊筆、推下一筆）
+        _softDeleteById(arr, id);
+        if (item.recurrence) {
             var nextDate = calcNextRecurDate(item.date, item.recurrence);
             if (nextDate) {
-                var nextObj = { date:nextDate, time:item.time, memo:item.memo, recurrence:item.recurrence };
+                var nextObj = { id:_newSchedId(), date:nextDate, time:item.time, memo:item.memo, recurrence:item.recurrence, updatedAt:_nowISO() };
                 if (item.recurrence === 'daily' || item.recurrence === 'custom:1d') nextObj.hideBeforeDate = nextDate;
                 arr.push(nextObj);
                 showToast('已產生下一筆循環行程：' + isoToROC(nextDate), 'ok');
             }
         }
         _savePS(arr);
-        if (item && !item.recurrence) _addDoneSchedule({ clientId:'', clientName:'個人行程', date:item.date, time:item.time, memo:item.memo, doneAt:new Date().toISOString(), personal:true });
+        if (!item.recurrence) _addDoneSchedule({ id:_newSchedId(), clientId:'', clientName:'個人行程', date:item.date, time:item.time, memo:item.memo, doneAt:new Date().toISOString(), personal:true, updatedAt:_nowISO() });
         render();
     });
 }
-function deletePersonalSchedule(idx) {
+function deletePersonalSchedule(id) {
     confirmAction('確定刪除此行程？', function() {
         var arr = _getPS();
-        arr.splice(idx, 1);
+        _softDeleteById(arr, id);
         _savePS(arr);
         render();
     });
@@ -7661,8 +7755,10 @@ function deleteSchedule(clientId, date, time) {
     confirmAction('確定刪除此行程？', function() {
         var c = DB.find(function(x){ return x.id === clientId; });
         if (!c || !c.schedules) return;
-        c.schedules = c.schedules.filter(function(s) {
-            return !(s.date === date && (s.time||'') === (time||''));
+        c.schedules.forEach(function(s) {
+            if (!s._deleted && s.date === date && (s.time||'') === (time||'')) {
+                s._deleted = true; s.updatedAt = _nowISO();
+            }
         });
         persistAndSyncNow();
         render();
@@ -7672,7 +7768,10 @@ function deleteDoneSchedule(idx) {
     confirmAction('確定刪除此紀錄？', function() {
         var rec = _getPSRecord();
         if (!rec.doneSchedules) return;
-        rec.doneSchedules.splice(idx, 1);
+        var live = _liveItems(rec.doneSchedules);
+        var d = live[idx];
+        if (!d) return;
+        d._deleted = true; d.updatedAt = _nowISO();
         persist();
         filterDoneList();
     });
@@ -7684,16 +7783,16 @@ function _getAllFutureSchedules() {
     var all = [];
     DB.forEach(function(c) {
         if (c._deleted || c._system || c.archived || !c.schedules) return;
-        c.schedules.forEach(function(s) {
+        _liveItems(c.schedules).forEach(function(s) {
             if (!s.date || s.date < todayISO) return;
             if (s.hideBeforeDate && todayISO < s.hideBeforeDate) return;
             all.push({ clientId:c.id, clientName:c.name, date:s.date, time:s.time||'', memo:s.memo||'', personal:false, recurrence:s.recurrence||'' });
         });
     });
-    _getPS().forEach(function(s, idx) {
+    _liveItems(_getPS()).forEach(function(s) {
         if (!s.date || s.date < todayISO) return;
         if (s.hideBeforeDate && todayISO < s.hideBeforeDate) return;
-        all.push({ clientId:'', clientName:'個人行程', psIdx:idx, date:s.date, time:s.time||'', memo:s.memo||'', personal:true, recurrence:s.recurrence||'' });
+        all.push({ clientId:'', clientName:'個人行程', psId:s.id, date:s.date, time:s.time||'', memo:s.memo||'', personal:true, recurrence:s.recurrence||'' });
     });
     all.sort(function(a,b) { return (a.date+a.time).localeCompare(b.date+b.time); });
     return all;
@@ -7738,13 +7837,13 @@ function filterAllSchedList() {
         var nameText = s.personal ? '個人行程' : s.clientName;
         var memoText = s.memo ? ' <span style="color:#475569">/ '+esc(s.memo)+'</span>' : '';
         var editBtn = s.personal
-            ? '<button class="btn-ic" onclick="closeOverlay(this.closest(\'.fill-overlay\'));editPersonalSchedule('+s.psIdx+')" title="編輯" style="font-size:14px;padding:4px 8px"><i class="ti ti-pencil" style="color:#57534E"></i></button>'
+            ? '<button class="btn-ic" onclick="closeOverlay(this.closest(\'.fill-overlay\'));editPersonalSchedule(\''+esc(s.psId||'')+'\')" title="編輯" style="font-size:14px;padding:4px 8px"><i class="ti ti-pencil" style="color:#57534E"></i></button>'
             : '<button class="btn-ic" onclick="closeOverlay(this.closest(\'.fill-overlay\'));editDashSchedule(\''+esc(s.clientId)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="編輯" style="font-size:14px;padding:4px 8px"><i class="ti ti-pencil" style="color:#57534E"></i></button>';
         var doneBtn = s.personal
-            ? '<button class="btn-ic" onclick="closeOverlay(this.closest(\'.fill-overlay\'));completePersonalSchedule('+s.psIdx+')" title="完成" style="font-size:14px;padding:4px 8px"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button>'
+            ? '<button class="btn-ic" onclick="closeOverlay(this.closest(\'.fill-overlay\'));completePersonalSchedule(\''+esc(s.psId||'')+'\')" title="完成" style="font-size:14px;padding:4px 8px"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button>'
             : '<button class="btn-ic" onclick="closeOverlay(this.closest(\'.fill-overlay\'));completeSchedule(\''+esc(s.clientId)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="完成" style="font-size:14px;padding:4px 8px"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button>';
         var delBtn2 = s.personal
-            ? '<button class="btn-ic" onclick="closeOverlay(this.closest(\'.fill-overlay\'));deletePersonalSchedule('+s.psIdx+')" title="刪除" style="font-size:14px;padding:4px 8px"><i class="ti ti-trash" style="color:#DC2626"></i></button>'
+            ? '<button class="btn-ic" onclick="closeOverlay(this.closest(\'.fill-overlay\'));deletePersonalSchedule(\''+esc(s.psId||'')+'\')" title="刪除" style="font-size:14px;padding:4px 8px"><i class="ti ti-trash" style="color:#DC2626"></i></button>'
             : '<button class="btn-ic" onclick="closeOverlay(this.closest(\'.fill-overlay\'));deleteSchedule(\''+esc(s.clientId)+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="刪除" style="font-size:14px;padding:4px 8px"><i class="ti ti-trash" style="color:#DC2626"></i></button>';
         var toTodoBtn2 = s.recurrence ? '' : '<button class="btn-ic" onclick="closeOverlay(this.closest(\'.fill-overlay\'));scheduleToTodo(\''+(s.personal?'_ps':esc(s.clientId))+'\',\''+esc(s.date)+'\',\''+esc(s.time)+'\')" title="轉為待辦" style="font-size:14px;padding:4px 8px"><i class="ti ti-checkbox" style="color:#7C3AED"></i></button>';
         return separator + '<div style="padding:8px 0;border-bottom:1px solid #F1F5F9">' +
@@ -7806,24 +7905,22 @@ function filterDoneList() {
 }
 
 function restoreDoneSchedule(idx) {
-    var list = _getDoneSchedules();
-    var d = list[idx];
+    var live = _liveItems(_getDoneSchedules());
+    var d = live[idx];
     if (!d) return;
     confirmAction('確定恢復此行程？', function() {
-        list.splice(idx, 1);
-        var rec = _getPSRecord();
-        rec.doneSchedules = list;
+        d._deleted = true; d.updatedAt = _nowISO();
         if (d.personal || !d.clientId) {
             // 恢復為個人行程
             var arr = _getPS();
-            arr.push({ date:d.date, time:d.time, memo:d.memo });
+            arr.push({ id:_newSchedId(), date:d.date, time:d.time, memo:d.memo, updatedAt:_nowISO() });
             _savePS(arr);
         } else {
             // 恢復為客戶行程
             var c = DB.find(function(x){ return x.id === d.clientId; });
             if (c) {
                 if (!c.schedules) c.schedules = [];
-                c.schedules.push({ date:d.date, time:d.time, memo:d.memo });
+                c.schedules.push({ id:_newSchedId(), date:d.date, time:d.time, memo:d.memo, updatedAt:_nowISO() });
             }
             persist();
         }
@@ -9353,7 +9450,7 @@ function openEdit(id, viewAs) {
     if (c.dPersons && c.dPersons.length > 1) c.dPersons.slice(1).forEach(function(p){ addDPersonRow(p); });
     if (c.dAddrs && c.dAddrs.length) c.dAddrs.forEach(function(a){ addDAddrRow(a); });
     else if (!c.dAddrs && (c.dCommunity || c.dAddr)) addDAddrRow({devType:c.devType||'出售', community:c.dCommunity, addr:c.dAddr});
-    if (c.schedules && c.schedules.length) c.schedules.slice().sort(function(a,b){ return (a.date+(a.time||'')).localeCompare(b.date+(b.time||'')); }).forEach(function(s){ addScheduleRow(s); });
+    if (c.schedules && c.schedules.length) _liveItems(c.schedules).slice().sort(function(a,b){ return (a.date+(a.time||'')).localeCompare(b.date+(b.time||'')); }).forEach(function(s){ addScheduleRow(s); });
 
     // 共用聯絡人
     loadSharedContacts(c);
@@ -11088,7 +11185,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260415e1';
+var APP_VERSION = '20260416a1';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
