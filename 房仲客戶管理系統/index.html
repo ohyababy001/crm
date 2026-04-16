@@ -364,7 +364,7 @@
         .dash-card:hover { box-shadow: 0 8px 24px rgba(28,25,23,0.1); border-color: #D6D3D1; transform: translateY(-2px); }
         .dash-card .dash-num { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
         .dash-card .dash-label { font-size: 13px; color: var(--muted); font-weight: 600; }
-        .dash-sections { display: grid; grid-template-columns: 450px 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; gap: 10px; margin-top: 34px; grid-template-areas: "sched todo seller" "sched todo bday" "sched todo rental"; }
+        .dash-sections { display: grid; grid-template-columns: 450px 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; gap: 10px; margin-top: 34px; grid-template-areas: "sched todo seller" "sched todo rental" "sched todo bday"; }
         .dash-section { background: #FFFFFF; border-radius: var(--radius); padding: 12px; border: 2px solid var(--lux-navy); box-shadow: 0 1px 4px rgba(28,25,23,0.04); min-height: 240px; transition: all 0.2s; }
         .dash-section:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(28,25,23,0.08); }
         .dash-section.dash-schedule { grid-area: sched; background: #FFFFFF; align-self: start; height: 630px; display: flex; flex-direction: column; }
@@ -11209,7 +11209,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260416c8';
+var APP_VERSION = '20260416c9';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
