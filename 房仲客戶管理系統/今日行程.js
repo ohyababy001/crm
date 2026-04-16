@@ -32,7 +32,7 @@ function getToday(db) {
     if (c._deleted || c._system || c.archived || !c.schedules) return;
     let name = c.llName || c.ttName || c.bName || c.sName || c.cName || c.dName || c.name || '未命名';
     c.schedules.forEach(function(s) {
-      if (!s.date) return;
+      if (!s.date || s._deleted) return;
       if (s.hideBeforeDate && today < s.hideBeforeDate) return;
       if (s.date <= today) list.push({ name: name, time: s.time || '', memo: s.memo || '', date: s.date, expired: s.date < today });
     });
@@ -40,7 +40,7 @@ function getToday(db) {
   let ps = db.find(function(c) { return c.id === '_personalSchedules'; });
   if (ps && ps.schedules) {
     ps.schedules.forEach(function(s) {
-      if (!s.date) return;
+      if (!s.date || s._deleted) return;
       if (s.hideBeforeDate && today < s.hideBeforeDate) return;
       if (s.date <= today) list.push({ name: '📌 個人', time: s.time || '', memo: s.memo || '', date: s.date, expired: s.date < today });
     });
