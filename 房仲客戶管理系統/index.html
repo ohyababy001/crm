@@ -382,7 +382,7 @@
         .dash-item { padding: 3px 8px; margin: 0 -8px; border-bottom: 1px solid rgba(200,164,90,0.15); display: flex; align-items: center; gap: 8px; border-radius: 6px; transition: background 0.15s; }
         .dash-item:last-child { border-bottom: none; }
         .dash-item:hover { background: #F0F4F8; }
-        .dash-item-info { color: #1C1917; font-size: 16px; font-weight: 700; white-space: nowrap; flex-shrink: 0; min-width: 90px; }
+        .dash-item-info { color: #1C1917; font-size: 16px; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
         .dash-item-name { font-weight: 600; flex: 1; min-width: 0; color: #1E40AF; font-size: 18px; }
         .dash-empty { color: var(--muted); text-align: center; padding: 16px 0; font-size: 13px; }
         .dash-sched-item { flex-wrap: wrap; gap: 2px; }
@@ -11206,7 +11206,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260416b7';
+var APP_VERSION = '20260416b8';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
