@@ -388,6 +388,7 @@
         .dash-sched-item { flex-wrap: wrap; gap: 2px; }
         .dash-sched-row1 { display: flex; align-items: center; gap: 8px; width: 100%; }
         .dash-sched-memo { font-size: 15px; color: #475569; }
+        .dash-done-btn .dash-done-txt { display: none; }
         #dashSchedule { max-height: 630px; overflow-y: auto; overflow-x: hidden; }
         #dashSchedule, #dashTodo, #dashExpiringSeller, #dashBirthday, #dashExpiringRental { scrollbar-width: thin; scrollbar-color: rgba(200,164,90,0.3) transparent; }
         #dashSchedule::-webkit-scrollbar,
@@ -417,7 +418,6 @@
             .dash-sched-memo { width: 100%; font-size: 14px; padding-left: 4px; }
             .dash-sched-btns { gap: 6px !important; }
             .dash-sched-btns .btn-ic { font-size: 14px !important; padding: 3px 6px !important; }
-            .dash-done-btn .dash-done-txt { display: none; }
             .dash-sched-row1 { flex-wrap: wrap; }
             .dash-sched-row1 .dash-item-name { font-size: 14px; }
             /* 全域防溢出 */
@@ -11190,7 +11190,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260416a8';
+var APP_VERSION = '20260416a9';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
