@@ -383,7 +383,7 @@
         .dash-item:last-child { border-bottom: none; }
         .dash-item:hover { background: #F0F4F8; }
         .dash-item-info { color: #1C1917; font-size: 16px; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
-        .dash-item-name { font-weight: 600; flex: 1; min-width: 0; color: #1E40AF; font-size: 18px; }
+        .dash-item-name { font-weight: 600; flex: 1; min-width: 0; color: #1E40AF; font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .dash-empty { color: var(--muted); text-align: center; padding: 16px 0; font-size: 13px; }
         .dash-sched-item { flex-wrap: wrap; gap: 2px; }
         .dash-sched-row1 { display: flex; align-items: center; gap: 8px; width: 100%; }
@@ -3747,7 +3747,7 @@ function renderDashboard() {
             return '<div class="dash-item" style="cursor:pointer">' +
                 '<span class="dash-item-info" style="color:'+(d<=0?'#EF4444':'')+'">'+label+'</span>' +
                 '<span class="dash-item-name" onclick="showDet(\''+esc(c.id)+'\')">'+esc(c.name)+'<span style="font-weight:400;color:#475569"> · '+esc(infoFn(c))+'</span></span>' +
-                '<button class="btn-ic" onclick="event.stopPropagation();_dismissAlert(\''+esc(dk)+'\',\'確定已處理「'+esc(c.name)+'」的到期提醒？\\n（續約後會重新出現）\')" title="已處理" style="font-size:13px;padding:2px 4px;flex-shrink:0"><i class="ti ti-circle-check" style="color:#059669"></i> 完成</button></div>';
+                '<button class="btn-ic dash-done-btn" onclick="event.stopPropagation();_dismissAlert(\''+esc(dk)+'\',\'確定已處理「'+esc(c.name)+'」的到期提醒？\\n（續約後會重新出現）\')" title="已處理" style="font-size:13px;padding:2px 4px;flex-shrink:0"><i class="ti ti-circle-check" style="color:#059669"></i><span class="dash-done-txt"> 完成</span></button></div>';
         }).join('') : '<div class="dash-empty">'+emptyMsg+'</div>';
     }
     // 庫存合約即將到期（15天內）— 同時掃客戶主欄 contractEnd 與多物件 sProperties[*].contractEnd
@@ -11206,7 +11206,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260416b8';
+var APP_VERSION = '20260416b9';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
