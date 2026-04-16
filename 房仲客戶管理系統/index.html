@@ -3812,12 +3812,12 @@ function renderDashboard() {
             '<div class="dash-sched-row1">' +
                 '<span class="dash-item-info" style="color:'+dateColor+'">'+(s.expired?'<i class="ti ti-alert-triangle" style="color:#DC2626;font-size:12px"></i> ':'')+esc(isoToMDW(s.date))+(s.time?' '+s.time:'')+(s.expired?' <span style="font-size:12px">已過期'+Math.abs(s.days)+'天</span>':'')+'</span>' +
                 nameHtml +
-                '<span style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;margin-left:auto;align-items:flex-end">' +
-                    '<span style="display:flex;gap:2px">' + editBtn + delBtn + '</span>' +
-                    '<span style="display:flex;gap:2px">' + toTodoBtn + doneBtn + '</span>' +
-                '</span>' +
+                '<span style="display:flex;gap:2px;flex-shrink:0;margin-left:auto">' + editBtn + delBtn + '</span>' +
             '</div>' +
-            '<div style="padding-right:70px">' + memoHtml + '</div>' +
+            '<div style="display:flex;align-items:center;gap:6px">' +
+                '<div style="flex:1;min-width:0">' + memoHtml + '</div>' +
+                '<span style="display:flex;gap:2px;flex-shrink:0">' + toTodoBtn + doneBtn + '</span>' +
+            '</div>' +
         '</div>';
     }).join('') : '<div class="dash-empty">近15天內沒有預排行程</div>';
 
@@ -11190,7 +11190,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-var APP_VERSION = '20260416a4';
+var APP_VERSION = '20260416a5';
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
