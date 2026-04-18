@@ -238,6 +238,10 @@ thead th {
     letter-spacing: .3px;
 }
 thead th:first-child { text-align: left; position: sticky; left: 0; background: #FAFAF9; z-index: 2; }
+thead th:last-child { position: sticky; right: 0; background: #FAFAF9; z-index: 2; box-shadow: -4px 0 8px rgba(0,0,0,0.05); }
+tbody td:last-child { position: sticky; right: 0; background: var(--card); z-index: 1; box-shadow: -4px 0 8px rgba(0,0,0,0.05); }
+tbody tr:hover td:last-child { background: #FAFAF9; }
+tfoot td:last-child { position: sticky; right: 0; background: linear-gradient(180deg, #FFFBF0 0%, #FFFFFF 100%); z-index: 1; box-shadow: -4px 0 8px rgba(0,0,0,0.05); }
 tbody td {
     padding: 4px 10px;
     text-align: right;
