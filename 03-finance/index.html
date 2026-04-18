@@ -1903,7 +1903,7 @@ function renderIncomeExpense(section) {
 
     // 工具列
     html += '<div class="toolbar">';
-    html += '<select class="year-select" onchange="selectIEYear(this.value)" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text);font-weight:600;cursor:pointer;margin-right:12px;font-family:inherit;font-size:14px">';
+    html += '<select class="year-select" onchange="selectIEYear(this.value)" style="padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text);font-weight:700;cursor:pointer;margin-right:12px;font-family:inherit;font-size:17px">';
     years.forEach(function(y){
         html += '<option value="' + esc(y) + '"' + (y === curY ? ' selected' : '') + '>' + y + '年</option>';
     });
@@ -2679,7 +2679,7 @@ function exportJSON() {
     var blob = new Blob([JSON.stringify(exportObj, null, 2)], {type:'application/json'});
     var a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = '財務追蹤_備份_' + new Date().toISOString().slice(0,10) + '.json';
+    a.download = 'finance-backup_' + new Date().toISOString().slice(0,10) + '.json';
     a.click();
     _recordExport();
     toast('已匯出 JSON 備份');
@@ -4773,7 +4773,7 @@ function maybeAutoSnapshot() {
             hist.push({ date: today, netWorth: nw, breakdown: br });
             if (hist.length > 3000) hist.splice(0, hist.length - 3000);
         }
-        saveData();
+        saveData(true);
     } catch(e) { console.error('[maybeAutoSnapshot]', e); }
 }
 
@@ -4796,7 +4796,7 @@ function fetchFxRates(onDone) {
         });
         rates.updatedAt = _todayStr();
         DATA.assets.rates = rates;
-        saveData();
+        saveData(true);
         if (onDone) onDone(true);
     }).catch(function(err){
         _assetFxFetching = false;
@@ -4824,7 +4824,7 @@ function fetchGoldPrice(onDone) {
         var usdTwd = getFxRate('USD') || 31.7;
         var twdPerTael = usdPerOz * 1.20565 * usdTwd;
         DATA.assets.goldRef = { twdPerTael: Math.round(twdPerTael), updatedAt: _todayStr() };
-        saveData();
+        saveData(true);
         if (onDone) onDone(true);
     }).catch(function(err){
         console.warn('[fetchGoldPrice] failed', err);
