@@ -3889,14 +3889,13 @@ function renderTrend() {
 
         html += '<div style="background:var(--card);border-radius:var(--radius);margin-bottom:10px;box-shadow:var(--shadow);overflow:hidden">';
         // 年份標題列
-        html += '<div onclick="toggleTrendYear(\'' + y + '\')" style="cursor:pointer;user-select:none;padding:12px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:' + (open ? '#F1EDE8' : 'var(--card)') + ';border-bottom:' + (open ? '1px solid var(--border)' : 'none') + '">';
-        html += '<span style="font-size:15px;font-weight:700">' + arrow + ' ' + y + ' 年</span>';
-        html += '<span style="font-size:12px;color:var(--muted)">' + rows.length + ' 筆</span>';
-        html += '<span style="flex:1"></span>';
-        html += '<span style="font-size:13px"><span style="color:var(--muted)">收入 </span><b style="color:var(--green)">' + fmt(yIncome) + '</b></span>';
-        html += '<span style="font-size:13px"><span style="color:var(--muted)">支出 </span><b style="color:var(--red)">' + fmt(yExpense) + '</b></span>';
-        html += '<span style="font-size:13px"><span style="color:var(--muted)">結餘 </span><b style="color:' + yBalColor + '">' + (yBalance >= 0 ? '+' : '') + fmt(yBalance) + '</b></span>';
-        html += '</div>';
+        html += '<div onclick="toggleTrendYear(\'' + y + '\')" style="cursor:pointer;user-select:none;padding:12px 16px;background:' + (open ? '#F1EDE8' : 'var(--card)') + ';border-bottom:' + (open ? '1px solid var(--border)' : 'none') + '">';
+        html += '<div style="display:flex;align-items:center;gap:10px"><span style="font-size:15px;font-weight:700">' + arrow + ' ' + y + ' 年</span><span style="font-size:12px;color:var(--muted)">' + rows.length + ' 筆</span></div>';
+        html += '<div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:6px;font-size:13px">';
+        html += '<span><span style="color:var(--muted)">收入 </span><b style="color:var(--green)">' + fmt(yIncome) + '</b></span>';
+        html += '<span><span style="color:var(--muted)">支出 </span><b style="color:var(--red)">' + fmt(yExpense) + '</b></span>';
+        html += '<span><span style="color:var(--muted)">結餘 </span><b style="color:' + yBalColor + '">' + (yBalance >= 0 ? '+' : '') + fmt(yBalance) + '</b></span>';
+        html += '</div></div>';
 
         // 月份明細表
         if (open) {
