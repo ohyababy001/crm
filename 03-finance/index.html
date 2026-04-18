@@ -2087,7 +2087,7 @@ function renderIncomeExpense(section) {
         html += '<th class="sortable col-month' + (sortActive?' sort-active':'') + '" style="width:68px" onclick="toggleSortMonth(' + m + ')">' + MONTH_LABELS[m-1] + sortArrowMonth(m) + '</th>';
     }
     var yActive = sortState.col === 'year' && sortState.year === curY;
-    html += '<th class="sortable' + (yActive?' sort-active':'') + '" style="width:80px;font-weight:700" onclick="toggleSort(\'year\',\'' + curY + '\')">全年合計' + sortArrow('year', curY) + '</th>';
+    html += '<th class="sortable' + (yActive?' sort-active':'') + '" style="width:80px;font-weight:700" onclick="toggleSort(\'year\',\'' + curY + '\')">年合計' + sortArrow('year', curY) + '</th>';
     html += '</tr></thead><tbody>';
 
     var sortedCats = sortCatsForMonth(section, cats, curY);
@@ -2342,6 +2342,32 @@ function deleteCategory(section, cat) {
     });
 }
 
+function renameCategory(section, oldName) {
+    showModal('改名「' + oldName + '」', '新名稱', oldName, function(newName) {
+        if (!newName || newName === oldName) { manageCategories(section); return; }
+        var list = section === 'income' ? DATA.settings.incomeCategories : DATA.settings.expenseCategories;
+        if (list.indexOf(newName) >= 0) { toast('名稱已存在'); manageCategories(section); return; }
+        // 更新排序陣列
+        var idx = list.indexOf(oldName);
+        if (idx >= 0) list[idx] = newName;
+        // 搬資料（所有年份）
+        DATA.settings.years.forEach(function(y) {
+            if (DATA[section][y] && DATA[section][y][oldName] !== undefined) {
+                DATA[section][y][newName] = DATA[section][y][oldName];
+                delete DATA[section][y][oldName];
+            }
+        });
+        // 更新封存清單
+        var archKey = section === 'income' ? 'archivedIncomeCats' : 'archivedExpenseCats';
+        if (DATA.settings[archKey]) {
+            DATA.settings[archKey] = DATA.settings[archKey].map(function(c){ return c === oldName ? newName : c; });
+        }
+        saveData();
+        render();
+        manageCategories(section);
+    });
+}
+
 function addYear() {
     showModal('新增年份', '民國年（如 116）', '', function(y) {
         if (!y || !/^\d+$/.test(y)) return;
@@ -2421,6 +2447,7 @@ function manageCategories(section) {
                 '<span style="font-size:14px;' + (ca?'opacity:0.5;font-style:italic':'') + '">' + esc(cat) + (ca?' <span style="font-size:11px;color:var(--muted)">(已封存)</span>':'') + '</span>' +
             '</span>' +
             '<div style="display:flex;gap:6px">' +
+                '<button onclick="this.closest(\'.overlay\').remove();renameCategory(\'' + esc(section) + '\',\'' + esc(cat) + '\')" style="padding:4px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;cursor:pointer;background:var(--card);font-family:inherit"><i class="ti ti-pencil" style="font-size:13px"></i> 改名</button>' +
                 '<button onclick="' + (ca?'unarchiveCategory':'archiveCategory') + '(\'' + esc(section) + '\',\'' + esc(cat) + '\');this.closest(\'.overlay\').remove();manageCategories(\'' + section + '\')" style="padding:4px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;cursor:pointer;background:var(--card);font-family:inherit">' + (ca?'<i class="ti ti-lock-open" style="font-size:13px"></i> 取消封存':'<i class="ti ti-lock" style="font-size:13px"></i> 封存') + '</button>' +
                 '<button onclick="this.closest(\'.overlay\').remove();deleteCategory(\'' + esc(section) + '\',\'' + esc(cat) + '\')" style="padding:4px 10px;border:none;border-radius:6px;font-size:13px;cursor:pointer;background:var(--red);color:white;font-family:inherit"><i class="ti ti-x" style="font-size:14px"></i></button>' +
             '</div></div>';
