@@ -6,5 +6,9 @@
 02-tools/
 
 # 其他系統暫不納入此 repo（以後若要推再移除）
-03-finance/
 04-valuation/
+
+# 03-finance 敏感資料：備份 JSON 含實際收支、.gsheet 含雲端連結、.gs 是 Apps Script
+03-finance/*backup*.json
+03-finance/*.gsheet
+03-finance/*.gs
