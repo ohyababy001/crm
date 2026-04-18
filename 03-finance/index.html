@@ -300,6 +300,7 @@ tfoot td:first-child { text-align: left; }
     flex-wrap: wrap;
     align-items: center;
 }
+.toolbar .toolbar-break { display: none; }
 .toolbar select, .toolbar button {
     padding: 9px 16px;
     border: 1px solid var(--border);
@@ -747,6 +748,8 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
     .toolbar .btn-add, .toolbar button { font-size: 12px; padding: 6px 10px; }
     /* top-fixed 手機版寬度 */
     .top-fixed { max-width: calc(100% - 16px); }
+    /* 收入/支出工具列：年份獨立一排，其他按鈕一排 */
+    .toolbar .toolbar-break { display: block; flex-basis: 100%; height: 0; }
 }
 /* ── 淨資產 ── */
 .nw-hero {
@@ -1907,6 +1910,7 @@ function renderIncomeExpense(section) {
         html += '<option value="' + esc(y) + '"' + (y === curY ? ' selected' : '') + '>' + y + '年</option>';
     });
     html += '</select>';
+    html += '<div class="toolbar-break"></div>';
     html += '<button class="btn-add" onclick="manageYears()"><i class="ti ti-list-details"></i> 管理年份</button>';
     html += '<button class="btn-add" onclick="manageCategories(\'' + section + '\')"><i class="ti ti-list-details"></i> 管理項目</button>';
     var recurFn = section === 'income' ? 'manageIncomeRecurring' : 'manageExpenseRecurring';
