@@ -1907,8 +1907,8 @@ function renderIncomeExpense(section) {
         html += '<option value="' + esc(y) + '"' + (y === curY ? ' selected' : '') + '>' + y + '年</option>';
     });
     html += '</select>';
-    html += '<button class="btn-add" onclick="manageCategories(\'' + section + '\')"><i class="ti ti-list-details"></i> 管理項目</button>';
     html += '<button class="btn-add" onclick="manageYears()"><i class="ti ti-list-details"></i> 管理年份</button>';
+    html += '<button class="btn-add" onclick="manageCategories(\'' + section + '\')"><i class="ti ti-list-details"></i> 管理項目</button>';
     var recurFn = section === 'income' ? 'manageIncomeRecurring' : 'manageExpenseRecurring';
     var recurLabel = section === 'income' ? '定期收入' : '定期支出';
     html += '<button class="btn-add" onclick="' + recurFn + '()"><i class="ti ti-repeat"></i> ' + recurLabel + '</button>';
