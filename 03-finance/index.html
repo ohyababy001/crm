@@ -321,6 +321,7 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
 /* 月記錄年度卡片：桌面版年標題與摘要同一排（標題靠左、摘要靠右） */
 .trend-year-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 .trend-year-head .trend-year-summary { margin-top: 0 !important; }
+.trend-year-card .table-wrap { margin-bottom: 0; border: none; box-shadow: none; border-radius: 0; }
 .toolbar select, .toolbar button {
     padding: 9px 16px;
     border: 1px solid var(--border);
@@ -618,6 +619,8 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
 .holdings-table thead th:last-child,
 .holdings-table tbody td:last-child,
 .holdings-table tfoot td:last-child { position: static; box-shadow: none; }
+/* 持股表所有 td 垂直對齊頂部，避免單行欄位與雙行欄位錯位 */
+.holdings-table tbody td { vertical-align: top; }
 .stock-table td.stock-name-cell {
     text-align: left;
     font-weight: 600;
@@ -773,16 +776,42 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
     /* 手機版表格字級加大 */
     thead th { font-size: 15px; }
     .yoy-pct { font-size: 13px !important; }
+    /* 手機版收入/支出表字級 17px */
+    .ie-table { font-size: 17px !important; }
+    .ie-table thead th { font-size: 17px !important; }
+    .ie-table tbody td { font-size: 17px !important; }
     /* 手機版持股表所有字級 +1 */
     .holdings-table { font-size: 13px !important; }
     .holdings-table thead th { font-size: 16px !important; }
-    .holdings-table tbody td { font-size: 13px !important; }
+    .holdings-table tbody td { font-size: 15px !important; }
     .holdings-table .stock-sub-label { font-size: 12px !important; }
-    .holdings-table .stock-name-sub { font-size: 13px !important; }
+    .holdings-table .stock-name-sub { font-size: 10px !important; }
+    .holdings-table tbody td.stock-name-cell { font-size: 15px !important; }
     .holdings-table .stock-sub-val { font-size: 12px !important; }
+    /* 手機版持股表固定欄寬：第一欄 100px、其他 6 欄各 95px */
+    .holdings-table { table-layout: fixed !important; min-width: 670px !important; }
+    .holdings-table .col-holdings-name { width: 100px !important; }
+    .holdings-table .col-daypl,
+    .holdings-table .col-price,
+    .holdings-table .col-pl,
+    .holdings-table .col-shares,
+    .holdings-table .col-cost,
+    .holdings-table .col-market { width: 95px !important; }
+    /* 手機版持股表：今日損益資料置中 */
+    .holdings-table tbody td.col-daypl { text-align: center !important; }
+    /* 手機版持股表：兩字標題中間空一小格 */
+    .holdings-table .col-title { letter-spacing: 0.5em; margin-right: -0.5em; }
+    /* 月記錄趨勢圖：按鈕上下緊縮、容器下方 padding 縮 */
+    .trend-toggle-btn { padding: 3px 14px !important; }
+    .trend-chart-wrap { padding-bottom: 4px !important; }
     /* 手機版收入/支出表欄寬加大（桌面維持 80/68） */
-    .ie-table .col-cat { width: 80px !important; }
-    .ie-table .col-month { width: 78px !important; }
+    .ie-table .cat-2ch { letter-spacing: 0.5em; padding-right: calc(4px + 0.5em); }
+    .ie-table thead th.col-cat { letter-spacing: 0.5em; padding-right: calc(4px + 0.5em); }
+    .ie-table { min-width: 1450px !important; }
+    .ie-table .col-cat { width: 85px !important; }
+    .ie-table .col-month { width: 105px !important; }
+    .ie-table thead th:last-child,
+    .ie-table tfoot td:last-child { width: 105px !important; }
     .tab-btn { padding: 6px 8px; font-size: 15px; }
     .tab-bar-wrap { max-width: 100%; }
     .tab-bar-inner { grid-template-columns: repeat(3, 1fr); gap: 4px; }
@@ -832,8 +861,8 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
     .asset-card-head .asset-card-arrow { font-size: 13px; }
     /* 台股子分頁、工具列按鈕在手機版同寬但不撐滿 */
     .stock-sub-tabs { gap: 8px; }
-    .stock-sub-tab { padding: 9px 0; text-align: center; min-width: 84px; }
-    .stock-refresh-bar .btn-refresh { padding: 9px 0; text-align: center; min-width: 84px; }
+    .stock-sub-tab { padding: 5px 0; text-align: center; min-width: 84px; }
+    .stock-refresh-bar .btn-refresh { padding: 5px 0; text-align: center; min-width: 84px; }
     .stock-refresh-bar .last-update { flex-basis: 100%; }
     /* 質押頁「＋ 新增質押」按鈕對齊子分頁大小 */
     .toolbar .btn-pledge-add { padding: 9px 16px; font-size: 15px; font-weight: 700; }
@@ -2058,14 +2087,15 @@ function renderIncomeExpense(section) {
         html += '<th class="sortable col-month' + (sortActive?' sort-active':'') + '" style="width:68px" onclick="toggleSortMonth(' + m + ')">' + MONTH_LABELS[m-1] + sortArrowMonth(m) + '</th>';
     }
     var yActive = sortState.col === 'year' && sortState.year === curY;
-    html += '<th class="sortable' + (yActive?' sort-active':'') + '" style="width:80px;font-weight:700" onclick="toggleSort(\'year\',\'' + curY + '\')">合計' + sortArrow('year', curY) + '</th>';
+    html += '<th class="sortable' + (yActive?' sort-active':'') + '" style="width:80px;font-weight:700" onclick="toggleSort(\'year\',\'' + curY + '\')">全年合計' + sortArrow('year', curY) + '</th>';
     html += '</tr></thead><tbody>';
 
     var sortedCats = sortCatsForMonth(section, cats, curY);
     sortedCats.forEach(function(cat) {
         var catArch = isCatArchived(section, cat);
         var yArch = isYearArchived(curY);
-        html += '<tr class="' + (catArch?'archived-row':'') + '"><td>' + esc(cat) + '</td>';
+        var catLen = Array.from(cat).length;
+        html += '<tr class="' + (catArch?'archived-row':'') + '"><td' + (catLen === 2 ? ' class="cat-2ch"' : '') + '>' + esc(cat) + '</td>';
         for (var m = 1; m <= 12; m++) {
             var val = getMonthVal(section, curY, cat, m);
             if (yArch || catArch) {
@@ -4187,18 +4217,18 @@ function renderTrend() {
     }
 
     // 折線圖 + 顯示切換
-    html += '<div style="background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow)">';
-    html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">';
+    html += '<div class="trend-chart-wrap" style="background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow)">';
+    html += '<div class="trend-toggle-row" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">';
     [
         ['income',  '收入', '#16A34A'],
         ['expense', '支出', '#DC2626'],
         ['balance', '結餘', '#0284C7']
     ].forEach(function(s) {
         var on = _trendShow[s[0]];
-        html += '<button onclick="toggleTrendLine(\'' + s[0] + '\')" style="padding:6px 14px;border:2px solid ' + s[2] + ';border-radius:6px;background:' + (on ? s[2] : 'var(--card)') + ';color:' + (on ? 'white' : s[2]) + ';font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">' + s[1] + '</button>';
+        html += '<button class="trend-toggle-btn" onclick="toggleTrendLine(\'' + s[0] + '\')" style="padding:6px 14px;border:2px solid ' + s[2] + ';border-radius:6px;background:' + (on ? s[2] : 'var(--card)') + ';color:' + (on ? 'white' : s[2]) + ';font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">' + s[1] + '</button>';
     });
     html += '</div>';
-    html += '<canvas id="trend-chart" style="max-height:180px"></canvas>';
+    html += '<canvas id="trend-chart" style="max-height:180px;display:block"></canvas>';
     html += '</div>';
 
     // 歷史表格：按年分組、可收合
@@ -4230,7 +4260,7 @@ function renderTrend() {
         var open = _trendYearOpen[y];
         var arrow = open ? '▼' : '▶';
 
-        html += '<div style="background:var(--card);border-radius:var(--radius);margin-bottom:10px;box-shadow:var(--shadow);overflow:hidden">';
+        html += '<div class="trend-year-card" style="background:var(--card);border-radius:var(--radius);margin-bottom:10px;box-shadow:var(--shadow);overflow:hidden">';
         // 年份標題列
         html += '<div class="trend-year-head" onclick="toggleTrendYear(\'' + y + '\')" style="cursor:pointer;user-select:none;padding:12px 16px;background:' + (open ? '#F1EDE8' : 'var(--card)') + ';border-bottom:' + (open ? '1px solid var(--border)' : 'none') + '">';
         html += '<div class="trend-year-title" style="display:flex;align-items:center;gap:10px"><span style="font-size:15px;font-weight:700">' + arrow + ' ' + y + ' 年</span><span class="trend-year-count" style="font-size:12px;color:var(--muted)">' + rows.length + ' 筆</span></div>';
@@ -4393,7 +4423,7 @@ function _drawTrendChart(all) {
             maintainAspectRatio: false,
             interaction: { mode: 'index', intersect: false },
             plugins: {
-                legend: { position: 'top' },
+                legend: { display: false },
                 tooltip: {
                     callbacks: {
                         label: function(ctx) {
@@ -4602,13 +4632,13 @@ function renderStockHoldings() {
     }
 
     html += '<div class="table-wrap"><table class="stock-table holdings-table"><thead><tr>';
-    html += '<th style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'name\')">庫存股' + _sArr('name') + '</th>';
-    if (vis.dayPL !== false) html += '<th style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'dayPL\')">今日損益' + _sArr('dayPL') + '</th>';
-    if (vis.price !== false) html += '<th style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'price\')">股價<br><span class="stock-sub-label" style="font-size:11px;color:var(--muted);font-weight:400">漲跌幅</span>' + _sArr('price') + '</th>';
-    if (vis.pl !== false) html += '<th style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'pl\')">總損益<br><span class="stock-sub-label" style="font-size:11px;color:var(--muted);font-weight:400">報酬率</span>' + _sArr('pl') + '</th>';
-    if (vis.shares !== false) html += '<th style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'shares\')">股數' + _sArr('shares') + '</th>';
-    if (vis.cost !== false) html += '<th style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'cost\')">均價<br><span class="stock-sub-label" style="font-size:11px;color:var(--muted);font-weight:400">總成本</span>' + _sArr('cost') + '</th>';
-    if (vis.market !== false) html += '<th style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'market\')">市值<br><span class="stock-sub-label" style="font-size:11px;color:var(--muted);font-weight:400">佔比</span>' + _sArr('market') + '</th>';
+    html += '<th class="col-holdings-name" style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'name\')">庫存股' + _sArr('name') + '</th>';
+    if (vis.dayPL !== false) html += '<th class="col-daypl" style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'dayPL\')">今日損益' + _sArr('dayPL') + '</th>';
+    if (vis.price !== false) html += '<th class="col-price" style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'price\')"><span class="col-title">股價</span><br><span class="stock-sub-label" style="font-size:11px;color:var(--muted);font-weight:400">漲跌幅</span>' + _sArr('price') + '</th>';
+    if (vis.pl !== false) html += '<th class="col-pl" style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'pl\')">總損益<br><span class="stock-sub-label" style="font-size:11px;color:var(--muted);font-weight:400">報酬率</span>' + _sArr('pl') + '</th>';
+    if (vis.shares !== false) html += '<th class="col-shares" style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'shares\')"><span class="col-title">股數</span>' + _sArr('shares') + '</th>';
+    if (vis.cost !== false) html += '<th class="col-cost" style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'cost\')"><span class="col-title">均價</span><br><span class="stock-sub-label" style="font-size:11px;color:var(--muted);font-weight:400">總成本</span>' + _sArr('cost') + '</th>';
+    if (vis.market !== false) html += '<th class="col-market" style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'market\')"><span class="col-title">市值</span><br><span class="stock-sub-label" style="font-size:11px;color:var(--muted);font-weight:400">佔比</span>' + _sArr('market') + '</th>';
     html += '</tr></thead><tbody>';
 
     rows.forEach(function(r) {
@@ -4618,7 +4648,7 @@ function renderStockHoldings() {
         html += '<td class="stock-name-cell" style="cursor:pointer" onclick="editHolding(' + r.idx + ')">' + esc(h.id) + '<br><span class="stock-name-sub" style="font-size:12px;color:var(--muted);font-weight:400">' + esc(h.name) + '</span></td>';
         // 今日損益
         if (vis.dayPL !== false) {
-            html += '<td class="' + (r.dayPL !== null ? (r.dayPL >= 0 ? 'pos' : 'neg') : '') + '" style="font-weight:600">' + (r.dayPL !== null ? (r.dayPL >= 0 ? '+' : '') + fmt(r.dayPL) : '-') + '</td>';
+            html += '<td class="col-daypl ' + (r.dayPL !== null ? (r.dayPL >= 0 ? 'pos' : 'neg') : '') + '" style="font-weight:600">' + (r.dayPL !== null ? (r.dayPL >= 0 ? '+' : '') + fmt(r.dayPL) : '-') + '</td>';
         }
         // 股價 / 漲跌幅
         if (vis.price !== false) {
