@@ -825,6 +825,8 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
     .stock-sub-tab { padding: 9px 0; text-align: center; min-width: 84px; }
     .stock-refresh-bar .btn-refresh { padding: 9px 0; text-align: center; min-width: 84px; }
     .stock-refresh-bar .last-update { flex-basis: 100%; }
+    /* 質押頁「＋ 新增質押」按鈕對齊子分頁大小 */
+    .toolbar .btn-pledge-add { padding: 9px 16px; font-size: 15px; font-weight: 700; }
     /* 手機版股利卡片隱藏「累積股利」字樣 */
     .lbl-cum { display: none; }
     /* 手機版質押紀錄：日息、月息推到最右 */
@@ -1677,6 +1679,32 @@ function syncTopFixedHeight() {
     _lastViewportWidth = window.innerWidth;
 }
 window.addEventListener('load', syncTopFixedHeight);
+
+// ── DEBUG 面板（臨時用，找完 bug 移除）──
+(function setupDebugPanel() {
+    var panel = document.createElement('div');
+    panel.id = '__debug';
+    panel.style.cssText = 'position:fixed;right:4px;bottom:4px;background:rgba(0,0,0,.82);color:#0f0;font:11px/1.4 monospace;padding:6px 8px;border-radius:6px;z-index:9999;pointer-events:none;white-space:pre;text-align:right;max-width:220px';
+    document.body.appendChild(panel);
+    function update() {
+        var tf = document.querySelector('.top-fixed');
+        if (!tf) return;
+        var r = tf.getBoundingClientRect();
+        var vh = window.innerHeight;
+        var ih = document.documentElement.clientHeight;
+        panel.textContent =
+            'scrollY:' + Math.round(window.scrollY) + '\n' +
+            'tf.top:' + r.top.toFixed(1) + '\n' +
+            'tf.bot:' + r.bottom.toFixed(1) + '\n' +
+            'vh:' + vh + ' ch:' + ih + '\n' +
+            'docH:' + document.documentElement.scrollHeight + '\n' +
+            'var:' + getComputedStyle(document.documentElement).getPropertyValue('--top-fixed-h').trim();
+    }
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    setInterval(update, 200);
+})();
 // 只在「寬度真的變化」時重算（避開 iOS 鍵盤彈出造成的高度變化）
 window.addEventListener('resize', function() {
     if (window.innerWidth !== _lastViewportWidth) syncTopFixedHeight();
@@ -4899,7 +4927,7 @@ function renderStockPledge() {
     var html = '';
 
     html += '<div class="toolbar">';
-    html += '<button class="btn-refresh" style="background:var(--lux-navy)" onclick="addPledge()">＋ 新增質押</button>';
+    html += '<button class="btn-refresh btn-pledge-add" style="background:var(--lux-navy)" onclick="addPledge()">＋ 新增質押</button>';
     html += '</div>';
 
     if (!stockData.pledges || stockData.pledges.length === 0) {
