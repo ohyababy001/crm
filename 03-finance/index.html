@@ -771,7 +771,7 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
     thead th { font-size: 15px; }
     .yoy-pct { font-size: 13px !important; }
     /* 手機版收入/支出表欄寬加大（桌面維持 80/68） */
-    .ie-table .col-cat { width: 90px !important; }
+    .ie-table .col-cat { width: 80px !important; }
     .ie-table .col-month { width: 78px !important; }
     .tab-btn { padding: 6px 8px; font-size: 15px; }
     .tab-bar-wrap { max-width: 100%; }
@@ -3707,7 +3707,105 @@ function deleteHolding(idx) {
         stockData.holdings.splice(idx, 1);
         delete stockData.prices[h.id];
         saveStockData();
+        var ov = document.querySelector('.overlay');
+        if (ov) { ov.remove(); manageHoldings(); }
         renderStock();
+    });
+}
+
+function manageHoldings() {
+    var ov = document.createElement('div');
+    ov.className = 'overlay';
+    var rows = stockData.holdings.map(function(h, i) {
+        return '<div class="hold-drag-row" data-idx="' + i + '" style="display:flex;align-items:center;justify-content:space-between;padding:8px 6px;border-bottom:1px solid var(--border);background:var(--card);touch-action:none">' +
+            '<span style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">' +
+                '<span class="hold-drag-handle" style="cursor:grab;color:var(--muted);user-select:none;padding:0 4px"><i class="ti ti-grip-vertical" style="font-size:16px"></i></span>' +
+                '<span style="font-size:14px"><b>' + esc(h.id) + '</b> <span style="color:var(--muted)">' + esc(h.name || '') + '</span></span>' +
+            '</span>' +
+            '<button onclick="this.closest(\'.overlay\').remove();deleteHolding(' + i + ')" style="padding:4px 10px;border:none;border-radius:6px;font-size:13px;cursor:pointer;background:var(--red);color:white;font-family:inherit"><i class="ti ti-x" style="font-size:14px"></i></button>' +
+            '</div>';
+    }).join('');
+    if (stockData.holdings.length === 0) rows = '<div style="padding:16px;text-align:center;color:var(--muted)">尚無持股</div>';
+    ov.innerHTML = '<div class="modal" style="max-height:80vh;overflow-y:auto"><h3>管理持股 <span style="font-size:11px;color:var(--muted);font-weight:400">（拖曳左側 ⋮⋮ 可調順序）</span></h3>' +
+        '<div class="hold-drag-list">' + rows + '</div>' +
+        '<div style="margin-top:12px"><button onclick="this.closest(\'.overlay\').remove();addHolding()" style="width:100%;padding:10px;border:none;border-radius:8px;background:var(--lux-navy);color:white;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">＋ 新增持股</button></div>' +
+        '<div style="margin-top:8px"><button onclick="this.closest(\'.overlay\').remove()" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--card);font-size:14px;cursor:pointer;font-family:inherit">關閉</button></div></div>';
+    document.body.appendChild(ov);
+    bindHoldingDrag(ov.querySelector('.hold-drag-list'));
+}
+
+function bindHoldingDrag(listEl) {
+    if (!listEl) return;
+    var dragging = null, startY = 0, originalIdx = -1, placeholder = null;
+    listEl.querySelectorAll('.hold-drag-handle').forEach(function(handle) {
+        handle.addEventListener('pointerdown', function(e) {
+            e.preventDefault();
+            var row = handle.closest('.hold-drag-row');
+            if (!row) return;
+            dragging = row;
+            originalIdx = parseInt(row.dataset.idx, 10);
+            startY = e.clientY;
+            var rect = row.getBoundingClientRect();
+            placeholder = document.createElement('div');
+            placeholder.style.height = rect.height + 'px';
+            placeholder.style.background = 'rgba(200,164,90,0.15)';
+            placeholder.style.borderBottom = '1px solid var(--border)';
+            row.parentNode.insertBefore(placeholder, row);
+            row.style.position = 'fixed';
+            row.style.left = rect.left + 'px';
+            row.style.top = rect.top + 'px';
+            row.style.width = rect.width + 'px';
+            row.style.zIndex = '300';
+            row.style.boxShadow = '0 8px 24px rgba(0,0,0,0.2)';
+            row.style.opacity = '0.95';
+            handle.setPointerCapture(e.pointerId);
+        });
+        handle.addEventListener('pointermove', function(e) {
+            if (!dragging) return;
+            var dy = e.clientY - startY;
+            dragging.style.top = (parseFloat(dragging.style.top) + dy) + 'px';
+            startY = e.clientY;
+            var siblings = listEl.querySelectorAll('.hold-drag-row');
+            var insertBefore = null;
+            for (var i = 0; i < siblings.length; i++) {
+                var s = siblings[i];
+                if (s === dragging) continue;
+                var r = s.getBoundingClientRect();
+                if (e.clientY < r.top + r.height / 2) { insertBefore = s; break; }
+            }
+            if (insertBefore) listEl.insertBefore(placeholder, insertBefore);
+            else listEl.appendChild(placeholder);
+        });
+        function endDrag() {
+            if (!dragging) return;
+            var allChildren = Array.prototype.slice.call(listEl.children);
+            var placeholderIdx = allChildren.indexOf(placeholder);
+            var draggingIdx = allChildren.indexOf(dragging);
+            var newIdx = placeholderIdx;
+            if (draggingIdx >= 0 && draggingIdx < placeholderIdx) newIdx--;
+            dragging.style.position = '';
+            dragging.style.left = '';
+            dragging.style.top = '';
+            dragging.style.width = '';
+            dragging.style.zIndex = '';
+            dragging.style.boxShadow = '';
+            dragging.style.opacity = '';
+            placeholder.parentNode.insertBefore(dragging, placeholder);
+            placeholder.remove();
+            placeholder = null;
+            if (newIdx !== originalIdx && newIdx >= 0) {
+                var item = stockData.holdings.splice(originalIdx, 1)[0];
+                stockData.holdings.splice(newIdx, 0, item);
+                saveStockData();
+                renderStock();
+                var ov = listEl.closest('.overlay');
+                if (ov) { ov.remove(); manageHoldings(); }
+            }
+            dragging = null;
+            originalIdx = -1;
+        }
+        handle.addEventListener('pointerup', endDrag);
+        handle.addEventListener('pointercancel', endDrag);
     });
 }
 
@@ -4365,8 +4463,8 @@ function renderStockHoldings() {
     // 更新按鈕列
     html += '<div class="stock-refresh-bar">';
     html += '<button class="btn-refresh" id="btn-fetch-price" onclick="refreshPrices()"><i class="ti ti-antenna-bars-5"></i> <span class="lbl-full">更新股價</span><span class="lbl-short">更新</span></button>';
-    html += '<button class="btn-refresh" style="background:var(--lux-navy)" onclick="addHolding()"><span class="lbl-full">＋ 新增持股</span><span class="lbl-short">＋ 新增</span></button>';
     html += '<button class="btn-refresh" style="background:linear-gradient(135deg,#0f2847 0%,#1a3a5c 50%,#2a5a8c 100%);border:1px solid var(--lux-gold)" onclick="toggleStockColumn()"><i class="ti ti-columns"></i> 欄位</button>';
+    html += '<button class="btn-refresh" onclick="manageHoldings()"><i class="ti ti-list-details"></i> <span class="lbl-full">管理持股</span><span class="lbl-short">管理</span></button>';
     if (stockData.lastUpdate) {
         html += '<span class="last-update">最後更新：' + esc(stockData.lastUpdate) + '</span>';
     }
@@ -4465,7 +4563,6 @@ function renderStockHoldings() {
     if (vis.shares !== false) html += '<th style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'shares\')">股數' + _sArr('shares') + '</th>';
     if (vis.cost !== false) html += '<th style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'cost\')">均價<br><span style="font-size:11px;color:var(--muted);font-weight:400">總成本</span>' + _sArr('cost') + '</th>';
     if (vis.market !== false) html += '<th style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'market\')">市值<br><span style="font-size:11px;color:var(--muted);font-weight:400">佔比</span>' + _sArr('market') + '</th>';
-    html += '<th></th>';
     html += '</tr></thead><tbody>';
 
     rows.forEach(function(r) {
@@ -4512,7 +4609,6 @@ function renderStockHoldings() {
             var weightHtml = r.weight !== null ? '<br><span style="font-size:11px;color:var(--muted);font-weight:400">' + r.weight.toFixed(1) + '%</span>' : '';
             html += '<td style="font-weight:600">' + marketHtml + weightHtml + '</td>';
         }
-        html += '<td><button class="btn-del" onclick="deleteHolding(' + r.idx + ')"><i class="ti ti-x" style="font-size:14px"></i></button></td>';
         html += '</tr>';
     });
 
