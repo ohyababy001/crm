@@ -235,7 +235,7 @@ thead th {
     border-bottom: 2px solid var(--border);
     position: sticky; top: 0;
     color: var(--lux-navy);
-    font-size: 13px;
+    font-size: 15px;
     letter-spacing: .3px;
 }
 thead th:first-child { text-align: left; position: sticky; left: 0; background: #FAFAF9; z-index: 2; }
@@ -930,7 +930,7 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
 }
 .asset-card-head:hover { background: #FFFBF0; }
 .asset-card-head .asset-card-title {
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 800;
     color: var(--lux-navy);
     letter-spacing: 1px;
@@ -1934,6 +1934,10 @@ function switchTab(tab) {
         maybeAutoFetchFx();
         maybeAutoFetchGold();
         maybeAutoSnapshot();
+        // 每次切入淨資產頁重設為全部收合
+        if (DATA.assets && DATA.assets.expanded) {
+            Object.keys(DATA.assets.expanded).forEach(function(k){ DATA.assets.expanded[k] = false; });
+        }
     }
     // 捲動容器改為 .container 內部捲動，切頁時把 container 捲回頂
     function _scrollTop() {
@@ -2029,7 +2033,7 @@ function renderIncomeExpense(section) {
     html += '<button class="toggle-archive' + (showArchived?' active':'') + '" onclick="toggleShowArchived()"><span class="lbl-full">' + (showArchived?'隱藏封存':'顯示封存') + '</span><span class="lbl-short">封存</span></button>';
     html += '</div>';
 
-    var MONTH_LABELS = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+    var MONTH_LABELS = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
 
     // 表格：橫列=分類、縱欄=12 個月 + 年合計
     html += '<div class="table-wrap" style="overflow-x:auto"><table class="ie-table" style="table-layout:fixed;width:100%"><thead><tr><th class="col-cat" style="width:80px">項目</th>';
@@ -5261,12 +5265,9 @@ function renderAssets() {
         var secLast = secList.length - 1;
         secList.forEach(function(acc, accIdx) {
             var twd = accountTWD(acc);
-            html += '<div class="asset-acc-row">';
+            html += '<div class="asset-acc-row" style="cursor:pointer" onclick="editAssetAccount(\'' + sec.key + '\',\'' + acc.id + '\')">';
             html += '<div class="asset-acc-main">';
             html += '<div class="asset-acc-name">' + esc(acc.name || '(未命名)');
-            if (acc.currency && acc.currency !== 'TWD') {
-                html += ' <span class="asset-acc-badge">' + esc(acc.currency) + '</span>';
-            }
             if (acc.isGold) {
                 html += ' <span class="asset-acc-badge">黃金</span>';
             }
@@ -5287,9 +5288,8 @@ function renderAssets() {
             if (acc.updatedAt) html += '<div class="asset-acc-date">' + esc(acc.updatedAt) + '</div>';
             html += '</div>';
             html += '<div class="asset-acc-actions">';
-            html += '<button class="asset-acc-move" onclick="moveAssetAccount(\'' + sec.key + '\',\'' + acc.id + '\',-1)"' + (accIdx === 0 ? ' disabled' : '') + ' title="上移">▲</button>';
-            html += '<button class="asset-acc-move" onclick="moveAssetAccount(\'' + sec.key + '\',\'' + acc.id + '\',1)"' + (accIdx === secLast ? ' disabled' : '') + ' title="下移">▼</button>';
-            html += '<button onclick="editAssetAccount(\'' + sec.key + '\',\'' + acc.id + '\')">編輯</button>';
+            html += '<button class="asset-acc-move" onclick="event.stopPropagation();moveAssetAccount(\'' + sec.key + '\',\'' + acc.id + '\',-1)"' + (accIdx === 0 ? ' disabled' : '') + ' title="上移">▲</button>';
+            html += '<button class="asset-acc-move" onclick="event.stopPropagation();moveAssetAccount(\'' + sec.key + '\',\'' + acc.id + '\',1)"' + (accIdx === secLast ? ' disabled' : '') + ' title="下移">▼</button>';
             html += '</div>';
             html += '</div>';
         });
@@ -5397,6 +5397,7 @@ function _drawSectionTrendChart(key) {
         },
         options: {
             responsive: true, maintainAspectRatio: false,
+            animation: false,
             plugins: {
                 legend: { display: false },
                 tooltip: { callbacks: { label: function(ctx){ return fmt(ctx.parsed.y); } } }
