@@ -1695,7 +1695,10 @@ function cloudRestore(opts) {
                 try { localStorage.setItem('finTracker_stock', JSON.stringify(cloud.finTracker_stock)); } catch(e) {}
             }
             _setCloudStatus('<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#22C55E;margin-right:4px;vertical-align:middle"></span>已還原雲端資料');
-            setTimeout(function(){ location.reload(); }, 600);
+            // 不用 reload，直接重新載入 DATA/stockData 再 render（避免畫面閃爍）
+            try { loadData(); } catch(e) { console.error('[cloudRestore loadData]', e); }
+            try { loadStockData(); } catch(e) { console.error('[cloudRestore loadStockData]', e); }
+            try { render(); } catch(e) { console.error('[cloudRestore render]', e); }
             return true;
         })
         .catch(function(){
