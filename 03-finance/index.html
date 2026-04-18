@@ -241,7 +241,7 @@ thead th {
 thead th:first-child { text-align: left; position: sticky; left: 0; background: #FAFAF9; z-index: 2; }
 thead th:last-child { position: sticky; right: 0; background: #FAFAF9; z-index: 2; }
 tbody td:last-child { position: sticky; right: 0; background: var(--card); z-index: 1; }
-tbody tr:hover td:last-child { background: #FAFAF9; }
+tbody tr:hover td:last-child { background: #F1EDE8; }
 tfoot td:last-child { position: sticky; right: 0; background: linear-gradient(180deg, #FFFBF0 0%, #FFFFFF 100%); z-index: 1; }
 tbody td {
     padding: 4px 10px;
@@ -257,8 +257,8 @@ tbody td:first-child {
     z-index: 1;
     color: var(--text);
 }
-tbody tr:hover td { background: #FAFAF9; }
-tbody tr:hover td:first-child { background: #FAFAF9; }
+tbody tr:hover td { background: #F1EDE8; }
+tbody tr:hover td:first-child { background: #F1EDE8; }
 tfoot td {
     padding: 12px 12px;
     text-align: right;
@@ -811,7 +811,8 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
     .nw-hero .nw-label { font-size: 13px; }
     .nw-hero .nw-value { font-size: 30px; }
     .nw-hero .nw-hero-right .nw-fx-refresh { font-size: 12px; }
-    .asset-card-head .asset-card-title { font-size: 15px; }
+    .asset-card-head .asset-card-title { font-size: 16px; }
+    .asset-acc-name { font-size: 16px; }
     .asset-card-head .asset-card-sum { font-size: 18px; }
     .asset-card-head .asset-card-arrow { font-size: 13px; }
     /* 台股子分頁、工具列按鈕在手機版同寬但不撐滿 */
@@ -928,7 +929,7 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
     user-select: none;
     transition: background .15s;
 }
-.asset-card-head:hover { background: #FFFBF0; }
+.asset-card-head:hover { background: #F1EDE8; }
 .asset-card-head .asset-card-title {
     font-size: 15px;
     font-weight: 800;
@@ -978,7 +979,7 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
     background: var(--card);
     transition: background .15s;
 }
-.asset-acc-row:hover { background: #FFFBF0; }
+.asset-acc-row:hover { background: #F1EDE8; }
 .asset-acc-row:last-child { border-bottom: none; }
 .asset-acc-main { flex: 1; min-width: 0; }
 .asset-acc-name {
@@ -2042,7 +2043,7 @@ function renderIncomeExpense(section) {
         html += '<th class="sortable col-month' + (sortActive?' sort-active':'') + '" style="width:68px" onclick="toggleSortMonth(' + m + ')">' + MONTH_LABELS[m-1] + sortArrowMonth(m) + '</th>';
     }
     var yActive = sortState.col === 'year' && sortState.year === curY;
-    html += '<th class="sortable' + (yActive?' sort-active':'') + '" style="width:100px;font-weight:700" onclick="toggleSort(\'year\',\'' + curY + '\')">年度合計' + sortArrow('year', curY) + '</th>';
+    html += '<th class="sortable' + (yActive?' sort-active':'') + '" style="width:80px;font-weight:700" onclick="toggleSort(\'year\',\'' + curY + '\')">合計' + sortArrow('year', curY) + '</th>';
     html += '</tr></thead><tbody>';
 
     var sortedCats = sortCatsForMonth(section, cats, curY);
@@ -2055,7 +2056,7 @@ function renderIncomeExpense(section) {
             if (yArch || catArch) {
                 html += '<td style="color:#999">' + (val ? fmt(val) : '-') + '</td>';
             } else {
-                html += '<td><span class="editable" onclick="editMonthCell(this,\'' + esc(section) + '\',\'' + esc(curY) + '\',\'' + esc(cat) + '\',' + m + ')">' + (val ? fmt(val) : '<span style="color:#ccc">-</span>') + '</span></td>';
+                html += '<td><span class="editable" onclick="editMonthCell(this,\'' + esc(section) + '\',\'' + esc(curY) + '\',\'' + esc(cat) + '\',' + m + ')">' + (val ? fmt(val) : '<span style="color:#666">-</span>') + '</span></td>';
             }
         }
         var yearTotal = sumCategoryYear(section, curY, cat);
