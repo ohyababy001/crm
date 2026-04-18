@@ -237,7 +237,7 @@ thead th {
     font-size: 13px;
     letter-spacing: .3px;
 }
-thead th:first-child { text-align: left; }
+thead th:first-child { text-align: left; position: sticky; left: 0; background: #FAFAF9; z-index: 2; }
 tbody td {
     padding: 4px 10px;
     text-align: right;
@@ -1968,6 +1968,21 @@ function renderIncomeExpense(section) {
     html += '</tr></tfoot></table></div>';
 
     container.innerHTML = html;
+
+    // 手機版：如果所選年份是當前民國年，自動橫向捲動讓當月靠左
+    try {
+        if (window.matchMedia('(max-width: 600px)').matches) {
+            var now = new Date();
+            var curROC = String(now.getFullYear() - 1911);
+            if (String(curY) === curROC) {
+                var wrap = container.querySelector('.table-wrap');
+                var th = wrap && wrap.querySelectorAll('thead th')[now.getMonth() + 1]; // +1 因第一欄是「項目」
+                if (wrap && th) {
+                    wrap.scrollLeft = th.offsetLeft - (wrap.querySelector('thead th').offsetWidth);
+                }
+            }
+        }
+    } catch(e) {}
 }
 
 function selectIEYear(y) {
