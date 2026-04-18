@@ -807,6 +807,8 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
     /* 手機版收入/支出表欄寬加大（桌面維持 80/68） */
     .ie-table .cat-2ch { letter-spacing: 0.5em; padding-right: calc(4px + 0.5em); }
     .ie-table thead th.col-cat { letter-spacing: 0.5em; padding-right: calc(4px + 0.5em); }
+    .div-stock-name { font-size: 10px !important; color: var(--muted); }
+    .pledge-stock-name { font-size: 10px !important; }
     .ie-table { min-width: 1450px !important; }
     .ie-table .col-cat { width: 85px !important; }
     .ie-table .col-month { width: 105px !important; }
@@ -864,8 +866,10 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
     .stock-sub-tab { padding: 5px 0; text-align: center; min-width: 84px; }
     .stock-refresh-bar .btn-refresh { padding: 5px 0; text-align: center; min-width: 84px; }
     .stock-refresh-bar .last-update { flex-basis: 100%; }
-    /* 質押頁「＋ 新增質押」按鈕對齊子分頁大小 */
-    .toolbar .btn-pledge-add { padding: 9px 16px; font-size: 15px; font-weight: 700; }
+    /* 質押頁「＋ 新增質押」按鈕對齊子分頁大小、上下間距縮小 */
+    .toolbar .btn-pledge-add { padding: 4px 16px; font-size: 15px; font-weight: 700; }
+    /* 股利頁「＋ 新增股利」按鈕上下間距縮小 */
+    .div-add-row .btn-refresh { padding: 4px 16px !important; }
     /* 手機版股利卡片隱藏「累積股利」字樣 */
     .lbl-cum { display: none; }
     /* 手機版質押紀錄：日息、月息推到最右 */
@@ -4807,7 +4811,7 @@ function renderStockDividend() {
                 var d = item.d;
                 html += '<tr>';
                 html += '<td style="text-align:left">' + esc(_toROCDate(d.date)) + '</td>';
-                html += '<td style="text-align:left">' + esc(d.stockId + ' ' + d.stockName) + '</td>';
+                html += '<td style="text-align:left">' + esc(d.stockId) + ' <span class="div-stock-name">' + esc(d.stockName) + '</span></td>';
                 html += '<td style="color:var(--green);font-weight:600">' + (d.cash > 0 ? '$' + fmt(d.cash) : '-') + '</td>';
                 html += '<td>' + (d.stockShares > 0 ? d.stockShares + ' 股' : '-') + '</td>';
                 html += '<td style="width:32px"><button class="btn-del" onclick="deleteDividend(' + item.idx + ')"><i class="ti ti-x" style="font-size:14px"></i></button></td>';
@@ -5050,7 +5054,7 @@ function renderStockPledge() {
         }
 
         html += '<tr>';
-        html += '<td class="stock-name-cell" style="cursor:pointer" onclick="editPledge(' + idx + ')">' + esc(p.stockId) + '<br><span style="font-size:12px;color:var(--muted);font-weight:400">' + esc(p.stockName) + '</span></td>';
+        html += '<td class="stock-name-cell" style="cursor:pointer" onclick="editPledge(' + idx + ')">' + esc(p.stockId) + '<br><span class="pledge-stock-name" style="font-size:12px;color:var(--muted);font-weight:400">' + esc(p.stockName) + '</span></td>';
         html += '<td>' + fmt(p.shares) + '</td>';
         html += '<td style="color:var(--red);font-weight:600">' + fmt(p.amount) + '</td>';
         html += '<td>' + p.rate.toFixed(2) + '%</td>';
