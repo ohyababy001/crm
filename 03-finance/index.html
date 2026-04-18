@@ -238,10 +238,10 @@ thead th {
     letter-spacing: .3px;
 }
 thead th:first-child { text-align: left; position: sticky; left: 0; background: #FAFAF9; z-index: 2; }
-thead th:last-child { position: sticky; right: 0; background: #FAFAF9; z-index: 2; box-shadow: -4px 0 8px rgba(0,0,0,0.05); }
-tbody td:last-child { position: sticky; right: 0; background: var(--card); z-index: 1; box-shadow: -4px 0 8px rgba(0,0,0,0.05); }
+thead th:last-child { position: sticky; right: 0; background: #FAFAF9; z-index: 2; }
+tbody td:last-child { position: sticky; right: 0; background: var(--card); z-index: 1; }
 tbody tr:hover td:last-child { background: #FAFAF9; }
-tfoot td:last-child { position: sticky; right: 0; background: linear-gradient(180deg, #FFFBF0 0%, #FFFFFF 100%); z-index: 1; box-shadow: -4px 0 8px rgba(0,0,0,0.05); }
+tfoot td:last-child { position: sticky; right: 0; background: linear-gradient(180deg, #FFFBF0 0%, #FFFFFF 100%); z-index: 1; }
 tbody td {
     padding: 4px 10px;
     text-align: right;
@@ -309,6 +309,14 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
 .trend-range-btn { padding: 6px 12px; font-size: 13px; }
 .trend-range-btn .lbl-short { display: none; }
 .stock-sub-tab .lbl-short, .btn-refresh .lbl-short { display: none; }
+/* 桌面版：台股子分頁與工具列按鈕同寬 */
+.stock-sub-tab, .stock-refresh-bar .btn-refresh { min-width: 110px; text-align: center; }
+/* 桌面版：股利頁「+ 新增股利」與累積股利卡片同一排 */
+.div-summary-wrap { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.div-summary-wrap .div-cum-row { flex: 1; min-width: 0; }
+/* 月記錄年度卡片：桌面版年標題與摘要同一排（標題靠左、摘要靠右） */
+.trend-year-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.trend-year-head .trend-year-summary { margin-top: 0 !important; }
 .toolbar select, .toolbar button {
     padding: 9px 16px;
     border: 1px solid var(--border);
@@ -594,6 +602,15 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
 .stock-table th, .stock-table td { text-align: right; }
 .stock-table th { text-align: center; }
 .stock-table td:first-child { text-align: left; }
+/* 股利表：標題與資料對齊（第一欄日期靠左、第二欄股票靠左、其餘靠右） */
+.dividend-table th { text-align: right; }
+.dividend-table th:first-child, .dividend-table th:nth-child(2) { text-align: left; }
+/* 質押表：標題與資料對齊（第一欄標的靠左、其餘靠右） */
+.pledge-table th { text-align: right; }
+.pledge-table th:first-child { text-align: left; }
+/* 持股總覽表：標題與資料對齊（第一欄庫存股靠左、其餘靠右） */
+.holdings-table th { text-align: right; }
+.holdings-table th:first-child { text-align: left; }
 .stock-table td.stock-name-cell {
     text-align: left;
     font-weight: 600;
@@ -615,7 +632,7 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
 }
 .stock-sub-tabs {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     margin-bottom: 10px;
 }
 .stock-sub-tab {
@@ -780,6 +797,12 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
     /* 手機版月記錄年度卡片字級 */
     .trend-year-count { font-size: 13px !important; }
     .trend-year-summary { font-size: 15px !important; }
+    /* 手機版維持兩排：取消桌面 flex 同排規則 */
+    .trend-year-head { display: block; }
+    .trend-year-head .trend-year-summary { margin-top: 6px !important; }
+    /* 手機版股利頁：「+ 新增股利」與卡片群分排 */
+    .div-summary-wrap { display: block; }
+    .div-summary-wrap .div-add-row { margin-bottom: 12px; }
     /* 手機版被動收入彙總列字級 */
     .passive-summary-bar { font-size: 13px; }
     .passive-summary-label { font-size: 15px; }
@@ -2314,20 +2337,113 @@ function manageCategories(section) {
     ov.className = 'overlay';
     var allCats = section === 'income' ? DATA.settings.incomeCategories : DATA.settings.expenseCategories;
     var title = section === 'income' ? '管理收入項目' : '管理支出項目';
-    var rows = allCats.map(function(cat) {
+    var rows = allCats.map(function(cat, i) {
         var ca = isCatArchived(section, cat);
-        return '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">' +
-            '<span style="font-size:14px;' + (ca?'opacity:0.5;font-style:italic':'') + '">' + esc(cat) + (ca?' <span style="font-size:11px;color:var(--muted)">(已封存)</span>':'') + '</span>' +
+        return '<div class="cat-drag-row" data-idx="' + i + '" style="display:flex;align-items:center;justify-content:space-between;padding:8px 6px;border-bottom:1px solid var(--border);background:var(--card);touch-action:none">' +
+            '<span style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">' +
+                '<span class="cat-drag-handle" style="cursor:grab;color:var(--muted);user-select:none;padding:0 4px"><i class="ti ti-grip-vertical" style="font-size:16px"></i></span>' +
+                '<span style="font-size:14px;' + (ca?'opacity:0.5;font-style:italic':'') + '">' + esc(cat) + (ca?' <span style="font-size:11px;color:var(--muted)">(已封存)</span>':'') + '</span>' +
+            '</span>' +
             '<div style="display:flex;gap:6px">' +
                 '<button onclick="' + (ca?'unarchiveCategory':'archiveCategory') + '(\'' + esc(section) + '\',\'' + esc(cat) + '\');this.closest(\'.overlay\').remove();manageCategories(\'' + section + '\')" style="padding:4px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;cursor:pointer;background:var(--card);font-family:inherit">' + (ca?'<i class="ti ti-lock-open" style="font-size:13px"></i> 取消封存':'<i class="ti ti-lock" style="font-size:13px"></i> 封存') + '</button>' +
                 '<button onclick="this.closest(\'.overlay\').remove();deleteCategory(\'' + esc(section) + '\',\'' + esc(cat) + '\')" style="padding:4px 10px;border:none;border-radius:6px;font-size:13px;cursor:pointer;background:var(--red);color:white;font-family:inherit"><i class="ti ti-x" style="font-size:14px"></i></button>' +
             '</div></div>';
     }).join('');
-    ov.innerHTML = '<div class="modal" style="max-height:80vh;overflow-y:auto"><h3>' + title + '</h3>' + rows +
+    ov.innerHTML = '<div class="modal" style="max-height:80vh;overflow-y:auto"><h3>' + title + ' <span style="font-size:11px;color:var(--muted);font-weight:400">（拖曳左側 ⋮⋮ 可調順序）</span></h3>' +
+        '<div class="cat-drag-list" data-section="' + esc(section) + '">' + rows + '</div>' +
         '<div style="margin-top:12px"><button onclick="this.closest(\'.overlay\').remove();addCategory(\'' + section + '\')" style="width:100%;padding:10px;border:none;border-radius:8px;background:var(--lux-navy);color:white;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">＋ 新增項目</button></div>' +
         '<div style="margin-top:8px"><button onclick="this.closest(\'.overlay\').remove()" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--card);font-size:14px;cursor:pointer;font-family:inherit">關閉</button></div></div>';
     document.body.appendChild(ov);
-    // 已移除點空白關閉行為（避免誤觸）
+    bindCategoryDrag(ov.querySelector('.cat-drag-list'), section);
+}
+
+// ── 拖曳排序（Pointer Events，桌面/手機通用）──
+function bindCategoryDrag(listEl, section) {
+    if (!listEl) return;
+    var dragging = null, startY = 0, originalIdx = -1, placeholder = null;
+
+    listEl.querySelectorAll('.cat-drag-handle').forEach(function(handle) {
+        handle.addEventListener('pointerdown', function(e) {
+            e.preventDefault();
+            var row = handle.closest('.cat-drag-row');
+            if (!row) return;
+            dragging = row;
+            originalIdx = parseInt(row.dataset.idx, 10);
+            startY = e.clientY;
+            var rect = row.getBoundingClientRect();
+            // 用佔位符保留原位空間
+            placeholder = document.createElement('div');
+            placeholder.style.height = rect.height + 'px';
+            placeholder.style.background = 'rgba(200,164,90,0.15)';
+            placeholder.style.borderBottom = '1px solid var(--border)';
+            row.parentNode.insertBefore(placeholder, row);
+            // 浮起來
+            row.style.position = 'fixed';
+            row.style.left = rect.left + 'px';
+            row.style.top = rect.top + 'px';
+            row.style.width = rect.width + 'px';
+            row.style.zIndex = '300';
+            row.style.boxShadow = '0 8px 24px rgba(0,0,0,0.2)';
+            row.style.opacity = '0.95';
+            handle.setPointerCapture(e.pointerId);
+        });
+        handle.addEventListener('pointermove', function(e) {
+            if (!dragging) return;
+            var dy = e.clientY - startY;
+            var rect = dragging.getBoundingClientRect();
+            dragging.style.top = (parseFloat(dragging.style.top) + dy) + 'px';
+            startY = e.clientY;
+            // 偵測拖到哪個位置
+            var siblings = listEl.querySelectorAll('.cat-drag-row');
+            var midY = e.clientY;
+            var insertBefore = null;
+            for (var i = 0; i < siblings.length; i++) {
+                var s = siblings[i];
+                if (s === dragging) continue;
+                var r = s.getBoundingClientRect();
+                if (midY < r.top + r.height / 2) { insertBefore = s; break; }
+            }
+            if (insertBefore) listEl.insertBefore(placeholder, insertBefore);
+            else listEl.appendChild(placeholder);
+        });
+        function endDrag(e) {
+            if (!dragging) return;
+            // 計算新 index：佔位符在 listEl 中的位置（排除浮起來的那筆）
+            var allChildren = Array.prototype.slice.call(listEl.children);
+            var placeholderIdx = allChildren.indexOf(placeholder);
+            // 因為 dragging 也還在 list 裡（可能在 placeholder 前後），要判斷
+            var draggingIdx = allChildren.indexOf(dragging);
+            var newIdx = placeholderIdx;
+            if (draggingIdx >= 0 && draggingIdx < placeholderIdx) newIdx--;
+            // 還原樣式
+            dragging.style.position = '';
+            dragging.style.left = '';
+            dragging.style.top = '';
+            dragging.style.width = '';
+            dragging.style.zIndex = '';
+            dragging.style.boxShadow = '';
+            dragging.style.opacity = '';
+            // 把 dragging 放到佔位符位置
+            placeholder.parentNode.insertBefore(dragging, placeholder);
+            placeholder.remove();
+            placeholder = null;
+            // 寫入資料
+            if (newIdx !== originalIdx && newIdx >= 0) {
+                var arr = section === 'income' ? DATA.settings.incomeCategories : DATA.settings.expenseCategories;
+                var item = arr.splice(originalIdx, 1)[0];
+                arr.splice(newIdx, 0, item);
+                saveData();
+                render();
+                // 重開 modal 讓 data-idx 重編號
+                var ov = listEl.closest('.overlay');
+                if (ov) { ov.remove(); manageCategories(section); }
+            }
+            dragging = null;
+            originalIdx = -1;
+        }
+        handle.addEventListener('pointerup', endDrag);
+        handle.addEventListener('pointercancel', endDrag);
+    });
 }
 
 function manageYears() {
@@ -3972,8 +4088,8 @@ function renderTrend() {
 
         html += '<div style="background:var(--card);border-radius:var(--radius);margin-bottom:10px;box-shadow:var(--shadow);overflow:hidden">';
         // 年份標題列
-        html += '<div onclick="toggleTrendYear(\'' + y + '\')" style="cursor:pointer;user-select:none;padding:12px 16px;background:' + (open ? '#F1EDE8' : 'var(--card)') + ';border-bottom:' + (open ? '1px solid var(--border)' : 'none') + '">';
-        html += '<div style="display:flex;align-items:center;gap:10px"><span style="font-size:15px;font-weight:700">' + arrow + ' ' + y + ' 年</span><span class="trend-year-count" style="font-size:12px;color:var(--muted)">' + rows.length + ' 筆</span></div>';
+        html += '<div class="trend-year-head" onclick="toggleTrendYear(\'' + y + '\')" style="cursor:pointer;user-select:none;padding:12px 16px;background:' + (open ? '#F1EDE8' : 'var(--card)') + ';border-bottom:' + (open ? '1px solid var(--border)' : 'none') + '">';
+        html += '<div class="trend-year-title" style="display:flex;align-items:center;gap:10px"><span style="font-size:15px;font-weight:700">' + arrow + ' ' + y + ' 年</span><span class="trend-year-count" style="font-size:12px;color:var(--muted)">' + rows.length + ' 筆</span></div>';
         html += '<div class="trend-year-summary" style="display:flex;gap:16px;flex-wrap:wrap;margin-top:6px;font-size:13px">';
         html += '<span><span style="color:var(--muted)">收入 </span><b style="color:var(--green)">' + fmt(yIncome) + '</b></span>';
         html += '<span><span style="color:var(--muted)">支出 </span><b style="color:var(--red)">' + fmt(yExpense) + '</b></span>';
@@ -4341,7 +4457,7 @@ function renderStockHoldings() {
         });
     }
 
-    html += '<div class="table-wrap"><table class="stock-table"><thead><tr>';
+    html += '<div class="table-wrap"><table class="stock-table holdings-table"><thead><tr>';
     html += '<th style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'name\')">庫存股' + _sArr('name') + '</th>';
     if (vis.dayPL !== false) html += '<th style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'dayPL\')">今日損益' + _sArr('dayPL') + '</th>';
     if (vis.price !== false) html += '<th style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'price\')">股價<br><span style="font-size:11px;color:var(--muted);font-weight:400">漲跌幅</span>' + _sArr('price') + '</th>';
@@ -4441,10 +4557,11 @@ function renderStockDividend() {
         }
     });
 
-    html += '<div style="margin-bottom:12px">';
+    html += '<div class="div-summary-wrap" style="margin-bottom:12px">';
+    html += '<div class="div-add-row">';
     html += '<button class="btn-refresh" style="background:var(--lux-navy)" onclick="addDividend()">＋ 新增股利</button>';
     html += '</div>';
-    html += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">';
+    html += '<div class="div-cum-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">';
     stockData.holdings.forEach(function(h) {
         var t = totals[h.id];
         if (t.sum <= 0) return;
@@ -4453,7 +4570,7 @@ function renderStockDividend() {
         html += '<div style="font-weight:700;color:var(--lux-navy);font-size:15px">$' + fmt(t.sum) + '</div>';
         html += '</div>';
     });
-    html += '</div>';
+    html += '</div></div>';
 
     if (stockData.dividends.length === 0) {
         html += '<div style="text-align:center;padding:40px;color:var(--muted)">尚未新增股利紀錄</div>';
@@ -4483,7 +4600,7 @@ function renderStockDividend() {
         html += '<div class="dividend-section">';
         html += '<h3 style="cursor:pointer;user-select:none" onclick="toggleDivYear(\'' + esc(y) + '\')">' + arrow + ' ' + (parseInt(y,10) ? (parseInt(y,10) - 1911) : y) + ' 年<span class="dividend-year-total">合計 $' + fmt(yearTotal) + '</span></h3>';
         if (expanded) {
-            html += '<div class="table-wrap"><table class="stock-table"><thead><tr>';
+            html += '<div class="table-wrap"><table class="stock-table dividend-table"><thead><tr>';
             html += '<th>日期</th><th>股票</th><th>現金股利</th><th>股票股利</th><th style="width:32px"></th>';
             html += '</tr></thead><tbody>';
 
@@ -4709,7 +4826,7 @@ function renderStockPledge() {
     }
 
     // 表格
-    html += '<div class="table-wrap"><table class="stock-table"><thead><tr>';
+    html += '<div class="table-wrap"><table class="stock-table pledge-table"><thead><tr>';
     html += '<th>標的</th><th>質押股數</th><th>借款金額</th><th>年利率</th><th>擔保現值</th><th>維持率</th><th>質押日</th><th>到期日</th><th></th>';
     html += '</tr></thead><tbody>';
 
