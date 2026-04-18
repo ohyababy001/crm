@@ -239,6 +239,9 @@ thead th {
     letter-spacing: .3px;
 }
 thead th:first-child { text-align: left; position: sticky; left: 0; background: #FAFAF9; z-index: 2; }
+.passive-table thead th { text-align: center; }
+.passive-table thead th:first-child { text-align: center; }
+.passive-table tbody td:first-child { text-align: center; }
 thead th:last-child { position: sticky; right: 0; background: #FAFAF9; z-index: 2; }
 tbody td:last-child { position: sticky; right: 0; background: var(--card); z-index: 1; }
 tbody tr:hover td:last-child { background: #F1EDE8; }
@@ -417,7 +420,6 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
     letter-spacing: .3px;
 }
 .passive-summary-total {
-    margin-left: auto;
 }
 .passive-summary-total b {
     color: var(--lux-navy);
@@ -612,6 +614,10 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
 /* 持股總覽表：標題與資料對齊（第一欄庫存股靠左、其餘靠右） */
 .holdings-table th { text-align: right; }
 .holdings-table th:first-child { text-align: left; }
+/* 持股表取消最後一欄（市值）sticky 固定 */
+.holdings-table thead th:last-child,
+.holdings-table tbody td:last-child,
+.holdings-table tfoot td:last-child { position: static; box-shadow: none; }
 .stock-table td.stock-name-cell {
     text-align: left;
     font-weight: 600;
@@ -767,6 +773,13 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
     /* 手機版表格字級加大 */
     thead th { font-size: 15px; }
     .yoy-pct { font-size: 13px !important; }
+    /* 手機版持股表所有字級 +1 */
+    .holdings-table { font-size: 13px !important; }
+    .holdings-table thead th { font-size: 16px !important; }
+    .holdings-table tbody td { font-size: 13px !important; }
+    .holdings-table .stock-sub-label { font-size: 12px !important; }
+    .holdings-table .stock-name-sub { font-size: 13px !important; }
+    .holdings-table .stock-sub-val { font-size: 12px !important; }
     /* 手機版收入/支出表欄寬加大（桌面維持 80/68） */
     .ie-table .col-cat { width: 80px !important; }
     .ie-table .col-month { width: 78px !important; }
@@ -803,10 +816,11 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
     /* 手機版被動收入彙總列字級 */
     .passive-summary-bar { font-size: 13px; }
     .passive-summary-label { font-size: 15px !important; }
+    .passive-summary-total .passive-summary-label { font-size: 16px !important; }
     .passive-summary-item b,
-    .passive-summary-row2 .passive-summary-item b,
+    .passive-summary-row2 .passive-summary-item b { font-size: 15px !important; }
     .passive-summary-total b,
-    .passive-summary-row2 .passive-summary-item.passive-summary-total b { font-size: 15px !important; }
+    .passive-summary-row2 .passive-summary-item.passive-summary-total b { font-size: 16px !important; }
     /* 手機版淨資產頁字級 */
     .nw-hero .nw-label { font-size: 15px !important; }
     .nw-hero .nw-value { font-size: 34px !important; }
@@ -2194,14 +2208,14 @@ function renderPassive() {
     html += '</div>';
 
     // 月份表格
-    html += '<div class="table-wrap"><table><thead><tr><th>月份</th>';
+    html += '<div class="table-wrap"><table class="passive-table"><thead><tr><th>月份</th>';
     sources.forEach(function(s) {
-        html += '<th>' + esc(s) + ' <button class="btn-del" onclick="deletePassiveSource(\'' + esc(s) + '\')"><i class="ti ti-x" style="font-size:14px"></i></button></th>';
+        html += '<th>' + esc(s) + '</th>';
     });
     html += '<th>月合計</th></tr></thead><tbody>';
 
     for (var m = 1; m <= 12; m++) {
-        html += '<tr><td>' + MONTH_LABELS[m-1] + '</td>';
+        html += '<tr><td style="text-align:center">' + MONTH_LABELS[m-1] + '</td>';
         sources.forEach(function(s) {
             var val = (DATA.passive[selY] && DATA.passive[selY][s] && DATA.passive[selY][s][m]) || 0;
             html += '<td><span class="editable" onclick="editPassiveCell(this,\'' + esc(selY) + '\',\'' + esc(s) + '\',' + m + ')">' + fmt(val) + '</span></td>';
@@ -4590,18 +4604,18 @@ function renderStockHoldings() {
     html += '<div class="table-wrap"><table class="stock-table holdings-table"><thead><tr>';
     html += '<th style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'name\')">庫存股' + _sArr('name') + '</th>';
     if (vis.dayPL !== false) html += '<th style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'dayPL\')">今日損益' + _sArr('dayPL') + '</th>';
-    if (vis.price !== false) html += '<th style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'price\')">股價<br><span style="font-size:11px;color:var(--muted);font-weight:400">漲跌幅</span>' + _sArr('price') + '</th>';
-    if (vis.pl !== false) html += '<th style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'pl\')">總損益<br><span style="font-size:11px;color:var(--muted);font-weight:400">報酬率</span>' + _sArr('pl') + '</th>';
+    if (vis.price !== false) html += '<th style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'price\')">股價<br><span class="stock-sub-label" style="font-size:11px;color:var(--muted);font-weight:400">漲跌幅</span>' + _sArr('price') + '</th>';
+    if (vis.pl !== false) html += '<th style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'pl\')">總損益<br><span class="stock-sub-label" style="font-size:11px;color:var(--muted);font-weight:400">報酬率</span>' + _sArr('pl') + '</th>';
     if (vis.shares !== false) html += '<th style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'shares\')">股數' + _sArr('shares') + '</th>';
-    if (vis.cost !== false) html += '<th style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'cost\')">均價<br><span style="font-size:11px;color:var(--muted);font-weight:400">總成本</span>' + _sArr('cost') + '</th>';
-    if (vis.market !== false) html += '<th style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'market\')">市值<br><span style="font-size:11px;color:var(--muted);font-weight:400">佔比</span>' + _sArr('market') + '</th>';
+    if (vis.cost !== false) html += '<th style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'cost\')">均價<br><span class="stock-sub-label" style="font-size:11px;color:var(--muted);font-weight:400">總成本</span>' + _sArr('cost') + '</th>';
+    if (vis.market !== false) html += '<th style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'market\')">市值<br><span class="stock-sub-label" style="font-size:11px;color:var(--muted);font-weight:400">佔比</span>' + _sArr('market') + '</th>';
     html += '</tr></thead><tbody>';
 
     rows.forEach(function(r) {
         var h = r.h;
         html += '<tr>';
         // 庫存股
-        html += '<td class="stock-name-cell" style="cursor:pointer" onclick="editHolding(' + r.idx + ')">' + esc(h.id) + '<br><span style="font-size:12px;color:var(--muted);font-weight:400">' + esc(h.name) + '</span></td>';
+        html += '<td class="stock-name-cell" style="cursor:pointer" onclick="editHolding(' + r.idx + ')">' + esc(h.id) + '<br><span class="stock-name-sub" style="font-size:12px;color:var(--muted);font-weight:400">' + esc(h.name) + '</span></td>';
         // 今日損益
         if (vis.dayPL !== false) {
             html += '<td class="' + (r.dayPL !== null ? (r.dayPL >= 0 ? 'pos' : 'neg') : '') + '" style="font-weight:600">' + (r.dayPL !== null ? (r.dayPL >= 0 ? '+' : '') + fmt(r.dayPL) : '-') + '</td>';
@@ -4612,7 +4626,7 @@ function renderStockHoldings() {
             var pctHtml = '';
             if (r.changePct !== null && !isNaN(r.changePct)) {
                 var pctCls = r.changePct >= 0 ? 'pos' : 'neg';
-                pctHtml = '<br><span class="' + pctCls + '" style="font-size:11px">' + (r.changePct >= 0 ? '+' : '') + r.changePct.toFixed(2) + '%</span>';
+                pctHtml = '<br><span class="stock-sub-val ' + pctCls + '" style="font-size:11px">' + (r.changePct >= 0 ? '+' : '') + r.changePct.toFixed(2) + '%</span>';
             }
             html += '<td style="font-weight:600">' + priceHtml + pctHtml + '</td>';
         }
@@ -4622,7 +4636,7 @@ function renderStockHoldings() {
             var plHtml = r.pl !== null ? (r.pl >= 0 ? '+' : '') + fmt(r.pl) : '-';
             var rateHtml = '';
             if (r.rate !== null) {
-                rateHtml = '<br><span class="' + plCls + '" style="font-size:11px;font-weight:400">' + (r.rate >= 0 ? '+' : '') + r.rate.toFixed(2) + '%</span>';
+                rateHtml = '<br><span class="stock-sub-val ' + plCls + '" style="font-size:11px;font-weight:400">' + (r.rate >= 0 ? '+' : '') + r.rate.toFixed(2) + '%</span>';
             }
             html += '<td class="' + plCls + '" style="font-weight:600">' + plHtml + rateHtml + '</td>';
         }
@@ -4633,12 +4647,12 @@ function renderStockHoldings() {
         }
         // 均價 / 總成本
         if (vis.cost !== false) {
-            html += '<td>' + h.cost.toFixed(2) + '<br><span style="font-size:11px;color:var(--muted);font-weight:400">' + fmt(r.cost) + '</span></td>';
+            html += '<td>' + h.cost.toFixed(2) + '<br><span class="stock-sub-val" style="font-size:11px;color:var(--muted);font-weight:400">' + fmt(r.cost) + '</span></td>';
         }
         // 市值 / 佔比
         if (vis.market !== false) {
             var marketHtml = r.market !== null ? fmt(r.market) : '-';
-            var weightHtml = r.weight !== null ? '<br><span style="font-size:11px;color:var(--muted);font-weight:400">' + r.weight.toFixed(1) + '%</span>' : '';
+            var weightHtml = r.weight !== null ? '<br><span class="stock-sub-val" style="font-size:11px;color:var(--muted);font-weight:400">' + r.weight.toFixed(1) + '%</span>' : '';
             html += '<td style="font-weight:600">' + marketHtml + weightHtml + '</td>';
         }
         html += '</tr>';
