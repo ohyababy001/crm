@@ -715,20 +715,16 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
 
 @media (max-width: 600px) {
     html, body { overflow-x: hidden; }
-    body { padding-top: 180px; }
-    .header { padding: 8px 12px; flex-direction: column; align-items: stretch; gap: 6px; }
-    .header h1 { font-size: 20px; letter-spacing: 2px; text-align: center; }
+    body { padding-top: 140px; }
+    .header { padding: 8px 10px; gap: 6px; }
+    .header h1 { font-size: 17px; letter-spacing: 2px; flex-shrink: 0; }
     .header-btns {
         gap: 4px;
         flex-wrap: nowrap;
-        overflow-x: auto;
-        justify-content: flex-start;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
+        justify-content: flex-end;
     }
-    .header-btns::-webkit-scrollbar { display: none; }
     .header-btns button {
-        padding: 5px 10px;
+        padding: 5px 8px;
         font-size: 11px;
         white-space: nowrap;
         flex-shrink: 0;
