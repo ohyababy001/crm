@@ -49,12 +49,14 @@ html { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,.15) transparent; back
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,.3); }
+html { overscroll-behavior-y: none; }
 body {
     font-family: 'Outfit', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'PingFang TC', 'Microsoft JhengHei', sans-serif;
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
     font-variant-numeric: tabular-nums;
+    overscroll-behavior-y: none;
 }
 .top-fixed {
     position: fixed; top: 8px; left: 50%; transform: translateX(-50%) translateZ(0);
