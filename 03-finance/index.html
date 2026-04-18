@@ -5218,18 +5218,16 @@ function renderAssets() {
         var isDebt = sec.key === 'debt';
         html += '<div class="asset-card">';
         html += '<div class="asset-card-head' + (expanded ? ' expanded' : '') + '" onclick="toggleAssetSection(\'' + sec.key + '\')">';
+        html += '<div style="display:flex;align-items:center;gap:8px">';
         html += '<div class="asset-card-title">' + esc(sec.label) + '</div>';
+        html += '<button onclick="event.stopPropagation();showSectionTrend(\'' + sec.key + '\')" style="padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--muted);font-size:11px;cursor:pointer;font-family:inherit" title="查看趨勢"><i class="ti ti-trending-up" style="font-size:12px"></i> 趨勢</button>';
+        html += '</div>';
         html += '<div>';
         html += '<span class="asset-card-sum' + (isDebt ? ' debt' : '') + '">' + (isDebt ? '- ' : '') + fmt(total) + '</span>';
         html += '<span class="asset-card-arrow">▼</span>';
         html += '</div>';
         html += '</div>';
         html += '<div class="asset-card-body' + (expanded ? ' expanded' : '') + '">';
-
-        // 分類趨勢小圖（沿用主趨勢圖的範圍）
-        if (expanded && Array.isArray(DATA.assets.history) && DATA.assets.history.length > 1) {
-            html += '<div style="padding:8px 14px 4px"><canvas id="asset-mini-' + sec.key + '" style="max-height:100px;width:100%"></canvas></div>';
-        }
 
         // 自動連動的虛擬列
         if (sec.key === 'invest') {
@@ -5323,61 +5321,90 @@ function renderAssets() {
 
     el.innerHTML = html;
     renderAssetTrendChart();
-    renderAssetSectionMinis();
 }
 
-var _assetMiniCharts = {};
-function renderAssetSectionMinis() {
+// 分類趨勢 modal：每個分類有自己的範圍設定
+var _sectionTrendState = {}; // { liquid: 6, invest: 12, ... }
+var _sectionTrendChart = null;
+function showSectionTrend(key) {
+    var sec = ASSET_SECTIONS.find(function(s){ return s.key === key; });
+    if (!sec) return;
+    if (!_sectionTrendState[key]) _sectionTrendState[key] = 6;
+    var ov = document.createElement('div');
+    ov.className = 'overlay section-trend-overlay';
+    ov.innerHTML = '<div class="modal" style="width:560px;max-width:94vw">' +
+        '<h3><i class="ti ti-trending-up"></i> ' + esc(sec.label) + ' 趨勢</h3>' +
+        '<div class="nw-trend-range" style="margin-bottom:10px">' +
+            '<button onclick="setSectionTrendRange(\'' + key + '\',6)" class="nw-range-btn">近 6 月</button>' +
+            '<button onclick="setSectionTrendRange(\'' + key + '\',12)" class="nw-range-btn">近 12 月</button>' +
+            '<button onclick="setSectionTrendRange(\'' + key + '\',24)" class="nw-range-btn">近 24 月</button>' +
+            '<button onclick="setSectionTrendRange(\'' + key + '\',0)" class="nw-range-btn">全部</button>' +
+        '</div>' +
+        '<div style="height:260px"><canvas id="section-trend-chart"></canvas></div>' +
+        '<div style="font-size:11px;color:var(--muted);margin-top:8px">共 ' + (DATA.assets.history || []).length + ' 筆快照</div>' +
+        '<div class="modal-btns" style="margin-top:12px"><button onclick="this.closest(\'.overlay\').remove()" style="flex:1">關閉</button></div>' +
+        '</div>';
+    document.body.appendChild(ov);
+    ov.addEventListener('click', function(e){ if (e.target === ov) { ov.remove(); if (_sectionTrendChart) { try { _sectionTrendChart.destroy(); } catch(_){} _sectionTrendChart = null; } } });
+    _drawSectionTrendChart(key);
+}
+
+function setSectionTrendRange(key, months) {
+    _sectionTrendState[key] = months;
+    _drawSectionTrendChart(key);
+}
+
+function _drawSectionTrendChart(key) {
     var hist = DATA.assets.history || [];
-    if (hist.length < 2) return;
-    // 沿用主趨勢圖範圍
-    var months = _nwTrendMonths;
+    var months = _sectionTrendState[key] || 6;
     var filtered = hist;
     if (months > 0) {
         var cutoff = new Date();
         cutoff.setMonth(cutoff.getMonth() - months);
         var cutoffStr = cutoff.getFullYear() + '-' + String(cutoff.getMonth()+1).padStart(2,'0') + '-' + String(cutoff.getDate()).padStart(2,'0');
         filtered = hist.filter(function(h){ return h.date >= cutoffStr; });
-    } else if (months === -1 && _nwTrendCustomStart && _nwTrendCustomEnd) {
-        filtered = hist.filter(function(h){ return h.date >= _nwTrendCustomStart && h.date <= _nwTrendCustomEnd; });
     }
-    if (filtered.length < 2) return;
-    var labels = filtered.map(function(h){ return _toROCDate(h.date); });
-    ASSET_SECTIONS.forEach(function(sec) {
-        var canvas = document.getElementById('asset-mini-' + sec.key);
-        if (!canvas) return;
-        var values = filtered.map(function(h){ return (h.breakdown && h.breakdown[sec.key]) || 0; });
-        if (_assetMiniCharts[sec.key]) { try { _assetMiniCharts[sec.key].destroy(); } catch(e){} }
-        var isDebt = sec.key === 'debt';
-        var color = isDebt ? '#DC2626' : '#059669';
-        _assetMiniCharts[sec.key] = new Chart(canvas.getContext('2d'), {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: values,
-                    borderColor: color,
-                    backgroundColor: color + '1A',
-                    fill: true,
-                    tension: 0.3,
-                    pointRadius: 2,
-                    pointBackgroundColor: color,
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: { callbacks: { label: function(ctx){ return fmt(ctx.parsed.y); } } }
-                },
-                scales: {
-                    x: { display: false },
-                    y: { ticks: { callback: function(v){ return fmt(v); }, font: { size: 10 } } }
-                }
-            }
+    // 按鈕 active
+    var ov = document.querySelector('.section-trend-overlay');
+    if (ov) {
+        ov.querySelectorAll('.nw-range-btn').forEach(function(b){
+            var m = b.textContent.trim().match(/\d+/);
+            var val = m ? parseInt(m[0]) : 0;
+            b.classList.toggle('active', val === months);
         });
+    }
+    var canvas = document.getElementById('section-trend-chart');
+    if (!canvas) return;
+    if (_sectionTrendChart) { try { _sectionTrendChart.destroy(); } catch(_){} }
+    if (filtered.length < 1) {
+        var ctx0 = canvas.getContext('2d');
+        ctx0.clearRect(0,0,canvas.width,canvas.height);
+        ctx0.fillStyle = '#8C8578';
+        ctx0.font = '13px sans-serif';
+        ctx0.textAlign = 'center';
+        ctx0.fillText('此範圍內無資料', canvas.width/2, 40);
+        return;
+    }
+    var labels = filtered.map(function(h){ return _toROCDate(h.date); });
+    var values = filtered.map(function(h){ return (h.breakdown && h.breakdown[key]) || 0; });
+    var isDebt = key === 'debt';
+    var color = isDebt ? '#DC2626' : '#059669';
+    _sectionTrendChart = new Chart(canvas.getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{ data: values, borderColor: color, backgroundColor: color + '1A', fill: true, tension: 0.3, pointRadius: 3, pointBackgroundColor: color, borderWidth: 2 }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: function(ctx){ return fmt(ctx.parsed.y); } } }
+            },
+            scales: {
+                y: { ticks: { callback: function(v){ return fmt(v); } } }
+            }
+        }
     });
 }
 
@@ -5423,7 +5450,6 @@ function applyNwTrendCustomRange() {
     _nwTrendCustomEnd = end;
     _nwTrendMonths = -1; // 標記為自訂模式
     renderAssetTrendChart();
-    renderAssetSectionMinis();
     var overlay = document.querySelector('.asset-modal-overlay');
     if (overlay) overlay.remove();
 }
@@ -5616,7 +5642,6 @@ function renderAssetTrendChart(rangeMonths) {
             }
         }
     });
-    renderAssetSectionMinis();
 }
 
 // ── CRUD modal ──
