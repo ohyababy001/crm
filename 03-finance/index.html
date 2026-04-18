@@ -1679,32 +1679,6 @@ function syncTopFixedHeight() {
     _lastViewportWidth = window.innerWidth;
 }
 window.addEventListener('load', syncTopFixedHeight);
-
-// ── DEBUG 面板（臨時用，找完 bug 移除）──
-(function setupDebugPanel() {
-    var panel = document.createElement('div');
-    panel.id = '__debug';
-    panel.style.cssText = 'position:fixed;right:4px;bottom:4px;background:rgba(0,0,0,.82);color:#0f0;font:11px/1.4 monospace;padding:6px 8px;border-radius:6px;z-index:9999;pointer-events:none;white-space:pre;text-align:right;max-width:220px';
-    document.body.appendChild(panel);
-    function update() {
-        var tf = document.querySelector('.top-fixed');
-        if (!tf) return;
-        var r = tf.getBoundingClientRect();
-        var vh = window.innerHeight;
-        var ih = document.documentElement.clientHeight;
-        panel.textContent =
-            'scrollY:' + Math.round(window.scrollY) + '\n' +
-            'tf.top:' + r.top.toFixed(1) + '\n' +
-            'tf.bot:' + r.bottom.toFixed(1) + '\n' +
-            'vh:' + vh + ' ch:' + ih + '\n' +
-            'docH:' + document.documentElement.scrollHeight + '\n' +
-            'var:' + getComputedStyle(document.documentElement).getPropertyValue('--top-fixed-h').trim();
-    }
-    update();
-    window.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update);
-    setInterval(update, 200);
-})();
 // 只在「寬度真的變化」時重算（避開 iOS 鍵盤彈出造成的高度變化）
 window.addEventListener('resize', function() {
     if (window.innerWidth !== _lastViewportWidth) syncTopFixedHeight();
