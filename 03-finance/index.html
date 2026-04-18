@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="CashFlow 個人財務追蹤：現金流、收支、投資紀錄、圖表分析">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -744,10 +744,10 @@ th.sortable.sort-active { color: var(--lux-navy); }
 th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; }
 
 @media (max-width: 600px) {
-    body { overflow-x: hidden; }
+    html, body { overflow-x: hidden; }
     body { padding-top: 156px; }
-    /* 手機版 top-fixed 較高，加大頂部遮罩避免捲動時鬼影（含 box-shadow 餘裕） */
-    body::before { height: calc(180px + env(safe-area-inset-top, 0px)); }
+    /* 手機版 top-fixed 較高，加大頂部遮罩避免捲動時鬼影 */
+    body::before { height: 156px; }
     .header { padding: 8px 10px; gap: 6px; }
     .header h1 { font-size: 17px; letter-spacing: 2px; flex-shrink: 0; }
     .header-btns {
