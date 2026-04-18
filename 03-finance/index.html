@@ -744,7 +744,7 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
     html, body { overflow-x: hidden; }
     body { padding-top: 156px; }
     /* 手機版 top-fixed 較高，加大頂部遮罩避免捲動時鬼影 */
-    body::before { height: 156px; }
+    body::before { height: calc(168px + env(safe-area-inset-top, 0px)); }
     .header { padding: 8px 10px; gap: 6px; }
     .header h1 { font-size: 17px; letter-spacing: 2px; flex-shrink: 0; }
     .header-btns {
@@ -1917,7 +1917,16 @@ function switchTab(tab) {
         maybeAutoSnapshot();
     }
     render();
-    window.scrollTo({ top: 0, behavior: 'auto' });
+    // 多重 fallback：iOS Safari / PWA 模式下 window.scrollTo 不一定生效
+    try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch(e) {}
+    try { window.scrollTo(0, 0); } catch(e) {}
+    if (document.documentElement) document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
+    // 下一個 frame 再保險試一次（render() 後 DOM 高度可能變動）
+    requestAnimationFrame(function() {
+        if (document.documentElement) document.documentElement.scrollTop = 0;
+        if (document.body) document.body.scrollTop = 0;
+    });
 }
 
 // ── 排序 ──
