@@ -20,7 +20,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 :root {
     --bg: #F7F5F3;
@@ -1303,7 +1302,7 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
             </div>
         </div>
         <span id="last-export" style="display:none"></span>
-        <input type="file" id="importFile" accept=".json,.xlsx" style="display:none" onchange="importData(event)">
+        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
     </div>
 </div>
 
@@ -2672,18 +2671,7 @@ function deleteRecurring(id) {
 
 // ── 匯出匯入 ──
 function exportData() {
-    var ov = document.createElement('div');
-    ov.className = 'overlay';
-    ov.innerHTML = '<div class="modal" style="max-width:360px"><h3><i class="ti ti-download"></i> 匯出格式</h3>' +
-        '<div class="modal-btns" style="gap:10px;justify-content:center">' +
-        '<button class="btn-primary" id="exp-json" style="min-width:120px"><i class="ti ti-file-text"></i> JSON</button>' +
-        '<button class="btn-primary" id="exp-xlsx" style="min-width:120px;background:var(--green)"><i class="ti ti-table"></i> Excel</button>' +
-        '</div>' +
-        '<div style="text-align:center;margin-top:8px"><button id="exp-cancel" style="background:transparent;color:var(--muted);border:none;font-size:13px">取消</button></div></div>';
-    document.body.appendChild(ov);
-    document.getElementById('exp-json').onclick = function() { ov.remove(); exportJSON(); };
-    document.getElementById('exp-xlsx').onclick = function() { ov.remove(); exportExcel(); };
-    document.getElementById('exp-cancel').onclick = function() { ov.remove(); };
+    exportJSON();
 }
 
 function exportJSON() {
@@ -2697,103 +2685,6 @@ function exportJSON() {
     toast('已匯出 JSON 備份');
 }
 
-function exportExcel() {
-    if (typeof XLSX === 'undefined') { toast('Excel 套件載入失敗，請檢查網路連線後重新整理', true); return; }
-    var wb = XLSX.utils.book_new();
-    var years = (DATA.settings.years || []).slice();
-
-    // 1) 收入 — 每年每月一列
-    var incCats = (DATA.settings.incomeCategories || []).map(function(c){ return typeof c === 'string' ? c : c.name; });
-    var incRows = [];
-    years.forEach(function(y){
-        for (var m = 1; m <= 12; m++) {
-            var row = { '年度': y, '月': m };
-            incCats.forEach(function(c){ row[c] = getMonthVal('income', y, c, m); });
-            row['合計'] = sumMonth('income', y, m);
-            incRows.push(row);
-        }
-    });
-    if (incRows.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(incRows), '收入');
-
-    // 2) 支出 — 每年每月一列
-    var expCats = (DATA.settings.expenseCategories || []).map(function(c){ return typeof c === 'string' ? c : c.name; });
-    var expRows = [];
-    years.forEach(function(y){
-        for (var m = 1; m <= 12; m++) {
-            var row = { '年度': y, '月': m };
-            expCats.forEach(function(c){ row[c] = getMonthVal('expense', y, c, m); });
-            row['合計'] = sumMonth('expense', y, m);
-            expRows.push(row);
-        }
-    });
-    if (expRows.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(expRows), '支出');
-
-    // 3) 被動收入 — 來源×月份
-    var pSources = (DATA.settings.passiveSources || []).map(function(s){ return typeof s === 'string' ? s : s.name; });
-    var passRows = [];
-    years.forEach(function(y) {
-        pSources.forEach(function(src) {
-            var row = { '年度': y, '來源': src };
-            for (var m = 1; m <= 12; m++) row[m + '月'] = (DATA.passive[y] && DATA.passive[y][src] && DATA.passive[y][src][m]) || 0;
-            passRows.push(row);
-        });
-    });
-    if (passRows.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(passRows), '被動收入');
-
-    // 4) 月記錄
-    var monthRows = (DATA.monthly || []).map(function(r) {
-        return { '月份': r.month, '收入': r.income || 0, '支出': r.expense || 0, '備註': r.note || '' };
-    });
-    if (monthRows.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(monthRows), '月記錄');
-
-    // 5) 持股
-    var holdRows = (stockData.holdings || []).map(function(h) {
-        return { '代號': h.id, '名稱': h.name || '', '股數': h.shares || 0, '成本': h.cost || 0 };
-    });
-    if (holdRows.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(holdRows), '持股');
-
-    // 6) 股利
-    var divRows = (stockData.dividends || []).map(function(d) {
-        return { '日期': d.date || '', '代號': d.stockId || '', '名稱': d.stockName || '', '現金股利': d.cash || 0, '股票股利(股)': d.stockShares || 0 };
-    });
-    if (divRows.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(divRows), '股利');
-
-    // 7) 質押
-    var pledgeRows = (stockData.pledges || []).map(function(p) {
-        return { '日期': p.date || '', '代號': p.stockId || '', '名稱': p.stockName || '', '股數': p.shares || 0, '借款金額': p.amount || 0, '利率': p.rate || 0 };
-    });
-    if (pledgeRows.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(pledgeRows), '質押');
-
-    // 8) 淨資產各分類
-    ['liquid', 'invest', 'fixed', 'receivable', 'debt'].forEach(function(key) {
-        var labels = { liquid: '流動資金', invest: '投資', fixed: '固定資產', receivable: '應收款', debt: '負債' };
-        var items = DATA.assets[key] || [];
-        if (!items.length) return;
-        var rows = items.map(function(a) {
-            return { '名稱': a.name || '', '金額': a.amount || 0, '幣別': a.currency || 'TWD', '匯率': a.rate || '', '備註': a.memo || '' };
-        });
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), labels[key]);
-    });
-
-    // 9) 設定（分類名稱、年份清單等，匯入時需要）
-    var settingsRows = [];
-    settingsRows.push({ '鍵': '_format', '值': 'CashFlow_Excel_v1' });
-    settingsRows.push({ '鍵': 'years', '值': (DATA.settings.years || []).join(',') });
-    settingsRows.push({ '鍵': 'incomeCategories', '值': incCats.join(',') });
-    settingsRows.push({ '鍵': 'expenseCategories', '值': expCats.join(',') });
-    settingsRows.push({ '鍵': 'passiveSources', '值': pSources.join(',') });
-    if (DATA.settings.archivedYears && DATA.settings.archivedYears.length)
-        settingsRows.push({ '鍵': 'archivedYears', '值': DATA.settings.archivedYears.join(',') });
-    if (DATA.settings.archivedIncomeCats && DATA.settings.archivedIncomeCats.length)
-        settingsRows.push({ '鍵': 'archivedIncomeCats', '值': DATA.settings.archivedIncomeCats.join(',') });
-    if (DATA.settings.archivedExpenseCats && DATA.settings.archivedExpenseCats.length)
-        settingsRows.push({ '鍵': 'archivedExpenseCats', '值': DATA.settings.archivedExpenseCats.join(',') });
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(settingsRows), '設定');
-
-    XLSX.writeFile(wb, '財務追蹤_備份_' + new Date().toISOString().slice(0,10) + '.xlsx');
-    _recordExport();
-    toast('已匯出 Excel 備份');
-}
 
 function _recordExport() {
     var now = new Date().toLocaleString('zh-TW');
@@ -2811,165 +2702,47 @@ function updateLastExportLabel() {
 function importData(e) {
     var file = e.target.files[0];
     if (!file) return;
-    var isExcel = /\.xlsx$/i.test(file.name);
-
-    if (isExcel) {
-        var reader = new FileReader();
-        reader.onload = function(ev) {
-            try {
-                var wb = XLSX.read(ev.target.result, { type: 'array' });
-                // 驗證格式標記
-                var settingsSheet = wb.Sheets['設定'];
-                if (!settingsSheet) { toast('此 Excel 非 CashFlow 匯出格式（缺少「設定」工作表）', true); return; }
-                var settingsRows = XLSX.utils.sheet_to_json(settingsSheet);
-                var settingsMap = {};
-                settingsRows.forEach(function(r) { settingsMap[r['鍵']] = r['值']; });
-                if (settingsMap['_format'] !== 'CashFlow_Excel_v1') { toast('此 Excel 非 CashFlow 匯出格式', true); return; }
-
-                _confirmAndImport('Excel', function() {
-                    // 還原 settings
-                    var years = (settingsMap['years'] || '').split(',').filter(Boolean);
-                    var incCats = (settingsMap['incomeCategories'] || '').split(',').filter(Boolean);
-                    var expCats = (settingsMap['expenseCategories'] || '').split(',').filter(Boolean);
-                    var pSources = (settingsMap['passiveSources'] || '').split(',').filter(Boolean);
-                    var newData = getDefaults();
-                    newData.settings.years = years;
-                    newData.settings.incomeCategories = incCats;
-                    newData.settings.expenseCategories = expCats;
-                    newData.settings.passiveSources = pSources.map(function(s){ return {name:s, memo:''}; });
-                    if (settingsMap['archivedYears']) newData.settings.archivedYears = settingsMap['archivedYears'].split(',').filter(Boolean);
-                    if (settingsMap['archivedIncomeCats']) newData.settings.archivedIncomeCats = settingsMap['archivedIncomeCats'].split(',').filter(Boolean);
-                    if (settingsMap['archivedExpenseCats']) newData.settings.archivedExpenseCats = settingsMap['archivedExpenseCats'].split(',').filter(Boolean);
-
-                    // 初始化資料結構（月結構）
-                    newData.income = {}; newData.expense = {}; newData.passive = {};
-                    years.forEach(function(y) {
-                        newData.income[y] = {}; newData.expense[y] = {}; newData.passive[y] = {};
-                        incCats.forEach(function(c){ newData.income[y][c] = _emptyMonths(); });
-                        expCats.forEach(function(c){ newData.expense[y][c] = _emptyMonths(); });
-                        pSources.forEach(function(s){ newData.passive[y][s] = _emptyMonths(); });
-                    });
-
-                    // 讀取收入（每列：年度+月+各分類）
-                    _sheetToJson(wb, '收入').forEach(function(row) {
-                        var y = String(row['年度']);
-                        var m = Number(row['月']) || 0;
-                        if (!newData.income[y]) newData.income[y] = {};
-                        incCats.forEach(function(c){
-                            if (!newData.income[y][c]) newData.income[y][c] = _emptyMonths();
-                            if (m >= 1 && m <= 12 && row[c] != null) newData.income[y][c][m] = Number(row[c]) || 0;
-                            else if (!m && row[c] != null) newData.income[y][c][1] = (newData.income[y][c][1] || 0) + (Number(row[c]) || 0);
-                        });
-                    });
-
-                    // 讀取支出
-                    _sheetToJson(wb, '支出').forEach(function(row) {
-                        var y = String(row['年度']);
-                        var m = Number(row['月']) || 0;
-                        if (!newData.expense[y]) newData.expense[y] = {};
-                        expCats.forEach(function(c){
-                            if (!newData.expense[y][c]) newData.expense[y][c] = _emptyMonths();
-                            if (m >= 1 && m <= 12 && row[c] != null) newData.expense[y][c][m] = Number(row[c]) || 0;
-                            else if (!m && row[c] != null) newData.expense[y][c][1] = (newData.expense[y][c][1] || 0) + (Number(row[c]) || 0);
-                        });
-                    });
-
-                    // 讀取被動收入
-                    _sheetToJson(wb, '被動收入').forEach(function(row) {
-                        var y = String(row['年度']), src = row['來源'];
-                        if (!newData.passive[y]) newData.passive[y] = {};
-                        if (!newData.passive[y][src]) newData.passive[y][src] = {};
-                        for (var m=1; m<=12; m++) newData.passive[y][src][m] = Number(row[m+'月']) || 0;
-                    });
-
-                    // 讀取月記錄
-                    newData.monthly = _sheetToJson(wb, '月記錄').map(function(row) {
-                        return { month: row['月份'] || '', income: Number(row['收入']) || 0, expense: Number(row['支出']) || 0, note: row['備註'] || '' };
-                    });
-
-                    // 讀取淨資產
-                    newData.assets = getDefaultAssets();
-                    var assetMap = { '流動資金':'liquid', '投資':'invest', '固定資產':'fixed', '應收款':'receivable', '負債':'debt' };
-                    Object.keys(assetMap).forEach(function(label) {
-                        var key = assetMap[label];
-                        newData.assets[key] = _sheetToJson(wb, label).map(function(row) {
-                            var obj = { name: row['名稱'] || '', amount: Number(row['金額']) || 0 };
-                            if (row['幣別'] && row['幣別'] !== 'TWD') { obj.currency = row['幣別']; if (row['匯率']) obj.rate = Number(row['匯率']); }
-                            else obj.currency = 'TWD';
-                            if (row['備註']) obj.memo = row['備註'];
-                            return obj;
-                        });
-                    });
-
-                    // 讀取台股
-                    var newStock = { holdings: [], dividends: [], pledges: [], lastUpdate: null, prices: {} };
-                    newStock.holdings = _sheetToJson(wb, '持股').map(function(row) {
-                        return { id: String(row['代號']), name: row['名稱'] || '', shares: Number(row['股數']) || 0, cost: Number(row['成本']) || 0 };
-                    });
-                    newStock.dividends = _sheetToJson(wb, '股利').map(function(row) {
-                        return { date: row['日期'] || '', stockId: String(row['代號']), stockName: row['名稱'] || '', cash: Number(row['現金股利']) || 0, stockShares: Number(row['股票股利(股)']) || 0 };
-                    });
-                    newStock.pledges = _sheetToJson(wb, '質押').map(function(row) {
-                        return { date: row['日期'] || '', stockId: String(row['代號']), stockName: row['名稱'] || '', shares: Number(row['股數']) || 0, amount: Number(row['借款金額']) || 0, rate: Number(row['利率']) || 0 };
-                    });
-
-                    DATA = newData;
-                    stockData = newStock;
-                    _healDataStructure();
-                    saveData();
-                    saveStockData();
-                    render();
-                    toast('已從 Excel 匯入資料');
-                });
-            } catch(err) {
-                toast('Excel 匯入失敗：' + err.message, true);
-            }
-        };
-        reader.readAsArrayBuffer(file);
-    } else {
-        // JSON 匯入（原有邏輯）
-        var reader = new FileReader();
-        reader.onload = function(ev) {
-            var d;
-            try {
-                d = JSON.parse(ev.target.result);
-            } catch(err) {
-                toast('匯入失敗：' + err.message, true);
-                e.target.value = '';
-                return;
-            }
-            _confirmAndImport('JSON', function() {
-                // 新格式（含台股）
-                if (d.finance && d.stock) {
-                    DATA = d.finance;
-                    stockData = d.stock;
-                    if (!stockData.holdings) stockData.holdings = [];
-                    if (!stockData.dividends) stockData.dividends = [];
-                    if (!stockData.pledges) stockData.pledges = [];
-                    if (!stockData.prices) stockData.prices = {};
-                    delete stockData._loadFailed;
-                    _healDataStructure();
-                    saveData();
-                    saveStockData();
-                    render();
-                    toast('已匯入資料（含台股）');
-                    return;
-                }
-                // 舊格式（純財務）
-                if (!d.settings || !d.income) { toast('檔案格式不正確', true); return; }
-                DATA = d;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+        var d;
+        try {
+            d = JSON.parse(ev.target.result);
+        } catch(err) {
+            toast('匯入失敗：' + err.message, true);
+            e.target.value = '';
+            return;
+        }
+        _confirmAndImport('JSON', function() {
+            // 新格式（含台股）
+            if (d.finance && d.stock) {
+                DATA = d.finance;
+                stockData = d.stock;
+                if (!stockData.holdings) stockData.holdings = [];
+                if (!stockData.dividends) stockData.dividends = [];
+                if (!stockData.pledges) stockData.pledges = [];
+                if (!stockData.prices) stockData.prices = {};
+                delete stockData._loadFailed;
                 _healDataStructure();
                 saveData();
+                saveStockData();
                 render();
-                toast('已匯入資料');
-            });
-        };
-        reader.readAsText(file);
-    }
+                toast('已匯入資料（含台股）');
+                return;
+            }
+            // 舊格式（純財務）
+            if (!d.settings || !d.income) { toast('檔案格式不正確', true); return; }
+            DATA = d;
+            _healDataStructure();
+            saveData();
+            render();
+            toast('已匯入資料');
+        });
+    };
+    reader.readAsText(file);
     e.target.value = '';
 }
 
-// 匯入前確認 + 自動備份（JSON / Excel 共用）
+// 匯入前確認 + 自動備份
 function _confirmAndImport(formatLabel, doImport) {
     var currentDivCount = (stockData && stockData.dividends && stockData.dividends.length) || 0;
     var msg = '即將從 ' + formatLabel + ' 匯入資料，將覆蓋現在所有內容。\n\n' +
@@ -2993,12 +2766,6 @@ function _confirmAndImport(formatLabel, doImport) {
     }, function onNo() {
         toast('已取消匯入');
     }, { title: '<i class="ti ti-download"></i> 確認匯入（' + formatLabel + '）', okText: '確定匯入', cancelText: '取消' });
-}
-
-// 安全讀取工作表，不存在時回空陣列
-function _sheetToJson(wb, name) {
-    var s = wb.Sheets[name];
-    return s ? XLSX.utils.sheet_to_json(s) : [];
 }
 
 // ── UI 工具 ──
