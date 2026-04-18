@@ -745,9 +745,9 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
 
 @media (max-width: 600px) {
     html, body { overflow-x: hidden; }
-    body { padding-top: 156px; }
-    /* 手機版 top-fixed 較高，加大頂部遮罩避免捲動時鬼影 */
-    body::before { height: 156px; }
+    body { padding-top: var(--top-fixed-h, 156px); }
+    /* 手機版頂部遮罩跟隨 top-fixed 實際高度，避免捲動鬼影 */
+    body::before { height: var(--top-fixed-h, 156px); }
     .header { padding: 8px 10px; gap: 6px; }
     .header h1 { font-size: 17px; letter-spacing: 2px; flex-shrink: 0; }
     .header-btns {
@@ -1665,6 +1665,18 @@ window.addEventListener('load', function() {
     sessionStorage.setItem('cloudRestoredThisSession', '1');
     setTimeout(function(){ cloudRestore(); }, 800);
 });
+
+// 動態同步 top-fixed 實際高度，避免 body padding-top 與遮罩高度寫死導致破版
+function syncTopFixedHeight() {
+    var tf = document.querySelector('.top-fixed');
+    if (!tf) return;
+    var h = tf.getBoundingClientRect().height;
+    document.documentElement.style.setProperty('--top-fixed-h', h + 'px');
+}
+window.addEventListener('load', syncTopFixedHeight);
+window.addEventListener('resize', syncTopFixedHeight);
+// orientation change / 字級變化也重算
+if (window.matchMedia) window.matchMedia('(max-width: 600px)').addEventListener('change', syncTopFixedHeight);
 
 // ===== Header 進階設定選單 =====
 function toggleSettingsMenu(e) {
