@@ -1446,7 +1446,7 @@ function getDefaultAssets() {
         history: [],     // 每日快照 [{date:'YYYY-MM-DD', netWorth, breakdown}]
         rates: { USD: 31.7, JPY: 0.2, KRW: 0.022, updatedAt: null },
         goldRef: { twdPerTael: null, updatedAt: null }, // 國際金價換算成 TWD/兩 參考值
-        expanded: { liquid: true, invest: true, fixed: true, receivable: true, debt: true }
+        expanded: { liquid: false, invest: false, fixed: false, receivable: false, debt: false }
     };
 }
 function _emptyMonths() {
@@ -1534,7 +1534,7 @@ function _healDataStructure() {
     if (!DATA.assets.goldRef || typeof DATA.assets.goldRef !== 'object') DATA.assets.goldRef = defAssets.goldRef;
     if (!DATA.assets.expanded || typeof DATA.assets.expanded !== 'object') DATA.assets.expanded = defAssets.expanded;
     ['liquid','invest','fixed','receivable','debt'].forEach(function(k){
-        if (typeof DATA.assets.expanded[k] !== 'boolean') DATA.assets.expanded[k] = true;
+        if (typeof DATA.assets.expanded[k] !== 'boolean') DATA.assets.expanded[k] = false;
     });
     // 確保每個年份都有所有分類（月結構）
     DATA.settings.years.forEach(function(y) {
@@ -2365,9 +2365,9 @@ function manageCategories(section) {
     var title = section === 'income' ? '管理收入項目' : '管理支出項目';
     var rows = allCats.map(function(cat, i) {
         var ca = isCatArchived(section, cat);
-        return '<div class="cat-drag-row" data-idx="' + i + '" style="display:flex;align-items:center;justify-content:space-between;padding:8px 6px;border-bottom:1px solid var(--border);background:var(--card);touch-action:none">' +
+        return '<div class="cat-drag-row" data-idx="' + i + '" style="display:flex;align-items:center;justify-content:space-between;padding:8px 6px;border-bottom:1px solid var(--border);background:var(--card)">' +
             '<span style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">' +
-                '<span class="cat-drag-handle" style="cursor:grab;color:var(--muted);user-select:none;padding:0 4px"><i class="ti ti-grip-vertical" style="font-size:16px"></i></span>' +
+                '<span class="cat-drag-handle" style="cursor:grab;color:var(--muted);user-select:none;padding:0 4px;touch-action:none"><i class="ti ti-grip-vertical" style="font-size:16px"></i></span>' +
                 '<span style="font-size:14px;' + (ca?'opacity:0.5;font-style:italic':'') + '">' + esc(cat) + (ca?' <span style="font-size:11px;color:var(--muted)">(已封存)</span>':'') + '</span>' +
             '</span>' +
             '<div style="display:flex;gap:6px">' +
@@ -3743,9 +3743,9 @@ function manageHoldings() {
     var ov = document.createElement('div');
     ov.className = 'overlay';
     var rows = stockData.holdings.map(function(h, i) {
-        return '<div class="hold-drag-row" data-idx="' + i + '" style="display:flex;align-items:center;justify-content:space-between;padding:8px 6px;border-bottom:1px solid var(--border);background:var(--card);touch-action:none">' +
+        return '<div class="hold-drag-row" data-idx="' + i + '" style="display:flex;align-items:center;justify-content:space-between;padding:8px 6px;border-bottom:1px solid var(--border);background:var(--card)">' +
             '<span style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">' +
-                '<span class="hold-drag-handle" style="cursor:grab;color:var(--muted);user-select:none;padding:0 4px"><i class="ti ti-grip-vertical" style="font-size:16px"></i></span>' +
+                '<span class="hold-drag-handle" style="cursor:grab;color:var(--muted);user-select:none;padding:0 4px;touch-action:none"><i class="ti ti-grip-vertical" style="font-size:16px"></i></span>' +
                 '<span style="font-size:14px"><b>' + esc(h.id) + '</b> <span style="color:var(--muted)">' + esc(h.name || '') + '</span></span>' +
             '</span>' +
             '<button onclick="this.closest(\'.overlay\').remove();deleteHolding(' + i + ')" style="padding:4px 10px;border:none;border-radius:6px;font-size:13px;cursor:pointer;background:var(--red);color:white;font-family:inherit"><i class="ti ti-x" style="font-size:14px"></i></button>' +
@@ -5226,6 +5226,11 @@ function renderAssets() {
         html += '</div>';
         html += '<div class="asset-card-body' + (expanded ? ' expanded' : '') + '">';
 
+        // 分類趨勢小圖（沿用主趨勢圖的範圍）
+        if (expanded && Array.isArray(DATA.assets.history) && DATA.assets.history.length > 1) {
+            html += '<div style="padding:8px 14px 4px"><canvas id="asset-mini-' + sec.key + '" style="max-height:100px;width:100%"></canvas></div>';
+        }
+
         // 自動連動的虛擬列
         if (sec.key === 'invest') {
             var stockVal = calcStockHoldingsTWD();
@@ -5318,6 +5323,62 @@ function renderAssets() {
 
     el.innerHTML = html;
     renderAssetTrendChart();
+    renderAssetSectionMinis();
+}
+
+var _assetMiniCharts = {};
+function renderAssetSectionMinis() {
+    var hist = DATA.assets.history || [];
+    if (hist.length < 2) return;
+    // 沿用主趨勢圖範圍
+    var months = _nwTrendMonths;
+    var filtered = hist;
+    if (months > 0) {
+        var cutoff = new Date();
+        cutoff.setMonth(cutoff.getMonth() - months);
+        var cutoffStr = cutoff.getFullYear() + '-' + String(cutoff.getMonth()+1).padStart(2,'0') + '-' + String(cutoff.getDate()).padStart(2,'0');
+        filtered = hist.filter(function(h){ return h.date >= cutoffStr; });
+    } else if (months === -1 && _nwTrendCustomStart && _nwTrendCustomEnd) {
+        filtered = hist.filter(function(h){ return h.date >= _nwTrendCustomStart && h.date <= _nwTrendCustomEnd; });
+    }
+    if (filtered.length < 2) return;
+    var labels = filtered.map(function(h){ return _toROCDate(h.date); });
+    ASSET_SECTIONS.forEach(function(sec) {
+        var canvas = document.getElementById('asset-mini-' + sec.key);
+        if (!canvas) return;
+        var values = filtered.map(function(h){ return (h.breakdown && h.breakdown[sec.key]) || 0; });
+        if (_assetMiniCharts[sec.key]) { try { _assetMiniCharts[sec.key].destroy(); } catch(e){} }
+        var isDebt = sec.key === 'debt';
+        var color = isDebt ? '#DC2626' : '#059669';
+        _assetMiniCharts[sec.key] = new Chart(canvas.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: values,
+                    borderColor: color,
+                    backgroundColor: color + '1A',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 2,
+                    pointBackgroundColor: color,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: function(ctx){ return fmt(ctx.parsed.y); } } }
+                },
+                scales: {
+                    x: { display: false },
+                    y: { ticks: { callback: function(v){ return fmt(v); }, font: { size: 10 } } }
+                }
+            }
+        });
+    });
 }
 
 function toggleAssetSection(key) {
@@ -5362,6 +5423,7 @@ function applyNwTrendCustomRange() {
     _nwTrendCustomEnd = end;
     _nwTrendMonths = -1; // 標記為自訂模式
     renderAssetTrendChart();
+    renderAssetSectionMinis();
     var overlay = document.querySelector('.asset-modal-overlay');
     if (overlay) overlay.remove();
 }
@@ -5554,6 +5616,7 @@ function renderAssetTrendChart(rangeMonths) {
             }
         }
     });
+    renderAssetSectionMinis();
 }
 
 // ── CRUD modal ──
