@@ -49,32 +49,17 @@ html { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,.15) transparent; back
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,.3); }
+html, body { overflow: hidden; height: 100vh; }
 body {
     font-family: 'Outfit', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'PingFang TC', 'Microsoft JhengHei', sans-serif;
     background: var(--bg);
     color: var(--text);
-    min-height: 100vh;
     font-variant-numeric: tabular-nums;
 }
 .top-fixed {
     position: fixed; top: 8px; left: 50%; transform: translateX(-50%) translateZ(0);
     width: calc(100% - 16px); max-width: 1001px; z-index: 100;
-    background: var(--bg);
-    border-radius: var(--radius);
-    overflow: hidden;
     box-shadow: 0 6px 24px rgba(15,40,71,.15);
-    will-change: transform;
-}
-/* 頂部遮罩：擋住 top-fixed 圓角周圍的縫隙，避免滾動時露出白色卡片 */
-body::before {
-    content: '';
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: 110px;
-    background: var(--bg);
-    z-index: 95;
-    pointer-events: none;
-    transform: translateZ(0);
     will-change: transform;
 }
 .header {
@@ -87,6 +72,7 @@ body::before {
     border-bottom: 1px solid rgba(200,164,90,.3);
     box-shadow: 0 4px 16px rgba(15,40,71,.4);
     position: relative;
+    border-radius: var(--radius) var(--radius) 0 0;
 }
 .header::after {
     content: '';
@@ -129,8 +115,8 @@ body::before {
     background: var(--bg);
     border-bottom: 1px solid var(--border);
     box-shadow: 0 2px 8px rgba(15,40,71,.06);
+    border-radius: 0 0 var(--radius) var(--radius);
 }
-body { padding-top: 128px; }
 .tab-bar-wrap {
     max-width: 1000px;
     margin: 0 auto;
@@ -180,7 +166,19 @@ body { padding-top: 128px; }
     background: linear-gradient(90deg, var(--lux-gold), var(--lux-gold-light), var(--lux-gold));
 }
 
-.container { width: calc(100% - 16px); max-width: 1000px; margin: 0 auto; padding: 2px 0 10px; }
+.container {
+    position: fixed;
+    top: var(--top-fixed-h, 148px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 16px);
+    max-width: 1000px;
+    bottom: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 2px 0 10px;
+    -webkit-overflow-scrolling: touch;
+}
 
 .summary-cards {
     display: grid;
@@ -744,10 +742,6 @@ th.sortable.sort-active { color: var(--lux-navy); }
 th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; }
 
 @media (max-width: 600px) {
-    html, body { overflow-x: hidden; }
-    body { padding-top: var(--top-fixed-h, 156px); }
-    /* 手機版頂部遮罩跟隨 top-fixed 實際高度，避免捲動鬼影 */
-    body::before { height: var(--top-fixed-h, 156px); }
     .header { padding: 8px 10px; gap: 6px; }
     .header h1 { font-size: 17px; letter-spacing: 2px; flex-shrink: 0; }
     .header-btns {
@@ -1941,19 +1935,15 @@ function switchTab(tab) {
         maybeAutoFetchGold();
         maybeAutoSnapshot();
     }
-    // 在 render 之前先捲到頂部 — iOS 從長頁切到短頁有時不會自動 reset
+    // 捲動容器改為 .container 內部捲動，切頁時把 container 捲回頂
     function _scrollTop() {
-        try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch(e) {}
-        try { window.scrollTo(0, 0); } catch(e) {}
-        if (document.documentElement) document.documentElement.scrollTop = 0;
-        if (document.body) document.body.scrollTop = 0;
+        var c = document.querySelector('.container');
+        if (c) c.scrollTop = 0;
     }
     _scrollTop();
     render();
     _scrollTop();
-    // render 後 DOM 高度變動，多保險兩次
     requestAnimationFrame(_scrollTop);
-    setTimeout(_scrollTop, 50);
 }
 
 // ── 排序 ──
