@@ -3904,7 +3904,7 @@ function renderTrend() {
         // 月份明細表
         if (open) {
             html += '<div class="table-wrap"><table class="stock-table" style="margin:0"><thead><tr>';
-            html += '<th>月份</th><th>收入</th><th>支出</th><th>結餘</th><th>備註</th><th></th>';
+            html += '<th>月份</th><th>收入</th><th>支出</th><th>結餘</th><th></th>';
             html += '</tr></thead><tbody>';
             var rowsDesc = rows.slice().reverse();
             rowsDesc.forEach(function(r) {
@@ -3915,7 +3915,6 @@ function renderTrend() {
                 html += '<td style="color:var(--green);font-weight:600">' + fmt(r.income || 0) + '</td>';
                 html += '<td style="color:var(--red);font-weight:600">' + fmt(r.expense || 0) + '</td>';
                 html += '<td style="font-weight:700;color:' + balColor + '">' + (balance >= 0 ? '+' : '') + fmt(balance) + '</td>';
-                html += '<td style="font-size:12px;color:var(--muted)">' + esc(r.note || '') + '</td>';
                 html += '<td><button class="btn-del" title="刪除" onclick="deleteMonthly(\'' + esc(r.month) + '\')"><i class="ti ti-x" style="font-size:14px"></i></button></td>';
                 html += '</tr>';
             });
