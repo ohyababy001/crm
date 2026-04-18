@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="description" content="CashFlow 個人財務追蹤：現金流、收支、投資紀錄、圖表分析">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -57,12 +57,13 @@ body {
     font-variant-numeric: tabular-nums;
 }
 .top-fixed {
-    position: fixed; top: 8px; left: 50%; transform: translateX(-50%);
+    position: fixed; top: 8px; left: 50%; transform: translateX(-50%) translateZ(0);
     width: calc(100% - 16px); max-width: 1001px; z-index: 100;
     background: var(--bg);
     border-radius: var(--radius);
     overflow: hidden;
     box-shadow: 0 6px 24px rgba(15,40,71,.15);
+    will-change: transform;
 }
 /* 頂部遮罩：擋住 top-fixed 圓角周圍的縫隙，避免滾動時露出白色卡片 */
 body::before {
@@ -73,6 +74,8 @@ body::before {
     background: var(--bg);
     z-index: 95;
     pointer-events: none;
+    transform: translateZ(0);
+    will-change: transform;
 }
 .header {
     background: linear-gradient(135deg, #0f2847 0%, #1a3a5c 50%, #2a5a8c 100%);
@@ -741,10 +744,10 @@ th.sortable.sort-active { color: var(--lux-navy); }
 th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; }
 
 @media (max-width: 600px) {
-    html, body { overflow-x: hidden; }
+    body { overflow-x: hidden; }
     body { padding-top: 156px; }
-    /* 手機版 top-fixed 較高，加大頂部遮罩避免捲動時鬼影 */
-    body::before { height: calc(168px + env(safe-area-inset-top, 0px)); }
+    /* 手機版 top-fixed 較高，加大頂部遮罩避免捲動時鬼影（含 box-shadow 餘裕） */
+    body::before { height: calc(180px + env(safe-area-inset-top, 0px)); }
     .header { padding: 8px 10px; gap: 6px; }
     .header h1 { font-size: 17px; letter-spacing: 2px; flex-shrink: 0; }
     .header-btns {
@@ -1916,17 +1919,19 @@ function switchTab(tab) {
         maybeAutoFetchGold();
         maybeAutoSnapshot();
     }
-    render();
-    // 多重 fallback：iOS Safari / PWA 模式下 window.scrollTo 不一定生效
-    try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch(e) {}
-    try { window.scrollTo(0, 0); } catch(e) {}
-    if (document.documentElement) document.documentElement.scrollTop = 0;
-    if (document.body) document.body.scrollTop = 0;
-    // 下一個 frame 再保險試一次（render() 後 DOM 高度可能變動）
-    requestAnimationFrame(function() {
+    // 在 render 之前先捲到頂部 — iOS 從長頁切到短頁有時不會自動 reset
+    function _scrollTop() {
+        try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch(e) {}
+        try { window.scrollTo(0, 0); } catch(e) {}
         if (document.documentElement) document.documentElement.scrollTop = 0;
         if (document.body) document.body.scrollTop = 0;
-    });
+    }
+    _scrollTop();
+    render();
+    _scrollTop();
+    // render 後 DOM 高度變動，多保險兩次
+    requestAnimationFrame(_scrollTop);
+    setTimeout(_scrollTop, 50);
 }
 
 // ── 排序 ──
