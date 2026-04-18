@@ -10665,7 +10665,7 @@ function exportCSV() {
     const csv='\uFEFF'+rows.join('\n');
     const a=document.createElement('a');
     a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
-    a.download=`客戶資料_${localDateISO()}.csv`;
+    a.download=`customers_${localDateISO()}.csv`;
     a.click();
     var now = new Date().toLocaleString('zh-TW');
     document.getElementById('exportTime').textContent = '上次匯出：' + now;
