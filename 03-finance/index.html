@@ -754,6 +754,10 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
     .top-fixed { max-width: calc(100% - 16px); }
     /* 收入/支出工具列：年份獨立一排，其他按鈕一排 */
     .toolbar .toolbar-break { display: block; flex-basis: 100%; height: 0; }
+    /* 手機版年度合計欄置中 */
+    thead th:last-child,
+    tbody td:last-child,
+    tfoot td:last-child { text-align: center; }
 }
 /* ── 淨資產 ── */
 .nw-hero {
