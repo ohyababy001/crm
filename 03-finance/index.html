@@ -1574,7 +1574,10 @@ function cloudRestore(opts) {
         });
 }
 // 開頁時自動拉雲端（但不強制覆蓋本機較新的資料）
+// 用 sessionStorage 避免「還原 → reload → 又還原」的無窮迴圈
 window.addEventListener('load', function() {
+    if (sessionStorage.getItem('cloudRestoredThisSession') === '1') return;
+    sessionStorage.setItem('cloudRestoredThisSession', '1');
     setTimeout(function(){ cloudRestore(); }, 800);
 });
 
