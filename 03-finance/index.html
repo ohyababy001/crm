@@ -177,7 +177,7 @@ body { padding-top: 128px; }
     background: linear-gradient(90deg, var(--lux-gold), var(--lux-gold-light), var(--lux-gold));
 }
 
-.container { width: calc(100% - 16px); max-width: 1000px; margin: 0 auto; padding: 10px 0; }
+.container { width: calc(100% - 16px); max-width: 1000px; margin: 0 auto; padding: 2px 0 10px; }
 
 .summary-cards {
     display: grid;
@@ -305,6 +305,10 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
     align-items: center;
 }
 .toolbar .toolbar-break { display: none; }
+.toolbar .lbl-short { display: none; }
+.trend-range-btn { padding: 6px 12px; font-size: 13px; }
+.trend-range-btn .lbl-short { display: none; }
+.stock-sub-tab .lbl-short, .btn-refresh .lbl-short { display: none; }
 .toolbar select, .toolbar button {
     padding: 9px 16px;
     border: 1px solid var(--border);
@@ -364,7 +368,7 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
     padding: 0;
     margin-bottom: 14px;
     box-shadow: var(--shadow);
-    font-size: 13px;
+    font-size: 12px;
     color: var(--muted);
     overflow: hidden;
 }
@@ -394,7 +398,7 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
     border-left-color: var(--lux-gold);
 }
 .passive-summary-item b {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 800;
     color: var(--text);
     margin: 0 2px;
@@ -408,7 +412,7 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
 }
 .passive-summary-total b {
     color: var(--lux-navy);
-    font-size: 18px;
+    font-size: 15px;
 }
 
 .p-source-card {
@@ -588,7 +592,8 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
 }
 .btn-refresh:disabled { opacity: .5; cursor: not-allowed; }
 .stock-table th, .stock-table td { text-align: right; }
-.stock-table th:first-child, .stock-table td:first-child { text-align: left; }
+.stock-table th { text-align: center; }
+.stock-table td:first-child { text-align: left; }
 .stock-table td.stock-name-cell {
     text-align: left;
     font-weight: 600;
@@ -721,6 +726,8 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
 @media (max-width: 600px) {
     html, body { overflow-x: hidden; }
     body { padding-top: 156px; }
+    /* 手機版 top-fixed 較高，加大頂部遮罩避免捲動時鬼影 */
+    body::before { height: 156px; }
     .header { padding: 8px 10px; gap: 6px; }
     .header h1 { font-size: 17px; letter-spacing: 2px; flex-shrink: 0; }
     .header-btns {
@@ -741,19 +748,61 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
     .s-card .value { font-size: 18px; }
     .container { padding: 10px; width: 100%; max-width: 100%; }
     .table-wrap { -webkit-overflow-scrolling: touch; }
-    table { font-size: 12px; }
+    table { font-size: 15px; }
     thead th, tbody td, tfoot td { padding: 5px 4px; }
-    .tab-btn { padding: 10px 8px; font-size: 12px; }
+    /* 手機版表格字級加大 */
+    thead th { font-size: 15px; }
+    .yoy-pct { font-size: 13px !important; }
+    /* 手機版收入/支出表欄寬加大（桌面維持 80/68） */
+    .ie-table .col-cat { width: 90px !important; }
+    .ie-table .col-month { width: 78px !important; }
+    .tab-btn { padding: 6px 8px; font-size: 15px; }
     .tab-bar-wrap { max-width: 100%; }
     .tab-bar-inner { grid-template-columns: repeat(3, 1fr); gap: 4px; }
     .asset-acc-row { flex-wrap: wrap; }
     /* 工具列按鈕群換行 */
     .toolbar { flex-wrap: wrap; gap: 6px; }
-    .toolbar .btn-add, .toolbar button { font-size: 12px; padding: 6px 10px; }
+    .toolbar .btn-add, .toolbar button { font-size: 15px; padding: 6px 10px; }
     /* top-fixed 手機版寬度 */
     .top-fixed { max-width: calc(100% - 16px); }
-    /* 收入/支出工具列：年份獨立一排，其他按鈕一排 */
-    .toolbar .toolbar-break { display: block; flex-basis: 100%; height: 0; }
+    /* 手機版按鈕簡化文字 */
+    .toolbar .lbl-full { display: none; }
+    .toolbar .lbl-short { display: inline; }
+    /* 月記錄範圍按鈕：縮 padding 讓四顆可同排 */
+    .trend-range-btn { padding: 5px 8px; font-size: 12px; }
+    .trend-range-btn .lbl-full { display: none; }
+    .trend-range-btn .lbl-short { display: inline; }
+    /* 台股子分頁與工具列按鈕簡化文字 */
+    .stock-sub-tab .lbl-full, .btn-refresh .lbl-full { display: none; }
+    .stock-sub-tab .lbl-short, .btn-refresh .lbl-short { display: inline; }
+    /* 手機版台股子分頁與工具列按鈕字級 */
+    .stock-sub-tab, .btn-refresh { font-size: 15px; }
+    /* 手機版月記錄年度卡片字級 */
+    .trend-year-count { font-size: 13px !important; }
+    .trend-year-summary { font-size: 15px !important; }
+    /* 手機版被動收入彙總列字級 */
+    .passive-summary-bar { font-size: 13px; }
+    .passive-summary-label { font-size: 15px; }
+    .passive-summary-item b,
+    .passive-summary-row2 .passive-summary-item b,
+    .passive-summary-total b,
+    .passive-summary-row2 .passive-summary-item.passive-summary-total b { font-size: 15px; }
+    /* 手機版淨資產頁字級 */
+    .nw-hero .nw-label { font-size: 13px; }
+    .nw-hero .nw-value { font-size: 30px; }
+    .nw-hero .nw-hero-right .nw-fx-refresh { font-size: 12px; }
+    .asset-card-head .asset-card-title { font-size: 15px; }
+    .asset-card-head .asset-card-sum { font-size: 18px; }
+    .asset-card-head .asset-card-arrow { font-size: 13px; }
+    /* 台股子分頁、工具列按鈕在手機版同寬但不撐滿 */
+    .stock-sub-tabs { gap: 8px; }
+    .stock-sub-tab { padding: 9px 0; text-align: center; min-width: 84px; }
+    .stock-refresh-bar .btn-refresh { padding: 9px 0; text-align: center; min-width: 84px; }
+    .stock-refresh-bar .last-update { flex-basis: 100%; }
+    /* 手機版股利卡片隱藏「累積股利」字樣 */
+    .lbl-cum { display: none; }
+    /* 手機版質押紀錄：日息、月息推到最右 */
+    .pledge-interest-daily { margin-left: auto; }
     /* 手機版年度合計欄置中 */
     thead th:last-child,
     tbody td:last-child,
@@ -1303,6 +1352,9 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
                 <button onclick="closeSettingsMenu();document.getElementById('importFile').click()" style="display:block;width:100%;padding:10px 14px;border:none;background:none;text-align:left;cursor:pointer;color:var(--text);font-size:13px;font-family:inherit;border-bottom:1px solid var(--border)">
                     <i class="ti ti-upload"></i> 匯入備份
                 </button>
+                <button onclick="closeSettingsMenu();showRestoreDialog()" title="從自動快照還原台股資料" style="display:block;width:100%;padding:10px 14px;border:none;background:none;text-align:left;cursor:pointer;color:var(--text);font-size:13px;font-family:inherit;border-bottom:1px solid var(--border)">
+                    <i class="ti ti-history"></i> 還原台股快照
+                </button>
                 <button onclick="closeSettingsMenu();showConfirm2('確定清除本機所有資料？\n清除後此裝置的資料將無法復原（但雲端仍保留，可再用雲端下載還原）。',function(){localStorage.clear();location.reload();},null,{title:'清除本機資料',okText:'確定清除',okStyle:'background:var(--red)'})" style="display:block;width:100%;padding:10px 14px;border:none;background:none;text-align:left;cursor:pointer;color:var(--red);font-size:13px;font-family:inherit">
                     <i class="ti ti-trash"></i> 清除本機資料
                 </button>
@@ -1510,7 +1562,7 @@ function _updateLastEditLabel() {
     var el = document.getElementById('last-edit');
     if (!el) return;
     if (!DATA._lastEditAt) { el.textContent = ''; return; }
-    try { el.textContent = '上次編輯：' + new Date(DATA._lastEditAt).toLocaleString('zh-TW'); } catch(e) { el.textContent = ''; }
+    try { el.textContent = '上次編輯：' + _toROCDateTime(DATA._lastEditAt); } catch(e) { el.textContent = ''; }
 }
 
 // ===== 雲端同步（Apps Script + Google Drive JSON）=====
@@ -1842,6 +1894,7 @@ function switchTab(tab) {
         maybeAutoSnapshot();
     }
     render();
+    window.scrollTo({ top: 0, behavior: 'auto' });
 }
 
 // ── 排序 ──
@@ -1913,27 +1966,27 @@ function renderIncomeExpense(section) {
 
     // 工具列
     html += '<div class="toolbar">';
-    html += '<select class="year-select" onchange="selectIEYear(this.value)" style="padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text);font-weight:700;cursor:pointer;margin-right:12px;font-family:inherit;font-size:17px">';
+    html += '<select class="year-select" onchange="selectIEYear(this.value)" style="padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text);font-weight:700;cursor:pointer;font-family:inherit;font-size:17px">';
     years.forEach(function(y){
         html += '<option value="' + esc(y) + '"' + (y === curY ? ' selected' : '') + '>' + y + '年</option>';
     });
     html += '</select>';
     html += '<div class="toolbar-break"></div>';
-    html += '<button class="btn-add" onclick="manageYears()"><i class="ti ti-list-details"></i> 管理年份</button>';
-    html += '<button class="btn-add" onclick="manageCategories(\'' + section + '\')"><i class="ti ti-list-details"></i> 管理項目</button>';
+    html += '<button class="btn-add" onclick="manageYears()"><i class="ti ti-list-details"></i> <span class="lbl-full">管理年份</span><span class="lbl-short">年份</span></button>';
+    html += '<button class="btn-add" onclick="manageCategories(\'' + section + '\')"><i class="ti ti-list-details"></i> <span class="lbl-full">管理項目</span><span class="lbl-short">項目</span></button>';
     var recurFn = section === 'income' ? 'manageIncomeRecurring' : 'manageExpenseRecurring';
     var recurLabel = section === 'income' ? '定期收入' : '定期支出';
-    html += '<button class="btn-add" onclick="' + recurFn + '()"><i class="ti ti-repeat"></i> ' + recurLabel + '</button>';
-    html += '<button class="toggle-archive' + (showArchived?' active':'') + '" onclick="toggleShowArchived()">' + (showArchived?'隱藏封存':'顯示封存') + '</button>';
+    html += '<button class="btn-add" onclick="' + recurFn + '()"><i class="ti ti-repeat"></i> <span class="lbl-full">' + recurLabel + '</span><span class="lbl-short">定期</span></button>';
+    html += '<button class="toggle-archive' + (showArchived?' active':'') + '" onclick="toggleShowArchived()"><span class="lbl-full">' + (showArchived?'隱藏封存':'顯示封存') + '</span><span class="lbl-short">封存</span></button>';
     html += '</div>';
 
     var MONTH_LABELS = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
 
     // 表格：橫列=分類、縱欄=12 個月 + 年合計
-    html += '<div class="table-wrap" style="overflow-x:auto"><table style="table-layout:fixed;width:100%"><thead><tr><th style="width:80px">項目</th>';
+    html += '<div class="table-wrap" style="overflow-x:auto"><table class="ie-table" style="table-layout:fixed;width:100%"><thead><tr><th class="col-cat" style="width:80px">項目</th>';
     for (var m = 1; m <= 12; m++) {
         var sortActive = sortState.col === 'month' && sortState.year === curY && sortState.month === m;
-        html += '<th class="sortable' + (sortActive?' sort-active':'') + '" style="width:68px" onclick="toggleSortMonth(' + m + ')">' + MONTH_LABELS[m-1] + sortArrowMonth(m) + '</th>';
+        html += '<th class="sortable col-month' + (sortActive?' sort-active':'') + '" style="width:68px" onclick="toggleSortMonth(' + m + ')">' + MONTH_LABELS[m-1] + sortArrowMonth(m) + '</th>';
     }
     var yActive = sortState.col === 'year' && sortState.year === curY;
     html += '<th class="sortable' + (yActive?' sort-active':'') + '" style="width:100px;font-weight:700" onclick="toggleSort(\'year\',\'' + curY + '\')">年度合計' + sortArrow('year', curY) + '</th>';
@@ -1957,7 +2010,7 @@ function renderIncomeExpense(section) {
         var yoyHtml = '';
         if (yoy !== null && !isNaN(yoy)) {
             var color = yoy >= 0 ? 'var(--green)' : 'var(--red)';
-            yoyHtml = '<br><span style="font-size:11px;font-weight:400;color:' + color + '">' + (yoy >= 0 ? '+' : '') + yoy.toFixed(1) + '%</span>';
+            yoyHtml = '<br><span class="yoy-pct" style="font-size:11px;font-weight:400;color:' + color + '">' + (yoy >= 0 ? '+' : '') + yoy.toFixed(1) + '%</span>';
         }
         html += '<td style="font-weight:700;color:#1a1a1a">' + fmt(yearTotal) + yoyHtml + '</td>';
         html += '</tr>';
@@ -1984,7 +2037,10 @@ function renderIncomeExpense(section) {
             var curROC = String(now.getFullYear() - 1911);
             if (String(curY) === curROC) {
                 var wrap = container.querySelector('.table-wrap');
-                var th = wrap && wrap.querySelectorAll('thead th')[now.getMonth() + 1]; // +1 因第一欄是「項目」
+                // 顯示前一個月：當月 m=now.getMonth()+1，前一個月 = m-1；表頭欄位 index 再 +1（首欄為「項目」）
+                // 化簡：前一個月對應 thead index = now.getMonth()；1 月時為 0，會落在「項目」欄，等同不捲動
+                var targetIdx = Math.max(1, now.getMonth());
+                var th = wrap && wrap.querySelectorAll('thead th')[targetIdx];
                 if (wrap && th) {
                     wrap.scrollLeft = th.offsetLeft - (wrap.querySelector('thead th').offsetWidth);
                 }
@@ -2045,14 +2101,14 @@ function renderPassive() {
     var selY = window._passiveYear;
 
     var html = '<div class="toolbar">';
-    html += '<select onchange="window._passiveYear=this.value;render()">';
+    html += '<select class="year-select" onchange="window._passiveYear=this.value;render()" style="padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text);font-weight:700;cursor:pointer;font-family:inherit;font-size:17px">';
     years.forEach(function(y) {
         html += '<option value="' + y + '"' + (y===selY?' selected':'') + '>' + y + '年</option>';
     });
     html += '</select>';
-    html += '<button class="btn-add" onclick="addYear()">＋ 新增年份</button>';
-    html += '<button class="btn-add" onclick="managePassiveSources()"><i class="ti ti-settings"></i> 管理來源</button>';
-    html += '<button onclick="manageRecurring()" style="margin-left:auto"><i class="ti ti-repeat"></i> 定期收入管理</button>';
+    html += '<button class="btn-add" onclick="addYear()">＋ <span class="lbl-full">新增年份</span><span class="lbl-short">年份</span></button>';
+    html += '<button class="btn-add" onclick="managePassiveSources()"><i class="ti ti-settings"></i> <span class="lbl-full">管理來源</span><span class="lbl-short">來源</span></button>';
+    html += '<button class="btn-add" onclick="manageRecurring()"><i class="ti ti-repeat"></i> <span class="lbl-full">定期被動收入</span><span class="lbl-short">定期</span></button>';
     html += '</div>';
 
     // 摘要列（一行）
@@ -2076,9 +2132,9 @@ function renderPassive() {
     html += '<div class="passive-summary-row passive-summary-row2">';
     sources.forEach(function(s) {
         var total = sumPassiveSource(selY, s);
-        html += '<span class="passive-summary-item"><span class="passive-summary-label">' + esc(s) + '</span> <b>' + fmt(total) + '</b></span>';
+        html += '<span class="passive-summary-item"><span class="passive-summary-label">' + esc(s) + '</span> <b>' + fmt(total) + '</b>/年</span>';
     });
-    html += '<span class="passive-summary-item passive-summary-total"><span class="passive-summary-label">總計</span> <b>' + fmt(grandTotal) + '</b></span>';
+    html += '<span class="passive-summary-item passive-summary-total"><span class="passive-summary-label">總計</span> <b>' + fmt(grandTotal) + '</b>/年</span>';
     html += '</div>';
     html += '</div>';
 
@@ -2418,6 +2474,30 @@ function _monthKey(rocYear, month) { return rocYear + '/' + month; }
 // 將整數 pad 到 2 位
 function _pad2(n) { return n < 10 ? '0' + n : String(n); }
 
+// 把西元日期字串（YYYY-MM-DD 或 YYYY-MM）轉成民國（115-04-18 / 115-04）
+function _toROCDate(s) {
+    if (!s || typeof s !== 'string') return s;
+    var m = s.match(/^(\d{4})(-\d{2})?(-\d{2})?$/);
+    if (!m) return s;
+    var roc = parseInt(m[1], 10) - 1911;
+    return roc + (m[2] || '') + (m[3] || '');
+}
+
+// 把 Date 或時間戳轉成民國年的本地化字串：115/4/18 下午 7:06:31
+function _toROCDateTime(input) {
+    var d = (input instanceof Date) ? input : new Date(input);
+    if (isNaN(d.getTime())) return '';
+    var s = d.toLocaleString('zh-TW');
+    return s.replace(/^(\d{4})/, function(_, y){ return String(parseInt(y,10) - 1911); });
+}
+
+// 把 Date 或時間戳轉成民國年「只有時間」維持不變、有年份就轉
+function _toROCAny(s) {
+    if (!s) return s;
+    if (typeof s === 'string' && /^\d{4}-\d{2}-\d{2}/.test(s)) return _toROCDate(s.slice(0,10)) + s.slice(10);
+    return _toROCDateTime(s);
+}
+
 // 取得今天的 YYYY-MM-DD 字串（用本地日期，避免時區轉換偏差）
 function _todayYMD() {
     var now = new Date();
@@ -2542,7 +2622,7 @@ function manageIncomeRecurring() { _manageRecurringByTab('income'); }
 function manageExpenseRecurring() { _manageRecurringByTab('expense'); }
 
 function _manageRecurringByTab(tab) {
-    var titles = { passive: '定期被動收入管理', income: '定期收入管理', expense: '定期支出管理' };
+    var titles = { passive: '定期被動收入', income: '定期收入管理', expense: '定期支出管理' };
     var hints = {
         passive: '設定每月固定的被動收入（例如借款、代管），開啟網頁時會自動補記到被動收入對應月份。',
         income: '設定每月固定收入（例如薪資、津貼），開啟網頁時會自動補記到收入對應月份。',
@@ -2713,7 +2793,7 @@ function exportJSON() {
 
 
 function _recordExport() {
-    var now = new Date().toLocaleString('zh-TW');
+    var now = _toROCDateTime(new Date());
     localStorage.setItem('finTracker_lastExport', now);
     updateLastExportLabel();
 }
@@ -3093,7 +3173,7 @@ function showRestoreDialog() {
         try { d = JSON.parse(s.data); } catch(_) {}
         var divCount = (d && d.dividends && d.dividends.length) || 0;
         var holdCount = (d && d.holdings && d.holdings.length) || 0;
-        var time = new Date(s.time).toLocaleString('zh-TW');
+        var time = _toROCDateTime(s.time);
         options.push({
             key: 'snap_' + i,
             label: '快照 ' + (i+1) + '：' + time + '（股利 ' + divCount + ' 筆 / 持股 ' + holdCount + ' 檔）',
@@ -3107,7 +3187,7 @@ function showRestoreDialog() {
             if (ab.stock) {
                 var divCount2 = (ab.stock.dividends && ab.stock.dividends.length) || 0;
                 var holdCount2 = (ab.stock.holdings && ab.stock.holdings.length) || 0;
-                var time2 = ab.time ? new Date(ab.time).toLocaleString('zh-TW') : '未知時間';
+                var time2 = ab.time ? _toROCDateTime(ab.time) : '未知時間';
                 options.push({
                     key: 'autobackup',
                     label: '匯入前備份：' + time2 + '（股利 ' + divCount2 + ' 筆 / 持股 ' + holdCount2 + ' 檔）',
@@ -3344,7 +3424,7 @@ function fetchAllPrices(onDone) {
 
 function fallbackTWSE(holdings, onDone) {
     function needsName(h) { return !h.name || h.name === h.id || h.name === '查詢中...'; }
-    var now = function(){ return new Date().toLocaleString('zh-TW'); };
+    var now = function(){ return _toROCDateTime(new Date()); };
     var flags = getFinMindFlags();
     // 標記過 FinMind 的先分離出來
     var finmindOnly = holdings.filter(function(h){ return flags[h.id]; });
@@ -3828,16 +3908,15 @@ function renderTrend() {
     // 頂端操作列
     html += '<div class="toolbar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">';
     html += '<button class="btn-refresh" style="background:var(--lux-navy)" onclick="addMonthly()">＋ 新增</button>';
-    html += '<span style="flex:1"></span>';
-    html += '<span style="font-size:13px;color:var(--muted)">範圍：</span>';
+    html += '<span style="font-size:13px;color:var(--muted);margin-left:auto">範圍：</span>';
     var customLabel = '自訂';
     if (_trendRange === -1 && _trendCustom.start && _trendCustom.end) {
         customLabel = _trendCustom.start + ' ~ ' + _trendCustom.end;
     }
-    [[12,'近 12 個月'],[24,'近 24 個月'],[0,'全部'],[-1, customLabel]].forEach(function(r) {
+    [[12,'近 12 個月','12月'],[24,'近 24 個月','24月'],[0,'全部','全部'],[-1, customLabel, customLabel]].forEach(function(r) {
         var active = _trendRange === r[0];
         var onclick = r[0] === -1 ? 'onclick="openTrendCustomRange()"' : 'onclick="setTrendRange(' + r[0] + ')"';
-        html += '<button ' + onclick + ' style="padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:' + (active?'var(--lux-navy)':'var(--card)') + ';color:' + (active?'white':'var(--text)') + ';font-size:13px;cursor:pointer;font-family:inherit">' + esc(r[1]) + '</button>';
+        html += '<button class="trend-range-btn" ' + onclick + ' style="border:1px solid var(--border);border-radius:6px;background:' + (active?'var(--lux-navy)':'var(--card)') + ';color:' + (active?'white':'var(--text)') + ';cursor:pointer;font-family:inherit"><span class="lbl-full">' + esc(r[1]) + '</span><span class="lbl-short">' + esc(r[2]) + '</span></button>';
     });
     html += '</div>';
 
@@ -3894,8 +3973,8 @@ function renderTrend() {
         html += '<div style="background:var(--card);border-radius:var(--radius);margin-bottom:10px;box-shadow:var(--shadow);overflow:hidden">';
         // 年份標題列
         html += '<div onclick="toggleTrendYear(\'' + y + '\')" style="cursor:pointer;user-select:none;padding:12px 16px;background:' + (open ? '#F1EDE8' : 'var(--card)') + ';border-bottom:' + (open ? '1px solid var(--border)' : 'none') + '">';
-        html += '<div style="display:flex;align-items:center;gap:10px"><span style="font-size:15px;font-weight:700">' + arrow + ' ' + y + ' 年</span><span style="font-size:12px;color:var(--muted)">' + rows.length + ' 筆</span></div>';
-        html += '<div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:6px;font-size:13px">';
+        html += '<div style="display:flex;align-items:center;gap:10px"><span style="font-size:15px;font-weight:700">' + arrow + ' ' + y + ' 年</span><span class="trend-year-count" style="font-size:12px;color:var(--muted)">' + rows.length + ' 筆</span></div>';
+        html += '<div class="trend-year-summary" style="display:flex;gap:16px;flex-wrap:wrap;margin-top:6px;font-size:13px">';
         html += '<span><span style="color:var(--muted)">收入 </span><b style="color:var(--green)">' + fmt(yIncome) + '</b></span>';
         html += '<span><span style="color:var(--muted)">支出 </span><b style="color:var(--red)">' + fmt(yExpense) + '</b></span>';
         html += '<span><span style="color:var(--muted)">結餘 </span><b style="color:' + yBalColor + '">' + (yBalance >= 0 ? '+' : '') + fmt(yBalance) + '</b></span>';
@@ -4148,9 +4227,9 @@ function renderStock() {
 
     // 子頁籤
     html += '<div class="stock-sub-tabs">';
-    html += '<button class="stock-sub-tab' + (stockSubTab==='holdings'?' active':'') + '" onclick="stockSubTab=\'holdings\';renderStock()">持股總覽</button>';
-    html += '<button class="stock-sub-tab' + (stockSubTab==='dividend'?' active':'') + '" onclick="stockSubTab=\'dividend\';renderStock()">股利紀錄</button>';
-    html += '<button class="stock-sub-tab' + (stockSubTab==='pledge'?' active':'') + '" onclick="stockSubTab=\'pledge\';renderStock()">質押紀錄</button>';
+    html += '<button class="stock-sub-tab' + (stockSubTab==='holdings'?' active':'') + '" onclick="stockSubTab=\'holdings\';renderStock()"><span class="lbl-full">持股總覽</span><span class="lbl-short">總覽</span></button>';
+    html += '<button class="stock-sub-tab' + (stockSubTab==='dividend'?' active':'') + '" onclick="stockSubTab=\'dividend\';renderStock()"><span class="lbl-full">股利紀錄</span><span class="lbl-short">股利</span></button>';
+    html += '<button class="stock-sub-tab' + (stockSubTab==='pledge'?' active':'') + '" onclick="stockSubTab=\'pledge\';renderStock()"><span class="lbl-full">質押紀錄</span><span class="lbl-short">質押</span></button>';
     html += '</div>';
 
     if (stockSubTab === 'holdings') {
@@ -4169,10 +4248,9 @@ function renderStockHoldings() {
 
     // 更新按鈕列
     html += '<div class="stock-refresh-bar">';
-    html += '<button class="btn-refresh" id="btn-fetch-price" onclick="refreshPrices()"><i class="ti ti-antenna-bars-5"></i> 更新股價</button>';
-    html += '<button class="btn-refresh" style="background:var(--lux-navy)" onclick="addHolding()">＋ 新增持股</button>';
+    html += '<button class="btn-refresh" id="btn-fetch-price" onclick="refreshPrices()"><i class="ti ti-antenna-bars-5"></i> <span class="lbl-full">更新股價</span><span class="lbl-short">更新</span></button>';
+    html += '<button class="btn-refresh" style="background:var(--lux-navy)" onclick="addHolding()"><span class="lbl-full">＋ 新增持股</span><span class="lbl-short">＋ 新增</span></button>';
     html += '<button class="btn-refresh" style="background:linear-gradient(135deg,#0f2847 0%,#1a3a5c 50%,#2a5a8c 100%);border:1px solid var(--lux-gold)" onclick="toggleStockColumn()"><i class="ti ti-columns"></i> 欄位</button>';
-    html += '<button class="btn-refresh" onclick="showRestoreDialog()" title="從自動快照還原台股資料"><i class="ti ti-history"></i> 還原快照</button>';
     if (stockData.lastUpdate) {
         html += '<span class="last-update">最後更新：' + esc(stockData.lastUpdate) + '</span>';
     }
@@ -4363,13 +4441,15 @@ function renderStockDividend() {
         }
     });
 
-    html += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">';
+    html += '<div style="margin-bottom:12px">';
     html += '<button class="btn-refresh" style="background:var(--lux-navy)" onclick="addDividend()">＋ 新增股利</button>';
+    html += '</div>';
+    html += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">';
     stockData.holdings.forEach(function(h) {
         var t = totals[h.id];
         if (t.sum <= 0) return;
         html += '<div style="padding:8px 14px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);font-size:13px">';
-        html += '<div style="color:var(--muted);font-size:11px">' + esc(t.label) + ' 累積股利</div>';
+        html += '<div style="color:var(--muted);font-size:11px">' + esc(t.label) + '<span class="lbl-cum"> 累積股利</span></div>';
         html += '<div style="font-weight:700;color:var(--lux-navy);font-size:15px">$' + fmt(t.sum) + '</div>';
         html += '</div>';
     });
@@ -4401,20 +4481,20 @@ function renderStockDividend() {
         var arrow = expanded ? '▼' : '▶';
 
         html += '<div class="dividend-section">';
-        html += '<h3 style="cursor:pointer;user-select:none" onclick="toggleDivYear(\'' + esc(y) + '\')">' + arrow + ' ' + y + ' 年<span class="dividend-year-total">合計 $' + fmt(yearTotal) + '</span></h3>';
+        html += '<h3 style="cursor:pointer;user-select:none" onclick="toggleDivYear(\'' + esc(y) + '\')">' + arrow + ' ' + (parseInt(y,10) ? (parseInt(y,10) - 1911) : y) + ' 年<span class="dividend-year-total">合計 $' + fmt(yearTotal) + '</span></h3>';
         if (expanded) {
             html += '<div class="table-wrap"><table class="stock-table"><thead><tr>';
-            html += '<th>日期</th><th>股票</th><th>現金股利</th><th>股票股利</th><th></th>';
+            html += '<th>日期</th><th>股票</th><th>現金股利</th><th>股票股利</th><th style="width:32px"></th>';
             html += '</tr></thead><tbody>';
 
             items.forEach(function(item) {
                 var d = item.d;
                 html += '<tr>';
-                html += '<td style="text-align:left">' + esc(d.date) + '</td>';
+                html += '<td style="text-align:left">' + esc(_toROCDate(d.date)) + '</td>';
                 html += '<td style="text-align:left">' + esc(d.stockId + ' ' + d.stockName) + '</td>';
                 html += '<td style="color:var(--green);font-weight:600">' + (d.cash > 0 ? '$' + fmt(d.cash) : '-') + '</td>';
                 html += '<td>' + (d.stockShares > 0 ? d.stockShares + ' 股' : '-') + '</td>';
-                html += '<td><button class="btn-del" onclick="deleteDividend(' + item.idx + ')"><i class="ti ti-x" style="font-size:14px"></i></button></td>';
+                html += '<td style="width:32px"><button class="btn-del" onclick="deleteDividend(' + item.idx + ')"><i class="ti ti-x" style="font-size:14px"></i></button></td>';
                 html += '</tr>';
             });
 
@@ -4597,8 +4677,8 @@ function renderStockPledge() {
     html += '<span style="color:var(--muted)">擔保現值 <b style="color:var(--lux-gold)">' + fmt(Math.round(totalCollateral)) + '</b></span>';
     html += '<span style="color:var(--muted)">維持率 <b style="color:' + (totalRatio >= 130 ? 'var(--green)' : 'var(--red)') + '">' + totalRatio.toFixed(1) + '%</b></span>';
     html += '<span style="flex:1"></span>';
-    html += '<span style="color:var(--muted)">日息 <b style="color:var(--red)">' + fmt(Math.round(totalDailyInterest)) + '</b></span>';
-    html += '<span style="color:var(--muted)">月息 <b style="color:var(--red)">' + fmt(Math.round(totalMonthlyInterest)) + '</b></span>';
+    html += '<span class="pledge-interest pledge-interest-daily" style="color:var(--muted)">日息 <b style="color:var(--red)">' + fmt(Math.round(totalDailyInterest)) + '</b></span>';
+    html += '<span class="pledge-interest" style="color:var(--muted)">月息 <b style="color:var(--red)">' + fmt(Math.round(totalMonthlyInterest)) + '</b></span>';
     html += '</div>';
 
     // 到期提醒橫幅（半年一期 = 180 天，到期前 30 天提醒）
@@ -4660,8 +4740,8 @@ function renderStockPledge() {
         html += '<td>' + p.rate.toFixed(2) + '%</td>';
         html += '<td style="font-weight:600">' + (collateral ? fmt(Math.round(collateral)) : '-') + '</td>';
         html += '<td style="font-weight:700;color:' + ratioColor + '">' + (noDebt ? '∞' : (ratio ? ratio.toFixed(1) + '%' : '-')) + '</td>';
-        html += '<td style="font-size:12px">' + esc(p.date || '') + '</td>';
-        html += '<td style="font-size:12px;' + (noDebt ? '' : dueColor) + '">' + (noDebt ? '-' : dueStr + dueDaysLabel) + '</td>';
+        html += '<td style="font-size:12px">' + esc(_toROCDate(p.date || '')) + '</td>';
+        html += '<td style="font-size:12px;' + (noDebt ? '' : dueColor) + '">' + (noDebt ? '-' : _toROCDate(dueStr) + dueDaysLabel) + '</td>';
         html += '<td style="white-space:nowrap"><button class="btn-del" title="展延" onclick="renewPledge(' + idx + ')"><i class="ti ti-refresh"></i></button><button class="btn-del" title="刪除" onclick="deletePledge(' + idx + ')"><i class="ti ti-x" style="font-size:14px"></i></button></td>';
         html += '</tr>';
     });
@@ -5189,8 +5269,8 @@ function renderAssetTrendChart(rangeMonths) {
         }
         var avgVal = Math.round(sum / values.length);
         sh += '<div class="nw-stats-row">';
-        sh += '<span class="nw-stats-item">最高 <b>' + fmt(maxVal) + '</b> <small>' + maxMonth + '</small></span>';
-        sh += '<span class="nw-stats-item">最低 <b>' + fmt(minVal) + '</b> <small>' + minMonth + '</small></span>';
+        sh += '<span class="nw-stats-item">最高 <b>' + fmt(maxVal) + '</b> <small>' + _toROCDate(maxMonth) + '</small></span>';
+        sh += '<span class="nw-stats-item">最低 <b>' + fmt(minVal) + '</b> <small>' + _toROCDate(minMonth) + '</small></span>';
         sh += '<span class="nw-stats-item">平均 <b>' + fmt(avgVal) + '</b></span>';
         sh += '</div>';
         statsEl.innerHTML = sh;
@@ -5211,7 +5291,7 @@ function renderAssetTrendChart(rangeMonths) {
     _assetTrendChart = new Chart(canvas.getContext('2d'), {
         type: 'line',
         data: {
-            labels: labels,
+            labels: labels.map(_toROCDate),
             datasets: [{
                 label: '淨資產',
                 data: values,
