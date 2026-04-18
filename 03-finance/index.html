@@ -57,12 +57,13 @@ body {
     font-variant-numeric: tabular-nums;
 }
 .top-fixed {
-    position: fixed; top: 8px; left: 50%; transform: translateX(-50%);
+    position: fixed; top: 8px; left: 50%; transform: translateX(-50%) translateZ(0);
     width: calc(100% - 16px); max-width: 1001px; z-index: 100;
     background: var(--bg);
     border-radius: var(--radius);
     overflow: hidden;
     box-shadow: 0 6px 24px rgba(15,40,71,.15);
+    will-change: transform;
 }
 /* 頂部遮罩：擋住 top-fixed 圓角周圍的縫隙，避免滾動時露出白色卡片 */
 body::before {
@@ -73,6 +74,8 @@ body::before {
     background: var(--bg);
     z-index: 95;
     pointer-events: none;
+    transform: translateZ(0);
+    will-change: transform;
 }
 .header {
     background: linear-gradient(135deg, #0f2847 0%, #1a3a5c 50%, #2a5a8c 100%);
