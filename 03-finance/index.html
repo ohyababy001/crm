@@ -1667,16 +1667,24 @@ window.addEventListener('load', function() {
 });
 
 // 動態同步 top-fixed 實際高度，避免 body padding-top 與遮罩高度寫死導致破版
+var _lastViewportWidth = 0;
 function syncTopFixedHeight() {
     var tf = document.querySelector('.top-fixed');
     if (!tf) return;
-    var h = tf.getBoundingClientRect().height;
-    document.documentElement.style.setProperty('--top-fixed-h', h + 'px');
+    // 用 bottom 而非 height，這樣包含 top:8px 的位移，遮罩才會完全涵蓋 top-fixed
+    var bottom = tf.getBoundingClientRect().bottom;
+    document.documentElement.style.setProperty('--top-fixed-h', bottom + 'px');
+    _lastViewportWidth = window.innerWidth;
 }
 window.addEventListener('load', syncTopFixedHeight);
-window.addEventListener('resize', syncTopFixedHeight);
-// orientation change / 字級變化也重算
-if (window.matchMedia) window.matchMedia('(max-width: 600px)').addEventListener('change', syncTopFixedHeight);
+// 只在「寬度真的變化」時重算（避開 iOS 鍵盤彈出造成的高度變化）
+window.addEventListener('resize', function() {
+    if (window.innerWidth !== _lastViewportWidth) syncTopFixedHeight();
+});
+// 螢幕方向切換一定要重算
+window.addEventListener('orientationchange', function() {
+    setTimeout(syncTopFixedHeight, 100);
+});
 
 // ===== Header 進階設定選單 =====
 function toggleSettingsMenu(e) {
