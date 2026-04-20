@@ -2372,15 +2372,15 @@ function startAutoCheck() {
         // 本地沒有未上傳的變更：直接拉雲端取最新資料
         setTimeout(autoFetchCloud, 3000);
     }
-    _checkTimer = setInterval(autoFetchCloud, 60 * 1000);
+    _checkTimer = setInterval(autoFetchCloud, 20 * 1000);
 }
-// 頁面切回前景時立刻拉雲端（手機切回 App、電腦切回分頁）
+// 頁面切回前景時立刻拉雲端（強制忽略 dirty 鎖，因為剛切回來代表使用者要看最新）
 document.addEventListener('visibilitychange', function() {
-    if (!document.hidden) autoFetchCloud();
+    if (!document.hidden) autoFetchCloud(true);
 });
-function autoFetchCloud() {
-    // 本機有未上傳的變更時，跳過拉雲端，避免舊資料覆蓋新存的
-    if (Date.now() < _localDirtyUntil) return;
+function autoFetchCloud(force) {
+    // 本機有未上傳的變更時，跳過拉雲端，避免舊資料覆蓋新存的（force=true 強制拉）
+    if (!force && Date.now() < _localDirtyUntil) return;
     var cbName = 'checkCb_' + Date.now();
     var script = document.createElement('script');
     window[cbName] = function(data) {
