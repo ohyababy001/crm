@@ -4292,11 +4292,14 @@ function renderDividendAlerts() {
 
 function showDividendAlertModal() {
     if (_dividendAlerts.length === 0) return;
-    var html = '';
+    var ov = document.createElement('div');
+    ov.className = 'overlay';
+    var html = '<div class="modal" style="width:560px;max-width:92vw;">';
+    html += '<h3><i class="ti ti-speakerphone"></i> 除權息提醒</h3>';
     if (_dividendCacheUpdatedAt) {
         html += '<div style="font-size:12px;color:var(--text-light);margin-bottom:8px;">資料更新於 ' + esc(_dividendCacheUpdatedAt) + '</div>';
     }
-    html += '<div style="max-height:60vh;overflow-y:auto;">';
+    html += '<div style="max-height:60vh;overflow-y:auto;margin-bottom:14px;">';
     _dividendAlerts.forEach(function(a) {
         var label = a.diff < 0 ? '（已除息）' : (a.diff === 0 ? '（今天除息）' : '（' + a.diff + ' 天後）');
         html += '<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">';
@@ -4310,7 +4313,11 @@ function showDividendAlertModal() {
         html += '</div>';
     });
     html += '</div>';
-    showAlert(html, '<i class="ti ti-speakerphone"></i> 除權息提醒');
+    html += '<div class="modal-btns"><button class="btn-primary" id="div-alert-ok">確定</button></div>';
+    html += '</div>';
+    ov.innerHTML = html;
+    document.body.appendChild(ov);
+    document.getElementById('div-alert-ok').onclick = function() { ov.remove(); };
 }
 
 function openDividendAlertSettings() {
