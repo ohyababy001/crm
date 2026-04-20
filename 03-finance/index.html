@@ -4771,8 +4771,8 @@ function renderStockHoldings() {
     // 摘要列
     html += '<div class="stock-summary-bar" style="display:flex;flex-wrap:wrap;gap:6px 20px;font-size:14px;margin-bottom:10px;padding:8px 12px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow)">';
     html += '<span style="color:var(--muted)">成本 <b style="color:var(--text)">' + fmt(totalCost) + '</b></span>';
+    html += '<span style="color:var(--muted)"><span class="lbl-full">損益</span><span class="lbl-short">累積損益</span> <b class="' + (totalPL>=0?'pos':'neg') + '">' + (totalPL>=0?'+':'') + fmt(totalPL) + ' (' + fmtRate(totalRate) + ')</b></span>';
     html += '<span style="color:var(--muted)">市值 <b style="color:var(--lux-gold)">' + fmt(totalMarket) + '</b></span>';
-    html += '<span style="color:var(--muted)">損益 <b class="' + (totalPL>=0?'pos':'neg') + '">' + (totalPL>=0?'+':'') + fmt(totalPL) + ' (' + fmtRate(totalRate) + ')</b></span>';
     html += '<span style="color:var(--muted)">今日損益 <b class="' + (todayPL>=0?'pos':'neg') + '">' + (todayPL>=0?'+':'') + fmt(todayPL) + '</b></span>';
     html += '<span class="year-dividend-cell" style="color:var(--muted)">今年股利 <b style="color:var(--lux-navy)">' + fmt(yearDividend) + '</b></span>';
     html += '</div>';
