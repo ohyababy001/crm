@@ -3623,21 +3623,25 @@ function fetchTPEXAll(callback) {
         callback(null, _tpexAllCache);
         return;
     }
-    fetch('https://www.tpex.org.tw/web/stock/aftertrading/otc_quotes_no1430/stk_wn1430_result.php?l=zh-tw')
+    // TPEX v1 OpenAPI：當日上櫃收盤行情
+    fetch('https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes')
         .then(function(r) { return r.json(); })
-        .then(function(json) {
-            var rows = (json && json.aaData) || (json && json.tables && json.tables[0] && json.tables[0].data) || [];
-            if (!rows.length) { callback('TPEX 無資料'); return; }
+        .then(function(arr) {
+            if (!Array.isArray(arr) || arr.length === 0) { callback('TPEX 無資料'); return; }
             var map = {};
-            rows.forEach(function(row) {
-                // 格式：[代號, 名稱, 收盤, 漲跌, 開, 高, 低, 成交股數, 成交金額, 成交筆數, ...]
-                if (!row || row.length < 4) return;
-                var id = String(row[0]).trim();
-                var name = String(row[1]).trim();
-                var price = parseFloat(String(row[2]).replace(/,/g, ''));
-                var change = parseFloat(String(row[3]).replace(/,/g, '')) || 0;
-                if (!isNaN(price) && id) map[id] = { name: name, price: price, change: change };
+            arr.forEach(function(row) {
+                var id = String(row.SecuritiesCompanyCode || '').trim();
+                if (!id) return;
+                var name = String(row.CompanyName || '').trim();
+                var price = parseFloat(String(row.Close || '').replace(/,/g, ''));
+                // Change 欄可能含漲跌符號（▲▼+-），抽出數字
+                var chgRaw = String(row.Change || '');
+                var chgMatch = chgRaw.match(/-?\d+(\.\d+)?/);
+                var change = chgMatch ? parseFloat(chgMatch[0]) : 0;
+                if (/[▼-]/.test(chgRaw) && change > 0) change = -change;
+                if (!isNaN(price)) map[id] = { name: name, price: price, change: change };
             });
+            if (!Object.keys(map).length) { callback('TPEX 無資料'); return; }
             _tpexAllCache = map;
             _tpexAllCacheTime = Date.now();
             callback(null, map);
@@ -4167,15 +4171,14 @@ function getDividendAlertRange() {
         try {
             var o = JSON.parse(raw);
             var before = Math.max(0, Math.min(180, +o.before || 30));
-            var after = Math.max(0, Math.min(30, +o.after || 3));
-            return { before: before, after: after };
+            return { before: before };
         } catch (e) {}
     }
-    return { before: 30, after: 3 };
+    return { before: 30 };
 }
 
-function setDividendAlertRange(before, after) {
-    localStorage.setItem('dividendAlertRange', JSON.stringify({ before: before, after: after }));
+function setDividendAlertRange(before) {
+    localStorage.setItem('dividendAlertRange', JSON.stringify({ before: before }));
     _dividendAlertChecked = false;
     checkDividendAlerts();
 }
@@ -4196,23 +4199,41 @@ function checkDividendAlerts() {
     var holdingIds = {};
     stockData.holdings.forEach(function(h) { holdingIds[h.id] = h; });
 
+    function _nextEventDiff(a) {
+        // 選兩個日期中最近未來的（diff>=0）；若都過了，選較晚（距今負值較小者）
+        var ex = a.diff, pay = a.payDiff;
+        var futureCandidates = [ex, pay].filter(function(v){ return v !== null && v >= 0; });
+        if (futureCandidates.length) return Math.min.apply(null, futureCandidates);
+        var pastCandidates = [ex, pay].filter(function(v){ return v !== null; });
+        return Math.max.apply(null, pastCandidates);
+    }
+    function _sortByNextEvent(a, b) { return _nextEventDiff(a) - _nextEventDiff(b); }
+    function _diffDays(dateStr) {
+        var norm = String(dateStr || '').slice(0, 10);
+        if (!norm) return null;
+        var parts = norm.split('-');
+        if (parts.length !== 3) return null;
+        var d = new Date(+parts[0], +parts[1] - 1, +parts[2]);
+        return Math.round((d - today) / 86400000);
+    }
     function pushAlert(h, exDate, cash, stockDiv, payDate) {
-        // 正規化日期：只取前 10 字（yyyy-MM-dd），避免 "2026-04-20T00:00:00" 與 "2026-04-20" 無法去重
         var exDateNorm = String(exDate || '').slice(0, 10);
         if (!exDateNorm) return;
         var key = h.id + '|' + exDateNorm;
         if (seen[key]) return;
-        // 日期以本地時區解析（避免 new Date('2026-04-20') 被當 UTC 導致差 8 小時）
-        var parts = exDateNorm.split('-');
-        if (parts.length !== 3) return;
-        var ex = new Date(+parts[0], +parts[1] - 1, +parts[2]);
-        var diff = Math.round((ex - today) / 86400000);
-        if (diff < -range.after || diff > range.before) return;
+        var exDiff = _diffDays(exDateNorm);
+        if (exDiff === null) return;
+        var payDateNorm = String(payDate || '').slice(0, 10);
+        var payDiff = _diffDays(payDateNorm);
+        // 顯示規則：除息日/配息日任一在未來 before 天內 → 顯示；兩者皆已過才消失
+        var maxDiff = Math.max(exDiff, payDiff === null ? exDiff : payDiff);
+        if (maxDiff < 0 || maxDiff > range.before) return;
         seen[key] = true;
         _dividendAlerts.push({
             stockId: h.id, stockName: h.name,
-            exDate: exDateNorm, payDate: (payDate || '').slice(0, 10),
-            cash: cash || 0, stockDiv: stockDiv || 0, diff: diff
+            exDate: exDateNorm, payDate: payDateNorm,
+            cash: cash || 0, stockDiv: stockDiv || 0,
+            diff: exDiff, payDiff: payDiff
         });
     }
 
@@ -4229,7 +4250,7 @@ function checkDividendAlerts() {
                 });
             }
             // 快取先行顯示，後續 FinMind 補完會再次 renderStock
-            _dividendAlerts.sort(function(a, b) { return a.exDate.localeCompare(b.exDate); });
+            _dividendAlerts.sort(_sortByNextEvent);
             _dividendAlertChecked = true;
             renderStock();
         })
@@ -4261,7 +4282,7 @@ function checkDividendAlerts() {
                     }
                     pending--;
                     if (pending <= 0) {
-                        _dividendAlerts.sort(function(a,b) { return a.exDate.localeCompare(b.exDate); });
+                        _dividendAlerts.sort(_sortByNextEvent);
                         _dividendAlertChecked = true;
                         renderStock();
                     }
@@ -4292,8 +4313,19 @@ function renderDividendAlerts() {
         summary = '<span style="color:var(--text-light);font-size:12px;">未來 ' + range.before + ' 天內無除權息</span>';
     } else {
         var first = _dividendAlerts[0];
-        var label = first.diff < 0 ? '（已除息）' : (first.diff === 0 ? '（今天）' : '（' + first.diff + ' 天後）');
-        summary = '<b>' + esc(first.stockId) + ' ' + esc(first.stockName) + '</b> ' + esc(first.exDate) + ' ' + label;
+        // 摘要顯示下一個還沒到的事件（除息或配息）
+        var showDate, showLabel;
+        if (first.diff >= 0) {
+            showDate = first.exDate;
+            showLabel = first.diff === 0 ? '（今天除息）' : '除息（' + first.diff + ' 天後）';
+        } else if (first.payDiff !== null && first.payDiff >= 0) {
+            showDate = first.payDate;
+            showLabel = first.payDiff === 0 ? '（今天配息）' : '配息（' + first.payDiff + ' 天後）';
+        } else {
+            showDate = first.exDate;
+            showLabel = '（已除息）';
+        }
+        summary = '<b>' + esc(first.stockId) + ' ' + esc(first.stockName) + '</b> ' + esc(showDate) + ' ' + showLabel;
         if (count > 1) summary += ' <span style="color:var(--text-light);">+' + (count-1) + ' 筆</span>';
     }
     var onclick = count > 0 ? ' onclick="showDividendAlertModal()"' : '';
@@ -4316,14 +4348,19 @@ function showDividendAlertModal() {
     }
     html += '<div style="max-height:60vh;overflow-y:auto;margin-bottom:14px;">';
     _dividendAlerts.forEach(function(a) {
-        var label = a.diff < 0 ? '（已除息）' : (a.diff === 0 ? '（今天除息）' : '（' + a.diff + ' 天後）');
+        var exLabel = a.diff < 0 ? '已除息' : (a.diff === 0 ? '今天除息' : a.diff + ' 天後除息');
+        var payLabel = '';
+        if (a.payDiff !== null) {
+            payLabel = a.payDiff < 0 ? '已配息' : (a.payDiff === 0 ? '今天配息' : a.payDiff + ' 天後配息');
+        }
         html += '<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">';
         html += '<b>' + esc(a.stockId) + ' ' + esc(a.stockName) + '</b> ';
-        html += '除息日 <span style="font-weight:700;color:#B45309;">' + esc(a.exDate) + '</span> ' + label + '<br>';
+        html += '除息日 <span style="font-weight:700;color:#B45309;">' + esc(a.exDate) + '</span>（' + exLabel + '）';
+        if (a.payDate) html += '　配息日 <span style="font-weight:700;color:#B45309;">' + esc(a.payDate) + '</span>（' + payLabel + '）';
+        html += '<br>';
         var details = [];
         if (a.cash > 0) details.push('現金 $' + a.cash.toFixed(3));
         if (a.stockDiv > 0) details.push('股票 ' + a.stockDiv.toFixed(4) + ' 股');
-        if (a.payDate) details.push('發放日 ' + esc(a.payDate));
         if (details.length) html += '<span style="color:var(--text-light);font-size:12px;">' + details.join('　') + '</span>';
         html += '</div>';
     });
@@ -4337,16 +4374,12 @@ function showDividendAlertModal() {
 
 function openDividendAlertSettings() {
     var range = getDividendAlertRange();
-    var before = prompt('除息日前幾天開始提醒？（0-180）', range.before);
+    var before = prompt('幾天內的除息/配息都提醒？（0-180）', range.before);
     if (before === null) return;
     var b = parseInt(before, 10);
     if (isNaN(b) || b < 0 || b > 180) { toast('請輸入 0-180 的整數'); return; }
-    var after = prompt('除息日後幾天內仍提醒？（0-30）', range.after);
-    if (after === null) return;
-    var a = parseInt(after, 10);
-    if (isNaN(a) || a < 0 || a > 30) { toast('請輸入 0-30 的整數'); return; }
-    setDividendAlertRange(b, a);
-    toast('已更新：提醒前 ' + b + ' 天、後 ' + a + ' 天');
+    setDividendAlertRange(b);
+    toast('已更新：' + b + ' 天內提醒');
 }
 
 // ── 渲染台股頁籤 ──
