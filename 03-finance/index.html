@@ -688,6 +688,7 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
 @keyframes div-spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
 @media (max-width: 600px) {
     .stock-sub-tabs-row { flex-direction: column; align-items: stretch; gap: 10px; }
+    .stock-summary-bar { gap: 2px 20px !important; padding: 6px 12px !important; }
     .dividend-alert-compact { font-size: 12px; padding: 5px 10px; }
 }
 .stock-sub-tab {
@@ -4768,7 +4769,7 @@ function renderStockHoldings() {
     });
 
     // 摘要列
-    html += '<div style="display:flex;flex-wrap:wrap;gap:6px 20px;font-size:14px;margin-bottom:10px;padding:8px 12px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow)">';
+    html += '<div class="stock-summary-bar" style="display:flex;flex-wrap:wrap;gap:6px 20px;font-size:14px;margin-bottom:10px;padding:8px 12px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow)">';
     html += '<span style="color:var(--muted)">成本 <b style="color:var(--text)">' + fmt(totalCost) + '</b></span>';
     html += '<span style="color:var(--muted)">市值 <b style="color:var(--lux-gold)">' + fmt(totalMarket) + '</b></span>';
     html += '<span style="color:var(--muted)">損益 <b class="' + (totalPL>=0?'pos':'neg') + '">' + (totalPL>=0?'+':'') + fmt(totalPL) + ' (' + fmtRate(totalRate) + ')</b></span>';
@@ -5159,7 +5160,7 @@ function renderStockPledge() {
     var totalRatio = totalAmount > 0 ? (totalCollateral / totalAmount) * 100 : 0;
     var totalMonthlyInterest = totalDailyInterest * 30;
 
-    html += '<div style="display:flex;flex-wrap:wrap;gap:6px 20px;font-size:14px;margin-bottom:10px;padding:8px 12px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow)">';
+    html += '<div class="stock-summary-bar" style="display:flex;flex-wrap:wrap;gap:6px 20px;font-size:14px;margin-bottom:10px;padding:8px 12px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow)">';
     html += '<span style="color:var(--muted)">總借款 <b style="color:var(--red)">' + fmt(totalAmount) + '</b></span>';
     html += '<span style="color:var(--muted)">擔保現值 <b style="color:var(--lux-gold)">' + fmt(Math.round(totalCollateral)) + '</b></span>';
     html += '<span style="color:var(--muted)">維持率 <b style="color:' + (totalRatio >= 130 ? 'var(--green)' : 'var(--red)') + '">' + totalRatio.toFixed(1) + '%</b></span>';
