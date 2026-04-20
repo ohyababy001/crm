@@ -2355,8 +2355,12 @@ function startAutoCheck() {
         // 本地沒有未上傳的變更：直接拉雲端取最新資料
         setTimeout(autoFetchCloud, 3000);
     }
-    _checkTimer = setInterval(autoFetchCloud, 5 * 60 * 1000);
+    _checkTimer = setInterval(autoFetchCloud, 60 * 1000);
 }
+// 頁面切回前景時立刻拉雲端（手機切回 App、電腦切回分頁）
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) autoFetchCloud();
+});
 function autoFetchCloud() {
     // 本機有未上傳的變更時，跳過拉雲端，避免舊資料覆蓋新存的
     if (Date.now() < _localDirtyUntil) return;
@@ -3788,6 +3792,7 @@ function renderDashboard() {
 
     // 近期行程（15天內）
     var schedList = [];
+    var _schedDedup = {};
     var _todayISO = _fmtDateISO(new Date());
     DB.forEach(function(c) {
         if (c._deleted || c._system || c.archived || !c.schedules) return;
@@ -3795,7 +3800,11 @@ function renderDashboard() {
             if (!s.date) return;
             if (s.hideBeforeDate && _todayISO < s.hideBeforeDate) return;
             var diff = daysUntilExpire(s.date);
-            if (diff >= -30 && diff <= 15) schedList.push({ id:c.id, name:c.name, date:s.date, time:s.time||'', memo:s.memo||'', days:diff, community:c.dCommunity||'', expired: diff < 0, recurrence:s.recurrence||'' });
+            if (diff < -30 || diff > 15) return;
+            var dedupKey = (c.name||'') + '|' + s.date + '|' + (s.time||'') + '|' + (s.memo||'');
+            if (_schedDedup[dedupKey]) return;
+            _schedDedup[dedupKey] = true;
+            schedList.push({ id:c.id, name:c.name, date:s.date, time:s.time||'', memo:s.memo||'', days:diff, community:c.dCommunity||'', expired: diff < 0, recurrence:s.recurrence||'' });
         });
     });
     // 合併個人行程
