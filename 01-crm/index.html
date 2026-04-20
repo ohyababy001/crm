@@ -2228,9 +2228,19 @@ function persistPerf() {
     if (_syncTimer) clearTimeout(_syncTimer);
     _syncTimer = setTimeout(autoSync, 3000);
 }
+function _crmMarkPending() { try { localStorage.setItem('crm_pendingSync', '1'); } catch(e) {} }
+function _crmClearPending() { try { localStorage.removeItem('crm_pendingSync'); } catch(e) {} }
+function _crmHasPending() { try { return localStorage.getItem('crm_pendingSync') === '1'; } catch(e) { return false; } }
 function autoSync() {
     var status = document.getElementById('cloudStatus');
+    // 離線時直接標記待同步
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        _crmMarkPending();
+        if (status) status.innerHTML = '<span style="color:#F59E0B">離線中，待網路恢復自動上傳</span>';
+        return;
+    }
     if (status) status.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#F59E0B;margin-right:4px;vertical-align:middle"></span>同步中…';
+    _crmMarkPending(); // 上傳前先標記，verifySyncResult 成功才清
     var syncData = DB.filter(function(c){ return !c.__perfRecords && !c.__templates && !c.__signingTemplates; }).concat([{__perfRecords: true, records: _perfRecords}]).concat([{__templates: true, items: _templates}]).concat([{__signingTemplates: true, items: _signingTemplates}]);
     var payload = JSON.stringify(syncData);
     // 方式1: fetch（最可靠，有回傳結果）
@@ -2278,6 +2288,7 @@ function verifySyncResult(status) {
                 _localDirtyUntil = 0; try { localStorage.removeItem('_localDirtyUntil'); } catch(e){}
                 _lastSyncJSON = JSON.stringify(DB);
                 _syncRetryCount = 0;
+                _crmClearPending();
             } else {
                 // 筆數不符，不解除保護，走失敗重試流程
                 _onSyncFail(status);
@@ -2340,6 +2351,12 @@ function syncViaIframe(payload, status) {
     };
     form.submit();
 }
+
+// 網路恢復或回到頁面 → 自動補傳待同步資料
+window.addEventListener('online', function() { if (_crmHasPending()) autoSync(); });
+document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible' && navigator.onLine !== false && _crmHasPending()) autoSync();
+});
 
 // ── 自動雲端同步（頁面載入+每5分鐘）──
 var _checkTimer = null;

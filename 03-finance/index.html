@@ -1698,16 +1698,33 @@ function _setCloudStatus(html) {
     var el = document.getElementById('cloudStatus');
     if (el) el.innerHTML = html;
 }
+function _markPendingSync() {
+    try { localStorage.setItem('finTracker_pendingSync', '1'); } catch(e) {}
+}
+function _clearPendingSync() {
+    try { localStorage.removeItem('finTracker_pendingSync'); } catch(e) {}
+}
+function _hasPendingSync() {
+    try { return localStorage.getItem('finTracker_pendingSync') === '1'; } catch(e) { return false; }
+}
 function cloudSyncNow() {
+    // 離線時直接標記待同步
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        _markPendingSync();
+        _setCloudStatus('<span style="color:#F59E0B">離線中，待網路恢復自動上傳</span>');
+        return;
+    }
     _setCloudStatus('<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#F59E0B;margin-right:4px;vertical-align:middle"></span>同步中…');
     var stockRaw = null;
     try { stockRaw = JSON.parse(localStorage.getItem('finTracker_stock') || 'null'); } catch(e) {}
     var payload = JSON.stringify({ finTracker: DATA, finTracker_stock: stockRaw });
     if (!window.fetch) { _onCloudSyncFail(); return; }
+    _markPendingSync(); // 上傳前先標記，成功才清
     fetch(CLOUD_URL, { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:'payload='+encodeURIComponent(payload), mode:'no-cors' })
     .then(function() {
         _setCloudStatus('<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#22C55E;margin-right:4px;vertical-align:middle"></span>已同步 ' + new Date().toLocaleTimeString('zh-TW'));
         _cloudSyncRetryCount = 0;
+        _clearPendingSync();
     })
     .catch(_onCloudSyncFail);
 }
@@ -1720,8 +1737,14 @@ function _onCloudSyncFail() {
         return;
     }
     _cloudSyncRetryCount = 0;
-    _setCloudStatus('<span style="color:#EF4444">同步失敗</span> <button onclick="cloudSyncNow()" style="background:none;border:1px solid var(--border);border-radius:6px;padding:2px 8px;cursor:pointer;font-size:11px;margin-left:4px">重試</button>');
+    _setCloudStatus('<span style="color:#EF4444">同步失敗（待網路恢復重試）</span> <button onclick="cloudSyncNow()" style="background:none;border:1px solid var(--border);border-radius:6px;padding:2px 8px;cursor:pointer;font-size:11px;margin-left:4px">重試</button>');
 }
+
+// 網路恢復或回到頁面 → 自動補傳待同步資料
+window.addEventListener('online', function() { if (_hasPendingSync()) cloudSyncNow(); });
+document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible' && navigator.onLine !== false && _hasPendingSync()) cloudSyncNow();
+});
 function cloudRestore(opts) {
     opts = opts || {};
     _setCloudStatus('<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#F59E0B;margin-right:4px;vertical-align:middle"></span>讀取雲端…');
