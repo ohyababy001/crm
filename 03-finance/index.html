@@ -1989,31 +1989,26 @@ function calcDailyRate(section, cat, years, viewYear) {
     var isCurrentYear = curYearCE === now.getFullYear();
     var curMonth = isCurrentYear ? (now.getMonth() + 1) : 12;
     var curDay = isCurrentYear ? now.getDate() : 31;
-    // 當月天數（用來算「已過 x/月總天數」比例）
-    var daysInCurMonth = new Date(curYearCE, curMonth, 0).getDate();
-    var daysInPrevMonth = new Date(curYearCE - 1, curMonth, 0).getDate();
-
-    // 今年：即時記帳 → 當月直接加總（不乘比例）
-    var curVal = _sumMonths(section, last, cat, 1, curMonth);
-    // 去年同期：當月按比例取（去年當月整月 × 今天/當月總天數）
-    var prevFullMonths = _sumMonths(section, prev, cat, 1, curMonth - 1);
-    var prevCurMonth = _sumMonths(section, prev, cat, curMonth, curMonth);
-    var prevVal = prevFullMonths + prevCurMonth * (curDay / daysInPrevMonth);
-
     function _dayOfY(year, mm, dd) {
         var d = new Date(year, mm - 1, dd);
         var start = new Date(year, 0, 0);
         return Math.floor((d - start) / 86400000);
     }
-    var curDays = _dayOfY(curYearCE, curMonth, curDay);
-    var prevDays = _dayOfY(curYearCE - 1, curMonth, curDay);
-    if (prevVal === 0) {
+    function _daysInYear(year) {
+        return ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) ? 366 : 365;
+    }
+    // 今年：即時累計
+    var curVal = _sumMonths(section, last, cat, 1, curMonth);
+    // 去年全年 × 進度比例（均勻假設）
+    var prevYearTotal = _sumMonths(section, prev, cat, 1, 12);
+    var elapsed = _dayOfY(curYearCE, curMonth, curDay);
+    var daysInCurYear = _daysInYear(curYearCE);
+    var expectedPrev = prevYearTotal * (elapsed / daysInCurYear);
+    if (expectedPrev === 0) {
         if (curVal === 0) return 0;
         return null;
     }
-    var curDaily = curVal / curDays;
-    var prevDaily = prevVal / prevDays;
-    return ((curDaily / prevDaily) - 1) * 100;
+    return ((curVal / expectedPrev) - 1) * 100;
 }
 
 function dayOfYear(d) {
