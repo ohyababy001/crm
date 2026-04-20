@@ -908,10 +908,10 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
     .asset-acc-amt { font-size: 20px !important; }
     .asset-card-head .asset-card-sum { font-size: 20px !important; }
     .asset-card-head .asset-card-arrow { font-size: 13px; }
-    /* 手機版淨資產卡片緊縮間距 */
+    /* 手機版淨資產卡片間距 */
     .asset-card { margin-bottom: 5px !important; }
-    .asset-card-head { padding: 5px 18px !important; }
-    .asset-acc-row { padding: 3px 20px !important; }
+    .asset-card-head { padding: 15px 18px !important; }
+    .asset-acc-row { padding: 15px 20px !important; }
     /* 台股子分頁、工具列按鈕在手機版同寬但不撐滿 */
     .stock-sub-tabs { gap: 8px; }
     .stock-sub-tab { padding: 5px 0; text-align: center; min-width: 84px; }
@@ -1219,6 +1219,16 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
     width: 32px; height: 1px;
     background: var(--lux-gold);
 }
+.nw-trend-wrap .nw-trend-arrow {
+    font-size: 10px;
+    color: var(--muted);
+    display: inline-block;
+    margin-left: 4px;
+    transition: transform .2s;
+}
+.nw-trend-wrap.expanded .nw-trend-arrow { transform: rotate(180deg); color: var(--lux-gold); }
+.nw-trend-wrap:not(.expanded) .nw-trend-title { margin-bottom: 0; border-bottom: none; }
+.nw-trend-wrap:not(.expanded) .nw-trend-title::after { display: none; }
 .nw-trend-stats {
     display: flex;
     flex-direction: column;
@@ -1646,6 +1656,7 @@ function _healDataStructure() {
     ['liquid','invest','fixed','receivable','debt'].forEach(function(k){
         if (typeof DATA.assets.expanded[k] !== 'boolean') DATA.assets.expanded[k] = false;
     });
+    if (typeof DATA.assets.trendExpanded !== 'boolean') DATA.assets.trendExpanded = false;
     // 確保每個年份都有所有分類（月結構）
     DATA.settings.years.forEach(function(y) {
         if (!DATA.income[y]) DATA.income[y] = {};
@@ -5622,10 +5633,11 @@ function renderAssets() {
     });
 
     // 底部折線圖
-    html += '<div class="nw-trend-wrap">';
-    html += '<div class="nw-trend-title">';
-    html += '<span><i class="ti ti-trending-up"></i> 淨資產趨勢</span>';
-    html += '<span class="nw-trend-range">';
+    var trendOpen = !!DATA.assets.trendExpanded;
+    html += '<div class="nw-trend-wrap' + (trendOpen ? ' expanded' : '') + '">';
+    html += '<div class="nw-trend-title" onclick="toggleNwTrend()" style="cursor:pointer">';
+    html += '<span><i class="ti ti-trending-up"></i> 淨資產趨勢 <span class="nw-trend-arrow">▼</span></span>';
+    html += '<span class="nw-trend-range" onclick="event.stopPropagation()">';
     html += '<button onclick="renderAssetTrendChart(6)" class="nw-range-btn active">近 6 月</button>';
     html += '<button onclick="renderAssetTrendChart(12)" class="nw-range-btn">近 12 月</button>';
     html += '<button onclick="renderAssetTrendChart(24)" class="nw-range-btn">近 24 月</button>';
@@ -5633,13 +5645,21 @@ function renderAssets() {
     html += '<button onclick="showNwTrendCustomRange()" class="nw-range-btn">自訂</button>';
     html += '</span>';
     html += '</div>';
+    html += '<div class="nw-trend-body"' + (trendOpen ? '' : ' style="display:none"') + '>';
     html += '<div id="nw-trend-stats" class="nw-trend-stats"></div>';
     html += '<canvas id="nw-trend-chart"></canvas>';
     html += '<div style="font-size:11px;color:var(--muted);margin-top:8px">已記錄 ' + (DATA.assets.history.length) + ' 筆快照（每天自動記錄一次）</div>';
     html += '</div>';
+    html += '</div>';
 
     el.innerHTML = html;
-    renderAssetTrendChart();
+    if (trendOpen) renderAssetTrendChart();
+}
+
+function toggleNwTrend() {
+    DATA.assets.trendExpanded = !DATA.assets.trendExpanded;
+    saveData();
+    renderAssets();
 }
 
 // 分類趨勢 modal：每個分類有自己的範圍設定
