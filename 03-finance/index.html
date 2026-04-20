@@ -1076,7 +1076,7 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
     border-top: 1px solid var(--border);
     padding: 4px 0;
     display: none;
-    background: #FAFAF9;
+    background: transparent;
 }
 .asset-card-body.expanded { display: block; }
 .asset-acc-row {
@@ -1085,10 +1085,10 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
     padding: 9px 20px;
     gap: 12px;
     border-bottom: 1px solid var(--border);
-    background: var(--card);
+    background: transparent;
     transition: background .15s;
 }
-.asset-acc-row:hover { background: #F1EDE8; }
+.asset-acc-row:hover { background: rgba(0,0,0,0.04); }
 .asset-acc-row:last-child { border-bottom: none; }
 .asset-acc-main { flex: 1; min-width: 0; }
 .asset-acc-name {
@@ -5352,11 +5352,11 @@ function stopStockAutoRefresh() {
 // ══════════════════════════════════════════
 
 var ASSET_SECTIONS = [
-    { key: 'liquid',     label: '流動資金', sign: +1, color: '#22C55E' },
-    { key: 'invest',     label: '投資',     sign: +1, color: '#6366F1' },
-    { key: 'fixed',      label: '固定資產', sign: +1, color: '#F59E0B' },
-    { key: 'receivable', label: '應收款',   sign: +1, color: '#8B5CF6' },
-    { key: 'debt',       label: '負債',     sign: -1, color: '#EF4444' }
+    { key: 'liquid',     label: '流動資金', sign: +1, color: '#22C55E', bg: '#F0FDF4' },
+    { key: 'invest',     label: '投資',     sign: +1, color: '#6366F1', bg: '#EEF2FF' },
+    { key: 'fixed',      label: '固定資產', sign: +1, color: '#F59E0B', bg: '#FFFBEB' },
+    { key: 'receivable', label: '應收款',   sign: +1, color: '#8B5CF6', bg: '#F5F3FF' },
+    { key: 'debt',       label: '負債',     sign: -1, color: '#EF4444', bg: '#FEF2F2' }
 ];
 var _assetTrendChart = null;
 var _assetFxFetching = false;
@@ -5538,7 +5538,8 @@ function renderAssets() {
         var expanded = DATA.assets.expanded[sec.key];
         var isDebt = sec.key === 'debt';
         var secColor = sec.color || 'var(--lux-navy)';
-        html += '<div class="asset-card" style="border-left-color:' + secColor + '">';
+        var secBg = sec.bg || '';
+        html += '<div class="asset-card" style="border-left-color:' + secColor + (expanded && secBg ? ';background:' + secBg : '') + '">';
         html += '<div class="asset-card-head' + (expanded ? ' expanded' : '') + '" onclick="toggleAssetSection(\'' + sec.key + '\')" style="' + (expanded ? 'background:' + secColor + ';color:#fff;' : '') + '">';
         html += '<div style="display:flex;align-items:center;gap:8px">';
         html += '<div class="asset-card-title"' + (expanded ? ' style="color:#fff"' : '') + '>' + esc(sec.label) + '</div>';
