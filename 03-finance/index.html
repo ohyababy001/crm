@@ -4192,15 +4192,21 @@ function checkDividendAlerts() {
     stockData.holdings.forEach(function(h) { holdingIds[h.id] = h; });
 
     function pushAlert(h, exDate, cash, stockDiv, payDate) {
-        var key = h.id + '|' + exDate;
+        // 正規化日期：只取前 10 字（yyyy-MM-dd），避免 "2026-04-20T00:00:00" 與 "2026-04-20" 無法去重
+        var exDateNorm = String(exDate || '').slice(0, 10);
+        if (!exDateNorm) return;
+        var key = h.id + '|' + exDateNorm;
         if (seen[key]) return;
-        var ex = new Date(exDate);
-        var diff = Math.ceil((ex - today) / 86400000);
+        // 日期以本地時區解析（避免 new Date('2026-04-20') 被當 UTC 導致差 8 小時）
+        var parts = exDateNorm.split('-');
+        if (parts.length !== 3) return;
+        var ex = new Date(+parts[0], +parts[1] - 1, +parts[2]);
+        var diff = Math.round((ex - today) / 86400000);
         if (diff < -range.after || diff > range.before) return;
         seen[key] = true;
         _dividendAlerts.push({
             stockId: h.id, stockName: h.name,
-            exDate: exDate, payDate: payDate || '',
+            exDate: exDateNorm, payDate: (payDate || '').slice(0, 10),
             cash: cash || 0, stockDiv: stockDiv || 0, diff: diff
         });
     }
