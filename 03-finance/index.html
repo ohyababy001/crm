@@ -1019,7 +1019,7 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
 .asset-card {
     background: var(--card);
     border: 1px solid var(--border);
-    border-left: 3px solid var(--lux-navy);
+    border-left: 5px solid var(--lux-navy);
     border-radius: var(--radius);
     margin-bottom: 8px;
     overflow: hidden;
@@ -1028,7 +1028,6 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
 }
 .asset-card:hover {
     box-shadow: var(--shadow-hover);
-    border-left-color: var(--lux-gold);
 }
 .asset-card-head {
     padding: 10px 18px;
@@ -5353,11 +5352,11 @@ function stopStockAutoRefresh() {
 // ══════════════════════════════════════════
 
 var ASSET_SECTIONS = [
-    { key: 'liquid',     label: '流動資金', sign: +1 },
-    { key: 'invest',     label: '投資',     sign: +1 },
-    { key: 'fixed',      label: '固定資產', sign: +1 },
-    { key: 'receivable', label: '應收款',   sign: +1 },
-    { key: 'debt',       label: '負債',     sign: -1 }
+    { key: 'liquid',     label: '流動資金', sign: +1, color: '#22C55E' },
+    { key: 'invest',     label: '投資',     sign: +1, color: '#6366F1' },
+    { key: 'fixed',      label: '固定資產', sign: +1, color: '#F59E0B' },
+    { key: 'receivable', label: '應收款',   sign: +1, color: '#8B5CF6' },
+    { key: 'debt',       label: '負債',     sign: -1, color: '#EF4444' }
 ];
 var _assetTrendChart = null;
 var _assetFxFetching = false;
@@ -5538,15 +5537,16 @@ function renderAssets() {
         var total = sectionTotal(sec.key);
         var expanded = DATA.assets.expanded[sec.key];
         var isDebt = sec.key === 'debt';
-        html += '<div class="asset-card">';
-        html += '<div class="asset-card-head' + (expanded ? ' expanded' : '') + '" onclick="toggleAssetSection(\'' + sec.key + '\')">';
+        var secColor = sec.color || 'var(--lux-navy)';
+        html += '<div class="asset-card" style="border-left-color:' + secColor + '">';
+        html += '<div class="asset-card-head' + (expanded ? ' expanded' : '') + '" onclick="toggleAssetSection(\'' + sec.key + '\')" style="' + (expanded ? 'background:' + secColor + ';color:#fff;' : '') + '">';
         html += '<div style="display:flex;align-items:center;gap:8px">';
-        html += '<div class="asset-card-title">' + esc(sec.label) + '</div>';
-        html += '<button onclick="event.stopPropagation();showSectionTrend(\'' + sec.key + '\')" style="padding:3px 8px;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--muted);font-size:11px;cursor:pointer;font-family:inherit" title="查看趨勢"><i class="ti ti-trending-up" style="font-size:12px"></i> 趨勢</button>';
+        html += '<div class="asset-card-title"' + (expanded ? ' style="color:#fff"' : '') + '>' + esc(sec.label) + '</div>';
+        html += '<button onclick="event.stopPropagation();showSectionTrend(\'' + sec.key + '\')" style="padding:3px 8px;border:1px solid ' + (expanded ? 'rgba(255,255,255,0.4)' : 'var(--border)') + ';border-radius:6px;background:' + (expanded ? 'rgba(255,255,255,0.15)' : 'var(--card)') + ';color:' + (expanded ? '#fff' : 'var(--muted)') + ';font-size:11px;cursor:pointer;font-family:inherit" title="查看趨勢"><i class="ti ti-trending-up" style="font-size:12px"></i> 趨勢</button>';
         html += '</div>';
         html += '<div>';
-        html += '<span class="asset-card-sum' + (isDebt ? ' debt' : '') + '">' + (isDebt ? '- ' : '') + fmt(total) + '</span>';
-        html += '<span class="asset-card-arrow">▼</span>';
+        html += '<span class="asset-card-sum' + (isDebt ? ' debt' : '') + '"' + (expanded ? ' style="color:#fff"' : '') + '>' + (isDebt ? '- ' : '') + fmt(total) + '</span>';
+        html += '<span class="asset-card-arrow"' + (expanded ? ' style="color:#fff"' : '') + '>▼</span>';
         html += '</div>';
         html += '</div>';
         html += '<div class="asset-card-body' + (expanded ? ' expanded' : '') + '">';
