@@ -58,7 +58,7 @@ body {
 }
 .top-fixed {
     position: fixed; top: 8px; left: 50%; transform: translateX(-50%) translateZ(0);
-    width: calc(100% - 16px); max-width: 1001px; z-index: 100;
+    width: calc(100% - 16px); max-width: 1120px; z-index: 100;
     box-shadow: 0 6px 24px rgba(15,40,71,.15);
     will-change: transform;
 }
@@ -118,7 +118,7 @@ body {
     border-radius: 0 0 var(--radius) var(--radius);
 }
 .tab-bar-wrap {
-    max-width: 1000px;
+    max-width: 1120px;
     margin: 0 auto;
     padding: 8px 14px 10px 14px;
 }
@@ -172,14 +172,13 @@ body {
     left: 50%;
     transform: translateX(-50%);
     width: calc(100% - 16px);
-    max-width: 1000px;
+    max-width: 1120px;
     bottom: 0;
     overflow-y: auto;
     overflow-x: hidden;
     padding: 2px 0 10px;
     -webkit-overflow-scrolling: touch;
 }
-
 .summary-cards {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -227,6 +226,8 @@ table {
     font-size: 13px;
     white-space: nowrap;
 }
+.ie-table .cat-2ch { letter-spacing: 0.5em; padding-right: calc(4px + 0.5em); }
+.ie-table thead th.col-cat { letter-spacing: 0.5em; padding-right: calc(4px + 0.5em); }
 thead th {
     background: #FAFAF9;
     font-weight: 700;
@@ -290,8 +291,10 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
 }
 .editable:hover { background: #FFFBF0; border-color: rgba(200,164,90,.3); }
 .edit-input {
-    width: 100px;
-    padding: 6px 10px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 4px 6px;
     border: 2px solid var(--lux-gold);
     border-radius: var(--radius-xs);
     font-size: 13px;
@@ -304,7 +307,8 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
 .toolbar {
     display: flex;
     gap: 8px;
-    margin-bottom: 14px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     flex-wrap: wrap;
     align-items: center;
 }
@@ -645,6 +649,46 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
     gap: 8px;
     margin-bottom: 10px;
 }
+.stock-sub-tabs-row {
+    display: flex;
+    align-items: stretch;
+    gap: 24px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+.stock-sub-tabs-row .stock-sub-tabs { margin-bottom: 0; }
+.dividend-alert-compact {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 14px;
+    background: linear-gradient(135deg, #FFFBF0 0%, #FFF7E0 100%);
+    border: 1px solid var(--lux-gold);
+    border-left: 3px solid var(--lux-gold);
+    border-radius: var(--radius-xs);
+    font-size: 13px;
+    flex: 1;
+    min-width: 0;
+    box-shadow: 0 2px 6px rgba(200,164,90,.12);
+}
+.dividend-alert-compact .alert-title-compact {
+    font-weight: 800;
+    color: var(--lux-navy);
+    white-space: nowrap;
+    letter-spacing: .3px;
+}
+.dividend-alert-compact .alert-summary {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+@media (max-width: 600px) {
+    .stock-sub-tabs-row { flex-direction: column; align-items: stretch; }
+    .dividend-alert-compact { font-size: 12px; padding: 5px 10px; }
+}
 .stock-sub-tab {
     padding: 9px 20px;
     border: 1.5px solid var(--border);
@@ -750,7 +794,7 @@ th.sortable .sort-arrow {
 th.sortable.sort-active { color: var(--lux-navy); }
 th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; }
 
-@media (max-width: 600px) {
+@media (max-width: 1100px) {
     .header { padding: 8px 10px; gap: 6px; }
     .header h1 { font-size: 17px; letter-spacing: 2px; flex-shrink: 0; }
     .header-btns {
@@ -885,6 +929,7 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
     color: #FAFAF9;
     padding: 14px 22px;
     border-radius: var(--radius);
+    margin-top: 10px;
     margin-bottom: 12px;
     display: flex;
     align-items: center;
@@ -2056,6 +2101,7 @@ function render() {
 }
 
 function renderIncomeExpense(section) {
+    var fmt = function(n) { if (n === null || n === undefined) return '-'; return String(Math.round(n)); };
     var allYears = DATA.settings.years.slice().sort();
     var years = showArchived ? allYears : allYears.filter(function(y){ return !isYearArchived(y); });
     var allCats = section === 'income' ? DATA.settings.incomeCategories : DATA.settings.expenseCategories;
@@ -2088,10 +2134,10 @@ function renderIncomeExpense(section) {
     var MONTH_LABELS = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
 
     // 表格：橫列=分類、縱欄=12 個月 + 年合計
-    html += '<div class="table-wrap" style="overflow-x:auto"><table class="ie-table" style="table-layout:fixed;width:100%"><thead><tr><th class="col-cat" style="width:80px">項目</th>';
+    html += '<div class="table-wrap" style="overflow-x:auto"><table class="ie-table" style="table-layout:fixed;width:100%"><thead><tr><th class="col-cat" style="width:60px">項目</th>';
     for (var m = 1; m <= 12; m++) {
         var sortActive = sortState.col === 'month' && sortState.year === curY && sortState.month === m;
-        html += '<th class="sortable col-month' + (sortActive?' sort-active':'') + '" style="width:68px" onclick="toggleSortMonth(' + m + ')">' + MONTH_LABELS[m-1] + sortArrowMonth(m) + '</th>';
+        html += '<th class="sortable col-month' + (sortActive?' sort-active':'') + '" style="width:80px" onclick="toggleSortMonth(' + m + ')">' + MONTH_LABELS[m-1] + sortArrowMonth(m) + '</th>';
     }
     var yActive = sortState.col === 'year' && sortState.year === curY;
     html += '<th class="sortable' + (yActive?' sort-active':'') + '" style="width:80px;font-weight:700" onclick="toggleSort(\'year\',\'' + curY + '\')">年合計' + sortArrow('year', curY) + '</th>';
@@ -2138,7 +2184,7 @@ function renderIncomeExpense(section) {
 
     // 手機版：如果所選年份是當前民國年，自動橫向捲動讓當月靠左
     try {
-        if (window.matchMedia('(max-width: 600px)').matches) {
+        if (window.matchMedia('(max-width: 1100px)').matches) {
             var now = new Date();
             var curROC = String(now.getFullYear() - 1911);
             if (String(curY) === curROC) {
@@ -4110,75 +4156,169 @@ function deleteDividend(idx) {
 var _dividendAlerts = [];
 var _dividendAlertChecked = false;
 
+function getDividendAlertRange() {
+    var raw = localStorage.getItem('dividendAlertRange');
+    if (raw) {
+        try {
+            var o = JSON.parse(raw);
+            var before = Math.max(0, Math.min(180, +o.before || 30));
+            var after = Math.max(0, Math.min(30, +o.after || 3));
+            return { before: before, after: after };
+        } catch (e) {}
+    }
+    return { before: 30, after: 3 };
+}
+
+function setDividendAlertRange(before, after) {
+    localStorage.setItem('dividendAlertRange', JSON.stringify({ before: before, after: after }));
+    _dividendAlertChecked = false;
+    checkDividendAlerts();
+}
+
 function checkDividendAlerts() {
-    if (stockData.holdings.length === 0) return;
     _dividendAlerts = [];
+    _dividendCacheUpdatedAt = null;
+    if (stockData.holdings.length === 0) {
+        _dividendAlertChecked = true;
+        return;
+    }
     var pending = stockData.holdings.length;
     var today = new Date();
+    today.setHours(0,0,0,0);
     var startDate = today.getFullYear() + '-01-01';
+    var range = getDividendAlertRange();
+    var seen = {}; // 去重：stockId + exDate
+    var holdingIds = {};
+    stockData.holdings.forEach(function(h) { holdingIds[h.id] = h; });
 
-    stockData.holdings.forEach(function(h) {
-        var url = 'https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockDividend&data_id=' + h.id + '&start_date=' + startDate;
-        fetch(url)
-            .then(function(r) { return r.json(); })
-            .then(function(json) {
-                if (json.status === 200 && json.data) {
-                    json.data.forEach(function(d) {
-                        var exDate = d.CashExDividendTradingDate || d.StockExDividendTradingDate || '';
-                        if (!exDate) return;
-                        var ex = new Date(exDate);
-                        var diff = Math.ceil((ex - today) / 86400000);
-                        // 提醒：未來 30 天內或過去 3 天內的除權息
-                        if (diff >= -3 && diff <= 30) {
-                            var cashDiv = d.CashEarningsDistribution || 0;
-                            var stockDiv = d.StockEarningsDistribution || 0;
-                            var payDate = d.CashDividendPaymentDate || '';
-                            _dividendAlerts.push({
-                                stockId: h.id,
-                                stockName: h.name,
-                                exDate: exDate,
-                                payDate: payDate,
-                                cash: cashDiv,
-                                stockDiv: stockDiv,
-                                diff: diff
-                            });
-                        }
-                    });
-                }
-                pending--;
-                if (pending <= 0) {
-                    _dividendAlerts.sort(function(a,b) { return a.exDate.localeCompare(b.exDate); });
-                    _dividendAlertChecked = true;
-                    renderStock();
-                }
-            })
-            .catch(function() {
-                pending--;
-                if (pending <= 0) { _dividendAlertChecked = true; renderStock(); }
-            });
+    function pushAlert(h, exDate, cash, stockDiv, payDate) {
+        var key = h.id + '|' + exDate;
+        if (seen[key]) return;
+        var ex = new Date(exDate);
+        var diff = Math.ceil((ex - today) / 86400000);
+        if (diff < -range.after || diff > range.before) return;
+        seen[key] = true;
+        _dividendAlerts.push({
+            stockId: h.id, stockName: h.name,
+            exDate: exDate, payDate: payDate || '',
+            cash: cash || 0, stockDiv: stockDiv || 0, diff: diff
+        });
+    }
+
+    // 先抓 Apps Script 快取（含 TWSE + MoneyDJ 合併資料）
+    var cachePromise = fetch(CLOUD_URL + '?action=dividends&format=json&t=' + Date.now())
+        .then(function(r) { return r.json(); })
+        .then(function(cache) {
+            if (cache && cache.updatedAt) _dividendCacheUpdatedAt = cache.updatedAt;
+            if (cache && Array.isArray(cache.items)) {
+                cache.items.forEach(function(d) {
+                    var h = holdingIds[d.stockId];
+                    if (!h) return;
+                    pushAlert(h, d.exDate, d.cash, d.stockDiv, d.payDate);
+                });
+            }
+        })
+        .catch(function() {});
+
+    cachePromise.then(function() {
+        stockData.holdings.forEach(function(h) {
+            var urlPreview = 'https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockDividend&data_id=' + h.id + '&start_date=' + startDate;
+            var urlResult = 'https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockDividendResult&data_id=' + h.id + '&start_date=' + startDate;
+            Promise.all([
+                fetch(urlPreview).then(function(r){return r.json();}).catch(function(){return {data:[]};}),
+                fetch(urlResult).then(function(r){return r.json();}).catch(function(){return {data:[]};})
+            ])
+                .then(function(results) {
+                    var preview = results[0];
+                    var result = results[1];
+                    if (preview.status === 200 && preview.data) {
+                        preview.data.forEach(function(d) {
+                            var exDate = d.CashExDividendTradingDate || d.StockExDividendTradingDate || '';
+                            if (!exDate) return;
+                            pushAlert(h, exDate, d.CashEarningsDistribution, d.StockEarningsDistribution, d.CashDividendPaymentDate);
+                        });
+                    }
+                    if (result.status === 200 && result.data) {
+                        result.data.forEach(function(d) {
+                            if (!d.date) return;
+                            pushAlert(h, d.date, d.stock_and_cache_dividend, 0, '');
+                        });
+                    }
+                    pending--;
+                    if (pending <= 0) {
+                        _dividendAlerts.sort(function(a,b) { return a.exDate.localeCompare(b.exDate); });
+                        _dividendAlertChecked = true;
+                        renderStock();
+                    }
+                })
+                .catch(function() {
+                    pending--;
+                    if (pending <= 0) { _dividendAlertChecked = true; renderStock(); }
+                });
+        });
     });
 }
 
-function renderDividendAlerts() {
-    if (!_dividendAlertChecked || _dividendAlerts.length === 0) return '';
-    var html = '<div class="dividend-alert">';
-    html += '<div class="alert-title"><i class="ti ti-speakerphone"></i> 除權息提醒</div>';
-    _dividendAlerts.forEach(function(a) {
-        var label = '';
-        if (a.diff < 0) label = '（已除息）';
-        else if (a.diff === 0) label = '（今天除息）';
-        else label = '（' + a.diff + ' 天後）';
+var _dividendCacheUpdatedAt = null;
 
-        html += '<div class="alert-item">';
+function renderDividendAlerts() {
+    if (!_dividendAlertChecked) return '';
+    var range = getDividendAlertRange();
+    var settingsBtn = '<button onclick="event.stopPropagation();openDividendAlertSettings()" title="提醒天數設定" style="background:none;border:none;cursor:pointer;color:var(--lux-navy);padding:0 4px;font-size:14px;"><i class="ti ti-settings"></i></button>';
+    var count = _dividendAlerts.length;
+    var summary;
+    if (count === 0) {
+        summary = '<span style="color:var(--text-light);font-size:12px;">未來 ' + range.before + ' 天內無除權息</span>';
+    } else {
+        var first = _dividendAlerts[0];
+        var label = first.diff < 0 ? '（已除息）' : (first.diff === 0 ? '（今天）' : '（' + first.diff + ' 天後）');
+        summary = '<b>' + esc(first.stockId) + ' ' + esc(first.stockName) + '</b> ' + esc(first.exDate) + ' ' + label;
+        if (count > 1) summary += ' <span style="color:var(--text-light);">+' + (count-1) + ' 筆</span>';
+    }
+    var onclick = count > 0 ? ' onclick="showDividendAlertModal()"' : '';
+    var cursor = count > 0 ? 'cursor:pointer;' : '';
+    return '<div class="dividend-alert-compact"' + onclick + ' style="' + cursor + '">' +
+        '<span class="alert-title-compact"><i class="ti ti-speakerphone"></i> 除權息</span>' +
+        '<span class="alert-summary">' + summary + '</span>' +
+        settingsBtn +
+        '</div>';
+}
+
+function showDividendAlertModal() {
+    if (_dividendAlerts.length === 0) return;
+    var html = '';
+    if (_dividendCacheUpdatedAt) {
+        html += '<div style="font-size:12px;color:var(--text-light);margin-bottom:8px;">資料更新於 ' + esc(_dividendCacheUpdatedAt) + '</div>';
+    }
+    html += '<div style="max-height:60vh;overflow-y:auto;">';
+    _dividendAlerts.forEach(function(a) {
+        var label = a.diff < 0 ? '（已除息）' : (a.diff === 0 ? '（今天除息）' : '（' + a.diff + ' 天後）');
+        html += '<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">';
         html += '<b>' + esc(a.stockId) + ' ' + esc(a.stockName) + '</b> ';
-        html += '除息日 <span class="alert-date">' + esc(a.exDate) + '</span> ' + label;
-        if (a.cash > 0) html += ' 現金 $' + a.cash.toFixed(2);
-        if (a.stockDiv > 0) html += ' 股票 ' + a.stockDiv.toFixed(4) + '股';
-        if (a.payDate) html += ' 發放日 ' + esc(a.payDate);
+        html += '除息日 <span style="font-weight:700;color:#B45309;">' + esc(a.exDate) + '</span> ' + label + '<br>';
+        var details = [];
+        if (a.cash > 0) details.push('現金 $' + a.cash.toFixed(2));
+        if (a.stockDiv > 0) details.push('股票 ' + a.stockDiv.toFixed(4) + ' 股');
+        if (a.payDate) details.push('發放日 ' + esc(a.payDate));
+        if (details.length) html += '<span style="color:var(--text-light);font-size:12px;">' + details.join('　') + '</span>';
         html += '</div>';
     });
     html += '</div>';
-    return html;
+    showAlert(html, '<i class="ti ti-speakerphone"></i> 除權息提醒');
+}
+
+function openDividendAlertSettings() {
+    var range = getDividendAlertRange();
+    var before = prompt('除息日前幾天開始提醒？（0-180）', range.before);
+    if (before === null) return;
+    var b = parseInt(before, 10);
+    if (isNaN(b) || b < 0 || b > 180) { toast('請輸入 0-180 的整數'); return; }
+    var after = prompt('除息日後幾天內仍提醒？（0-30）', range.after);
+    if (after === null) return;
+    var a = parseInt(after, 10);
+    if (isNaN(a) || a < 0 || a > 30) { toast('請輸入 0-30 的整數'); return; }
+    setDividendAlertRange(b, a);
+    toast('已更新：提醒前 ' + b + ' 天、後 ' + a + ' 天');
 }
 
 // ── 渲染台股頁籤 ──
@@ -4546,14 +4686,14 @@ function renderStock() {
 
     var html = '';
 
-    // 除權息提醒
-    html += renderDividendAlerts();
-
-    // 子頁籤
+    // 子頁籤 + 除權息提醒（並排）
+    html += '<div class="stock-sub-tabs-row">';
     html += '<div class="stock-sub-tabs">';
     html += '<button class="stock-sub-tab' + (stockSubTab==='holdings'?' active':'') + '" onclick="stockSubTab=\'holdings\';renderStock()"><span class="lbl-full">持股總覽</span><span class="lbl-short">總覽</span></button>';
     html += '<button class="stock-sub-tab' + (stockSubTab==='dividend'?' active':'') + '" onclick="stockSubTab=\'dividend\';renderStock()"><span class="lbl-full">股利紀錄</span><span class="lbl-short">股利</span></button>';
     html += '<button class="stock-sub-tab' + (stockSubTab==='pledge'?' active':'') + '" onclick="stockSubTab=\'pledge\';renderStock()"><span class="lbl-full">質押紀錄</span><span class="lbl-short">質押</span></button>';
+    html += '</div>';
+    html += renderDividendAlerts();
     html += '</div>';
 
     if (stockSubTab === 'holdings') {
