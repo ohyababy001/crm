@@ -686,11 +686,14 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
     white-space: nowrap;
 }
 @keyframes div-spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+.div-alert-mobile { display: none; }
 @media (max-width: 600px) {
     .stock-sub-tabs-row { flex-direction: column; align-items: stretch; gap: 10px; }
     .stock-summary-bar { display: grid !important; grid-template-columns: 1fr 1.8fr; gap: 4px 12px !important; padding: 8px 12px !important; font-size: 15px !important; }
     .stock-summary-bar .year-dividend-cell { display: none; }
     .dividend-alert-compact { font-size: 12px; padding: 5px 10px; }
+    .div-alert-desktop { display: none; }
+    .div-alert-mobile { display: block; }
 }
 .stock-sub-tab {
     padding: 9px 20px;
@@ -4353,15 +4356,30 @@ function showDividendAlertModal() {
         if (a.payDiff !== null) {
             payLabel = a.payDiff < 0 ? '已配息' : (a.payDiff === 0 ? '今天配息' : a.payDiff + ' 天後配息');
         }
-        html += '<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">';
+        var amount = [];
+        if (a.cash > 0) amount.push('現金 $' + a.cash.toFixed(3));
+        if (a.stockDiv > 0) amount.push('股票 ' + a.stockDiv.toFixed(4) + ' 股');
+        var amountText = amount.length ? amount.join('　') : '—';
+        html += '<div class="div-alert-row">';
+        // 桌面版：原本整行流式顯示
+        html += '<div class="div-alert-desktop" style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">';
         html += '<b>' + esc(a.stockId) + ' ' + esc(a.stockName) + '</b> ';
         html += '除息日 <span style="font-weight:700;color:#B45309;">' + esc(a.exDate) + '</span>（' + exLabel + '）';
         if (a.payDate) html += '　配息日 <span style="font-weight:700;color:#B45309;">' + esc(a.payDate) + '</span>（' + payLabel + '）';
-        html += '<br>';
-        var details = [];
-        if (a.cash > 0) details.push('現金 $' + a.cash.toFixed(3));
-        if (a.stockDiv > 0) details.push('股票 ' + a.stockDiv.toFixed(4) + ' 股');
-        if (details.length) html += '<span style="color:var(--text-light);font-size:12px;">' + details.join('　') + '</span>';
+        if (amount.length) html += '<br><span style="color:var(--text-light);font-size:12px;">' + amountText + '</span>';
+        html += '</div>';
+        // 手機版：代號 / 除息日 / 配息日 / 配多少 四格
+        html += '<div class="div-alert-mobile" style="padding:10px 0;border-bottom:1px solid var(--border);">';
+        html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;font-size:13px;">';
+        html += '<div><div style="color:var(--text-light);font-size:11px;">代號</div><b>' + esc(a.stockId) + '</b> ' + esc(a.stockName) + '</div>';
+        html += '<div><div style="color:var(--text-light);font-size:11px;">配多少</div>' + esc(amountText) + '</div>';
+        html += '<div><div style="color:var(--text-light);font-size:11px;">除息日</div><span style="font-weight:700;color:#B45309;">' + esc(a.exDate) + '</span><div style="color:var(--text-light);font-size:11px;">' + exLabel + '</div></div>';
+        if (a.payDate) {
+            html += '<div><div style="color:var(--text-light);font-size:11px;">配息日</div><span style="font-weight:700;color:#B45309;">' + esc(a.payDate) + '</span><div style="color:var(--text-light);font-size:11px;">' + payLabel + '</div></div>';
+        } else {
+            html += '<div><div style="color:var(--text-light);font-size:11px;">配息日</div>—</div>';
+        }
+        html += '</div></div>';
         html += '</div>';
     });
     html += '</div>';
