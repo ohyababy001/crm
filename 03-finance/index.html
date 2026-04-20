@@ -685,6 +685,7 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+@keyframes div-spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
 @media (max-width: 600px) {
     .stock-sub-tabs-row { flex-direction: column; align-items: stretch; }
     .dividend-alert-compact { font-size: 12px; padding: 5px 10px; }
@@ -4272,9 +4273,15 @@ function checkDividendAlerts() {
 var _dividendCacheUpdatedAt = null;
 
 function renderDividendAlerts() {
-    if (!_dividendAlertChecked) return '';
-    var range = getDividendAlertRange();
     var settingsBtn = '<button onclick="event.stopPropagation();openDividendAlertSettings()" title="提醒天數設定" style="background:none;border:none;cursor:pointer;color:var(--lux-navy);padding:0 4px;font-size:14px;"><i class="ti ti-settings"></i></button>';
+    if (!_dividendAlertChecked) {
+        return '<div class="dividend-alert-compact" style="opacity:0.8;">' +
+            '<span class="alert-title-compact"><i class="ti ti-speakerphone"></i> 除權息</span>' +
+            '<span class="alert-summary" style="color:var(--text-light);font-size:12px;"><i class="ti ti-loader-2" style="animation:div-spin 1s linear infinite;display:inline-block;"></i> 載入中…</span>' +
+            settingsBtn +
+            '</div>';
+    }
+    var range = getDividendAlertRange();
     var count = _dividendAlerts.length;
     var summary;
     if (count === 0) {
