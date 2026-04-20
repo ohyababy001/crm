@@ -689,6 +689,7 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
 @media (max-width: 600px) {
     .stock-sub-tabs-row { flex-direction: column; align-items: stretch; gap: 10px; }
     .stock-summary-bar { display: grid !important; grid-template-columns: 1fr 1fr; gap: 4px 12px !important; padding: 8px 12px !important; font-size: 15px !important; }
+    .stock-summary-bar .year-dividend-cell { display: none; }
     .dividend-alert-compact { font-size: 12px; padding: 5px 10px; }
 }
 .stock-sub-tab {
@@ -4773,7 +4774,7 @@ function renderStockHoldings() {
     html += '<span style="color:var(--muted)">市值 <b style="color:var(--lux-gold)">' + fmt(totalMarket) + '</b></span>';
     html += '<span style="color:var(--muted)">損益 <b class="' + (totalPL>=0?'pos':'neg') + '">' + (totalPL>=0?'+':'') + fmt(totalPL) + ' (' + fmtRate(totalRate) + ')</b></span>';
     html += '<span style="color:var(--muted)">今日損益 <b class="' + (todayPL>=0?'pos':'neg') + '">' + (todayPL>=0?'+':'') + fmt(todayPL) + '</b></span>';
-    html += '<span style="color:var(--muted)">今年股利 <b style="color:var(--lux-navy)">' + fmt(yearDividend) + '</b></span>';
+    html += '<span class="year-dividend-cell" style="color:var(--muted)">今年股利 <b style="color:var(--lux-navy)">' + fmt(yearDividend) + '</b></span>';
     html += '</div>';
 
     // 持股明細表
