@@ -1971,7 +1971,7 @@ function calcDailyRate(section, cat, years, viewYear) {
     var idx = ys.indexOf(last);
     if (idx > 0) prev = ys[idx - 1];
     if (!prev) return null;
-    function _sumUpToMonth(sec, y, c, uptoMonth) {
+    function _sumMonths(sec, y, c, fromMonth, toMonth) {
         var obj = DATA[sec][y];
         if (!obj) return 0;
         var cats = c ? [c] : Object.keys(obj);
@@ -1979,25 +1979,34 @@ function calcDailyRate(section, cat, years, viewYear) {
         cats.forEach(function(cname) {
             var entry = obj[cname];
             if (!entry) return;
-            if (typeof entry === 'number') { if (uptoMonth >= 1) total += entry; return; }
-            for (var m = 1; m <= uptoMonth; m++) total += (Number(entry[m]) || 0);
+            if (typeof entry === 'number') { if (fromMonth <= 1 && toMonth >= 1) total += entry; return; }
+            for (var m = fromMonth; m <= toMonth; m++) total += (Number(entry[m]) || 0);
         });
         return total;
     }
     var curYearCE = parseInt(last) + 1911;
     var now = new Date();
     var isCurrentYear = curYearCE === now.getFullYear();
-    var uptoMonth = isCurrentYear ? (now.getMonth() + 1) : 12;
-    var uptoDay = isCurrentYear ? now.getDate() : 31;
-    var curVal = _sumUpToMonth(section, last, cat, uptoMonth);
-    var prevVal = _sumUpToMonth(section, prev, cat, uptoMonth);
+    var curMonth = isCurrentYear ? (now.getMonth() + 1) : 12;
+    var curDay = isCurrentYear ? now.getDate() : 31;
+    // 當月天數（用來算「已過 x/月總天數」比例）
+    var daysInCurMonth = new Date(curYearCE, curMonth, 0).getDate();
+    var daysInPrevMonth = new Date(curYearCE - 1, curMonth, 0).getDate();
+
+    // 今年：即時記帳 → 當月直接加總（不乘比例）
+    var curVal = _sumMonths(section, last, cat, 1, curMonth);
+    // 去年同期：當月按比例取（去年當月整月 × 今天/當月總天數）
+    var prevFullMonths = _sumMonths(section, prev, cat, 1, curMonth - 1);
+    var prevCurMonth = _sumMonths(section, prev, cat, curMonth, curMonth);
+    var prevVal = prevFullMonths + prevCurMonth * (curDay / daysInPrevMonth);
+
     function _dayOfY(year, mm, dd) {
         var d = new Date(year, mm - 1, dd);
         var start = new Date(year, 0, 0);
         return Math.floor((d - start) / 86400000);
     }
-    var curDays = _dayOfY(curYearCE, uptoMonth, uptoDay);
-    var prevDays = _dayOfY(curYearCE - 1, uptoMonth, uptoDay);
+    var curDays = _dayOfY(curYearCE, curMonth, curDay);
+    var prevDays = _dayOfY(curYearCE - 1, curMonth, curDay);
     if (prevVal === 0) {
         if (curVal === 0) return 0;
         return null;
