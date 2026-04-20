@@ -5728,7 +5728,10 @@ function _drawSectionTrendChart(key) {
 }
 
 function toggleAssetSection(key) {
-    DATA.assets.expanded[key] = !DATA.assets.expanded[key];
+    var willOpen = !DATA.assets.expanded[key];
+    // 一次只能展開一張：先全部收合，再視情況開目標那張
+    Object.keys(DATA.assets.expanded).forEach(function(k){ DATA.assets.expanded[k] = false; });
+    if (willOpen) DATA.assets.expanded[key] = true;
     saveData();
     renderAssets();
 }
