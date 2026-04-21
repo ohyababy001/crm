@@ -8012,28 +8012,12 @@ function buildDriveFolderName(type, prop, client, propIdx) {
     var namePart = '';
     if (type === '租案' && typeof client === 'object') {
         var llName = client.llName || (client.rLandlords && client.rLandlords[0] ? client.rLandlords[0].name : '') || client.rLandlord || '';
-        var ttName = client.ttName || (client.rTenants && client.rTenants[0] ? client.rTenants[0].name : '') || client.rTenant || '';
-        // 若 client 是房東，優先用「連結到本物件的租客」的資料（廖世吉等獨立客戶 record）
-        if (hasType(client, '房東')) {
-            var _linkedTT = DB.filter(function(t) {
-                return !t._deleted && t.linkedLandlordId === client.id && (t.linkedPropertyIdx||0) === (propIdx||0);
-            });
-            if (_linkedTT.length) {
-                var _names = _linkedTT.map(function(t){ return t.ttName || t.name || ''; }).filter(Boolean);
-                if (_names.length) ttName = _names.join('、');
-            }
-            // 若連結的租客名與房東名相同（資料錯亂），視為無租客
-            if (ttName === llName) ttName = '';
-        }
         // 無起租日：【待租】建立時間-地址-[房東]名字
         if (!prop.rStartDate) {
             var _created = client.created ? isoToROC(client.created.slice(0,10)).replace(/\//g,'') : dateStr;
             return '【待租】' + _created + '-' + addr + '-[房東]' + (llName || '未填姓名');
         }
-        if (llName && ttName) namePart = '[房東]' + llName + '-[租客]' + ttName;
-        else if (llName) namePart = '[房東]' + llName;
-        else if (ttName) namePart = '[租客]' + ttName;
-        else namePart = '未填姓名';
+        namePart = llName ? ('[房東]' + llName) : '未填姓名';
     } else if (type === '成交') {
         // 【成交】成交日期-買/賣方-成交地址-姓名
         var dealDate = '';
