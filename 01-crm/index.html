@@ -7991,7 +7991,7 @@ function getRpDriveIcon(c) {
     var hasUrl = all.some(function(a){ return a.url; });
     return hasUrl ? '<i class="ti ti-folder-open" style="color:#D97706"></i>' : '<i class="ti ti-folder" style="color:#A8A29E"></i>';
 }
-function buildDriveFolderName(type, prop, client) {
+function buildDriveFolderName(type, prop, client, propIdx) {
     var addr = prop.rAddr || prop.addr || '未填地址';
     var firstDate = '';
     if (type === '租案') {
@@ -8013,6 +8013,18 @@ function buildDriveFolderName(type, prop, client) {
     if (type === '租案' && typeof client === 'object') {
         var llName = client.llName || (client.rLandlords && client.rLandlords[0] ? client.rLandlords[0].name : '') || client.rLandlord || '';
         var ttName = client.ttName || (client.rTenants && client.rTenants[0] ? client.rTenants[0].name : '') || client.rTenant || '';
+        // 若 client 是房東，優先用「連結到本物件的租客」的資料（廖世吉等獨立客戶 record）
+        if (hasType(client, '房東')) {
+            var _linkedTT = DB.filter(function(t) {
+                return !t._deleted && t.linkedLandlordId === client.id && (t.linkedPropertyIdx||0) === (propIdx||0);
+            });
+            if (_linkedTT.length) {
+                var _names = _linkedTT.map(function(t){ return t.ttName || t.name || ''; }).filter(Boolean);
+                if (_names.length) ttName = _names.join('、');
+            }
+            // 若連結的租客名與房東名相同（資料錯亂），視為無租客
+            if (ttName === llName) ttName = '';
+        }
         // 無起租日：【待租】建立時間-地址-[房東]名字
         if (!prop.rStartDate) {
             var _created = client.created ? isoToROC(client.created.slice(0,10)).replace(/\//g,'') : dateStr;
@@ -8216,7 +8228,7 @@ function cardSetDriveFolder(clientId, src, propIdx) {
         type = m[0]; urlKey = m[1];
         if (!urlKey) return;
     }
-    var folderName = buildDriveFolderName(type, prop, c);
+    var folderName = buildDriveFolderName(type, prop, c, propIdx);
     var oldOverlay = document.querySelector('.fill-overlay');
     if (oldOverlay) oldOverlay.remove();
     var overlay = document.createElement('div');
