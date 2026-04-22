@@ -2022,16 +2022,6 @@ function calcDailyRate(section, cat, years, viewYear) {
     return ((curVal / expectedPrev) - 1) * 100;
 }
 
-function dayOfYear(d) {
-    var start = new Date(d.getFullYear(), 0, 0);
-    var diff = d - start;
-    return Math.floor(diff / 86400000);
-}
-
-function daysInYear(y) {
-    return ((y % 4 === 0 && y % 100 !== 0) || y % 400 === 0) ? 366 : 365;
-}
-
 function sumPassiveSource(year, source) {
     var obj = DATA.passive[year] && DATA.passive[year][source];
     if (!obj) return 0;
@@ -2130,29 +2120,6 @@ function sortArrow(col, year) {
     var active = sortState.col === col && sortState.year === year;
     var arrow = active ? (sortState.dir === 'desc' ? '▼' : '▲') : '⇅';
     return '<span class="sort-arrow">' + arrow + '</span>';
-}
-
-function sortCats(section, cats, years) {
-    if (!sortState.col) return cats.slice();
-    var sorted = cats.slice();
-    var dir = sortState.dir === 'desc' ? -1 : 1;
-    if (sortState.col === 'year' && sortState.year) {
-        var y = sortState.year;
-        sorted.sort(function(a, b) {
-            var va = DATA[section][y] ? (DATA[section][y][a] || 0) : 0;
-            var vb = DATA[section][y] ? (DATA[section][y][b] || 0) : 0;
-            return (va - vb) * dir;
-        });
-    } else if (sortState.col === 'rate') {
-        sorted.sort(function(a, b) {
-            var ra = calcDailyRate(section, a, years);
-            var rb = calcDailyRate(section, b, years);
-            if (ra === null) ra = -99999;
-            if (rb === null) rb = -99999;
-            return (ra - rb) * dir;
-        });
-    }
-    return sorted;
 }
 
 // ── 渲染 ──
@@ -3645,36 +3612,6 @@ function fetchTWSEAll(callback) {
         .catch(function(err) { callback(err.message || '網路錯誤'); });
 }
 
-// 個股查詢（備用，用於 STOCK_DAY_ALL 找不到的股票）
-function fetchStockDaySingle(stockId, callback) {
-    var today = new Date();
-    var dateStr = today.getFullYear() +
-        String(today.getMonth()+1).padStart(2,'0') +
-        String(today.getDate()).padStart(2,'0');
-    var url = 'https://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date=' + dateStr + '&stockNo=' + stockId;
-    fetchWithTimeout(url)
-        .then(function(r) { return r.json(); })
-        .then(function(json) {
-            if (json.stat === 'OK' && json.data && json.data.length > 0) {
-                var lastRow = json.data[json.data.length - 1];
-                var price = parseFloat(lastRow[6].replace(/,/g, ''));
-                var change = parseFloat(lastRow[7].replace(/,/g, '')) || 0;
-                var name = '';
-                if (json.title) {
-                    var m = json.title.match(/\d{4,}\s+(.+?)\s+各日/);
-                    if (m) name = m[1].trim();
-                }
-                callback(null, price, name, change);
-            } else {
-                // TWSE 查不到，用 FinMind 補查（債券 ETF、上櫃等）
-                fetchFinMind(stockId, callback);
-            }
-        })
-        .catch(function(err) {
-            fetchFinMind(stockId, callback);
-        });
-}
-
 // ── TPEX API（上櫃 / 債券 ETF 批次查詢）──
 var _tpexAllCache = null;
 var _tpexAllCacheTime = 0;
@@ -3692,7 +3629,7 @@ function fetchTPEXAll(callback) {
             arr.forEach(function(row) {
                 var id = String(row.SecuritiesCompanyCode || '').trim();
                 if (!id) return;
-                var name = String(row.CompanyName || '').trim();
+                var name = _cleanStockName(row.CompanyName);
                 var price = parseFloat(String(row.Close || '').replace(/,/g, ''));
                 // Change 欄可能含漲跌符號（▲▼+-），抽出數字
                 var chgRaw = String(row.Change || '');
@@ -3763,8 +3700,18 @@ function fetchAllPrices(onDone) {
     fallbackTWSE(stockData.holdings, onDone);
 }
 
+// 清除 TWSE/TPEX 偶發的 unicode surrogate 亂碼 + replacement char
+function _cleanStockName(s) {
+    if (!s) return '';
+    return String(s).replace(/[\uD800-\uDFFF�]/g, '').trim();
+}
+function _hasBrokenName(s) {
+    return !!s && /[\uD800-\uDFFF�]/.test(String(s));
+}
 function fallbackTWSE(holdings, onDone) {
-    function needsName(h) { return !h.name || h.name === h.id || h.name === '查詢中...'; }
+    function needsName(h) {
+        return !h.name || h.name === h.id || h.name === '查詢中...' || _hasBrokenName(h.name);
+    }
     var now = function(){ return _toROCDateTime(new Date()); };
     var flags = getFinMindFlags();
     // 標記過 FinMind 的先分離出來
@@ -3778,7 +3725,7 @@ function fallbackTWSE(holdings, onDone) {
         rest.forEach(function(h){
             if (twseMap[h.id]) {
                 stockData.prices[h.id] = { price: twseMap[h.id].price, change: twseMap[h.id].change || 0, date: now() };
-                if (needsName(h)) h.name = twseMap[h.id].name;
+                if (needsName(h)) h.name = _cleanStockName(twseMap[h.id].name) || h.id;
             } else {
                 needTPEX.push(h);
             }
@@ -3791,7 +3738,7 @@ function fallbackTWSE(holdings, onDone) {
             needTPEX.forEach(function(h){
                 if (tpxMap[h.id]) {
                     stockData.prices[h.id] = { price: tpxMap[h.id].price, change: tpxMap[h.id].change || 0, date: now() };
-                    if (needsName(h)) h.name = tpxMap[h.id].name;
+                    if (needsName(h)) h.name = _cleanStockName(tpxMap[h.id].name) || h.id;
                 } else {
                     setFinMindFlag(h.id); // 下次直接走 FinMind
                     needFinMind.push(h);
@@ -3812,7 +3759,7 @@ function fallbackTWSE(holdings, onDone) {
                 fetchFinMind(h.id, function(fErr, price, name, change) {
                     if (!fErr && price) {
                         stockData.prices[h.id] = { price: price, change: change || 0, date: now() };
-                        if (name && needsName(h)) h.name = name;
+                        if (name && needsName(h)) h.name = _cleanStockName(name) || h.id;
                     } else {
                         errors.push(h.id + ': ' + (fErr || '無資料'));
                     }
@@ -5559,6 +5506,17 @@ function renderAssets() {
     var nw = calcNetWorth();
     var rates = DATA.assets.rates || {};
     var rateDate = rates.updatedAt || '—';
+    // 超過 3 天沒更新或從未更新：視為過期
+    var rateStale = (function(){
+        if (!rates.updatedAt) return true;
+        var p = String(rates.updatedAt).split('-');
+        if (p.length !== 3) return true;
+        var d = new Date(+p[0], +p[1]-1, +p[2]);
+        return (Date.now() - d.getTime()) > 3 * 86400000;
+    })();
+    var staleBadge = rateStale
+        ? '<span title="匯率已過期或未載入" style="background:#F59E0B;color:#fff;font-size:10px;padding:1px 6px;border-radius:4px;margin-right:4px;font-weight:700">匯率未更新</span>'
+        : '';
 
     var html = '';
 
@@ -5569,6 +5527,7 @@ function renderAssets() {
     html += '<div class="nw-value">' + fmt(nw) + '</div>';
     html += '</div>';
     html += '<div class="nw-hero-right">';
+    if (staleBadge) html += staleBadge;
     html += '<span>USD <b>' + (rates.USD ? rates.USD.toFixed(3) : '-') + '</b></span>';
     html += '<span>JPY <b>' + (rates.JPY ? rates.JPY.toFixed(4) : '-') + '</b></span>';
     html += '<span>KRW <b>' + (rates.KRW ? rates.KRW.toFixed(4) : '-') + '</b></span>';
