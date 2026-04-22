@@ -2243,6 +2243,8 @@ function autoSync() {
     _crmMarkPending(); // 上傳前先標記，verifySyncResult 成功才清
     var syncData = DB.filter(function(c){ return !c.__perfRecords && !c.__templates && !c.__signingTemplates; }).concat([{__perfRecords: true, records: _perfRecords}]).concat([{__templates: true, items: _templates}]).concat([{__signingTemplates: true, items: _signingTemplates}]);
     var payload = JSON.stringify(syncData);
+    // 記下本次預期上傳完成後的雲端筆數（不含 __perf/__templates 標記只含真實客戶）
+    _expectedCloudCount = DB.length;
     // 方式1: fetch（最可靠，有回傳結果）
     if (window.fetch) {
         fetch(CLOUD_URL, { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:'payload='+encodeURIComponent(payload), mode:'no-cors' })
@@ -2280,7 +2282,13 @@ function verifySyncResult(status) {
         if (Array.isArray(data) && data.length > 0) {
             var cnt = data.filter(function(c){ return !c.__perfRecords && !c.__templates && !c.__signingTemplates; }).length;
             var localCnt = DB.length;
-            if (cnt >= localCnt - 3) {
+            // 若記得本次預期筆數，嚴格比對（允許 ±1 容錯，因 Apps Script 有微小延遲）
+            // 否則退回舊的 localCnt-3 寬容比（舊路徑）
+            var expected = _expectedCloudCount;
+            var ok = (expected !== null)
+                ? Math.abs(cnt - expected) <= 1
+                : (cnt >= localCnt - 3);
+            if (ok) {
                 // 雲端筆數 >= 本地，確認上傳成功
                 var _dispCnt = data.filter(function(c){ return !c.__perfRecords && !c.__templates && !c.__signingTemplates && !c._system; }).length;
                 if (status) status.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#22C55E;margin-right:4px;vertical-align:middle"></span>已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + _dispCnt + '筆）';
@@ -2303,6 +2311,7 @@ function verifySyncResult(status) {
     document.body.appendChild(vScript);
 }
 var _syncRetryCount = 0;
+var _expectedCloudCount = null; // 上一次上傳後雲端「應該」有的 DB 長度，用於 verify 比對
 var _syncRetryTimer = null;
 function _onSyncFail(status) {
     // 自動重試 3 次，指數退避（2s, 5s, 10s）
@@ -3293,6 +3302,9 @@ function _showDataCheckResult(issues) {
 }
 
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+// 給 `onclick="foo('" + escJs(val) + "')"` 這種把值嵌在單引號內的 JS 字串用
+// （esc() 會把 ' 變 &#39;，HTML 解析後還原成 '，破壞 JS；escJs 輸出可直接塞進單引號）
+function escJs(s) { return String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/</g,'\\u003c').replace(/>/g,'\\u003e').replace(/\r?\n/g,'\\n'); }
 // 分類備註
 var _NOTE_LABELS = {'經營買方':'買方備註','庫存屋主':'庫存備註','房東':'房東備註','租客':'租客備註','成交客戶':'成交備註','商機募集':'商機備註'};
 var _VALID_NOTE_TYPES = {'經營買方':1,'庫存屋主':1,'房東':1,'租客':1,'成交客戶':1,'商機募集':1};
@@ -10666,6 +10678,12 @@ function renderTrash() {
 // ── Export ──
 function exportCSV() {
     if(!DB.length){showToast('目前沒有資料','warn');return;}
+    // 防 CSV 公式注入：Excel/Sheets 會把 =、+、-、@、TAB、CR 開頭的格當成公式執行
+    function _csvSafe(v) {
+        var s = String(v == null ? '' : v);
+        if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+        return '"' + s.replace(/"/g, '""') + '"';
+    }
     const H=['姓名','電話','Email','類型','跟進狀態','來源','最後聯絡',
         '預算','房型需求','需求區域','樓層','其他需求',
         '物件地址(賣)','開價','底價','土地坪數','建物坪數','格局',
@@ -10686,7 +10704,7 @@ function exportCSV() {
         (c.deals||[]).map(function(d){return (d.role?'['+d.role+']':'')+(isoToROC(d.date)||'')+'/'+(d.community||'')+'/'+(d.addr||'')+'/'+(d.price||'')+'萬';}).join('；'),
         c.devType,c.dCommunity,c.dAddr,
         c.notes,isoToROC((c.created||'').slice(0,10))
-    ].map(v=>`"${(v||'').replace(/"/g,'""')}"`));
+    ].map(_csvSafe));
     var rows = [H.join(',')].concat(R.map(function(r){return r.join(',');}));
     // 附加業績紀錄區段
     if (_perfRecords.length) {
@@ -10696,7 +10714,7 @@ function exportCSV() {
         rows.push(PH.join(','));
         _perfRecords.forEach(function(r) {
             rows.push([r.caseType||'', r.category||'', r.date?isoToROC(r.date):'', r.client||'', r.feeTax||'', r.feeNoTax||'', r.feeOther||'', r.fee||'', r.memo||'', r.created?r.created.slice(0,10):'']
-                .map(function(v) { return '"' + String(v||'').replace(/"/g,'""') + '"'; }).join(','));
+                .map(_csvSafe).join(','));
         });
     }
     const csv='\uFEFF'+rows.join('\n');

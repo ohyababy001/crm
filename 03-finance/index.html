@@ -5382,14 +5382,23 @@ function _todayStr() { var d = new Date(); return d.getFullYear() + '-' + String
 function getFxRate(currency) {
     if (currency === 'TWD' || !currency) return 1;
     var r = DATA.assets.rates[currency];
-    return (typeof r === 'number' && r > 0) ? r : 1;
+    return (typeof r === 'number' && r > 0) ? r : null; // 缺匯率回 null，不要悄悄當 1
 }
 
+var _fxMissingWarned = {};
 function accountTWD(acc) {
     if (!acc) return 0;
     var amt = Number(acc.amount) || 0;
     if (acc.currency && acc.currency !== 'TWD') {
         var rate = (typeof acc.rate === 'number' && acc.rate > 0) ? acc.rate : getFxRate(acc.currency);
+        if (rate === null || !(rate > 0)) {
+            // 沒匯率且帳戶沒鎖定 rate，視為 0（避免外幣被當 TWD 1:1 灌水）
+            if (amt !== 0 && !_fxMissingWarned[acc.currency]) {
+                _fxMissingWarned[acc.currency] = true;
+                setTimeout(function(){ if (typeof toast === 'function') toast(acc.currency + ' 匯率未載入，該幣別帳戶暫以 0 計入'); }, 500);
+            }
+            return 0;
+        }
         return amt * rate;
     }
     return amt;
