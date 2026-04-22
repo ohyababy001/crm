@@ -1710,6 +1710,17 @@ function _updateLastEditLabel() {
 
 // ===== 雲端同步（Apps Script + Google Drive JSON）=====
 var CLOUD_URL = 'https://script.google.com/macros/s/AKfycbzWdNu4HR7cBusHTVOLHV_vNAnGQ5sC5K2s_pvd89y2M6MqCMeDC-Lfs_B1ZpMDkqN97g/exec';
+
+// 帶 timeout 的 fetch（預設 10 秒），避免 FinMind/TWSE 掛掉時 UI 卡死
+function fetchWithTimeout(url, opts, ms) {
+    opts = opts || {};
+    ms = ms || 10000;
+    if (typeof AbortController === 'undefined') return fetch(url, opts);
+    var ctrl = new AbortController();
+    var timer = setTimeout(function(){ ctrl.abort(); }, ms);
+    return fetch(url, Object.assign({}, opts, { signal: ctrl.signal }))
+        .finally(function(){ clearTimeout(timer); });
+}
 var _cloudSyncTimer = null;
 var _cloudSyncRetryCount = 0;
 function scheduleCloudSync() {
@@ -3609,7 +3620,7 @@ function fetchTWSEAll(callback) {
         callback(null, _twseAllCache);
         return;
     }
-    fetch('https://www.twse.com.tw/exchangeReport/STOCK_DAY_ALL?response=json')
+    fetchWithTimeout('https://www.twse.com.tw/exchangeReport/STOCK_DAY_ALL?response=json')
         .then(function(r) { return r.json(); })
         .then(function(json) {
             if (json.stat === 'OK' && json.data) {
@@ -3641,7 +3652,7 @@ function fetchStockDaySingle(stockId, callback) {
         String(today.getMonth()+1).padStart(2,'0') +
         String(today.getDate()).padStart(2,'0');
     var url = 'https://www.twse.com.tw/exchangeReport/STOCK_DAY?response=json&date=' + dateStr + '&stockNo=' + stockId;
-    fetch(url)
+    fetchWithTimeout(url)
         .then(function(r) { return r.json(); })
         .then(function(json) {
             if (json.stat === 'OK' && json.data && json.data.length > 0) {
@@ -3673,7 +3684,7 @@ function fetchTPEXAll(callback) {
         return;
     }
     // TPEX v1 OpenAPI：當日上櫃收盤行情
-    fetch('https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes')
+    fetchWithTimeout('https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes')
         .then(function(r) { return r.json(); })
         .then(function(arr) {
             if (!Array.isArray(arr) || arr.length === 0) { callback('TPEX 無資料'); return; }
@@ -3716,7 +3727,7 @@ function fetchFinMind(stockId, callback) {
     var startDate = today.getFullYear() + '-' +
         String(today.getMonth()+1).padStart(2,'0') + '-01';
     var url = 'https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockPrice&data_id=' + stockId + '&start_date=' + startDate;
-    fetch(url)
+    fetchWithTimeout(url)
         .then(function(r) { return r.json(); })
         .then(function(json) {
             if (json.status === 200 && json.data && json.data.length > 0) {
@@ -3735,7 +3746,7 @@ function fetchFinMind(stockId, callback) {
 }
 
 function fetchFinMindName(stockId, callback) {
-    fetch('https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockInfo&data_id=' + stockId)
+    fetchWithTimeout('https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockInfo&data_id=' + stockId)
         .then(function(r) { return r.json(); })
         .then(function(json) {
             if (json.status === 200 && json.data && json.data.length > 0) {
@@ -4287,7 +4298,7 @@ function checkDividendAlerts() {
     }
 
     // 先抓 Apps Script 快取（含 TWSE + MoneyDJ 合併資料）→ 一回來就先顯示
-    var cachePromise = fetch(CLOUD_URL + '?action=dividends&format=json&t=' + Date.now())
+    var cachePromise = fetchWithTimeout(CLOUD_URL + '?action=dividends&format=json&t=' + Date.now())
         .then(function(r) { return r.json(); })
         .then(function(cache) {
             if (cache && cache.updatedAt) _dividendCacheUpdatedAt = cache.updatedAt;
@@ -4310,8 +4321,8 @@ function checkDividendAlerts() {
             var urlPreview = 'https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockDividend&data_id=' + h.id + '&start_date=' + startDate;
             var urlResult = 'https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockDividendResult&data_id=' + h.id + '&start_date=' + startDate;
             Promise.all([
-                fetch(urlPreview).then(function(r){return r.json();}).catch(function(){return {data:[]};}),
-                fetch(urlResult).then(function(r){return r.json();}).catch(function(){return {data:[]};})
+                fetchWithTimeout(urlPreview).then(function(r){return r.json();}).catch(function(){return {data:[]};}),
+                fetchWithTimeout(urlResult).then(function(r){return r.json();}).catch(function(){return {data:[]};})
             ])
                 .then(function(results) {
                     var preview = results[0];
@@ -4801,6 +4812,15 @@ function renderStock() {
 
     var html = '';
 
+    // 載入失敗警示：_loadFailed 為 true 時寫入被封鎖，使用者新增的資料不會存
+    if (stockData && stockData._loadFailed) {
+        html += '<div style="background:#FEF3C7;border:2px solid #F59E0B;border-radius:8px;padding:10px 14px;margin-bottom:10px;color:#92400E;font-size:14px;display:flex;align-items:center;gap:10px">'
+            + '<i class="ti ti-alert-triangle" style="font-size:20px;color:#D97706"></i>'
+            + '<div style="flex:1"><b>台股資料載入失敗</b>，您現在新增的任何資料「不會」被儲存。請重新整理頁面，或點右方按鈕重試。</div>'
+            + '<button onclick="location.reload()" style="padding:6px 12px;border:none;border-radius:6px;background:#D97706;color:#fff;font-weight:700;cursor:pointer">重新整理</button>'
+            + '</div>';
+    }
+
     // 子頁籤 + 除權息提醒（並排）
     html += '<div class="stock-sub-tabs-row">';
     html += '<div class="stock-sub-tabs">';
@@ -5218,8 +5238,12 @@ function bindDateInput(el) {
 
 // 計算質押到期日（預設半年 = 6 個月後）
 function calcPledgeDue(dateStr) {
-    var d = new Date(dateStr);
-    d.setMonth(d.getMonth() + 6);
+    // 本地時區解析 YYYY-MM-DD 避免 UTC 差 1 天；到期日 = 質押日 + 180 天
+    // （不用 setMonth(+6)，否則 8/31 會跳到 3/1 而非 2/28，提醒日會偏 1-3 天）
+    var p = String(dateStr||'').slice(0,10).split('-');
+    if (p.length !== 3) return new Date(dateStr);
+    var d = new Date(+p[0], +p[1]-1, +p[2]);
+    d.setDate(d.getDate() + 180);
     return d;
 }
 
@@ -5470,7 +5494,7 @@ function fetchFxRates(onDone) {
     if (_assetFxFetching) { if (onDone) onDone(false); return; }
     _assetFxFetching = true;
     var url = 'https://open.er-api.com/v6/latest/TWD';
-    fetch(url).then(function(r){ return r.json(); }).then(function(data){
+    fetchWithTimeout(url).then(function(r){ return r.json(); }).then(function(data){
         _assetFxFetching = false;
         if (!data || data.result !== 'success' || !data.rates) {
             if (onDone) onDone(false);
@@ -5505,7 +5529,7 @@ function maybeAutoFetchFx() {
 // 回傳 USD/oz → 換算成 TWD/兩（1 台兩 = 1.20565 oz）
 function fetchGoldPrice(onDone) {
     var url = 'https://api.gold-api.com/price/XAU';
-    fetch(url).then(function(r){ return r.json(); }).then(function(data){
+    fetchWithTimeout(url).then(function(r){ return r.json(); }).then(function(data){
         // 預期 { price: USD_per_oz }
         var usdPerOz = data && (data.price || data.rate || data.usd);
         if (typeof usdPerOz !== 'number' || usdPerOz <= 0) { if (onDone) onDone(false); return; }
