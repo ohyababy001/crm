@@ -4263,6 +4263,8 @@ function renderCard(c) {
             if (_want) meta += `<div class="cmeta-row"><span class="cmeta-k">想要</span><span class="cmeta-v" style="color:#B45309">${esc(_want)}</span></div>`;
             var _noWant = _bd ? _bd.noWant : cc.noWant;
             if (_noWant) meta += `<div class="cmeta-row"><span class="cmeta-k">不想要</span><span class="cmeta-v" style="color:#EF4444">${esc(_noWant)}</span></div>`;
+            var _bSrc = cc.bSource || c.bSource || '';
+            if (_bSrc) meta += `<div class="cmeta-row"><span class="cmeta-k">來源</span><span class="cmeta-v">${esc(_bSrc)}</span></div>`;
         } else if (showType==='庫存屋主') {
             // 根據等級篩選或優先度選擇顯示的物件
             var sp0 = {};
