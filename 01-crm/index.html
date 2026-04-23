@@ -2483,13 +2483,16 @@ function autoFetchCloud(force) {
                     // 第二階段去重：防止同一筆 schedule 因兩台裝置各自產生不同 id（例如
                     // _fingerprint vs _newSchedId）導致合併後軟刪版和活版並存，使已完成
                     // 的行程在另一台裝置隔天變「已過期」。按 date+time+memo 做 content key，
-                    // 同 key 只保留 updatedAt 最新的那筆。
+                    // 同 key 優先保留未刪版；同為活/同為軟刪再比 updatedAt 最新的那筆。
                     var contentMap = {};
                     firstPass.forEach(function(it) {
                         if (!it.date) { contentMap['__nokey__' + Math.random()] = it; return; }
                         var ck = 'c_' + (it.date||'') + '|' + (it.time||'') + '|' + (it.memo||'') + '|' + (it.doneAt||'');
                         var cur = contentMap[ck];
                         if (!cur) { contentMap[ck] = it; return; }
+                        var curDel = !!cur._deleted;
+                        var newDel = !!it._deleted;
+                        if (curDel !== newDel) { if (!newDel) contentMap[ck] = it; return; }
                         var cu = it.updatedAt || '';
                         var lu = cur.updatedAt || '';
                         if (!lu || (cu && cu > lu)) contentMap[ck] = it;
@@ -11099,6 +11102,11 @@ function _cleanupItemArr(arr, keyFn) {
         if (!k) { map['__nokey__' + Math.random()] = s; return; }
         var cur = map[k];
         if (!cur) { map[k] = s; return; }
+        // 先比 _deleted：優先保留未刪（活版），避免把使用者實際存在的行程覆蓋掉
+        var curDel = !!cur._deleted;
+        var newDel = !!s._deleted;
+        if (curDel !== newDel) { if (!newDel) map[k] = s; return; }
+        // 同為活版或同為軟刪版，再比 updatedAt
         var cu = s.updatedAt || '';
         var lu = cur.updatedAt || '';
         if (!lu || (cu && cu > lu)) map[k] = s;

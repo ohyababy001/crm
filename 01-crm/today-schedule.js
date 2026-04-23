@@ -36,6 +36,10 @@ function dedupeSchedules(arr) {
     let k = (s.date||'') + '|' + (s.time||'') + '|' + (s.memo||'') + '|' + (s.doneAt||'');
     let cur = map[k];
     if (!cur) { map[k] = s; return; }
+    // 優先保留未刪版（活版）；同為活或同為軟刪時才比 updatedAt
+    let curDel = !!cur._deleted;
+    let newDel = !!s._deleted;
+    if (curDel !== newDel) { if (!newDel) map[k] = s; return; }
     let cu = s.updatedAt || '';
     let lu = cur.updatedAt || '';
     if (!lu || (cu && cu > lu)) map[k] = s;
