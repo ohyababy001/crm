@@ -7771,7 +7771,17 @@ function addPersonalSchedule(editId) {
     var box = document.createElement('div');
     box.className = 'fill-menu';
     box.style.padding = '16px'; box.style.minWidth = '300px'; box.style.maxWidth = '360px';
-    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px"><i class="ti ti-calendar-plus" style="color:#2563EB"></i> 個人行程</div>' +
+    // 新增模式時顯示「關聯客戶」搜尋欄（同 addTodo 行為）；編輯模式隱藏
+    var clientSearchHtml = editing ? '' :
+        '<div style="margin-bottom:10px;position:relative">' +
+            '<label style="font-size:12px;color:#64748B;display:block;margin-bottom:4px">關聯客戶（可留空=個人行程）</label>' +
+            '<input id="ps-client-search" type="text" placeholder="搜尋姓名、電話、社區…" autocomplete="off" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit">' +
+            '<input id="ps-client-id" type="hidden" value="">' +
+            '<div id="ps-client-hint" style="font-size:12px;color:#94A3B8;margin-top:4px">未輸入=個人行程</div>' +
+            '<div id="ps-client-list" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1px solid var(--border);border-radius:8px;max-height:200px;overflow-y:auto;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,0.1);margin-top:2px"></div>' +
+        '</div>';
+    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px"><i class="ti ti-calendar-plus" style="color:#2563EB"></i> ' + (editing ? '個人行程' : '新增行程') + '</div>' +
+        clientSearchHtml +
         '<div style="display:flex;gap:8px;margin-bottom:10px">' +
             '<div class="roc-date-wrap" style="flex:1"><input id="ps-date" type="text" placeholder="日期" value="'+esc(isoToROC(ps.date||localDateISO()))+'"><button type="button" class="cal-btn" onclick="openCal(this)"><i class="ti ti-calendar" style="color:#2563EB"></i></button></div>' +
             '<select id="ps-time" style="width:90px;padding:8px;border:1px solid var(--border);border-radius:8px;font-size:14px">' + buildTimeOptions(ps.time||'') + '</select>' +
@@ -7787,29 +7797,101 @@ function addPersonalSchedule(editId) {
         '</div>';
     overlay.appendChild(box);
     document.body.appendChild(overlay);
+
+    // 客戶搜尋自動完成（僅新增模式）
+    if (!editing) {
+        var searchEl = document.getElementById('ps-client-search');
+        var idEl = document.getElementById('ps-client-id');
+        var listEl = document.getElementById('ps-client-list');
+        var hintEl = document.getElementById('ps-client-hint');
+        function _psUpdateHint() {
+            if (idEl.value) {
+                var c = DB.find(function(x){ return x.id === idEl.value; });
+                hintEl.innerHTML = c ? '✓ 已選取：'+esc(c.name) : '';
+                hintEl.style.color = '#2563EB';
+            } else {
+                hintEl.innerHTML = searchEl.value.trim() ? '未選取客戶，將存為個人行程' : '未輸入=個人行程';
+                hintEl.style.color = '#94A3B8';
+            }
+        }
+        searchEl.oninput = function() {
+            idEl.value = '';
+            var q = searchEl.value.trim().toLowerCase();
+            if (!q) { listEl.style.display = 'none'; _psUpdateHint(); return; }
+            var matches = DB.filter(function(c){
+                if (c._deleted || c._system || c.archived) return false;
+                var parts = [c.name, c.phone, c.bName, c.bPhone, c.sName, c.sPhone, c.llName, c.llPhone, c.ttName, c.ttPhone, c.cName, c.cPhone, c.dName, c.dPhone, c.dCommunity, c.community];
+                ['bPersons','sPersons','dPersons','llPersons','ttPersons','cContacts','contacts'].forEach(function(key){
+                    if (Array.isArray(c[key])) c[key].forEach(function(p){ if (p) { parts.push(p.name); parts.push(p.phone); } });
+                });
+                return parts.join(' ').toLowerCase().indexOf(q) !== -1;
+            }).slice(0, 20);
+            if (!matches.length) { listEl.innerHTML = '<div style="padding:10px;color:#94A3B8;font-size:13px;text-align:center">沒有符合的客戶</div>'; listEl.style.display = 'block'; _psUpdateHint(); return; }
+            listEl.innerHTML = matches.map(function(c){
+                var sub = c.dCommunity || c.community || c.phone || c.bPhone || c.sPhone || c.llPhone || c.ttPhone || '';
+                return '<div class="ps-client-opt" data-id="'+esc(c.id)+'" data-name="'+esc(c.name)+'" style="padding:8px 12px;cursor:pointer;border-bottom:1px solid #F1F5F9;font-size:14px"><div style="font-weight:600;color:#1E40AF">'+esc(c.name)+'</div>'+(sub?'<div style="font-size:12px;color:#64748B">'+esc(sub)+'</div>':'')+'</div>';
+            }).join('');
+            listEl.style.display = 'block';
+            listEl.querySelectorAll('.ps-client-opt').forEach(function(el) {
+                el.onmouseenter = function(){ el.style.background = '#EFF6FF'; };
+                el.onmouseleave = function(){ el.style.background = ''; };
+                el.onclick = function() {
+                    idEl.value = el.dataset.id;
+                    searchEl.value = el.dataset.name;
+                    listEl.style.display = 'none';
+                    _psUpdateHint();
+                };
+            });
+            _psUpdateHint();
+        };
+    }
+
     document.getElementById('ps-save').onclick = function() {
         var date = rocToISO(document.getElementById('ps-date').value);
         var time = document.getElementById('ps-time').value;
         var memo = document.getElementById('ps-memo').value.trim();
         if (!date) { showToast('請選擇日期', 'warn'); return; }
         var _psRecurEl = document.getElementById('ps-recur'); var _psRecur = _psRecurEl ? _psRecurEl.value : '';
-        var arr = _getPS();
         var _psObj = { date:date, time:time, memo:memo, updatedAt:_nowISO() };
         if (_psRecur) _psObj.recurrence = _psRecur;
+
         if (editing) {
+            var arr = _getPS();
             var _old = arr[prefillIdx];
             _psObj.id = (_old && _old.id) ? _old.id : _newSchedId();
             arr[prefillIdx] = _psObj;
+            _savePS(arr);
         } else {
-            _psObj.id = _newSchedId();
-            arr.push(_psObj);
+            var clientId = document.getElementById('ps-client-id').value;
+            if (clientId) {
+                // 關聯到客戶：存到 client.schedules
+                var c = DB.find(function(x){ return x.id === clientId; });
+                if (!c) { showToast('客戶不存在', 'error'); return; }
+                if (!c.schedules) c.schedules = [];
+                _psObj.id = _newSchedId();
+                c.schedules.push(_psObj);
+                persistAndSyncNow();
+            } else {
+                // 個人行程
+                var arr = _getPS();
+                _psObj.id = _newSchedId();
+                arr.push(_psObj);
+                _savePS(arr);
+            }
         }
-        _savePS(arr);
         overlay.remove();
         render();
     };
-    box.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); document.getElementById('ps-save').click(); } });
-    if (!window.matchMedia('(max-width:768px)').matches) document.getElementById('ps-memo').focus();
+    box.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && e.target.id !== 'ps-client-search') {
+            e.preventDefault();
+            document.getElementById('ps-save').click();
+        }
+    });
+    if (!window.matchMedia('(max-width:768px)').matches) {
+        var focusEl = document.getElementById(editing ? 'ps-memo' : 'ps-client-search');
+        if (focusEl) focusEl.focus();
+    }
 }
 
 function editPersonalSchedule(id) { addPersonalSchedule(id); }

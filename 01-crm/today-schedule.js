@@ -25,13 +25,31 @@ function daysDiff(dateISO, todayISO) {
   return Math.round((d1 - d2) / 86400000);
 }
 
+// 同內容（date+time+memo+doneAt）只保留 updatedAt 最新的一筆
+// 避免兩台裝置產生不同 id 造成「軟刪版+活版」並存，導致已完成的行程
+// 在 widget 上仍顯示成「過期」
+function dedupeSchedules(arr) {
+  if (!Array.isArray(arr)) return [];
+  let map = {};
+  arr.forEach(function(s) {
+    if (!s || !s.date) return;
+    let k = (s.date||'') + '|' + (s.time||'') + '|' + (s.memo||'') + '|' + (s.doneAt||'');
+    let cur = map[k];
+    if (!cur) { map[k] = s; return; }
+    let cu = s.updatedAt || '';
+    let lu = cur.updatedAt || '';
+    if (!lu || (cu && cu > lu)) map[k] = s;
+  });
+  return Object.keys(map).map(function(k){ return map[k]; });
+}
+
 function getToday(db) {
   let today = todayISO();
   let list = [];
   db.forEach(function(c) {
     if (c._deleted || c._system || c.archived || !c.schedules) return;
     let name = c.llName || c.ttName || c.bName || c.sName || c.cName || c.dName || c.name || '未命名';
-    c.schedules.forEach(function(s) {
+    dedupeSchedules(c.schedules).forEach(function(s) {
       if (!s.date || s._deleted) return;
       if (s.hideBeforeDate && today < s.hideBeforeDate) return;
       if (s.date <= today) list.push({ name: name, time: s.time || '', memo: s.memo || '', date: s.date, expired: s.date < today });
@@ -39,7 +57,7 @@ function getToday(db) {
   });
   let ps = db.find(function(c) { return c.id === '_personalSchedules'; });
   if (ps && ps.schedules) {
-    ps.schedules.forEach(function(s) {
+    dedupeSchedules(ps.schedules).forEach(function(s) {
       if (!s.date || s._deleted) return;
       if (s.hideBeforeDate && today < s.hideBeforeDate) return;
       if (s.date <= today) list.push({ name: '📌 個人', time: s.time || '', memo: s.memo || '', date: s.date, expired: s.date < today });
