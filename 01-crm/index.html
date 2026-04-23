@@ -809,6 +809,7 @@
                 <button onclick="exportCSV();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><i class="ti ti-download" style="font-size:18px;color:#059669"></i> 匯出</button>
                 <button onclick="document.getElementById('csvImportInput2').click();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><i class="ti ti-upload" style="font-size:18px;color:#D97706"></i> 匯入</button>
                 <button onclick="runDataCheck();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><i class="ti ti-shield-check" style="font-size:18px;color:#059669"></i> 健檢</button>
+                <button onclick="cleanupDuplicateSchedules();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><i class="ti ti-wash-dry" style="font-size:18px;color:#0891B2"></i> 清理重複行程</button>
                 <div style="height:1px;background:#E7E5E4;margin:4px 12px"></div>
                 <button onclick="clearCache();closeHeaderMore()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:14px;color:#1C1917;font-family:inherit;text-align:left"><i class="ti ti-refresh" style="font-size:18px;color:#57534E"></i> 重新載入</button>
             </div>
@@ -824,6 +825,7 @@
         <button onclick="exportCSV();closeMobileSetting()"><i class="ti ti-download" style="font-size:16px;color:#059669"></i> 匯出</button>
         <button onclick="document.getElementById('csvImportInput2').click();closeMobileSetting()"><i class="ti ti-upload" style="font-size:16px;color:#D97706"></i> 匯入</button>
         <button onclick="runDataCheck();closeMobileSetting()"><i class="ti ti-shield-check" style="font-size:16px;color:#059669"></i> 健檢</button>
+        <button onclick="cleanupDuplicateSchedules();closeMobileSetting()"><i class="ti ti-wash-dry" style="font-size:16px;color:#0891B2"></i> 清理重複行程</button>
         <button onclick="clearCache();closeMobileSetting()"><i class="ti ti-refresh" style="font-size:16px;color:#57534E"></i> 重新載入</button>
     </div>
 </header>
@@ -11074,6 +11076,77 @@ function confirmVcfImport() {
 function closeVcfModal() {
     document.getElementById('vcfModal').style.display = 'none';
     vcfContacts = [];
+}
+
+// ── 清理重複行程 ──
+// 把所有客戶和個人行程的 schedules/todos/doneSchedules，按「內容鍵」
+// (date+time+memo+doneAt / addedAt+memo) 去重，同鍵只留 updatedAt 最新者。
+// 這會把兩裝置因為 id 不一致造成「活版+軟刪版並存」的髒資料修乾淨，
+// 之後 widget 和 app 都不會再看到已完成的行程跑回來顯示過期。
+function _cleanupItemArr(arr, keyFn) {
+    if (!Array.isArray(arr)) return { arr: arr || [], removed: 0 };
+    var map = {};
+    arr.forEach(function(s) {
+        if (!s) return;
+        var k = keyFn(s);
+        if (!k) { map['__nokey__' + Math.random()] = s; return; }
+        var cur = map[k];
+        if (!cur) { map[k] = s; return; }
+        var cu = s.updatedAt || '';
+        var lu = cur.updatedAt || '';
+        if (!lu || (cu && cu > lu)) map[k] = s;
+    });
+    var result = Object.keys(map).map(function(k){ return map[k]; });
+    return { arr: result, removed: arr.length - result.length };
+}
+function cleanupDuplicateSchedules() {
+    confirmAction('清理重複行程\n\n這會檢查所有客戶與個人行程，把因為跨裝置同步產生的重複筆（同日期、同時間、同事項）只保留最新那筆。\n\n確定執行？', function() {
+        var schedRemoved = 0, todoRemoved = 0, doneSchedRemoved = 0, doneTodoRemoved = 0;
+        DB.forEach(function(c) {
+            if (c._system) return;
+            if (Array.isArray(c.schedules)) {
+                var r = _cleanupItemArr(c.schedules, function(s){ return 's_' + (s.date||'') + '|' + (s.time||'') + '|' + (s.memo||'') + '|' + (s.doneAt||''); });
+                c.schedules = r.arr;
+                schedRemoved += r.removed;
+            }
+            if (Array.isArray(c.todos)) {
+                var r2 = _cleanupItemArr(c.todos, function(t){ return 't_' + (t.addedAt||'') + '|' + (t.memo||''); });
+                c.todos = r2.arr;
+                todoRemoved += r2.removed;
+            }
+        });
+        // 個人行程系統紀錄
+        var psRec = DB.find(function(c){ return c.id === '_personalSchedules'; });
+        if (psRec) {
+            if (Array.isArray(psRec.schedules)) {
+                var r3 = _cleanupItemArr(psRec.schedules, function(s){ return 's_' + (s.date||'') + '|' + (s.time||'') + '|' + (s.memo||''); });
+                psRec.schedules = r3.arr;
+                schedRemoved += r3.removed;
+            }
+            if (Array.isArray(psRec.todos)) {
+                var r4 = _cleanupItemArr(psRec.todos, function(t){ return 't_' + (t.addedAt||'') + '|' + (t.memo||''); });
+                psRec.todos = r4.arr;
+                todoRemoved += r4.removed;
+            }
+            if (Array.isArray(psRec.doneSchedules)) {
+                var r5 = _cleanupItemArr(psRec.doneSchedules, function(s){ return 'ds_' + (s.date||'') + '|' + (s.time||'') + '|' + (s.memo||'') + '|' + (s.doneAt||''); });
+                psRec.doneSchedules = r5.arr;
+                doneSchedRemoved += r5.removed;
+            }
+            if (Array.isArray(psRec.doneTodos)) {
+                var r6 = _cleanupItemArr(psRec.doneTodos, function(t){ return 'dt_' + (t.addedAt||'') + '|' + (t.memo||'') + '|' + (t.doneAt||''); });
+                psRec.doneTodos = r6.arr;
+                doneTodoRemoved += r6.removed;
+            }
+        }
+        var total = schedRemoved + todoRemoved + doneSchedRemoved + doneTodoRemoved;
+        persistAndSyncNow();
+        render();
+        var msg = total === 0
+            ? '沒有重複資料需要清理'
+            : '已清理：\n行程 ' + schedRemoved + ' 筆\n待辦 ' + todoRemoved + ' 筆\n已完成行程 ' + doneSchedRemoved + ' 筆\n已完成待辦 ' + doneTodoRemoved + ' 筆';
+        showToast(msg, total === 0 ? 'ok' : 'ok', 4000);
+    });
 }
 
 // ── 雲端備份/還原 ──
