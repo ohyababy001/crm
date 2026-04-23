@@ -2486,21 +2486,26 @@ function autoFetchCloud(force) {
                     });
                     var firstPass = Object.keys(map).map(function(k){ return map[k]; });
                     // 第二階段去重：防止同一筆 schedule 因兩台裝置各自產生不同 id（例如
-                    // _fingerprint vs _newSchedId）導致合併後軟刪版和活版並存，使已完成
-                    // 的行程在另一台裝置隔天變「已過期」。按 date+time+memo 做 content key，
-                    // 同 key 優先保留未刪版；同為活/同為軟刪再比 updatedAt 最新的那筆。
+                    // _fingerprint vs _newSchedId）導致合併後軟刪版和活版並存。按
+                    // date+time+memo 做 content key，同 key 一律比 updatedAt 最新者
+                    // 勝出（含軟刪版）——這樣剛完成的行程（軟刪 updatedAt=現在）才不會
+                    // 被另一台還沒同步的活版（updatedAt 較舊）救回來。
+                    // 若雙方都沒 updatedAt（極舊資料），保留未刪版當 fallback。
                     var contentMap = {};
                     firstPass.forEach(function(it) {
                         if (!it.date) { contentMap['__nokey__' + Math.random()] = it; return; }
                         var ck = 'c_' + (it.date||'') + '|' + (it.time||'') + '|' + (it.memo||'') + '|' + (it.doneAt||'');
                         var cur = contentMap[ck];
                         if (!cur) { contentMap[ck] = it; return; }
-                        var curDel = !!cur._deleted;
-                        var newDel = !!it._deleted;
-                        if (curDel !== newDel) { if (!newDel) contentMap[ck] = it; return; }
                         var cu = it.updatedAt || '';
                         var lu = cur.updatedAt || '';
-                        if (!lu || (cu && cu > lu)) contentMap[ck] = it;
+                        if (cu && lu) {
+                            if (cu > lu) contentMap[ck] = it;
+                        } else if (cu && !lu) {
+                            contentMap[ck] = it;
+                        } else if (!cu && !lu) {
+                            if (cur._deleted && !it._deleted) contentMap[ck] = it;
+                        }
                     });
                     return Object.keys(contentMap).map(function(k){ return contentMap[k]; });
                 }
