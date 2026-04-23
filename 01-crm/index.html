@@ -2477,7 +2477,22 @@ function autoFetchCloud(force) {
                         var lu = cur.updatedAt || '';
                         if (!lu || (cu && cu > lu)) map[k] = it;
                     });
-                    return Object.keys(map).map(function(k){ return map[k]; });
+                    var firstPass = Object.keys(map).map(function(k){ return map[k]; });
+                    // 第二階段去重：防止同一筆 schedule 因兩台裝置各自產生不同 id（例如
+                    // _fingerprint vs _newSchedId）導致合併後軟刪版和活版並存，使已完成
+                    // 的行程在另一台裝置隔天變「已過期」。按 date+time+memo 做 content key，
+                    // 同 key 只保留 updatedAt 最新的那筆。
+                    var contentMap = {};
+                    firstPass.forEach(function(it) {
+                        if (!it.date) { contentMap['__nokey__' + Math.random()] = it; return; }
+                        var ck = 'c_' + (it.date||'') + '|' + (it.time||'') + '|' + (it.memo||'') + '|' + (it.doneAt||'');
+                        var cur = contentMap[ck];
+                        if (!cur) { contentMap[ck] = it; return; }
+                        var cu = it.updatedAt || '';
+                        var lu = cur.updatedAt || '';
+                        if (!lu || (cu && cu > lu)) contentMap[ck] = it;
+                    });
+                    return Object.keys(contentMap).map(function(k){ return contentMap[k]; });
                 }
                 cloudData.forEach(function(cc) {
                     cloudIds[cc.id] = true;
