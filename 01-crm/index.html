@@ -2382,18 +2382,23 @@ function startAutoCheck() {
     }
     _checkTimer = setInterval(function() {
         // 有未上傳的變更時，先推上傳；否則拉雲端
+        // 注意：不在這裡重置 _syncRetryCount，避免 3 次失敗後 interval 又狂丟
+        // （_onSyncFail 本身已有 2s/5s/10s 退避與手動重試按鈕）
         if (_crmHasPending() && navigator.onLine !== false) {
-            _syncRetryCount = 0; // 重置重試計數，讓失敗也能再試
+            // 若正在失敗重試中（_syncRetryTimer 存在），跳過這次 interval 避免重複
+            if (_syncRetryTimer) return;
             autoSync();
         } else {
             autoFetchCloud();
         }
-    }, 20 * 1000);
+    }, 60 * 1000);
 }
 // 頁面切回前景時：有 pending 先推；沒有就強拉最新
+// （如果正在失敗重試中就不插隊，等自然重試；避免使用者切 App 觸發更多同步）
 document.addEventListener('visibilitychange', function() {
     if (document.hidden) return;
     if (_crmHasPending() && navigator.onLine !== false) {
+        if (_syncRetryTimer) return;
         _syncRetryCount = 0;
         autoSync();
     } else {
