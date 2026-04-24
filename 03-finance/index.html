@@ -3569,7 +3569,7 @@ function showRestoreDialog() {
     });
 }
 
-function saveStockData() {
+function saveStockData(opts) {
     // ★ 安全門：若載入時失敗，絕對不能寫回，避免把損壞/空資料覆蓋原始 localStorage
     if (stockData && stockData._loadFailed) {
         console.warn('[saveStockData] 已阻擋：載入失敗狀態下禁止寫入 localStorage');
@@ -3589,6 +3589,15 @@ function saveStockData() {
         } else {
             toast('儲存失敗：' + (e.message || '未知錯誤'), true);
         }
+        return;
+    }
+    // 觸發雲端同步：把 stockData 變化也視為整體編輯，更新 _lastEditAt 並 schedule push
+    // 預設行為；若為背景自動更新（價格抓取、自動快照等）可傳 {skipCloudSync:true} 跳過
+    if (!(opts && opts.skipCloudSync)) {
+        if (typeof DATA !== 'undefined' && DATA) DATA._lastEditAt = new Date().toISOString();
+        try { localStorage.setItem('finTracker', JSON.stringify(DATA)); } catch(_e) {}
+        if (typeof scheduleCloudSync === 'function') scheduleCloudSync();
+        if (typeof _updateLastEditLabel === 'function') _updateLastEditLabel();
     }
 }
 
@@ -3763,7 +3772,7 @@ function fallbackTWSE(holdings, onDone) {
 
             if (needFinMind.length === 0) {
                 stockData.lastUpdate = now();
-                saveStockData();
+                saveStockData({ skipCloudSync: true }); // 背景抓股價，不觸發雲端同步
                 if (onDone) onDone();
                 return;
             }
@@ -3782,7 +3791,7 @@ function fallbackTWSE(holdings, onDone) {
                     pending--;
                     if (pending <= 0) {
                         stockData.lastUpdate = now();
-                        saveStockData();
+                        saveStockData({ skipCloudSync: true }); // 背景抓股價，不觸發雲端同步
                         if (onDone) onDone(errors.length > 0 ? errors : null);
                     }
                 });
