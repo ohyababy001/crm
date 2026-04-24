@@ -811,8 +811,9 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
         white-space: nowrap;
         flex-shrink: 0;
     }
-    /* 手機版隱藏文字標籤 */
-    #last-export, #last-edit, #cloudStatus { display: none; }
+    /* 手機版隱藏文字標籤（cloudStatus 保留，但縮小字體，讓同步訊息看得到） */
+    #last-export, #last-edit { display: none; }
+    #cloudStatus { font-size: 10px; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .summary-cards { grid-template-columns: repeat(3, 1fr); }
     .stock-summary { grid-template-columns: repeat(2, 1fr); }
     .s-card .value { font-size: 18px; }
@@ -1776,10 +1777,15 @@ function _onCloudSyncFail() {
     _setCloudStatus('<span style="color:#EF4444">同步失敗（待網路恢復重試）</span> <button onclick="cloudSyncNow()" style="background:none;border:1px solid var(--border);border-radius:6px;padding:2px 8px;cursor:pointer;font-size:11px;margin-left:4px">重試</button>');
 }
 
-// 網路恢復或回到頁面 → 自動補傳待同步資料
-window.addEventListener('online', function() { if (_hasPendingSync()) cloudSyncNow(); });
+// 網路恢復或回到頁面 → 自動補傳待同步資料，並主動拉雲端取最新
+window.addEventListener('online', function() {
+    if (_hasPendingSync()) cloudSyncNow();
+    else setTimeout(function(){ cloudRestore(); }, 500);
+});
 document.addEventListener('visibilitychange', function() {
-    if (document.visibilityState === 'visible' && navigator.onLine !== false && _hasPendingSync()) cloudSyncNow();
+    if (document.visibilityState !== 'visible' || navigator.onLine === false) return;
+    if (_hasPendingSync()) cloudSyncNow();
+    else cloudRestore(); // 回前景主動拉一次，避免另一台裝置剛推過的更新看不到
 });
 function cloudRestore(opts) {
     opts = opts || {};
@@ -1815,6 +1821,13 @@ function cloudRestore(opts) {
             return false;
         });
 }
+// 每 30 秒自動拉雲端取最新（頁面在前景且有網路才跑；cloudRestore 內會比 _lastEditAt 避免覆蓋較新的本機）
+var _cloudPullTimer = setInterval(function() {
+    if (document.visibilityState !== 'visible') return;
+    if (navigator.onLine === false) return;
+    if (_hasPendingSync()) return; // 本機有東西還沒上傳，先別拉免得打架
+    cloudRestore();
+}, 30 * 1000);
 // 開頁時自動拉雲端（但不強制覆蓋本機較新的資料）
 // 用 sessionStorage 避免「還原 → reload → 又還原」的無窮迴圈
 window.addEventListener('load', function() {
@@ -6098,6 +6111,16 @@ function _assetModal(title, acc, onOk, onDel) {
     html += '</div>';
     overlay.innerHTML = html;
     overlay.addEventListener('click', function(e){ if (e.target === overlay) overlay.remove(); });
+    overlay.addEventListener('keydown', function(e){
+        if (e.isComposing || e.keyCode === 229) return;
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('am-ok').click();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            overlay.remove();
+        }
+    });
     document.body.appendChild(overlay);
     var curSel = document.getElementById('am-cur');
     curSel.value = acc.currency || 'TWD';
