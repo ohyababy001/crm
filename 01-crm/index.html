@@ -2210,20 +2210,26 @@ function _safeSetItem(key, value) {
 }
 function persist() {
     _stampUpdatedAt();
-    _lastSyncJSON = JSON.stringify(DB);
-    var ok = _safeSetItem('reCRM', _lastSyncJSON);
-    _setDirty();
-    if (_syncTimer) clearTimeout(_syncTimer);
-    _syncTimer = setTimeout(autoSync, 3000);
+    var newJSON = JSON.stringify(DB);
+    var ok = _safeSetItem('reCRM', newJSON);
+    if (ok) {
+        _lastSyncJSON = newJSON;
+        _setDirty();
+        if (_syncTimer) clearTimeout(_syncTimer);
+        _syncTimer = setTimeout(autoSync, 3000);
+    }
     return ok;
 }
 function persistAndSyncNow() {
     _stampUpdatedAt();
-    _lastSyncJSON = JSON.stringify(DB);
-    _safeSetItem('reCRM', _lastSyncJSON);
+    var newJSON = JSON.stringify(DB);
+    var ok = _safeSetItem('reCRM', newJSON);
+    if (!ok) return false;
+    _lastSyncJSON = newJSON;
     _setDirty();
     if (_syncTimer) clearTimeout(_syncTimer);
     autoSync();
+    return true;
 }
 function persistPerf() {
     try { localStorage.setItem('perfRecords', JSON.stringify(_perfRecords)); } catch(e) { console.error('localStorage寫入失敗', e); }
@@ -2233,6 +2239,7 @@ function persistPerf() {
 function _crmMarkPending() { try { localStorage.setItem('crm_pendingSync', '1'); } catch(e) {} }
 function _crmClearPending() { try { localStorage.removeItem('crm_pendingSync'); } catch(e) {} }
 function _crmHasPending() { try { return localStorage.getItem('crm_pendingSync') === '1'; } catch(e) { return false; } }
+var _syncInFlight = false;
 function autoSync() {
     var status = document.getElementById('cloudStatus');
     // 離線時直接標記待同步
@@ -2241,8 +2248,18 @@ function autoSync() {
         if (status) status.innerHTML = '<span style="color:#F59E0B">離線中，待網路恢復自動上傳</span>';
         return;
     }
+    if (_syncInFlight) return;
+    _syncInFlight = true;
     if (status) status.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#F59E0B;margin-right:4px;vertical-align:middle"></span>同步中…';
     _crmMarkPending(); // 上傳前先標記，verifySyncResult 成功才清
+    // 關鍵：上傳前先強制拉雲端合併，避免本機的舊活版覆蓋另一台已經上傳的軟刪/新版
+    // （autoFetchCloud 的 _localDirtyUntil 保護會讓一般定時 fetch 跳過，但上傳前這次要 force）
+    autoFetchCloud(true, function() {
+        _syncInFlight = false;
+        _autoSyncPush(status);
+    });
+}
+function _autoSyncPush(status) {
     var syncData = DB.filter(function(c){ return !c.__perfRecords && !c.__templates && !c.__signingTemplates; }).concat([{__perfRecords: true, records: _perfRecords}]).concat([{__templates: true, items: _templates}]).concat([{__signingTemplates: true, items: _signingTemplates}]);
     var payload = JSON.stringify(syncData);
     // 記下本次預期上傳完成後的雲端筆數（不含 __perf/__templates 標記只含真實客戶）
@@ -2373,9 +2390,8 @@ var _localDirtyUntil = (function(){ try { return parseInt(localStorage.getItem('
 function startAutoCheck() {
     if (_checkTimer) clearInterval(_checkTimer);
     if (Date.now() < _localDirtyUntil) {
-        // 本地有未上傳的變更：先上傳，再拉雲端
+        // 本地有未上傳的變更：autoSync 內部已會先強制拉雲端合併再 push
         setTimeout(autoSync, 2000);
-        setTimeout(autoFetchCloud, 12000);
     } else {
         // 本地沒有未上傳的變更：直接拉雲端取最新資料
         setTimeout(autoFetchCloud, 3000);
@@ -2405,9 +2421,11 @@ document.addEventListener('visibilitychange', function() {
         autoFetchCloud(true);
     }
 });
-function autoFetchCloud(force) {
+function autoFetchCloud(force, onDone) {
+    var _doneCalled = false;
+    function _fireDone() { if (_doneCalled) return; _doneCalled = true; if (typeof onDone === 'function') { try { onDone(); } catch(e){} } }
     // 本機有未上傳的變更時，跳過拉雲端，避免舊資料覆蓋新存的（force=true 強制拉）
-    if (!force && Date.now() < _localDirtyUntil) return;
+    if (!force && Date.now() < _localDirtyUntil) { _fireDone(); return; }
     var cbName = 'checkCb_' + Date.now();
     var script = document.createElement('script');
     window[cbName] = function(data) {
@@ -2591,12 +2609,13 @@ function autoFetchCloud(force) {
                 if (status) status.innerHTML = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#22C55E;margin-right:4px;vertical-align:middle"></span>已同步 ' + new Date().toLocaleTimeString('zh-TW') + '（' + DB.filter(function(c){return !c._system;}).length + '筆）';
             }
         } catch(e) { console.error('雲端同步解析失敗:', e); }
+        _fireDone();
     };
     script.src = CLOUD_URL + '?callback=' + cbName + '&t=' + Date.now();
-    script.onerror = function() { delete window[cbName]; if (script.parentNode) script.parentNode.removeChild(script); };
+    script.onerror = function() { delete window[cbName]; if (script.parentNode) script.parentNode.removeChild(script); _fireDone(); };
     document.body.appendChild(script);
     // 逾時清理：避免 JSONP 掛起導致 callback 閉包永久洩漏
-    setTimeout(function() { if (window[cbName]) { delete window[cbName]; if (script.parentNode) script.parentNode.removeChild(script); } }, 30000);
+    setTimeout(function() { if (window[cbName]) { delete window[cbName]; if (script.parentNode) script.parentNode.removeChild(script); _fireDone(); } }, 30000);
 }
 startAutoCheck();
 window.addEventListener('beforeunload', function() { if(_checkTimer) clearInterval(_checkTimer); if(_syncTimer) clearTimeout(_syncTimer); });
@@ -7285,15 +7304,13 @@ function completeSchedule(clientId, date, time) {
         var found = c.schedules.find(function(s) {
             return !s._deleted && s.date === date && (s.time||'') === (time||'');
         });
-        var memo = found ? found.memo : '';
-        var recurrence = found ? found.recurrence : '';
-        var schedType = found ? found.schedType : '';
-        // 軟刪命中筆
-        c.schedules.forEach(function(s) {
-            if (!s._deleted && s.date === date && (s.time||'') === (time||'')) {
-                s._deleted = true; s.updatedAt = _nowISO();
-            }
-        });
+        if (!found) return;
+        var memo = found.memo || '';
+        var recurrence = found.recurrence || '';
+        var schedType = found.schedType || '';
+        // 只軟刪命中的那一筆（透過 id），不要牽連到同日同時段其他 memo 的行程
+        found._deleted = true;
+        found.updatedAt = _nowISO();
         // 循環行程：自動產生下一筆（僅「每天」循環需等到隔日 00:00 才顯示）
         if (recurrence) {
             var nextDate = calcNextRecurDate(date, recurrence);
@@ -7935,9 +7952,14 @@ function completePersonalSchedule(id) {
                 arr.push(nextObj);
                 showToast('已產生下一筆循環行程：' + isoToROC(nextDate), 'ok');
             }
+        } else {
+            // 非循環行程：加入已完成列表（直接修改 rec，避免 _addDoneSchedule 內另起一次 persist）
+            var rec = _getPSRecord();
+            if (!rec.doneSchedules) rec.doneSchedules = [];
+            rec.doneSchedules.unshift({ id:_newSchedId(), clientId:'', clientName:'個人行程', date:item.date, time:item.time, memo:item.memo, doneAt:new Date().toISOString(), personal:true, updatedAt:_nowISO() });
         }
+        // schedules 已被上面就地修改，_savePS 會把指標寫回並觸發一次同步（含 doneSchedules 新增）
         _savePS(arr);
-        if (!item.recurrence) _addDoneSchedule({ id:_newSchedId(), clientId:'', clientName:'個人行程', date:item.date, time:item.time, memo:item.memo, doneAt:new Date().toISOString(), personal:true, updatedAt:_nowISO() });
         render();
     });
 }
@@ -11114,14 +11136,17 @@ function _cleanupItemArr(arr, keyFn) {
         if (!k) { map['__nokey__' + Math.random()] = s; return; }
         var cur = map[k];
         if (!cur) { map[k] = s; return; }
-        // 先比 _deleted：優先保留未刪（活版），避免把使用者實際存在的行程覆蓋掉
-        var curDel = !!cur._deleted;
-        var newDel = !!s._deleted;
-        if (curDel !== newDel) { if (!newDel) map[k] = s; return; }
-        // 同為活版或同為軟刪版，再比 updatedAt
+        // 一律比 updatedAt，最新者勝（含軟刪版）——和 _mergeItemArr 第二階段策略一致，
+        // 避免完成後的軟刪版被殘留舊活版覆蓋。若雙方都沒 updatedAt，保留未刪版當 fallback。
         var cu = s.updatedAt || '';
         var lu = cur.updatedAt || '';
-        if (!lu || (cu && cu > lu)) map[k] = s;
+        if (cu && lu) {
+            if (cu > lu) map[k] = s;
+        } else if (cu && !lu) {
+            map[k] = s;
+        } else if (!cu && !lu) {
+            if (cur._deleted && !s._deleted) map[k] = s;
+        }
     });
     var result = Object.keys(map).map(function(k){ return map[k]; });
     return { arr: result, removed: arr.length - result.length };
