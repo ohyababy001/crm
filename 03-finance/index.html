@@ -1780,27 +1780,29 @@ function _onCloudSyncFail() {
 // 網路恢復或回到頁面 → 自動補傳待同步資料，並主動拉雲端取最新
 window.addEventListener('online', function() {
     if (_hasPendingSync()) cloudSyncNow();
-    else setTimeout(function(){ cloudRestore(); }, 500);
+    else setTimeout(function(){ cloudRestore({ silent: true }); }, 500);
 });
 document.addEventListener('visibilitychange', function() {
     if (document.visibilityState !== 'visible' || navigator.onLine === false) return;
     if (_hasPendingSync()) cloudSyncNow();
-    else cloudRestore(); // 回前景主動拉一次，避免另一台裝置剛推過的更新看不到
+    else cloudRestore({ silent: true }); // 回前景主動拉一次，但不騷擾狀態列
 });
 function cloudRestore(opts) {
     opts = opts || {};
-    _setCloudStatus('<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#F59E0B;margin-right:4px;vertical-align:middle"></span>讀取雲端…');
+    var silent = !!opts.silent; // silent=true：背景拉，除非實際有變更才顯示狀態
+    if (!silent) _setCloudStatus('<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#F59E0B;margin-right:4px;vertical-align:middle"></span>讀取雲端…');
     return fetch(CLOUD_URL + '?format=json&t=' + Date.now())
         .then(function(r){ return r.json(); })
         .then(function(cloud){
             if (!cloud || (Array.isArray(cloud) && cloud.length === 0)) {
-                _setCloudStatus('<span style="color:rgba(255,255,255,.6)">雲端尚無資料</span>');
+                if (!silent) _setCloudStatus('<span style="color:rgba(255,255,255,.6)">雲端尚無資料</span>');
                 return false;
             }
             var localEdit = (DATA && DATA._lastEditAt) ? new Date(DATA._lastEditAt).getTime() : 0;
             var cloudEdit = (cloud.finTracker && cloud.finTracker._lastEditAt) ? new Date(cloud.finTracker._lastEditAt).getTime() : 0;
-            if (!opts.force && localEdit > cloudEdit) {
-                _setCloudStatus('<span style="color:rgba(255,255,255,.6)">本機較新，未還原</span>');
+            if (!opts.force && localEdit >= cloudEdit) {
+                // 本機 >= 雲端：沒新東西。靜默 return；手動模式才顯示訊息
+                if (!silent) _setCloudStatus('<span style="color:rgba(255,255,255,.6)">本機較新或相同，未還原</span>');
                 return false;
             }
             if (cloud.finTracker) {
@@ -1809,7 +1811,8 @@ function cloudRestore(opts) {
             if (cloud.finTracker_stock) {
                 try { localStorage.setItem('finTracker_stock', JSON.stringify(cloud.finTracker_stock)); } catch(e) {}
             }
-            _setCloudStatus('<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#22C55E;margin-right:4px;vertical-align:middle"></span>已還原雲端資料');
+            // 真的拉到新東西，不管 silent 都要提示使用者
+            _setCloudStatus('<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#22C55E;margin-right:4px;vertical-align:middle"></span>已同步雲端最新資料');
             // 不用 reload，直接重新載入 DATA/stockData 再 render（避免畫面閃爍）
             try { loadData(); } catch(e) { console.error('[cloudRestore loadData]', e); }
             try { loadStockData(); } catch(e) { console.error('[cloudRestore loadStockData]', e); }
@@ -1817,17 +1820,17 @@ function cloudRestore(opts) {
             return true;
         })
         .catch(function(){
-            _setCloudStatus('<span style="color:#EF4444">讀取雲端失敗</span>');
+            if (!silent) _setCloudStatus('<span style="color:#EF4444">讀取雲端失敗</span>');
             return false;
         });
 }
-// 每 30 秒自動拉雲端取最新（頁面在前景且有網路才跑；cloudRestore 內會比 _lastEditAt 避免覆蓋較新的本機）
+// 每 60 秒自動拉雲端取最新（前景+有網+無 pending 才跑；silent 模式除非真的拉到更新才顯示訊息）
 var _cloudPullTimer = setInterval(function() {
     if (document.visibilityState !== 'visible') return;
     if (navigator.onLine === false) return;
     if (_hasPendingSync()) return; // 本機有東西還沒上傳，先別拉免得打架
-    cloudRestore();
-}, 30 * 1000);
+    cloudRestore({ silent: true });
+}, 60 * 1000);
 // 開頁時自動拉雲端（但不強制覆蓋本機較新的資料）
 // 用 sessionStorage 避免「還原 → reload → 又還原」的無窮迴圈
 window.addEventListener('load', function() {
