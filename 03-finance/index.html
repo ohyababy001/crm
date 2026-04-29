@@ -5027,10 +5027,10 @@ function renderStockDividend() {
     html += '<div class="div-add-row">';
     html += '<button class="btn-refresh" style="background:var(--lux-navy)" onclick="addDividend()">＋ 新增股利</button>';
     html += '</div>';
-    // 切換按鈕：本年 / 累積（segmented control 樣式，兩個都明顯是按鈕）
-    html += '<div class="div-mode-tabs" style="display:inline-flex;border:1px solid var(--lux-navy);border-radius:8px;overflow:hidden">';
-    html += '<button onclick="setDivCardMode(\'thisYear\')" style="padding:7px 14px;border:none;background:' + (mode==='thisYear'?'var(--lux-navy)':'white') + ';color:' + (mode==='thisYear'?'white':'var(--lux-navy)') + ';font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;border-right:1px solid var(--lux-navy)">本年</button>';
-    html += '<button onclick="setDivCardMode(\'cumulative\')" style="padding:7px 14px;border:none;background:' + (mode==='cumulative'?'var(--lux-navy)':'white') + ';color:' + (mode==='cumulative'?'white':'var(--lux-navy)') + ';font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">累積</button>';
+    // 切換按鈕：本年 / 累積（與「+ 新增股利」按鈕同高度/字體；segmented control 樣式）
+    html += '<div class="div-mode-tabs" style="display:inline-flex;border:1px solid var(--lux-navy);border-radius:var(--radius-xs);overflow:hidden">';
+    html += '<button onclick="setDivCardMode(\'thisYear\')" style="padding:9px 18px;border:none;background:' + (mode==='thisYear'?'var(--lux-navy)':'white') + ';color:' + (mode==='thisYear'?'white':'var(--lux-navy)') + ';font-size:13px;font-weight:700;letter-spacing:.5px;cursor:pointer;font-family:inherit;border-right:1px solid var(--lux-navy)">本年</button>';
+    html += '<button onclick="setDivCardMode(\'cumulative\')" style="padding:9px 18px;border:none;background:' + (mode==='cumulative'?'var(--lux-navy)':'white') + ';color:' + (mode==='cumulative'?'white':'var(--lux-navy)') + ';font-size:13px;font-weight:700;letter-spacing:.5px;cursor:pointer;font-family:inherit">累積</button>';
     html += '</div>';
     html += '<div class="div-cum-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">';
     stockData.holdings.forEach(function(h) {
