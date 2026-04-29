@@ -4998,28 +4998,46 @@ function toggleDivYear(year) {
     renderStock();
 }
 
+function setDivCardMode(mode) {
+    window._divCardMode = (mode === 'thisYear') ? 'thisYear' : 'cumulative';
+    renderStock();
+}
 function renderStockDividend() {
     var html = '';
 
-    // 累積股利統計方塊（依持股動態產生）
+    // 卡片切換模式：'cumulative'（累積，預設）或 'thisYear'（本年）
+    if (!window._divCardMode) window._divCardMode = 'cumulative';
+    var mode = window._divCardMode;
+    var thisYear = String(new Date().getFullYear());
+
+    // 統計：依持股動態產生；本年模式只計入今年的股利
     var totals = {};
     stockData.holdings.forEach(function(h) { totals[h.id] = { label: h.name || h.id, sum: 0 }; });
     stockData.dividends.forEach(function(d) {
-        if (totals[d.stockId]) {
-            totals[d.stockId].sum += (d.cash || 0);
+        if (!totals[d.stockId]) return;
+        if (mode === 'thisYear') {
+            var dy = d.date ? d.date.substring(0,4) : '';
+            if (dy !== thisYear) return;
         }
+        totals[d.stockId].sum += (d.cash || 0);
     });
+    var cumLabel = mode === 'thisYear' ? ' 本年股利' : ' 累積股利';
 
     html += '<div class="div-summary-wrap" style="margin-bottom:12px">';
     html += '<div class="div-add-row">';
     html += '<button class="btn-refresh" style="background:var(--lux-navy)" onclick="addDividend()">＋ 新增股利</button>';
+    html += '</div>';
+    // 切換按鈕：本年 / 累積
+    html += '<div class="div-mode-tabs" style="display:flex;gap:4px;background:#F5F5F4;border-radius:8px;padding:3px">';
+    html += '<button onclick="setDivCardMode(\'thisYear\')" style="padding:5px 12px;border:none;border-radius:6px;background:' + (mode==='thisYear'?'white':'transparent') + ';color:' + (mode==='thisYear'?'var(--lux-navy)':'var(--muted)') + ';font-size:12px;font-weight:' + (mode==='thisYear'?'700':'500') + ';cursor:pointer;font-family:inherit;box-shadow:' + (mode==='thisYear'?'0 1px 3px rgba(0,0,0,.1)':'none') + '">本年</button>';
+    html += '<button onclick="setDivCardMode(\'cumulative\')" style="padding:5px 12px;border:none;border-radius:6px;background:' + (mode==='cumulative'?'white':'transparent') + ';color:' + (mode==='cumulative'?'var(--lux-navy)':'var(--muted)') + ';font-size:12px;font-weight:' + (mode==='cumulative'?'700':'500') + ';cursor:pointer;font-family:inherit;box-shadow:' + (mode==='cumulative'?'0 1px 3px rgba(0,0,0,.1)':'none') + '">累積</button>';
     html += '</div>';
     html += '<div class="div-cum-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">';
     stockData.holdings.forEach(function(h) {
         var t = totals[h.id];
         if (t.sum <= 0) return;
         html += '<div style="padding:8px 14px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);font-size:13px">';
-        html += '<div style="color:var(--muted);font-size:11px">' + esc(t.label) + '<span class="lbl-cum"> 累積股利</span></div>';
+        html += '<div style="color:var(--muted);font-size:11px">' + esc(t.label) + '<span class="lbl-cum">' + cumLabel + '</span></div>';
         html += '<div style="font-weight:700;color:var(--lux-navy);font-size:15px">$' + fmt(t.sum) + '</div>';
         html += '</div>';
     });
