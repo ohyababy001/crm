@@ -5027,10 +5027,10 @@ function renderStockDividend() {
     html += '<div class="div-add-row">';
     html += '<button class="btn-refresh" style="background:var(--lux-navy)" onclick="addDividend()">＋ 新增股利</button>';
     html += '</div>';
-    // 切換按鈕：本年 / 累積
-    html += '<div class="div-mode-tabs" style="display:flex;gap:4px;background:#F5F5F4;border-radius:8px;padding:3px">';
-    html += '<button onclick="setDivCardMode(\'thisYear\')" style="padding:5px 12px;border:none;border-radius:6px;background:' + (mode==='thisYear'?'white':'transparent') + ';color:' + (mode==='thisYear'?'var(--lux-navy)':'var(--muted)') + ';font-size:12px;font-weight:' + (mode==='thisYear'?'700':'500') + ';cursor:pointer;font-family:inherit;box-shadow:' + (mode==='thisYear'?'0 1px 3px rgba(0,0,0,.1)':'none') + '">本年</button>';
-    html += '<button onclick="setDivCardMode(\'cumulative\')" style="padding:5px 12px;border:none;border-radius:6px;background:' + (mode==='cumulative'?'white':'transparent') + ';color:' + (mode==='cumulative'?'var(--lux-navy)':'var(--muted)') + ';font-size:12px;font-weight:' + (mode==='cumulative'?'700':'500') + ';cursor:pointer;font-family:inherit;box-shadow:' + (mode==='cumulative'?'0 1px 3px rgba(0,0,0,.1)':'none') + '">累積</button>';
+    // 切換按鈕：本年 / 累積（segmented control 樣式，兩個都明顯是按鈕）
+    html += '<div class="div-mode-tabs" style="display:inline-flex;border:1px solid var(--lux-navy);border-radius:8px;overflow:hidden">';
+    html += '<button onclick="setDivCardMode(\'thisYear\')" style="padding:7px 14px;border:none;background:' + (mode==='thisYear'?'var(--lux-navy)':'white') + ';color:' + (mode==='thisYear'?'white':'var(--lux-navy)') + ';font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;border-right:1px solid var(--lux-navy)">本年</button>';
+    html += '<button onclick="setDivCardMode(\'cumulative\')" style="padding:7px 14px;border:none;background:' + (mode==='cumulative'?'var(--lux-navy)':'white') + ';color:' + (mode==='cumulative'?'white':'var(--lux-navy)') + ';font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">累積</button>';
     html += '</div>';
     html += '<div class="div-cum-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">';
     stockData.holdings.forEach(function(h) {
