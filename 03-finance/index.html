@@ -5031,14 +5031,14 @@ function renderStockDividend() {
     html += '</div>';
     // 切換按鈕：本年 / 累積（與「+ 新增股利」按鈕同高度/字體；segmented control 樣式）
     html += '<div class="div-mode-tabs" style="display:inline-flex;border:1px solid var(--lux-navy);border-radius:var(--radius-xs);overflow:hidden">';
-    html += '<button onclick="setDivCardMode(\'thisYear\')" style="padding:9px 18px;border:none;background:' + (mode==='thisYear'?'var(--lux-navy)':'white') + ';color:' + (mode==='thisYear'?'white':'var(--lux-navy)') + ';font-size:13px;font-weight:700;letter-spacing:.5px;cursor:pointer;font-family:inherit;border-right:1px solid var(--lux-navy)">本年</button>';
-    html += '<button onclick="setDivCardMode(\'cumulative\')" style="padding:9px 18px;border:none;background:' + (mode==='cumulative'?'var(--lux-navy)':'white') + ';color:' + (mode==='cumulative'?'white':'var(--lux-navy)') + ';font-size:13px;font-weight:700;letter-spacing:.5px;cursor:pointer;font-family:inherit">累積</button>';
+    html += '<button onclick="setDivCardMode(\'thisYear\')" style="padding:5px 18px;border:none;background:' + (mode==='thisYear'?'var(--lux-navy)':'white') + ';color:' + (mode==='thisYear'?'white':'var(--lux-navy)') + ';font-size:13px;font-weight:700;letter-spacing:.5px;cursor:pointer;font-family:inherit;border-right:1px solid var(--lux-navy)">本年</button>';
+    html += '<button onclick="setDivCardMode(\'cumulative\')" style="padding:5px 18px;border:none;background:' + (mode==='cumulative'?'var(--lux-navy)':'white') + ';color:' + (mode==='cumulative'?'white':'var(--lux-navy)') + ';font-size:13px;font-weight:700;letter-spacing:.5px;cursor:pointer;font-family:inherit">累積</button>';
     html += '</div>';
     html += '<div class="div-cum-row" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">';
     stockData.holdings.forEach(function(h) {
         var t = totals[h.id];
         if (t.sum <= 0) return;
-        html += '<div style="padding:8px 14px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);font-size:13px">';
+        html += '<div style="padding:5px 14px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);font-size:13px">';
         html += '<div style="color:var(--muted);font-size:11px">' + esc(t.label) + '<span class="lbl-cum">' + cumLabel + '</span></div>';
         html += '<div style="font-weight:700;color:var(--lux-navy);font-size:15px">$' + fmt(t.sum) + '</div>';
         html += '</div>';
