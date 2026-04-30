@@ -814,7 +814,7 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
     }
     /* 手機版隱藏文字標籤（cloudStatus 保留，但縮小字體，讓同步訊息看得到） */
     #last-export, #last-edit { display: none; }
-    #cloudStatus { font-size: 10px; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #cloudStatus { font-size: 10px; max-width: 90px; min-width: 0; flex-shrink: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 4px !important; }
     .summary-cards { grid-template-columns: repeat(3, 1fr); }
     .stock-summary { grid-template-columns: repeat(2, 1fr); }
     .s-card .value { font-size: 18px; }
@@ -1807,7 +1807,7 @@ function cloudRestore(opts) {
             var cloudEdit = (cloud.finTracker && cloud.finTracker._lastEditAt) ? new Date(cloud.finTracker._lastEditAt).getTime() : 0;
             if (!opts.force && localEdit >= cloudEdit) {
                 // 本機 >= 雲端：沒新東西。靜默 return；手動模式才顯示訊息
-                if (!silent) _setCloudStatus('<span style="color:rgba(255,255,255,.6)">本機較新或相同，未還原</span>');
+                if (!silent) _setCloudStatus('<span style="color:rgba(255,255,255,.6)">無新資料</span>');
                 return false;
             }
             if (cloud.finTracker) {
