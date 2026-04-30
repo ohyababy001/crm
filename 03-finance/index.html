@@ -6292,7 +6292,20 @@ function _assetModal(title, acc, onOk, onDel) {
             }, { danger: true });
         };
     }
-    setTimeout(function(){ document.getElementById('am-name').focus(); }, 50);
+    // 編輯既有項目（已有 id）時直接 focus 金額欄並全選，方便修改數字；
+    // 新增時還是 focus 名稱欄
+    setTimeout(function(){
+        var isEditing = !!acc.id;
+        var target;
+        if (isEditing) {
+            target = acc.isGold ? document.getElementById('am-gold-tael') : document.getElementById('am-amt');
+        } else {
+            target = document.getElementById('am-name');
+        }
+        if (!target) target = document.getElementById('am-name');
+        target.focus();
+        if (isEditing && target.select) target.select();
+    }, 50);
 }
 
 function addAssetAccount(sectionKey) {

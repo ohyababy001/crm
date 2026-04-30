@@ -1,4 +1,4 @@
-var CACHE_NAME = 'cashflow-v21';
+var CACHE_NAME = 'cashflow-v22';
 var URLS_TO_CACHE = [
   './',
   './index.html',
