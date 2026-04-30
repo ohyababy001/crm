@@ -4061,30 +4061,36 @@ function _applyDividendToPassive(dateStr, cash, delta) {
     return true;
 }
 
-// 將金額加到/減去「收入→<source>」分類（month 1-12，amount 正數，delta=+1 加 / -1 扣）
+// 被動收入來源 → 收入分類的 alias 對應（不在表內就用同名）
+var PASSIVE_TO_INCOME_ALIAS = {
+    '代管': '租賃'
+};
+
+// 將金額加到/減去「收入→<對應分類>」（month 1-12，amount 正數，delta=+1 加 / -1 扣）
 // 用於把被動收入的非股利來源（例如借款）同步到收入。回傳 true=成功 / false=未動。
 function _applyPassiveToIncome(rocYear, source, month, amount, delta) {
     if (!source || source === '股利') return false; // 股利走 _applyDividendToIncome
     if (!amount || amount <= 0) return false;
     if (!month || month < 1 || month > 12) return false;
+    var category = PASSIVE_TO_INCOME_ALIAS[source] || source;
     var cats = DATA.settings.incomeCategories || [];
-    var hasCat = cats.some(function(c){ return (typeof c === 'string' ? c : c.name) === source; });
+    var hasCat = cats.some(function(c){ return (typeof c === 'string' ? c : c.name) === category; });
     if (!hasCat) {
-        DATA.settings.incomeCategories.push(source);
+        DATA.settings.incomeCategories.push(category);
         (DATA.settings.years || []).forEach(function(y){
             if (!DATA.income[y]) DATA.income[y] = {};
-            if (DATA.income[y][source] === undefined) DATA.income[y][source] = _emptyMonths();
+            if (DATA.income[y][category] === undefined) DATA.income[y][category] = _emptyMonths();
         });
     }
     if (!DATA.income[rocYear]) DATA.income[rocYear] = {};
-    DATA.income[rocYear][source] = _ensureMonths(DATA.income[rocYear][source]);
-    var cur = DATA.income[rocYear][source][month] || 0;
+    DATA.income[rocYear][category] = _ensureMonths(DATA.income[rocYear][category]);
+    var cur = DATA.income[rocYear][category][month] || 0;
     var next = cur + delta * amount;
     if (next < 0) {
-        if (typeof toast === 'function') toast('<i class="ti ti-alert-triangle"></i> 收入「' + source + '」已被手動調整，此次未同步反向扣除（避免數字錯亂）', true);
+        if (typeof toast === 'function') toast('<i class="ti ti-alert-triangle"></i> 收入「' + category + '」已被手動調整，此次未同步反向扣除（避免數字錯亂）', true);
         return false;
     }
-    DATA.income[rocYear][source][month] = next;
+    DATA.income[rocYear][category][month] = next;
     return true;
 }
 
