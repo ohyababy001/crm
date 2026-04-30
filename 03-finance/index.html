@@ -4256,15 +4256,24 @@ function checkDividendAlerts() {
         var d = new Date(+parts[0], +parts[1] - 1, +parts[2]);
         return Math.round((d - today) / 86400000);
     }
+    // 把任何日期字串歸一成 YYYY-MM-DD（兼容 2026-4-20 / 2026/4/20 / 2026-04-20T00:00 等格式）
+    function _normDate(s) {
+        s = String(s || '').replace(/[\/.]/g, '-').slice(0, 10);
+        var m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+        if (!m) return '';
+        return m[1] + '-' + (+m[2] < 10 ? '0' + +m[2] : m[2]) + '-' + (+m[3] < 10 ? '0' + +m[3] : m[3]);
+    }
     function pushAlert(h, exDate, cash, stockDiv, payDate) {
-        var exDateNorm = String(exDate || '').slice(0, 10);
+        var exDateNorm = _normDate(exDate);
         if (!exDateNorm) return;
-        var key = h.id + '|' + exDateNorm;
+        // 去重 key：id 歸一（trim+大寫）+ 日期歸一，避免不同來源/格式造成的重複
+        var idKey = String(h.id || '').trim().toUpperCase();
+        var key = idKey + '|' + exDateNorm;
         if (seen[key]) return;
         var exDiff = _diffDays(exDateNorm);
         if (exDiff === null) return;
-        var payDateNorm = String(payDate || '').slice(0, 10);
-        var payDiff = _diffDays(payDateNorm);
+        var payDateNorm = _normDate(payDate);
+        var payDiff = payDateNorm ? _diffDays(payDateNorm) : null;
         // 顯示規則：除息日/配息日任一在未來 before 天內 → 顯示；兩者皆已過才消失
         var maxDiff = Math.max(exDiff, payDiff === null ? exDiff : payDiff);
         if (maxDiff < 0 || maxDiff > range.before) return;
