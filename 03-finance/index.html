@@ -317,6 +317,7 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
 .trend-range-btn { padding: 6px 12px; font-size: 13px; }
 .trend-range-btn .lbl-short { display: none; }
 .stock-sub-tab .lbl-short, .btn-refresh .lbl-short, .last-update .lbl-short, .stock-summary-bar .lbl-short { display: none; }
+.header-btns .lbl-short { display: none; }
 /* 桌面版：台股子分頁與工具列按鈕同寬 */
 .stock-sub-tab, .stock-refresh-bar .btn-refresh { min-width: 110px; text-align: center; }
 /* 桌面版：股利頁「+ 新增股利」與累積股利卡片同一排 */
@@ -881,6 +882,8 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
     /* 台股子分頁與工具列按鈕簡化文字 */
     .stock-sub-tab .lbl-full, .btn-refresh .lbl-full { display: none; }
     .stock-sub-tab .lbl-short, .btn-refresh .lbl-short { display: inline; }
+    .header-btns .lbl-full { display: none; }
+    .header-btns .lbl-short { display: inline; }
     /* 手機版台股子分頁與工具列按鈕字級 */
     .stock-sub-tab, .btn-refresh { font-size: 15px; }
     /* 手機版月記錄年度卡片字級 */
@@ -1486,8 +1489,8 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
     <div class="header-btns">
         <span id="last-edit" style="color:rgba(255,255,255,.85);font-size:12px;margin-right:8px"></span>
         <span id="cloudStatus" style="color:rgba(255,255,255,.85);font-size:12px;margin-right:8px"></span>
-        <button onclick="cloudSyncNow()" title="立即上傳到雲端">雲端上傳</button>
-        <button onclick="cloudRestore({force:true})" title="從雲端下載資料覆蓋本機">雲端下載</button>
+        <button onclick="cloudSyncNow()" title="立即上傳到雲端"><span class="lbl-full">雲端上傳</span><span class="lbl-short">上傳</span></button>
+        <button onclick="cloudRestore({force:true})" title="從雲端下載資料覆蓋本機"><span class="lbl-full">雲端下載</span><span class="lbl-short">下載</span></button>
         <div style="position:relative;display:inline-block">
             <button onclick="toggleSettingsMenu(event)" title="進階設定" style="padding-left:10px;padding-right:10px"><i class="ti ti-settings" style="font-size:16px"></i></button>
             <div id="settingsMenu" style="display:none;position:absolute;top:calc(100% + 4px);right:0;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.15);min-width:200px;z-index:200;overflow:hidden">
