@@ -11775,8 +11775,11 @@ function addMktFromModal() {
         '<div style="flex:1;overflow-y:auto">';
     stockClients.forEach(function(c) {
         var name = c.sName || c.name || '';
-        var comm = (c.sProperties && c.sProperties.length) ? (c.sProperties[0].community || c.sProperties[0].addr || '') : (c.community || '');
-        listHtml += '<button type="button" onclick="selectMktClient(\''+esc(c.id)+'\');closeOverlay(this.closest(\'.fill-overlay\'))" style="display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:4px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">'+esc(name)+(comm?' — '+esc(comm):'')+'</button>';
+        var props = (c.sProperties && c.sProperties.length) ? c.sProperties : [{ community: c.community || '', addr: c.sAddr || '' }];
+        props.forEach(function(sp) {
+            var comm = sp.community || sp.addr || '';
+            listHtml += '<button type="button" onclick="selectMktClient(\''+esc(c.id)+'\');closeOverlay(this.closest(\'.fill-overlay\'))" style="display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:4px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-size:14px">'+esc(name)+(comm?' — '+esc(comm):'')+'</button>';
+        });
     });
     listHtml += '</div>';
     box.innerHTML = listHtml;
