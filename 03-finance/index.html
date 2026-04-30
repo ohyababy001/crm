@@ -5127,11 +5127,14 @@ function addPledge() {
         '<input type="number" id="pledge-rate" placeholder="例如 2.5" step="0.01">' +
         '<label style="font-size:12px;color:var(--muted)">質押日期</label>' +
         '<input type="text" id="pledge-date" placeholder="YYYY-MM-DD">' +
+        '<label style="font-size:12px;color:var(--muted)">到期日（可留空，預設質押日 +6 個月）</label>' +
+        '<input type="text" id="pledge-due-date" placeholder="YYYY-MM-DD（留空自動算）">' +
         '<div class="modal-btns"><button onclick="this.closest(\'.overlay\').remove()">取消</button>' +
         '<button class="btn-primary" id="pledge-save">確定</button></div></div>';
     document.body.appendChild(ov);
-    document.getElementById('pledge-date').value = new Date().toISOString().slice(0,10);
+    document.getElementById('pledge-date').value = _localDateStr(new Date());
     bindDateInput(document.getElementById('pledge-date'));
+    bindDateInput(document.getElementById('pledge-due-date'));
     var brokerSel = document.getElementById('pledge-broker');
     var brokerCustom = document.getElementById('pledge-broker-custom');
     brokerSel.onchange = function() {
@@ -5144,13 +5147,15 @@ function addPledge() {
         var amount = parseInt(document.getElementById('pledge-amount').value) || 0;
         var rate = parseFloat(document.getElementById('pledge-rate').value) || 0;
         var date = document.getElementById('pledge-date').value;
+        var dueDate = document.getElementById('pledge-due-date').value.trim();
         var broker = brokerSel.value === '__custom__' ? brokerCustom.value.trim() : brokerSel.value;
         if (!stockId) { toast('請選擇標的', true); return; }
         if (!broker) { toast('請選擇或輸入券商', true); return; }
         if (shares <= 0) { toast('請輸入質押股數', true); return; }
         if (amount < 0) { toast('借款金額不可為負', true); return; }
+        if (dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) { toast('到期日格式錯誤（YYYY-MM-DD）', true); return; }
         var holding = stockData.holdings.find(function(h){ return h.id === stockId; });
-        stockData.pledges.push({
+        var rec = {
             stockId: stockId,
             stockName: holding ? holding.name : stockId,
             broker: broker,
@@ -5158,7 +5163,9 @@ function addPledge() {
             amount: amount,
             rate: rate,
             date: date
-        });
+        };
+        if (dueDate) rec.dueDate = dueDate;
+        stockData.pledges.push(rec);
         saveStockData();
         ov.remove();
         renderStock();
@@ -5193,10 +5200,13 @@ function editPledge(idx) {
         '<input type="number" id="edit-pledge-rate" value="' + p.rate + '" step="0.01">' +
         '<label style="font-size:12px;color:var(--muted)">質押日期</label>' +
         '<input type="text" id="edit-pledge-date" placeholder="YYYY-MM-DD" value="' + (p.date||'') + '">' +
+        '<label style="font-size:12px;color:var(--muted)">到期日（可留空，預設質押日 +6 個月）</label>' +
+        '<input type="text" id="edit-pledge-due-date" placeholder="YYYY-MM-DD（留空自動算）" value="' + (p.dueDate||'') + '">' +
         '<div class="modal-btns"><button onclick="this.closest(\'.overlay\').remove()">取消</button>' +
         '<button class="btn-primary" id="edit-pledge-save">儲存</button></div></div>';
     document.body.appendChild(ov);
     bindDateInput(document.getElementById('edit-pledge-date'));
+    bindDateInput(document.getElementById('edit-pledge-due-date'));
     var brokerSel = document.getElementById('edit-pledge-broker');
     var brokerCustom = document.getElementById('edit-pledge-broker-custom');
     brokerSel.onchange = function() {
@@ -5212,6 +5222,13 @@ function editPledge(idx) {
         var newRate = parseFloat(document.getElementById('edit-pledge-rate').value);
         if (!isNaN(newRate) && newRate >= 0) p.rate = newRate;
         p.date = document.getElementById('edit-pledge-date').value || p.date;
+        var newDue = document.getElementById('edit-pledge-due-date').value.trim();
+        if (newDue) {
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(newDue)) { toast('到期日格式錯誤（YYYY-MM-DD）', true); return; }
+            p.dueDate = newDue;
+        } else {
+            delete p.dueDate; // 留空 = 改回自動算
+        }
         saveStockData();
         ov.remove();
         renderStock();
@@ -5225,24 +5242,31 @@ function renewPledge(idx) {
     if (!p) return;
     var ov = document.createElement('div');
     ov.className = 'overlay';
-    var today = new Date().toISOString().slice(0,10);
+    var today = _localDateStr(new Date());
     ov.innerHTML = '<div class="modal"><h3><i class="ti ti-refresh"></i> 展延 - ' + esc(p.stockName) + '</h3>' +
         '<p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">本金與股數不變，只更新利率與起算日。<br>原利率：' + p.rate.toFixed(2) + '%、原質押日：' + esc(p.date || '-') + '</p>' +
         '<label style="font-size:12px;color:var(--muted)">新年利率（%）</label>' +
         '<input type="number" id="renew-rate" step="0.01" value="' + p.rate + '">' +
         '<label style="font-size:12px;color:var(--muted)">展延起日</label>' +
         '<input type="text" id="renew-date" placeholder="YYYY-MM-DD" value="' + today + '">' +
+        '<label style="font-size:12px;color:var(--muted)">到期日（可留空，預設展延起日 +6 個月）</label>' +
+        '<input type="text" id="renew-due-date" placeholder="YYYY-MM-DD（留空自動算）">' +
         '<div class="modal-btns"><button onclick="this.closest(\'.overlay\').remove()">取消</button>' +
         '<button class="btn-primary" id="renew-save">確定展延</button></div></div>';
     document.body.appendChild(ov);
     bindDateInput(document.getElementById('renew-date'));
+    bindDateInput(document.getElementById('renew-due-date'));
     document.getElementById('renew-save').onclick = function() {
         var rate = parseFloat(document.getElementById('renew-rate').value);
         var date = document.getElementById('renew-date').value.trim();
+        var newDue = document.getElementById('renew-due-date').value.trim();
         if (isNaN(rate) || rate < 0) { toast('請輸入有效利率', true); return; }
         if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { toast('日期格式錯誤（YYYY-MM-DD）', true); return; }
+        if (newDue && !/^\d{4}-\d{2}-\d{2}$/.test(newDue)) { toast('到期日格式錯誤（YYYY-MM-DD）', true); return; }
         p.rate = rate;
         p.date = date;
+        if (newDue) p.dueDate = newDue;
+        else delete p.dueDate; // 留空 = 重新自動算
         saveStockData();
         ov.remove();
         renderStock();
@@ -5273,8 +5297,20 @@ function bindDateInput(el) {
     });
 }
 
-// 計算質押到期日（半年整 = +6 個月，月底 clamp 避免 8/31→3/1 溢出問題）
-function calcPledgeDue(dateStr) {
+// 計算質押到期日：優先用使用者指定的 dueDate；否則 fallback 為質押日 +6 個月
+// 接受兩種呼叫：calcPledgeDue(pledgeObj) 或 calcPledgeDue(dateStr)（舊用法）
+function calcPledgeDue(pOrDateStr) {
+    var dateStr;
+    if (pOrDateStr && typeof pOrDateStr === 'object') {
+        // 物件：優先用 dueDate
+        if (pOrDateStr.dueDate) {
+            var dp = String(pOrDateStr.dueDate).slice(0,10).split('-');
+            if (dp.length === 3) return new Date(+dp[0], +dp[1]-1, +dp[2]);
+        }
+        dateStr = pOrDateStr.date;
+    } else {
+        dateStr = pOrDateStr;
+    }
     var p = String(dateStr||'').slice(0,10).split('-');
     if (p.length !== 3) return new Date(dateStr);
     var y = +p[0], m = +p[1]-1, day = +p[2];
@@ -5365,7 +5401,7 @@ function renderStockPledge() {
     stockData.pledges.forEach(function(p) {
         if (!p.date) return;
         if (!p.amount || p.amount <= 0) return;  // 無借款不提醒到期
-        var due = calcPledgeDue(p.date);
+        var due = calcPledgeDue(p);
         var daysLeft = Math.ceil((due - today) / 86400000);
         if (daysLeft <= 30) {
             dueAlerts.push({ p: p, dueStr: _localDateStr(due), daysLeft: daysLeft });
@@ -5400,7 +5436,7 @@ function renderStockPledge() {
         var ratioColor = noDebt ? 'var(--green)' : (ratio !== null ? (ratio >= 130 ? 'var(--green)' : 'var(--red)') : '');
         var dueStr = '-', dueColor = '', dueDaysLabel = '';
         if (p.date) {
-            var due = calcPledgeDue(p.date);
+            var due = calcPledgeDue(p);
             dueStr = _localDateStr(due);
             var daysLeft = Math.ceil((due - today) / 86400000);
             if (daysLeft <= 30) {
