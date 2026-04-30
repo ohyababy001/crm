@@ -2888,65 +2888,36 @@ function _findDueRecurringEntries() {
     return pending;
 }
 
-// 開網頁時執行：掃描 + 提示補記
+// 開網頁時執行：掃描定期規則，靜默自動補記（不再跳對話框問）
 function runRecurringAutoPost() {
     if (!DATA.recurring || DATA.recurring.length === 0) return;
     var pending = _findDueRecurringEntries();
     if (pending.length === 0) return;
-    // 分組顯示（按 rule.id）
-    var byRule = {};
-    pending.forEach(function(p) {
-        if (!byRule[p.rule.id]) byRule[p.rule.id] = { rule: p.rule, items: [] };
-        byRule[p.rule.id].items.push(p);
-    });
-    var msg = '偵測到定期收入待補記：\n\n';
     var totalAmount = 0;
-    Object.keys(byRule).forEach(function(rid) {
-        var g = byRule[rid];
-        var sum = g.items.reduce(function(s,i){ return s+i.amount; }, 0);
-        totalAmount += sum;
-        var months = g.items.map(function(i){ return i.rocYear+'/'+i.month; }).join('、');
-        msg += '• ' + (g.rule.label || g.rule.source) + '（' + g.rule.source + '）\n';
-        msg += '  ' + months + '\n';
-        msg += '  共 ' + g.items.length + ' 筆，' + sum.toLocaleString() + ' 元\n\n';
-    });
-    msg += '總計 ' + pending.length + ' 筆，' + totalAmount.toLocaleString() + ' 元\n\n';
-    msg += '<i class="ti ti-alert-triangle"></i> 補記會【累加】到被動收入目前的數字上，不會覆蓋\n\n';
-    msg += '按【補記全部】將全部加進被動收入\n按【跳過這批】以後不再提示這幾個月份';
-    showConfirm2(msg, function onYes() {
-        // 補記到對應 tab
-        pending.forEach(function(p) {
-            var tab = p.rule.tab || 'passive';
-            if (tab === 'passive') {
-                _ensurePassiveSlot(p.rocYear, p.rule.source);
-                DATA.passive[p.rocYear][p.rule.source][p.month] =
-                    (DATA.passive[p.rocYear][p.rule.source][p.month] || 0) + p.amount;
-                // 非股利的被動來源（例如借款）同步到「收入」分類
-                if (p.rule.source !== '股利') {
-                    var ok = _applyPassiveToIncome(p.rocYear, p.rule.source, p.month, p.amount, +1);
-                    if (ok) p.rule._syncedToIncome = true; // 給「跳過/取消」分支判斷用（雖然這分支不會走到取消）
-                }
-            } else if (tab === 'income' || tab === 'expense') {
-                var section = tab; // 'income' | 'expense'
-                if (!DATA[section][p.rocYear]) DATA[section][p.rocYear] = {};
-                DATA[section][p.rocYear][p.rule.source] = _ensureMonths(DATA[section][p.rocYear][p.rule.source]);
-                DATA[section][p.rocYear][p.rule.source][p.month] =
-                    (DATA[section][p.rocYear][p.rule.source][p.month] || 0) + p.amount;
+    pending.forEach(function(p) {
+        var tab = p.rule.tab || 'passive';
+        if (tab === 'passive') {
+            _ensurePassiveSlot(p.rocYear, p.rule.source);
+            DATA.passive[p.rocYear][p.rule.source][p.month] =
+                (DATA.passive[p.rocYear][p.rule.source][p.month] || 0) + p.amount;
+            // 非股利的被動來源（例如借款）同步到「收入」分類
+            if (p.rule.source !== '股利') {
+                _applyPassiveToIncome(p.rocYear, p.rule.source, p.month, p.amount, +1);
             }
-            if (!p.rule.processedMonths) p.rule.processedMonths = [];
-            p.rule.processedMonths.push(_monthKey(p.rocYear, p.month));
-        });
-        saveData();
-        render();
-        toast('已補記 ' + pending.length + ' 筆定期項目');
-    }, function onNo() {
-        // 跳過這批：記在 skippedMonths，下次不再問
-        pending.forEach(function(p) {
-            if (!p.rule.skippedMonths) p.rule.skippedMonths = [];
-            p.rule.skippedMonths.push(_monthKey(p.rocYear, p.month));
-        });
-        saveData();
-    }, { title: '<i class="ti ti-repeat"></i> 定期收入補記', okText: '補記全部', cancelText: '跳過這批' });
+        } else if (tab === 'income' || tab === 'expense') {
+            var section = tab; // 'income' | 'expense'
+            if (!DATA[section][p.rocYear]) DATA[section][p.rocYear] = {};
+            DATA[section][p.rocYear][p.rule.source] = _ensureMonths(DATA[section][p.rocYear][p.rule.source]);
+            DATA[section][p.rocYear][p.rule.source][p.month] =
+                (DATA[section][p.rocYear][p.rule.source][p.month] || 0) + p.amount;
+        }
+        if (!p.rule.processedMonths) p.rule.processedMonths = [];
+        p.rule.processedMonths.push(_monthKey(p.rocYear, p.month));
+        totalAmount += p.amount;
+    });
+    saveData();
+    render();
+    toast('已自動補記 ' + pending.length + ' 筆定期項目，共 ' + totalAmount.toLocaleString() + ' 元');
 }
 
 // ── 管理介面 modal ──
