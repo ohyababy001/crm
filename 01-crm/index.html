@@ -7325,9 +7325,11 @@ function completeSchedule(clientId, date, time) {
         if (!recurrence) {
             if (!c.history) c.history = [];
             c.history.push({ type:'schedule_done', time:new Date().toISOString(), detail:'【已完成行程】' + isoToROC(date) + (time ? ' ' + time : '') + (memo ? ' ' + memo : '') });
+            // _addDoneSchedule 會自己 persistAndSyncNow，不需在外層重推
             _addDoneSchedule({ id:_newSchedId(), clientId:clientId, clientName:c.name, date:date, time:time, memo:memo, doneAt:new Date().toISOString(), updatedAt:_nowISO() });
+        } else {
+            persistAndSyncNow();
         }
-        persistAndSyncNow();
         render();
     });
 }
@@ -7467,7 +7469,7 @@ function _addDoneSchedule(item) {
     var rec = _getPSRecord();
     if (!rec.doneSchedules) rec.doneSchedules = [];
     rec.doneSchedules.unshift(item);
-    persist();
+    persistAndSyncNow();
 }
 
 // ── 待辦事項 ──
@@ -7992,7 +7994,7 @@ function deleteDoneSchedule(idx) {
         var d = live[idx];
         if (!d) return;
         d._deleted = true; d.updatedAt = _nowISO();
-        persist();
+        persistAndSyncNow();
         filterDoneList();
     });
 }
