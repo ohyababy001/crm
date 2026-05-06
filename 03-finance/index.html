@@ -5565,7 +5565,7 @@ function drawStockAnalysisCharts() {
             var p = stockData.prices[h.id];
             var price = p ? p.price : null;
             var market = price ? h.shares * price : h.shares * h.cost;
-            return { id: h.id, name: h.name || h.id, market: Math.round(market) };
+            return { id: h.id, name: h.name || h.id, market: Math.round(market), assetType: getHoldingAssetType(h) };
         }).filter(function(r){ return r.market > 0; });
         holdingRows.sort(function(a, b){ return b.market - a.market; });
         // 只顯示前 3 大，其餘合併為「其他」
@@ -5579,11 +5579,16 @@ function drawStockAnalysisCharts() {
             hLabels.push('其他（' + restRows.length + ' 檔）');
             hData.push(restSum);
         }
-        // 高對比配色：相鄰色差大，避免相似色
-        var hPalette = [
-            '#1a3a5c', '#dc2626', '#16a34a', '#c8a45a',
-            '#7c3aed', '#0891b2', '#ea580c', '#db2777'
-        ];
+        // 配色規則：債券一律金、其他類別一律灰、股票輪用高對比色
+        var BOND_COLOR = '#c8a45a';
+        var REST_COLOR = '#8C8578';
+        var stockPalette = ['#1a3a5c', '#dc2626', '#16a34a', '#7c3aed', '#0891b2', '#ea580c', '#db2777'];
+        var stockColorIdx = 0;
+        var hPalette = topRows.map(function(r){
+            if (r.assetType === 'bond') return BOND_COLOR;
+            return stockPalette[(stockColorIdx++) % stockPalette.length];
+        });
+        if (restRows.length > 0) hPalette.push(REST_COLOR);
         _stockHoldingChart = new Chart(holdingCanvas.getContext('2d'), {
             type: 'doughnut',
             data: {
