@@ -4291,9 +4291,12 @@ function checkDividendAlerts() {
         if (exDiff === null) return;
         var payDateNorm = _normDate(payDate);
         var payDiff = payDateNorm ? _diffDays(payDateNorm) : null;
-        // 顯示規則：除息日/配息日任一在未來 before 天內 → 顯示；兩者皆已過才消失
-        var maxDiff = Math.max(exDiff, payDiff === null ? exDiff : payDiff);
-        if (maxDiff < 0 || maxDiff > range.before) return;
+        // 顯示規則：除息日/配息日任一在未來 before 天內，且尚未全部過完 → 顯示
+        var inRangeEx = (exDiff >= 0 && exDiff <= range.before);
+        var inRangePay = (payDiff !== null && payDiff >= 0 && payDiff <= range.before);
+        var bothPast = (exDiff < 0 && (payDiff === null || payDiff < 0));
+        if (bothPast) return;
+        if (!inRangeEx && !inRangePay) return;
         seen[key] = true;
         _dividendAlerts.push({
             stockId: h.id, stockName: h.name,
