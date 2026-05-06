@@ -5401,8 +5401,7 @@ function renderStockAnalysis() {
     html += '</div>';
     html += '<div style="background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)">';
     html += '<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px">持股佔比</div>';
-    html += '<div style="position:relative;height:200px"><canvas id="chart-holding"></canvas></div>';
-    html += '<div id="chart-holding-legend" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;font-size:12px"></div>';
+    html += '<div style="position:relative;height:240px"><canvas id="chart-holding"></canvas></div>';
     html += '</div>';
     html += '</div>';
 
@@ -5455,7 +5454,7 @@ function drawStockAnalysisCharts() {
         regionSum[rg] += market;
     });
 
-    // 在每塊扇形上畫百分比
+    // 大塊在扇形上、小塊用引線拉到環圈外
     var pctLabelPlugin = {
         id: 'pctLabel',
         afterDatasetsDraw: function(chart) {
@@ -5465,18 +5464,47 @@ function drawStockAnalysisCharts() {
             if (total <= 0) return;
             var meta = chart.getDatasetMeta(0);
             ctx.save();
-            ctx.fillStyle = '#fff';
-            ctx.font = '600 13px "Noto Sans TC", sans-serif';
-            ctx.textAlign = 'center';
+            ctx.font = '600 12px "Noto Sans TC", sans-serif';
             ctx.textBaseline = 'middle';
-            ctx.shadowColor = 'rgba(0,0,0,.35)';
-            ctx.shadowBlur = 2;
+
             meta.data.forEach(function(arc, i) {
                 var v = ds.data[i];
                 var pct = (v / total) * 100;
-                if (pct < 4) return; // 太小的扇形不畫，避免重疊
-                var pos = arc.tooltipPosition();
-                ctx.fillText(pct.toFixed(1) + '%', pos.x, pos.y);
+                if (pct <= 0) return;
+                var label = pct.toFixed(1) + '%';
+
+                if (pct >= 8) {
+                    // 大塊：白字寫在扇形中段
+                    var pos = arc.tooltipPosition();
+                    ctx.fillStyle = '#fff';
+                    ctx.textAlign = 'center';
+                    ctx.shadowColor = 'rgba(0,0,0,.35)';
+                    ctx.shadowBlur = 2;
+                    ctx.fillText(label, pos.x, pos.y);
+                    ctx.shadowBlur = 0;
+                } else {
+                    // 小塊：引線拉到外面
+                    var cx = arc.x, cy = arc.y;
+                    var ang = (arc.startAngle + arc.endAngle) / 2;
+                    var outer = arc.outerRadius;
+                    var x1 = cx + Math.cos(ang) * outer;
+                    var y1 = cy + Math.sin(ang) * outer;
+                    var x2 = cx + Math.cos(ang) * (outer + 10);
+                    var y2 = cy + Math.sin(ang) * (outer + 10);
+                    var isRight = Math.cos(ang) >= 0;
+                    var x3 = x2 + (isRight ? 14 : -14);
+                    ctx.strokeStyle = arc.options.backgroundColor || '#666';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+                    ctx.lineTo(x3, y2);
+                    ctx.stroke();
+                    ctx.fillStyle = 'var(--text)';
+                    ctx.fillStyle = '#1C1917';
+                    ctx.textAlign = isRight ? 'left' : 'right';
+                    ctx.fillText(label, x3 + (isRight ? 2 : -2), y2);
+                }
             });
             ctx.restore();
         }
@@ -5501,8 +5529,9 @@ function drawStockAnalysisCharts() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                layout: { padding: { top: 16, bottom: 16, left: 24, right: 24 } },
                 plugins: {
-                    legend: { position: 'bottom', labels: { font: { family: 'Noto Sans TC' } } },
+                    legend: { position: 'bottom', align: 'center', labels: { font: { family: 'Noto Sans TC' } } },
                     tooltip: {
                         callbacks: {
                             label: function(ctx) {
@@ -5541,8 +5570,9 @@ function drawStockAnalysisCharts() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                layout: { padding: { top: 16, bottom: 16, left: 24, right: 24 } },
                 plugins: {
-                    legend: { position: 'bottom', labels: { font: { family: 'Noto Sans TC' } } },
+                    legend: { position: 'bottom', align: 'center', labels: { font: { family: 'Noto Sans TC' } } },
                     tooltip: {
                         callbacks: {
                             label: function(ctx) {
@@ -5604,8 +5634,9 @@ function drawStockAnalysisCharts() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                layout: { padding: { top: 16, bottom: 16, left: 24, right: 24 } },
                 plugins: {
-                    legend: { display: false },
+                    legend: { position: 'bottom', align: 'center', labels: { font: { family: 'Noto Sans TC' }, boxWidth: 12, padding: 8 } },
                     tooltip: {
                         callbacks: {
                             label: function(ctx) {
@@ -5618,17 +5649,6 @@ function drawStockAnalysisCharts() {
                 }
             }
         });
-        // 自訂垂直圖例（每行一個項目）
-        var legendBox = document.getElementById('chart-holding-legend');
-        if (legendBox) {
-            legendBox.innerHTML = hLabels.map(function(lbl, i) {
-                var color = hPalette[i % hPalette.length];
-                return '<div style="display:flex;align-items:center;gap:8px">' +
-                    '<span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:' + color + ';flex:none"></span>' +
-                    '<span style="color:var(--text)">' + esc(lbl) + '</span>' +
-                    '</div>';
-            }).join('');
-        }
     }
 }
 
