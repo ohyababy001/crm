@@ -4406,6 +4406,36 @@ function renderDividendAlerts() {
         '</div>';
 }
 
+// 計算過去 12 個月（從今天往前）的每股現金股利加總，用來估年化殖利率
+function _trailing12mCashPerShare(stockId) {
+    var now = new Date();
+    var oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+    var seen = {}, sum = 0;
+    function add(dateStr, cash) {
+        if (!cash || cash <= 0) return;
+        var d = new Date(dateStr);
+        if (isNaN(d.getTime())) return;
+        if (d < oneYearAgo || d > now) return;
+        var key = stockId + '|' + dateStr;
+        if (seen[key]) return;
+        seen[key] = true;
+        sum += cash;
+    }
+    // 已發放紀錄
+    if (stockData.dividends) {
+        stockData.dividends.forEach(function(d) {
+            if (d.stockId !== stockId) return;
+            add(d.date || d.exDate, d.cash);
+        });
+    }
+    // 已預告但未發放的（以除息日為基準也納入）
+    _dividendAlerts.forEach(function(a) {
+        if (a.stockId !== stockId) return;
+        add(a.exDate, a.cash);
+    });
+    return sum;
+}
+
 function showDividendAlertModal() {
     if (_dividendAlerts.length === 0) return;
     var ov = document.createElement('div');
@@ -4426,16 +4456,37 @@ function showDividendAlertModal() {
         if (a.cash > 0) amount.push('現金 $' + a.cash.toFixed(3));
         if (a.stockDiv > 0) amount.push('股票 ' + a.stockDiv.toFixed(4) + ' 股');
         var amountText = amount.length ? amount.join('　') : '—';
+
+        // 預估配息金額（以目前持股股數計算）
+        var holding = (stockData.holdings || []).find(function(h){ return h.id === a.stockId; });
+        var shares = holding ? holding.shares : 0;
+        var estCash = shares * (a.cash || 0);
+        var estStockShares = shares * (a.stockDiv || 0);
+        var estParts = [];
+        if (estCash > 0) estParts.push('現金 $' + fmt(Math.round(estCash)));
+        if (estStockShares > 0) estParts.push('股票 ' + estStockShares.toFixed(2) + ' 股');
+        var estText = estParts.length ? estParts.join('　') : '—';
+
+        // 年化殖利率（過去 12 個月每股現金股利 / 現價）
+        var price = stockData.prices[a.stockId] ? stockData.prices[a.stockId].price : null;
+        var annualCps = _trailing12mCashPerShare(a.stockId);
+        var yieldText = '—';
+        if (price && annualCps > 0) {
+            yieldText = (annualCps / price * 100).toFixed(2) + '%';
+        }
+
         html += '<div style="padding:10px 0;border-bottom:1px solid var(--border);">';
         html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;font-size:13px;">';
         html += '<div><div style="color:var(--text-light);font-size:11px;">代號</div><b>' + esc(a.stockId) + '</b> ' + esc(a.stockName) + '</div>';
-        html += '<div><div style="color:var(--text-light);font-size:11px;">配多少</div>' + esc(amountText) + '</div>';
+        html += '<div><div style="color:var(--text-light);font-size:11px;">配多少 / 股</div>' + esc(amountText) + '</div>';
         html += '<div><div style="color:var(--text-light);font-size:11px;">除息日</div><span style="font-weight:700;color:#B45309;">' + esc(a.exDate) + '</span>　<span style="color:var(--text-light);font-size:12px;">' + exLabel + '</span></div>';
         if (a.payDate) {
             html += '<div><div style="color:var(--text-light);font-size:11px;">配息日</div><span style="font-weight:700;color:#B45309;">' + esc(a.payDate) + '</span>　<span style="color:var(--text-light);font-size:12px;">' + payLabel + '</span></div>';
         } else {
             html += '<div><div style="color:var(--text-light);font-size:11px;">配息日</div>—</div>';
         }
+        html += '<div><div style="color:var(--text-light);font-size:11px;">預估配息（持有 ' + fmt(shares) + ' 股）</div><b style="color:var(--lux-navy)">' + esc(estText) + '</b></div>';
+        html += '<div><div style="color:var(--text-light);font-size:11px;">殖利率（年化）</div><b style="color:var(--lux-navy)">' + esc(yieldText) + '</b></div>';
         html += '</div></div>';
     });
     html += '</div>';
