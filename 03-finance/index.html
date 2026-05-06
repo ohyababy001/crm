@@ -5401,7 +5401,8 @@ function renderStockAnalysis() {
     html += '</div>';
     html += '<div style="background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)">';
     html += '<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px">持股佔比</div>';
-    html += '<div style="position:relative;height:240px"><canvas id="chart-holding"></canvas></div>';
+    html += '<div style="position:relative;height:200px"><canvas id="chart-holding"></canvas></div>';
+    html += '<div id="chart-holding-legend" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;font-size:12px"></div>';
     html += '</div>';
     html += '</div>';
 
@@ -5599,7 +5600,7 @@ function drawStockAnalysisCharts() {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { position: 'bottom', labels: { font: { family: 'Noto Sans TC' }, boxWidth: 12, padding: 8 } },
+                    legend: { display: false },
                     tooltip: {
                         callbacks: {
                             label: function(ctx) {
@@ -5612,6 +5613,17 @@ function drawStockAnalysisCharts() {
                 }
             }
         });
+        // 自訂垂直圖例（每行一個項目）
+        var legendBox = document.getElementById('chart-holding-legend');
+        if (legendBox) {
+            legendBox.innerHTML = hLabels.map(function(lbl, i) {
+                var color = hPalette[i % hPalette.length];
+                return '<div style="display:flex;align-items:center;gap:8px">' +
+                    '<span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:' + color + ';flex:none"></span>' +
+                    '<span style="color:var(--text)">' + esc(lbl) + '</span>' +
+                    '</div>';
+            }).join('');
+        }
     }
 }
 
