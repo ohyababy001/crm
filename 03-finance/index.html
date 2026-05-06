@@ -5405,8 +5405,8 @@ function renderStockAnalysis() {
     html += '<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px">分類編輯 <span style="font-size:11px;color:var(--muted);font-weight:400">（直接點選下拉即儲存）</span></div>';
     html += '<div class="table-wrap"><table class="stock-table" style="width:100%"><thead><tr>';
     html += '<th style="text-align:left">庫存股</th>';
-    html += '<th style="text-align:left">類型</th>';
-    html += '<th style="text-align:left">區域</th>';
+    html += '<th style="text-align:center">類型</th>';
+    html += '<th style="text-align:center">區域</th>';
     html += '<th style="text-align:right">市值</th>';
     html += '<th style="text-align:right">佔比</th>';
     html += '</tr></thead><tbody>';
@@ -5419,10 +5419,10 @@ function renderStockAnalysis() {
         }).join('');
         html += '<tr>';
         html += '<td><b>' + esc(r.h.id) + '</b> <span style="color:var(--muted);font-size:12px">' + esc(r.h.name || '') + '</span></td>';
-        html += '<td><select onchange="updateHoldingClassification(\'' + esc(r.h.id) + '\', \'assetType\', this.value)" style="padding:4px 6px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:13px">' +
+        html += '<td style="text-align:center"><select onchange="updateHoldingClassification(\'' + esc(r.h.id) + '\', \'assetType\', this.value)" style="padding:4px 6px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:13px">' +
             '<option value="stock"' + (r.assetType==='stock'?' selected':'') + '>股票</option>' +
             '<option value="bond"' + (r.assetType==='bond'?' selected':'') + '>債券</option></select></td>';
-        html += '<td><select onchange="updateHoldingClassification(\'' + esc(r.h.id) + '\', \'region\', this.value)" style="padding:4px 6px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:13px">' + regionOpts + '</select></td>';
+        html += '<td style="text-align:center"><select onchange="updateHoldingClassification(\'' + esc(r.h.id) + '\', \'region\', this.value)" style="padding:4px 6px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:13px">' + regionOpts + '</select></td>';
         html += '<td style="text-align:right">' + fmt(Math.round(r.market)) + '</td>';
         html += '<td style="text-align:right">' + pct.toFixed(1) + '%</td>';
         html += '</tr>';
@@ -5449,6 +5449,33 @@ function drawStockAnalysisCharts() {
         regionSum[rg] += market;
     });
 
+    // 在每塊扇形上畫百分比
+    var pctLabelPlugin = {
+        id: 'pctLabel',
+        afterDatasetsDraw: function(chart) {
+            var ctx = chart.ctx;
+            var ds = chart.data.datasets[0];
+            var total = ds.data.reduce(function(a, b){ return a + b; }, 0);
+            if (total <= 0) return;
+            var meta = chart.getDatasetMeta(0);
+            ctx.save();
+            ctx.fillStyle = '#fff';
+            ctx.font = '600 13px "Noto Sans TC", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = 'rgba(0,0,0,.35)';
+            ctx.shadowBlur = 2;
+            meta.data.forEach(function(arc, i) {
+                var v = ds.data[i];
+                var pct = (v / total) * 100;
+                if (pct < 4) return; // 太小的扇形不畫，避免重疊
+                var pos = arc.tooltipPosition();
+                ctx.fillText(pct.toFixed(1) + '%', pos.x, pos.y);
+            });
+            ctx.restore();
+        }
+    };
+
     // 股債圖
     var assetCanvas = document.getElementById('chart-asset-type');
     if (assetCanvas) {
@@ -5464,6 +5491,7 @@ function drawStockAnalysisCharts() {
                     borderColor: '#fff'
                 }]
             },
+            plugins: [pctLabelPlugin],
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
@@ -5503,6 +5531,7 @@ function drawStockAnalysisCharts() {
                     borderColor: '#fff'
                 }]
             },
+            plugins: [pctLabelPlugin],
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
