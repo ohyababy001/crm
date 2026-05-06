@@ -5567,8 +5567,17 @@ function drawStockAnalysisCharts() {
             return { id: h.id, name: h.name || h.id, market: Math.round(market) };
         }).filter(function(r){ return r.market > 0; });
         holdingRows.sort(function(a, b){ return b.market - a.market; });
-        var hLabels = holdingRows.map(function(r){ return r.name + '（' + r.id + '）'; });
-        var hData = holdingRows.map(function(r){ return r.market; });
+        // 只顯示前 4 大，其餘合併為「其他」
+        var TOP_N = 4;
+        var topRows = holdingRows.slice(0, TOP_N);
+        var restRows = holdingRows.slice(TOP_N);
+        var hLabels = topRows.map(function(r){ return r.name + '（' + r.id + '）'; });
+        var hData = topRows.map(function(r){ return r.market; });
+        if (restRows.length > 0) {
+            var restSum = restRows.reduce(function(s, r){ return s + r.market; }, 0);
+            hLabels.push('其他（' + restRows.length + ' 檔）');
+            hData.push(restSum);
+        }
         // 自動產生視覺區隔色：金/海軍藍交錯，亮度漸變
         var hPalette = [
             '#1a3a5c', '#c8a45a', '#2a5a8c', '#e8d49a',
