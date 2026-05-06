@@ -3797,7 +3797,7 @@ function lookupStockName(stockId, callback) {
 }
 
 // ── 持股分類常數與工具 ──
-var STOCK_REGIONS = ['台灣', '美國', '全球', '中國', '新興市場', '其他'];
+var STOCK_REGIONS = ['台灣', '美國', '日本', '全球', '中國', '新興市場', '其他'];
 function guessAssetType(stockId) {
     // 代號末碼 B 通常是債券 ETF（00937B、00679B…）
     return /B$/i.test(stockId || '') ? 'bond' : 'stock';
@@ -5524,7 +5524,7 @@ function drawStockAnalysisCharts() {
         STOCK_REGIONS.forEach(function(r){
             if (regionSum[r] > 0) { regionLabels.push(r); regionData.push(Math.round(regionSum[r])); }
         });
-        var palette = ['#1a3a5c', '#c8a45a', '#2a5a8c', '#e8d49a', '#8C8578', '#57534E'];
+        var palette = ['#1a3a5c', '#c8a45a', '#dc2626', '#16a34a', '#7c3aed', '#0891b2', '#ea580c'];
         _stockRegionChart = new Chart(regionCanvas.getContext('2d'), {
             type: 'doughnut',
             data: {
@@ -5567,8 +5567,8 @@ function drawStockAnalysisCharts() {
             return { id: h.id, name: h.name || h.id, market: Math.round(market) };
         }).filter(function(r){ return r.market > 0; });
         holdingRows.sort(function(a, b){ return b.market - a.market; });
-        // 只顯示前 4 大，其餘合併為「其他」
-        var TOP_N = 4;
+        // 只顯示前 3 大，其餘合併為「其他」
+        var TOP_N = 3;
         var topRows = holdingRows.slice(0, TOP_N);
         var restRows = holdingRows.slice(TOP_N);
         var hLabels = topRows.map(function(r){ return r.name + '（' + r.id + '）'; });
@@ -5578,11 +5578,10 @@ function drawStockAnalysisCharts() {
             hLabels.push('其他（' + restRows.length + ' 檔）');
             hData.push(restSum);
         }
-        // 自動產生視覺區隔色：金/海軍藍交錯，亮度漸變
+        // 高對比配色：相鄰色差大，避免相似色
         var hPalette = [
-            '#1a3a5c', '#c8a45a', '#2a5a8c', '#e8d49a',
-            '#0f2847', '#a8843a', '#3a6a9c', '#d4b87a',
-            '#57534E', '#8C8578', '#1e4470', '#b8944a'
+            '#1a3a5c', '#dc2626', '#16a34a', '#c8a45a',
+            '#7c3aed', '#0891b2', '#ea580c', '#db2777'
         ];
         _stockHoldingChart = new Chart(holdingCanvas.getContext('2d'), {
             type: 'doughnut',
