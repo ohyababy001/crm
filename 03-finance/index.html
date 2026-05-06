@@ -5492,7 +5492,7 @@ function drawStockAnalysisCharts() {
                 labels: ['股票', '債券'],
                 datasets: [{
                     data: [Math.round(assetSum.stock), Math.round(assetSum.bond)],
-                    backgroundColor: ['#1a3a5c', '#64748b'],
+                    backgroundColor: ['#c8a45a', '#1a3a5c'],
                     borderWidth: 2,
                     borderColor: '#fff'
                 }]
@@ -5579,10 +5579,10 @@ function drawStockAnalysisCharts() {
             hLabels.push('其他（' + restRows.length + ' 檔）');
             hData.push(restSum);
         }
-        // 配色規則：債券一律石板灰藍、其他類別一律暖灰、股票輪用高對比色
-        var BOND_COLOR = '#64748b';
+        // 配色規則：債券深藍當主軸、其他類別暖灰、股票輪用高對比鮮明色
+        var BOND_COLOR = '#1a3a5c';
         var REST_COLOR = '#8C8578';
-        var stockPalette = ['#1a3a5c', '#dc2626', '#16a34a', '#7c3aed', '#0891b2', '#ea580c', '#db2777'];
+        var stockPalette = ['#c8a45a', '#dc2626', '#16a34a', '#7c3aed', '#0891b2', '#ea580c', '#db2777'];
         var stockColorIdx = 0;
         var hPalette = topRows.map(function(r){
             if (r.assetType === 'bond') return BOND_COLOR;
