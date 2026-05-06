@@ -4312,6 +4312,7 @@ function checkDividendAlerts() {
         .then(function(cache) {
             if (cache && cache.updatedAt) _dividendCacheUpdatedAt = cache.updatedAt;
             if (cache && Array.isArray(cache.items)) {
+                _dividendCacheItems = cache.items.slice();
                 cache.items.forEach(function(d) {
                     var h = holdingIds[d.stockId];
                     if (!h) return;
@@ -4365,6 +4366,7 @@ function checkDividendAlerts() {
 }
 
 var _dividendCacheUpdatedAt = null;
+var _dividendCacheItems = []; // 全部 cache 條目（per-share），用於殖利率計算
 
 function renderDividendAlerts() {
     var settingsBtn = '<button onclick="event.stopPropagation();openDividendAlertSettings()" title="提醒天數設定" style="background:none;border:none;cursor:pointer;color:var(--lux-navy);padding:0 4px;font-size:14px;"><i class="ti ti-settings"></i></button>';
@@ -4407,31 +4409,22 @@ function renderDividendAlerts() {
 }
 
 // 計算過去 12 個月（從今天往前）的每股現金股利加總，用來估年化殖利率
+// 資料來源：dividend cache（每筆 cash 是 per-share，與 stockData.dividends 的總額不同）
 function _trailing12mCashPerShare(stockId) {
     var now = new Date();
     var oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
     var seen = {}, sum = 0;
-    function add(dateStr, cash) {
-        if (!cash || cash <= 0) return;
+    (_dividendCacheItems || []).forEach(function(item) {
+        if (item.stockId !== stockId) return;
+        if (!item.cash || item.cash <= 0) return;
+        var dateStr = item.exDate;
         var d = new Date(dateStr);
         if (isNaN(d.getTime())) return;
         if (d < oneYearAgo || d > now) return;
         var key = stockId + '|' + dateStr;
         if (seen[key]) return;
         seen[key] = true;
-        sum += cash;
-    }
-    // 已發放紀錄
-    if (stockData.dividends) {
-        stockData.dividends.forEach(function(d) {
-            if (d.stockId !== stockId) return;
-            add(d.date || d.exDate, d.cash);
-        });
-    }
-    // 已預告但未發放的（以除息日為基準也納入）
-    _dividendAlerts.forEach(function(a) {
-        if (a.stockId !== stockId) return;
-        add(a.exDate, a.cash);
+        sum += item.cash;
     });
     return sum;
 }
