@@ -5365,6 +5365,7 @@ function _localDateStr(d) {
 // ── 分析子分頁 ──
 var _stockAssetChart = null;
 var _stockRegionChart = null;
+var _stockHoldingChart = null;
 
 function renderStockAnalysis() {
     var html = '';
@@ -5397,6 +5398,10 @@ function renderStockAnalysis() {
     html += '<div style="background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)">';
     html += '<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px">區域分布</div>';
     html += '<div style="position:relative;height:240px"><canvas id="chart-region"></canvas></div>';
+    html += '</div>';
+    html += '<div style="background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)">';
+    html += '<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px">持股佔比</div>';
+    html += '<div style="position:relative;height:240px"><canvas id="chart-holding"></canvas></div>';
     html += '</div>';
     html += '</div>';
 
@@ -5537,6 +5542,56 @@ function drawStockAnalysisCharts() {
                 maintainAspectRatio: false,
                 plugins: {
                     legend: { position: 'bottom', labels: { font: { family: 'Noto Sans TC' } } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                var total = ctx.dataset.data.reduce(function(a, b){ return a + b; }, 0);
+                                var pct = total > 0 ? (ctx.parsed / total * 100).toFixed(1) : 0;
+                                return ctx.label + '：' + fmt(ctx.parsed) + ' (' + pct + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 持股佔比圖（每檔一塊）
+    var holdingCanvas = document.getElementById('chart-holding');
+    if (holdingCanvas) {
+        if (_stockHoldingChart) { _stockHoldingChart.destroy(); _stockHoldingChart = null; }
+        var holdingRows = stockData.holdings.map(function(h) {
+            var p = stockData.prices[h.id];
+            var price = p ? p.price : null;
+            var market = price ? h.shares * price : h.shares * h.cost;
+            return { id: h.id, name: h.name || h.id, market: Math.round(market) };
+        }).filter(function(r){ return r.market > 0; });
+        holdingRows.sort(function(a, b){ return b.market - a.market; });
+        var hLabels = holdingRows.map(function(r){ return r.name + '（' + r.id + '）'; });
+        var hData = holdingRows.map(function(r){ return r.market; });
+        // 自動產生視覺區隔色：金/海軍藍交錯，亮度漸變
+        var hPalette = [
+            '#1a3a5c', '#c8a45a', '#2a5a8c', '#e8d49a',
+            '#0f2847', '#a8843a', '#3a6a9c', '#d4b87a',
+            '#57534E', '#8C8578', '#1e4470', '#b8944a'
+        ];
+        _stockHoldingChart = new Chart(holdingCanvas.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: hLabels,
+                datasets: [{
+                    data: hData,
+                    backgroundColor: hLabels.map(function(_, i){ return hPalette[i % hPalette.length]; }),
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            plugins: [pctLabelPlugin],
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { font: { family: 'Noto Sans TC' }, boxWidth: 12, padding: 8 } },
                     tooltip: {
                         callbacks: {
                             label: function(ctx) {
