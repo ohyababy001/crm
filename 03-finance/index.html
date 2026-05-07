@@ -5455,7 +5455,7 @@ function renderStockAnalysis() {
     var stockPct = totalMarket > 0 ? (stockSum / totalMarket * 100) : 0;
     var bondPct  = totalMarket > 0 ? (bondSum  / totalMarket * 100) : 0;
     html += '<div class="analysis-summary" style="background:var(--card);border-radius:var(--radius);padding:12px 16px;margin-bottom:14px;box-shadow:var(--shadow);font-size:13px">';
-    html += '<span class="as-total"><span style="color:var(--muted)">總市值 </span><b style="font-size:16px;color:var(--text)">' + fmt(Math.round(totalMarket)) + '</b></span>';
+    html += '<span class="as-total"><span style="color:var(--muted);font-size:12px">總市值</span><br><b style="font-size:22px;color:var(--text);letter-spacing:-0.5px">' + fmt(Math.round(totalMarket)) + '</b></span>';
     html += '<span class="as-stock"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#c8a45a;margin-right:6px;vertical-align:1px"></span><span style="color:var(--muted)">股票 </span><b>' + fmt(Math.round(stockSum)) + '</b> <span style="color:var(--muted)">(' + stockPct.toFixed(1) + '%)</span></span>';
     html += '<span class="as-bond"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#1a3a5c;margin-right:6px;vertical-align:1px"></span><span style="color:var(--muted)">債券 </span><b>' + fmt(Math.round(bondSum)) + '</b> <span style="color:var(--muted)">(' + bondPct.toFixed(1) + '%)</span></span>';
     html += '<span class="as-count" style="color:var(--muted)">持股 ' + rows.length + ' 檔</span>';
@@ -5465,26 +5465,26 @@ function renderStockAnalysis() {
     html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:14px">';
     html += '<div style="background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)">';
     html += '<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px">股債配置</div>';
-    html += '<div style="position:relative;height:200px"><canvas id="chart-asset-type"></canvas></div>';
+    html += '<div style="position:relative;height:160px"><canvas id="chart-asset-type"></canvas></div>';
     html += '<div class="chart-legend-wrap" style="margin-top:10px"><div id="chart-asset-legend" class="chart-legend-list" style="font-size:12px"></div></div>';
     html += '</div>';
     html += '<div style="background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)">';
     html += '<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px">區域分布</div>';
-    html += '<div style="position:relative;height:200px"><canvas id="chart-region"></canvas></div>';
+    html += '<div style="position:relative;height:160px"><canvas id="chart-region"></canvas></div>';
     html += '<div class="chart-legend-wrap" style="margin-top:10px"><div id="chart-region-legend" class="chart-legend-list" style="font-size:12px"></div></div>';
     html += '</div>';
     html += '<div style="background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)">';
     html += '<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px">持股佔比</div>';
-    html += '<div style="position:relative;height:200px"><canvas id="chart-holding"></canvas></div>';
+    html += '<div style="position:relative;height:160px"><canvas id="chart-holding"></canvas></div>';
     html += '<div class="chart-legend-wrap" style="margin-top:10px"><div id="chart-holding-legend" class="chart-legend-list" style="font-size:12px"></div></div>';
     html += '</div>';
     html += '</div>';
 
     // 行內分類編輯表
     html += '<div style="background:var(--card);border-radius:var(--radius);padding:12px;box-shadow:var(--shadow)">';
-    html += '<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px">分類編輯 <span style="font-size:11px;color:var(--muted);font-weight:400">（直接點選下拉即儲存）</span></div>';
+    html += '<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px">持股明細 <span style="font-size:11px;color:var(--muted);font-weight:400">（類型／區域可直接點選下拉修改）</span></div>';
     html += '<div class="table-wrap"><table class="stock-table" style="width:100%"><thead><tr>';
-    html += '<th style="text-align:left">庫存股</th>';
+    html += '<th style="text-align:left">持股</th>';
     html += '<th style="text-align:center">類型</th>';
     html += '<th style="text-align:center">區域</th>';
     html += '<th style="text-align:right">市值</th>';
@@ -5615,10 +5615,14 @@ function drawStockAnalysisCharts() {
     var regionCanvas = document.getElementById('chart-region');
     if (regionCanvas) {
         if (_stockRegionChart) { _stockRegionChart.destroy(); _stockRegionChart = null; }
-        var regionLabels = [], regionData = [];
+        // 按金額由大到小排序，扇形與 legend 順序一致
+        var regionPairs = [];
         STOCK_REGIONS.forEach(function(r){
-            if (regionSum[r] > 0) { regionLabels.push(r); regionData.push(Math.round(regionSum[r])); }
+            if (regionSum[r] > 0) regionPairs.push({ label: r, value: Math.round(regionSum[r]) });
         });
+        regionPairs.sort(function(a, b){ return b.value - a.value; });
+        var regionLabels = regionPairs.map(function(p){ return p.label; });
+        var regionData   = regionPairs.map(function(p){ return p.value; });
         var palette = ['#1a3a5c', '#c8a45a', '#dc2626', '#16a34a', '#7c3aed', '#0891b2', '#ea580c'];
         var regionColors = regionLabels.map(function(_, i){ return palette[i % palette.length]; });
         _stockRegionChart = new Chart(regionCanvas.getContext('2d'), {
