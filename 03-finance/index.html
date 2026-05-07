@@ -5846,7 +5846,7 @@ function showStockPriceTrend(stockId) {
     if (arr.length < 2) {
         body = '<div style="text-align:center;padding:40px;color:var(--muted);font-size:13px">' +
                '此股票目前累積 ' + arr.length + ' 筆價格紀錄，<br>每天自動快照一次，至少需要 2 天才能繪製走勢圖。<br><br>' +
-               '<span style="font-size:12px">提示：每日股價快照從 2026-05-08 開始啟用，請每天進入此頁面（或讓背景同步）以累積資料。</span>' +
+               '<span style="font-size:12px">提示：每日股價快照從 2026-05-08 開始啟用。請每天打開一次此頁面以累積資料，建議把網址加到瀏覽器書籤或主畫面，每天順手點開即可。</span>' +
                '</div>';
     } else {
         var first = arr[0], last = arr[arr.length - 1];
