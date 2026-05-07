@@ -694,6 +694,19 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
     .stock-summary-bar { display: grid !important; grid-template-columns: 1fr 1.8fr; gap: 4px 12px !important; padding: 8px 12px !important; font-size: 15px !important; }
     .stock-summary-bar .year-dividend-cell { display: none; }
     .dividend-alert-compact { font-size: 12px; padding: 5px 10px; }
+    .analysis-summary { display: grid !important; grid-template-columns: 1fr 1fr; gap: 8px 12px !important; }
+    .analysis-summary .as-total { grid-row: 1; grid-column: 1; }
+    .analysis-summary .as-count { grid-row: 1; grid-column: 2; justify-self: end; }
+    .analysis-summary .as-stock { grid-row: 2; grid-column: 1; }
+    .analysis-summary .as-bond  { grid-row: 2; grid-column: 2; }
+}
+.analysis-summary { display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: baseline; }
+.analysis-summary .as-count { margin-left: auto; }
+/* 圓餅圖 legend：桌機整體置中、項目左對齊；手機整體靠左 */
+.chart-legend-wrap { display: flex; justify-content: center; }
+.chart-legend-list { display: flex; flex-direction: column; gap: 6px; }
+@media (max-width: 600px) {
+    .chart-legend-wrap { justify-content: flex-start; }
 }
 .stock-sub-tab {
     padding: 9px 20px;
@@ -5441,27 +5454,29 @@ function renderStockAnalysis() {
     var bondSum  = rows.reduce(function(s, r){ return s + (r.assetType === 'bond'  ? r.market : 0); }, 0);
     var stockPct = totalMarket > 0 ? (stockSum / totalMarket * 100) : 0;
     var bondPct  = totalMarket > 0 ? (bondSum  / totalMarket * 100) : 0;
-    html += '<div class="analysis-summary" style="background:var(--card);border-radius:var(--radius);padding:12px 16px;margin-bottom:14px;box-shadow:var(--shadow);display:flex;flex-wrap:wrap;gap:10px 24px;align-items:baseline;font-size:13px">';
-    html += '<span><span style="color:var(--muted)">總市值 </span><b style="font-size:16px;color:var(--text)">' + fmt(Math.round(totalMarket)) + '</b></span>';
-    html += '<span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#c8a45a;margin-right:6px;vertical-align:1px"></span><span style="color:var(--muted)">股票 </span><b>' + fmt(Math.round(stockSum)) + '</b> <span style="color:var(--muted)">(' + stockPct.toFixed(1) + '%)</span></span>';
-    html += '<span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#1a3a5c;margin-right:6px;vertical-align:1px"></span><span style="color:var(--muted)">債券 </span><b>' + fmt(Math.round(bondSum)) + '</b> <span style="color:var(--muted)">(' + bondPct.toFixed(1) + '%)</span></span>';
-    html += '<span style="margin-left:auto;color:var(--muted)">持股 ' + rows.length + ' 檔</span>';
+    html += '<div class="analysis-summary" style="background:var(--card);border-radius:var(--radius);padding:12px 16px;margin-bottom:14px;box-shadow:var(--shadow);font-size:13px">';
+    html += '<span class="as-total"><span style="color:var(--muted)">總市值 </span><b style="font-size:16px;color:var(--text)">' + fmt(Math.round(totalMarket)) + '</b></span>';
+    html += '<span class="as-stock"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#c8a45a;margin-right:6px;vertical-align:1px"></span><span style="color:var(--muted)">股票 </span><b>' + fmt(Math.round(stockSum)) + '</b> <span style="color:var(--muted)">(' + stockPct.toFixed(1) + '%)</span></span>';
+    html += '<span class="as-bond"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#1a3a5c;margin-right:6px;vertical-align:1px"></span><span style="color:var(--muted)">債券 </span><b>' + fmt(Math.round(bondSum)) + '</b> <span style="color:var(--muted)">(' + bondPct.toFixed(1) + '%)</span></span>';
+    html += '<span class="as-count" style="color:var(--muted)">持股 ' + rows.length + ' 檔</span>';
     html += '</div>';
 
     // 兩張圓餅圖
     html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:14px">';
     html += '<div style="background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)">';
     html += '<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px">股債配置</div>';
-    html += '<div style="position:relative;height:240px"><canvas id="chart-asset-type"></canvas></div>';
+    html += '<div style="position:relative;height:200px"><canvas id="chart-asset-type"></canvas></div>';
+    html += '<div class="chart-legend-wrap" style="margin-top:10px"><div id="chart-asset-legend" class="chart-legend-list" style="font-size:12px"></div></div>';
     html += '</div>';
     html += '<div style="background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)">';
     html += '<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px">區域分布</div>';
-    html += '<div style="position:relative;height:240px"><canvas id="chart-region"></canvas></div>';
+    html += '<div style="position:relative;height:200px"><canvas id="chart-region"></canvas></div>';
+    html += '<div class="chart-legend-wrap" style="margin-top:10px"><div id="chart-region-legend" class="chart-legend-list" style="font-size:12px"></div></div>';
     html += '</div>';
     html += '<div style="background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)">';
     html += '<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px">持股佔比</div>';
     html += '<div style="position:relative;height:200px"><canvas id="chart-holding"></canvas></div>';
-    html += '<div style="display:flex;justify-content:center;margin-top:10px"><div id="chart-holding-legend" style="display:flex;flex-direction:column;gap:6px;font-size:12px"></div></div>';
+    html += '<div class="chart-legend-wrap" style="margin-top:10px"><div id="chart-holding-legend" class="chart-legend-list" style="font-size:12px"></div></div>';
     html += '</div>';
     html += '</div>';
 
@@ -5541,24 +5556,20 @@ function drawStockAnalysisCharts() {
         }
     };
 
-    // 圖例顯示「名稱 金額 (%)」的 generator
-    function makeAmountLegend(colors) {
-        return function(chart) {
-            var ds = chart.data.datasets[0];
-            var total = ds.data.reduce(function(a, b){ return a + b; }, 0);
-            return chart.data.labels.map(function(lbl, i) {
-                var v = ds.data[i];
-                var pct = total > 0 ? (v / total * 100).toFixed(1) : '0.0';
-                return {
-                    text: lbl + '  ' + fmt(v) + ' (' + pct + '%)',
-                    fillStyle: colors[i],
-                    strokeStyle: colors[i],
-                    lineWidth: 0,
-                    hidden: false,
-                    index: i
-                };
-            });
-        };
+    // 自訂 HTML 圖例：每行「色塊 名稱 金額 (%)」，整體置中、項目左對齊
+    function renderHtmlLegend(boxId, labels, data, colors) {
+        var box = document.getElementById(boxId);
+        if (!box) return;
+        var total = data.reduce(function(a, b){ return a + b; }, 0);
+        box.innerHTML = labels.map(function(lbl, i) {
+            var color = colors[i % colors.length];
+            var v = data[i];
+            var pct = total > 0 ? (v / total * 100).toFixed(1) : '0.0';
+            return '<div style="display:flex;align-items:center;gap:8px">' +
+                '<span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:' + color + ';flex:none"></span>' +
+                '<span style="color:var(--text)">' + esc(lbl) + '　<b>' + fmt(v) + '</b> <span style="color:var(--muted)">(' + pct + '%)</span></span>' +
+                '</div>';
+        }).join('');
     }
 
     // 股債圖
@@ -5566,12 +5577,14 @@ function drawStockAnalysisCharts() {
     if (assetCanvas) {
         if (_stockAssetChart) { _stockAssetChart.destroy(); _stockAssetChart = null; }
         var assetColors = ['#c8a45a', '#1a3a5c'];
+        var assetLabels = ['股票', '債券'];
+        var assetDataArr = [Math.round(assetSum.stock), Math.round(assetSum.bond)];
         _stockAssetChart = new Chart(assetCanvas.getContext('2d'), {
             type: 'doughnut',
             data: {
-                labels: ['股票', '債券'],
+                labels: assetLabels,
                 datasets: [{
-                    data: [Math.round(assetSum.stock), Math.round(assetSum.bond)],
+                    data: assetDataArr,
                     backgroundColor: assetColors,
                     borderWidth: 2,
                     borderColor: '#fff'
@@ -5582,7 +5595,7 @@ function drawStockAnalysisCharts() {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { position: 'bottom', labels: { font: { family: 'Noto Sans TC' }, generateLabels: makeAmountLegend(assetColors) } },
+                    legend: { display: false },
                     tooltip: {
                         callbacks: {
                             label: function(ctx) {
@@ -5595,6 +5608,7 @@ function drawStockAnalysisCharts() {
                 }
             }
         });
+        renderHtmlLegend('chart-asset-legend', assetLabels, assetDataArr, assetColors);
     }
 
     // 區域圖（過濾掉 0）
@@ -5623,7 +5637,7 @@ function drawStockAnalysisCharts() {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { position: 'bottom', labels: { font: { family: 'Noto Sans TC' }, generateLabels: makeAmountLegend(regionColors) } },
+                    legend: { display: false },
                     tooltip: {
                         callbacks: {
                             label: function(ctx) {
@@ -5636,6 +5650,7 @@ function drawStockAnalysisCharts() {
                 }
             }
         });
+        renderHtmlLegend('chart-region-legend', regionLabels, regionData, regionColors);
     }
 
     // 持股佔比圖（每檔一塊）
@@ -5699,20 +5714,7 @@ function drawStockAnalysisCharts() {
                 }
             }
         });
-        // 自訂垂直圖例（每行一個項目，含金額與百分比）
-        var legendBox = document.getElementById('chart-holding-legend');
-        if (legendBox) {
-            var hTotal = hData.reduce(function(a, b){ return a + b; }, 0);
-            legendBox.innerHTML = hLabels.map(function(lbl, i) {
-                var color = hPalette[i % hPalette.length];
-                var v = hData[i];
-                var pct = hTotal > 0 ? (v / hTotal * 100).toFixed(1) : '0.0';
-                return '<div style="display:flex;align-items:center;gap:8px">' +
-                    '<span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:' + color + ';flex:none"></span>' +
-                    '<span style="color:var(--text)">' + esc(lbl) + '　<b>' + fmt(v) + '</b> <span style="color:var(--muted)">(' + pct + '%)</span></span>' +
-                    '</div>';
-            }).join('');
-        }
+        renderHtmlLegend('chart-holding-legend', hLabels, hData, hPalette);
     }
 }
 
