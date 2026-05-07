@@ -712,10 +712,11 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
     .asset-card-change { padding: 1px 4px; }
     .asset-card-change .chg-text { display: none; }
 }
-/* 持股明細表的價格漲跌欄：手機版只留 7 日，30/90 日靠點持股的 modal 看 */
+/* 持股明細表的價格漲跌欄：手機版只留 7 日，30/90/365 日靠點持股的 modal 看 */
 @media (max-width: 600px) {
     .holdings-detail .col-30d,
-    .holdings-detail .col-90d { display: none; }
+    .holdings-detail .col-90d,
+    .holdings-detail .col-365d { display: none; }
 }
 /* 趨勢 modal 的四欄 KPI */
 .section-kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 0 0 14px; }
@@ -5563,6 +5564,7 @@ function renderStockAnalysis() {
     html += '<th class="col-price-chg col-7d" style="text-align:right" title="近 7 日純價格漲跌，不受定期定額影響">7 日</th>';
     html += '<th class="col-price-chg col-30d" style="text-align:right" title="近 30 日純價格漲跌，不受定期定額影響">30 日</th>';
     html += '<th class="col-price-chg col-90d" style="text-align:right" title="近 90 日純價格漲跌，不受定期定額影響">90 日</th>';
+    html += '<th class="col-price-chg col-365d" style="text-align:right" title="近 1 年純價格漲跌，不受定期定額影響">1 年</th>';
     html += '<th style="text-align:right">佔比</th>';
     html += '</tr></thead><tbody>';
 
@@ -5584,9 +5586,10 @@ function renderStockAnalysis() {
             ? '<b style="color:' + pnlColor + '">' + (pnl >= 0 ? '+' : '') + fmt(Math.round(pnl)) + '</b>' +
               (pnlPct !== null ? ' <span style="color:' + pnlColor + ';font-size:11px">(' + (pnlPct >= 0 ? '+' : '') + pnlPct.toFixed(1) + '%)</span>' : '')
             : '<span style="color:var(--muted);font-size:11px" title="無現價">—</span>';
-        var c7  = getStockPriceChange(r.h.id, 7);
-        var c30 = getStockPriceChange(r.h.id, 30);
-        var c90 = getStockPriceChange(r.h.id, 90);
+        var c7   = getStockPriceChange(r.h.id, 7);
+        var c30  = getStockPriceChange(r.h.id, 30);
+        var c90  = getStockPriceChange(r.h.id, 90);
+        var c365 = getStockPriceChange(r.h.id, 365);
         html += '<tr>';
         html += '<td><b style="cursor:pointer;color:var(--lux-navy);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px" onclick="showStockPriceTrend(\'' + esc(r.h.id) + '\')" title="點開看價格走勢">' + esc(r.h.id) + '</b> <span style="color:var(--muted);font-size:12px">' + esc(r.h.name || '') + '</span></td>';
         html += '<td style="text-align:center"><select onchange="updateHoldingClassification(\'' + esc(r.h.id) + '\', \'assetType\', this.value)" style="padding:4px 6px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:13px">' +
@@ -5599,6 +5602,7 @@ function renderStockAnalysis() {
         html += '<td class="col-price-chg col-7d" style="text-align:right">' + fmtPriceChange(c7) + '</td>';
         html += '<td class="col-price-chg col-30d" style="text-align:right">' + fmtPriceChange(c30) + '</td>';
         html += '<td class="col-price-chg col-90d" style="text-align:right">' + fmtPriceChange(c90) + '</td>';
+        html += '<td class="col-price-chg col-365d" style="text-align:right">' + fmtPriceChange(c365) + '</td>';
         html += '<td style="text-align:right">' + pct.toFixed(1) + '%</td>';
         html += '</tr>';
     });
@@ -5611,7 +5615,7 @@ function renderStockAnalysis() {
     html += '<td style="text-align:right">' + fmt(Math.round(totalMarket)) + '</td>';
     html += '<td style="text-align:right;color:' + totalPnlColor + '">' + (totalPnL >= 0 ? '+' : '') + fmt(Math.round(totalPnL)) +
             (totalPnlPct !== null ? ' <span style="font-size:11px;font-weight:400">(' + (totalPnlPct >= 0 ? '+' : '') + totalPnlPct.toFixed(1) + '%)</span>' : '') + '</td>';
-    html += '<td class="col-price-chg col-7d"></td><td class="col-price-chg col-30d"></td><td class="col-price-chg col-90d"></td>';
+    html += '<td class="col-price-chg col-7d"></td><td class="col-price-chg col-30d"></td><td class="col-price-chg col-90d"></td><td class="col-price-chg col-365d"></td>';
     html += '<td style="text-align:right">100%</td>';
     html += '</tr>';
     html += '</tbody></table></div>';
@@ -5847,17 +5851,18 @@ function showStockPriceTrend(stockId) {
     } else {
         var first = arr[0], last = arr[arr.length - 1];
         var totalChg = first.price > 0 ? (last.price - first.price) / first.price * 100 : 0;
-        var c7 = getStockPriceChange(stockId, 7);
-        var c30 = getStockPriceChange(stockId, 30);
-        var c90 = getStockPriceChange(stockId, 90);
+        var c7   = getStockPriceChange(stockId, 7);
+        var c30  = getStockPriceChange(stockId, 30);
+        var c90  = getStockPriceChange(stockId, 90);
+        var c365 = getStockPriceChange(stockId, 365);
         body = '<div class="section-kpi-row" style="margin-bottom:14px">' +
             '<div class="section-kpi"><div class="section-kpi-label">近 7 日</div><div class="section-kpi-val">' + fmtPriceChange(c7) + '</div></div>' +
             '<div class="section-kpi"><div class="section-kpi-label">近 30 日</div><div class="section-kpi-val">' + fmtPriceChange(c30) + '</div></div>' +
             '<div class="section-kpi"><div class="section-kpi-label">近 90 日</div><div class="section-kpi-val">' + fmtPriceChange(c90) + '</div></div>' +
-            '<div class="section-kpi"><div class="section-kpi-label">自記錄起</div><div class="section-kpi-val">' + fmtPriceChange({pct: totalChg}) + '</div></div>' +
+            '<div class="section-kpi"><div class="section-kpi-label">近 1 年</div><div class="section-kpi-val">' + fmtPriceChange(c365) + '</div></div>' +
             '</div>' +
             '<div style="height:240px"><canvas id="stock-price-trend-chart"></canvas></div>' +
-            '<div style="font-size:11px;color:var(--muted);margin-top:8px">共 ' + arr.length + ' 筆紀錄（' + arr[0].date + ' ~ ' + arr[arr.length-1].date + '）</div>';
+            '<div style="font-size:11px;color:var(--muted);margin-top:8px">共 ' + arr.length + ' 筆紀錄（' + arr[0].date + ' ~ ' + arr[arr.length-1].date + '）　自記錄起 ' + fmtPriceChange({pct: totalChg}) + '</div>';
     }
     ov.innerHTML = '<div class="modal" style="width:560px;max-width:94vw">' +
         '<h3><i class="ti ti-chart-line"></i> ' + esc(stockId) + ' ' + esc(name) + ' 價格走勢</h3>' +
