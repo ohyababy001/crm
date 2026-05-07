@@ -702,6 +702,7 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
     .analysis-summary .as-count { grid-row: 1; grid-column: 2; justify-self: end; }
     .analysis-summary .as-stock { grid-row: 2; grid-column: 1; }
     .analysis-summary .as-bond  { grid-row: 2; grid-column: 2; }
+    .analysis-summary .as-pnl   { grid-row: 3; grid-column: 1 / span 2; padding-top:6px; border-top:1px dashed var(--border); }
 }
 .analysis-summary { display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: baseline; }
 .analysis-summary .as-count { margin-left: auto; }
@@ -5479,10 +5480,21 @@ function renderStockAnalysis() {
     var bondSum  = rows.reduce(function(s, r){ return s + (r.assetType === 'bond'  ? r.market : 0); }, 0);
     var stockPct = totalMarket > 0 ? (stockSum / totalMarket * 100) : 0;
     var bondPct  = totalMarket > 0 ? (bondSum  / totalMarket * 100) : 0;
+    // 總成本與總帳面損益（只計算有現價的）
+    var summaryTotalCost = 0, summaryTotalPnL = 0;
+    rows.forEach(function(r) {
+        var cost = r.h.shares * r.h.cost;
+        summaryTotalCost += cost;
+        if (stockData.prices[r.h.id] && stockData.prices[r.h.id].price) summaryTotalPnL += (r.market - cost);
+    });
+    var summaryPnLPct = summaryTotalCost > 0 ? (summaryTotalPnL / summaryTotalCost * 100) : null;
+    var summaryPnLColor = summaryTotalPnL > 0 ? 'var(--green)' : summaryTotalPnL < 0 ? 'var(--red)' : 'var(--muted)';
     html += '<div class="analysis-summary" style="background:var(--card);border-radius:var(--radius);padding:12px 16px;margin-bottom:14px;box-shadow:var(--shadow);font-size:13px">';
     html += '<span class="as-total"><span style="color:var(--muted)">總市值 </span><b style="font-size:20px;color:var(--text);letter-spacing:-0.5px">' + fmt(Math.round(totalMarket)) + '</b></span>';
     html += '<span class="as-stock"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#c8a45a;margin-right:6px;vertical-align:1px"></span><span style="color:var(--muted)">股票 </span><b>' + fmt(Math.round(stockSum)) + '</b> <span style="color:var(--muted)">(' + stockPct.toFixed(1) + '%)</span></span>';
     html += '<span class="as-bond"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#1a3a5c;margin-right:6px;vertical-align:1px"></span><span style="color:var(--muted)">債券 </span><b>' + fmt(Math.round(bondSum)) + '</b> <span style="color:var(--muted)">(' + bondPct.toFixed(1) + '%)</span></span>';
+    html += '<span class="as-pnl" title="目前市值 − 總成本。受定期定額影響，不代表年化報酬"><span style="color:var(--muted)">帳面損益 </span><b style="color:' + summaryPnLColor + '">' + (summaryTotalPnL >= 0 ? '+' : '') + fmt(Math.round(summaryTotalPnL)) + '</b>' +
+        (summaryPnLPct !== null ? ' <span style="color:' + summaryPnLColor + ';font-size:12px">(' + (summaryPnLPct >= 0 ? '+' : '') + summaryPnLPct.toFixed(1) + '%)</span>' : '') + '</span>';
     html += '<span class="as-count" style="color:var(--muted)">持股 ' + rows.length + ' 檔</span>';
     html += '</div>';
 
@@ -5508,31 +5520,60 @@ function renderStockAnalysis() {
     // 行內分類編輯表
     html += '<div style="background:var(--card);border-radius:var(--radius);padding:12px;box-shadow:var(--shadow)">';
     html += '<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px">持股明細 <span style="font-size:11px;color:var(--muted);font-weight:400">（類型／區域可直接點選下拉修改）</span></div>';
-    html += '<div class="table-wrap"><table class="stock-table" style="width:100%"><thead><tr>';
+    html += '<div class="table-wrap"><table class="stock-table holdings-detail" style="width:100%"><thead><tr>';
     html += '<th style="text-align:left">持股</th>';
     html += '<th style="text-align:center">類型</th>';
     html += '<th style="text-align:center">區域</th>';
+    html += '<th style="text-align:right">成本</th>';
     html += '<th style="text-align:right">市值</th>';
+    html += '<th style="text-align:right" title="目前市值 − 總成本，受定期定額影響不代表年化報酬">帳面損益</th>';
     html += '<th style="text-align:right">佔比</th>';
     html += '</tr></thead><tbody>';
 
     rows.sort(function(a, b){ return b.market - a.market; });
+    var totalCost = 0, totalPnL = 0;
     rows.forEach(function(r) {
         var pct = totalMarket > 0 ? (r.market / totalMarket * 100) : 0;
         var regionOpts = STOCK_REGIONS.map(function(rg){
             return '<option value="'+rg+'"' + (rg===r.region?' selected':'') + '>'+rg+'</option>';
         }).join('');
+        var cost = r.h.shares * r.h.cost;
+        var hasPrice = !!(stockData.prices[r.h.id] && stockData.prices[r.h.id].price);
+        var pnl = hasPrice ? (r.market - cost) : 0;
+        var pnlPct = (hasPrice && cost > 0) ? (pnl / cost * 100) : null;
+        totalCost += cost;
+        if (hasPrice) totalPnL += pnl;
+        var pnlColor = pnl > 0 ? 'var(--green)' : pnl < 0 ? 'var(--red)' : 'var(--muted)';
+        var pnlStr = hasPrice
+            ? '<b style="color:' + pnlColor + '">' + (pnl >= 0 ? '+' : '') + fmt(Math.round(pnl)) + '</b>' +
+              (pnlPct !== null ? ' <span style="color:' + pnlColor + ';font-size:11px">(' + (pnlPct >= 0 ? '+' : '') + pnlPct.toFixed(1) + '%)</span>' : '')
+            : '<span style="color:var(--muted);font-size:11px" title="無現價">—</span>';
         html += '<tr>';
         html += '<td><b>' + esc(r.h.id) + '</b> <span style="color:var(--muted);font-size:12px">' + esc(r.h.name || '') + '</span></td>';
         html += '<td style="text-align:center"><select onchange="updateHoldingClassification(\'' + esc(r.h.id) + '\', \'assetType\', this.value)" style="padding:4px 6px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:13px">' +
             '<option value="stock"' + (r.assetType==='stock'?' selected':'') + '>股票</option>' +
             '<option value="bond"' + (r.assetType==='bond'?' selected':'') + '>債券</option></select></td>';
         html += '<td style="text-align:center"><select onchange="updateHoldingClassification(\'' + esc(r.h.id) + '\', \'region\', this.value)" style="padding:4px 6px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:13px">' + regionOpts + '</select></td>';
+        html += '<td style="text-align:right">' + fmt(Math.round(cost)) + '</td>';
         html += '<td style="text-align:right">' + fmt(Math.round(r.market)) + '</td>';
+        html += '<td style="text-align:right">' + pnlStr + '</td>';
         html += '<td style="text-align:right">' + pct.toFixed(1) + '%</td>';
         html += '</tr>';
     });
-    html += '</tbody></table></div></div>';
+    // 合計列
+    var totalPnlPct = totalCost > 0 ? (totalPnL / totalCost * 100) : null;
+    var totalPnlColor = totalPnL > 0 ? 'var(--green)' : totalPnL < 0 ? 'var(--red)' : 'var(--muted)';
+    html += '<tr style="border-top:2px solid var(--border);font-weight:700;background:rgba(0,0,0,0.02)">';
+    html += '<td colspan="3" style="text-align:left">合計</td>';
+    html += '<td style="text-align:right">' + fmt(Math.round(totalCost)) + '</td>';
+    html += '<td style="text-align:right">' + fmt(Math.round(totalMarket)) + '</td>';
+    html += '<td style="text-align:right;color:' + totalPnlColor + '">' + (totalPnL >= 0 ? '+' : '') + fmt(Math.round(totalPnL)) +
+            (totalPnlPct !== null ? ' <span style="font-size:11px;font-weight:400">(' + (totalPnlPct >= 0 ? '+' : '') + totalPnlPct.toFixed(1) + '%)</span>' : '') + '</td>';
+    html += '<td style="text-align:right">100%</td>';
+    html += '</tr>';
+    html += '</tbody></table></div>';
+    html += '<div style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.6">※ 帳面損益＝目前市值 − 總成本。若該檔有定期定額，數字反映現在賣出相對於平均成本的損益，並非年化報酬。</div>';
+    html += '</div>';
 
     return html;
 }
@@ -6029,8 +6070,33 @@ function maybeAutoSnapshot() {
             hist.push({ date: today, netWorth: nw, breakdown: br });
             if (hist.length > 3000) hist.splice(0, hist.length - 3000);
         }
+        // 順便快照當日股價（若有現價則記錄，方便日後算「N 日價格漲跌」）
+        try { snapshotStockPrices(today); } catch(_){}
         saveData(true);
     } catch(e) { console.error('[maybeAutoSnapshot]', e); }
+}
+
+// 將當日股價寫入 stockData.priceHistory[id] = [{date,price}, ...]
+function snapshotStockPrices(today) {
+    if (!stockData) return;
+    if (!stockData.priceHistory) stockData.priceHistory = {};
+    if (!stockData.holdings || !stockData.prices) return;
+    var dirty = false;
+    stockData.holdings.forEach(function(h) {
+        var p = stockData.prices[h.id];
+        if (!p || !p.price) return;
+        if (!stockData.priceHistory[h.id]) stockData.priceHistory[h.id] = [];
+        var arr = stockData.priceHistory[h.id];
+        var lastEntry = arr[arr.length - 1];
+        if (lastEntry && lastEntry.date === today) {
+            if (lastEntry.price !== p.price) { lastEntry.price = p.price; dirty = true; }
+        } else {
+            arr.push({ date: today, price: p.price });
+            if (arr.length > 1500) arr.splice(0, arr.length - 1500); // 約 4 年上限
+            dirty = true;
+        }
+    });
+    if (dirty && typeof saveStockData === 'function') saveStockData();
 }
 
 // ── 匯率自動抓（open.er-api.com） ──
