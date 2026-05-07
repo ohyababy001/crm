@@ -705,6 +705,20 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
 }
 .analysis-summary { display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: baseline; }
 .analysis-summary .as-count { margin-left: auto; }
+/* 淨資產卡片月變化標籤 */
+.asset-card-change { display: inline-flex; align-items: center; padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,0.04); white-space: nowrap; }
+@media (max-width: 600px) {
+    .asset-card-change { padding: 1px 4px; }
+    .asset-card-change .chg-text { display: none; }
+}
+/* 趨勢 modal 的四欄 KPI */
+.section-kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 0 0 14px; }
+.section-kpi { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 8px 6px; text-align: center; }
+.section-kpi-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+.section-kpi-val { font-size: 13px; font-weight: 600; }
+@media (max-width: 600px) {
+    .section-kpi-row { grid-template-columns: repeat(2, 1fr); }
+}
 /* 圓餅圖 legend：桌機整體置中、項目左對齊；手機整體靠左 */
 .chart-legend-wrap { display: flex; justify-content: center; }
 .chart-legend-list { display: flex; flex-direction: column; gap: 6px; }
@@ -6134,6 +6148,19 @@ function renderAssets() {
         html += '<div style="display:flex;align-items:center;gap:8px">';
         html += '<div class="asset-card-title"' + (expanded ? ' style="color:#fff"' : '') + '>' + esc(sec.label) + '</div>';
         html += '<button onclick="event.stopPropagation();showSectionTrend(\'' + sec.key + '\')" style="padding:3px 8px;border:1px solid ' + (expanded ? 'rgba(255,255,255,0.4)' : 'var(--border)') + ';border-radius:6px;background:' + (expanded ? 'rgba(255,255,255,0.15)' : 'var(--card)') + ';color:' + (expanded ? '#fff' : 'var(--muted)') + ';font-size:11px;cursor:pointer;font-family:inherit" title="查看趨勢"><i class="ti ti-trending-up" style="font-size:12px"></i> 趨勢</button>';
+        // 變化小指標（展開時不顯示）：優先近 30 日，無資料則 fallback 近 7 日
+        if (!expanded) {
+            var monthChange = getSectionChange(sec.key, 'month');
+            var changeData = monthChange;
+            var changeTitle = '近 30 日變化';
+            if (!monthChange) {
+                changeData = getSectionChange(sec.key, 'week');
+                changeTitle = '近 7 日變化（資料不足 30 日）';
+            }
+            if (changeData) {
+                html += '<span class="asset-card-change" title="' + changeTitle + '">' + formatSectionChange(changeData, isDebt) + '</span>';
+            }
+        }
         html += '</div>';
         html += '<div>';
         html += '<span class="asset-card-sum' + (isDebt ? ' debt' : '') + '"' + (expanded ? ' style="color:#fff"' : '') + '>' + (isDebt ? '- ' : '') + fmt(total) + '</span>';
@@ -6241,6 +6268,46 @@ function toggleNwTrend() {
     renderAssets();
 }
 
+// 取得某分類在指定回顧期的變化（金額與百分比）
+// period: 'week' | 'month' | 'quarter' | 'ytd'
+// 邏輯：找出 baseline 日期 → 找 history 中 date <= baseline 的最後一筆作為起點 → 與最新一筆比較
+function getSectionChange(key, period) {
+    var hist = (DATA.assets && DATA.assets.history) || [];
+    if (hist.length === 0) return null;
+    var latest = hist[hist.length - 1];
+    var latestVal = (latest.breakdown && latest.breakdown[key]) || 0;
+    var today = new Date();
+    var baseline;
+    if (period === 'week')        { baseline = new Date(today); baseline.setDate(baseline.getDate() - 7); }
+    else if (period === 'month')  { baseline = new Date(today); baseline.setMonth(baseline.getMonth() - 1); }
+    else if (period === 'quarter'){ baseline = new Date(today); baseline.setMonth(baseline.getMonth() - 3); }
+    else if (period === 'ytd')    { baseline = new Date(today.getFullYear(), 0, 1); baseline.setDate(baseline.getDate() - 1); }
+    else return null;
+    var bStr = baseline.getFullYear() + '-' + String(baseline.getMonth()+1).padStart(2,'0') + '-' + String(baseline.getDate()).padStart(2,'0');
+    // 找 date <= bStr 的最後一筆
+    var startVal = null;
+    for (var i = hist.length - 1; i >= 0; i--) {
+        if (hist[i].date <= bStr) { startVal = (hist[i].breakdown && hist[i].breakdown[key]) || 0; break; }
+    }
+    if (startVal === null) return null; // 該期間之前沒有快照，無法比較
+    var delta = latestVal - startVal;
+    var pct = startVal !== 0 ? (delta / Math.abs(startVal) * 100) : null;
+    return { delta: delta, pct: pct, startVal: startVal, latestVal: latestVal };
+}
+
+// 將變化渲染成「↗ +1.8%」的小標籤；isDebt=true 時，金額減少（資產角度好）顯示綠↘
+function formatSectionChange(change, isDebt) {
+    if (!change) return '<span style="color:var(--muted);font-size:11px">—</span>';
+    var delta = change.delta;
+    if (delta === 0) return '<span style="color:var(--muted);font-size:11px"><span class="chg-arrow">→</span><span class="chg-text"> 持平</span></span>';
+    // 資產：上漲=好=綠；負債：上漲=壞=紅
+    var isPositive = isDebt ? delta < 0 : delta > 0;
+    var color = isPositive ? '#059669' : '#DC2626';
+    var arrow = delta > 0 ? '↗' : '↘';
+    var pctStr = change.pct !== null ? (change.pct > 0 ? '+' : '') + change.pct.toFixed(1) + '%' : (delta > 0 ? '+' : '') + fmt(delta);
+    return '<span style="color:' + color + ';font-size:11px;font-weight:600">' + arrow + ' ' + pctStr + '</span>';
+}
+
 // 分類趨勢 modal：每個分類有自己的範圍設定
 var _sectionTrendState = {}; // { liquid: 6, invest: 12, ... }
 var _sectionTrendChart = null;
@@ -6250,8 +6317,17 @@ function showSectionTrend(key) {
     if (!_sectionTrendState[key]) _sectionTrendState[key] = 6;
     var ov = document.createElement('div');
     ov.className = 'overlay section-trend-overlay';
+    var isDebt = sec.key === 'debt';
+    var kpiHtml = '<div class="section-kpi-row">' +
+        ['week','month','quarter','ytd'].map(function(p) {
+            var label = p === 'week' ? '近 7 日' : p === 'month' ? '近 30 日' : p === 'quarter' ? '近 90 日' : '今年來';
+            var c = getSectionChange(key, p);
+            return '<div class="section-kpi"><div class="section-kpi-label">' + label + '</div><div class="section-kpi-val">' + formatSectionChange(c, isDebt) + '</div></div>';
+        }).join('') +
+        '</div>';
     ov.innerHTML = '<div class="modal" style="width:560px;max-width:94vw">' +
         '<h3><i class="ti ti-trending-up"></i> ' + esc(sec.label) + ' 趨勢</h3>' +
+        kpiHtml +
         '<div class="nw-trend-range" style="margin-bottom:10px">' +
             '<button onclick="setSectionTrendRange(\'' + key + '\',6)" class="nw-range-btn">近 6 月</button>' +
             '<button onclick="setSectionTrendRange(\'' + key + '\',12)" class="nw-range-btn">近 12 月</button>' +
