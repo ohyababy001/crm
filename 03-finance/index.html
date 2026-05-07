@@ -712,6 +712,11 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
     .asset-card-change { padding: 1px 4px; }
     .asset-card-change .chg-text { display: none; }
 }
+/* 持股明細表的價格漲跌欄：手機版只留 7 日，30/90 日靠點持股的 modal 看 */
+@media (max-width: 600px) {
+    .holdings-detail .col-30d,
+    .holdings-detail .col-90d { display: none; }
+}
 /* 趨勢 modal 的四欄 KPI */
 .section-kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 0 0 14px; }
 .section-kpi { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 8px 6px; text-align: center; }
@@ -5452,6 +5457,34 @@ function _localDateStr(d) {
 var _stockAssetChart = null;
 var _stockRegionChart = null;
 var _stockHoldingChart = null;
+var _stockPriceTrendChart = null;
+
+// 從 priceHistory 取得 N 天前對比現價的漲跌幅
+// 回傳 { pct, daysBack, latestPrice } 或 null（資料不足）
+function getStockPriceChange(stockId, daysBack) {
+    var arr = (stockData.priceHistory && stockData.priceHistory[stockId]) || [];
+    if (arr.length < 2) return null;
+    var latest = arr[arr.length - 1];
+    var target = new Date();
+    target.setDate(target.getDate() - daysBack);
+    var tStr = target.getFullYear() + '-' + String(target.getMonth()+1).padStart(2,'0') + '-' + String(target.getDate()).padStart(2,'0');
+    // 找 date <= tStr 的最後一筆
+    var startEntry = null;
+    for (var i = arr.length - 1; i >= 0; i--) {
+        if (arr[i].date <= tStr) { startEntry = arr[i]; break; }
+    }
+    if (!startEntry) return null;
+    if (startEntry.price === 0) return null;
+    return { pct: (latest.price - startEntry.price) / startEntry.price * 100, daysBack: daysBack, latestPrice: latest.price, startPrice: startEntry.price, startDate: startEntry.date };
+}
+
+function fmtPriceChange(change) {
+    if (!change) return '<span style="color:var(--muted);font-size:11px" title="累積中（資料不足）">—</span>';
+    var pct = change.pct;
+    var color = pct > 0 ? 'var(--green)' : pct < 0 ? 'var(--red)' : 'var(--muted)';
+    var sign = pct > 0 ? '+' : '';
+    return '<span style="color:' + color + ';font-weight:600">' + sign + pct.toFixed(1) + '%</span>';
+}
 
 function renderStockAnalysis() {
     var html = '';
@@ -5519,7 +5552,7 @@ function renderStockAnalysis() {
 
     // 行內分類編輯表
     html += '<div style="background:var(--card);border-radius:var(--radius);padding:12px;box-shadow:var(--shadow)">';
-    html += '<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px">持股明細 <span style="font-size:11px;color:var(--muted);font-weight:400">（類型／區域可直接點選下拉修改）</span></div>';
+    html += '<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px">持股明細 <span style="font-size:11px;color:var(--muted);font-weight:400">（類型／區域可直接點選下拉修改；點持股名看價格走勢）</span></div>';
     html += '<div class="table-wrap"><table class="stock-table holdings-detail" style="width:100%"><thead><tr>';
     html += '<th style="text-align:left">持股</th>';
     html += '<th style="text-align:center">類型</th>';
@@ -5527,6 +5560,9 @@ function renderStockAnalysis() {
     html += '<th style="text-align:right">成本</th>';
     html += '<th style="text-align:right">市值</th>';
     html += '<th style="text-align:right" title="目前市值 − 總成本，受定期定額影響不代表年化報酬">帳面損益</th>';
+    html += '<th class="col-price-chg col-7d" style="text-align:right" title="近 7 日純價格漲跌，不受定期定額影響">7 日</th>';
+    html += '<th class="col-price-chg col-30d" style="text-align:right" title="近 30 日純價格漲跌，不受定期定額影響">30 日</th>';
+    html += '<th class="col-price-chg col-90d" style="text-align:right" title="近 90 日純價格漲跌，不受定期定額影響">90 日</th>';
     html += '<th style="text-align:right">佔比</th>';
     html += '</tr></thead><tbody>';
 
@@ -5548,8 +5584,11 @@ function renderStockAnalysis() {
             ? '<b style="color:' + pnlColor + '">' + (pnl >= 0 ? '+' : '') + fmt(Math.round(pnl)) + '</b>' +
               (pnlPct !== null ? ' <span style="color:' + pnlColor + ';font-size:11px">(' + (pnlPct >= 0 ? '+' : '') + pnlPct.toFixed(1) + '%)</span>' : '')
             : '<span style="color:var(--muted);font-size:11px" title="無現價">—</span>';
+        var c7  = getStockPriceChange(r.h.id, 7);
+        var c30 = getStockPriceChange(r.h.id, 30);
+        var c90 = getStockPriceChange(r.h.id, 90);
         html += '<tr>';
-        html += '<td><b>' + esc(r.h.id) + '</b> <span style="color:var(--muted);font-size:12px">' + esc(r.h.name || '') + '</span></td>';
+        html += '<td><b style="cursor:pointer;color:var(--lux-navy);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px" onclick="showStockPriceTrend(\'' + esc(r.h.id) + '\')" title="點開看價格走勢">' + esc(r.h.id) + '</b> <span style="color:var(--muted);font-size:12px">' + esc(r.h.name || '') + '</span></td>';
         html += '<td style="text-align:center"><select onchange="updateHoldingClassification(\'' + esc(r.h.id) + '\', \'assetType\', this.value)" style="padding:4px 6px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:13px">' +
             '<option value="stock"' + (r.assetType==='stock'?' selected':'') + '>股票</option>' +
             '<option value="bond"' + (r.assetType==='bond'?' selected':'') + '>債券</option></select></td>';
@@ -5557,6 +5596,9 @@ function renderStockAnalysis() {
         html += '<td style="text-align:right">' + fmt(Math.round(cost)) + '</td>';
         html += '<td style="text-align:right">' + fmt(Math.round(r.market)) + '</td>';
         html += '<td style="text-align:right">' + pnlStr + '</td>';
+        html += '<td class="col-price-chg col-7d" style="text-align:right">' + fmtPriceChange(c7) + '</td>';
+        html += '<td class="col-price-chg col-30d" style="text-align:right">' + fmtPriceChange(c30) + '</td>';
+        html += '<td class="col-price-chg col-90d" style="text-align:right">' + fmtPriceChange(c90) + '</td>';
         html += '<td style="text-align:right">' + pct.toFixed(1) + '%</td>';
         html += '</tr>';
     });
@@ -5569,6 +5611,7 @@ function renderStockAnalysis() {
     html += '<td style="text-align:right">' + fmt(Math.round(totalMarket)) + '</td>';
     html += '<td style="text-align:right;color:' + totalPnlColor + '">' + (totalPnL >= 0 ? '+' : '') + fmt(Math.round(totalPnL)) +
             (totalPnlPct !== null ? ' <span style="font-size:11px;font-weight:400">(' + (totalPnlPct >= 0 ? '+' : '') + totalPnlPct.toFixed(1) + '%)</span>' : '') + '</td>';
+    html += '<td class="col-price-chg col-7d"></td><td class="col-price-chg col-30d"></td><td class="col-price-chg col-90d"></td>';
     html += '<td style="text-align:right">100%</td>';
     html += '</tr>';
     html += '</tbody></table></div>';
@@ -5785,6 +5828,60 @@ function drawStockAnalysisCharts() {
             }
         });
         renderHtmlLegend('chart-holding-legend', hLabels, hData, hPalette);
+    }
+}
+
+// 點持股 → 顯示價格走勢 modal
+function showStockPriceTrend(stockId) {
+    var holding = stockData.holdings.find(function(h){ return h.id === stockId; });
+    var name = holding ? (holding.name || stockId) : stockId;
+    var arr = (stockData.priceHistory && stockData.priceHistory[stockId]) || [];
+    var ov = document.createElement('div');
+    ov.className = 'overlay stock-price-trend-overlay';
+    var body = '';
+    if (arr.length < 2) {
+        body = '<div style="text-align:center;padding:40px;color:var(--muted);font-size:13px">' +
+               '此股票目前累積 ' + arr.length + ' 筆價格紀錄，<br>每天自動快照一次，至少需要 2 天才能繪製走勢圖。<br><br>' +
+               '<span style="font-size:12px">提示：每日股價快照從 2026-05-08 開始啟用，請每天進入此頁面（或讓背景同步）以累積資料。</span>' +
+               '</div>';
+    } else {
+        var first = arr[0], last = arr[arr.length - 1];
+        var totalChg = first.price > 0 ? (last.price - first.price) / first.price * 100 : 0;
+        var c7 = getStockPriceChange(stockId, 7);
+        var c30 = getStockPriceChange(stockId, 30);
+        var c90 = getStockPriceChange(stockId, 90);
+        body = '<div class="section-kpi-row" style="margin-bottom:14px">' +
+            '<div class="section-kpi"><div class="section-kpi-label">近 7 日</div><div class="section-kpi-val">' + fmtPriceChange(c7) + '</div></div>' +
+            '<div class="section-kpi"><div class="section-kpi-label">近 30 日</div><div class="section-kpi-val">' + fmtPriceChange(c30) + '</div></div>' +
+            '<div class="section-kpi"><div class="section-kpi-label">近 90 日</div><div class="section-kpi-val">' + fmtPriceChange(c90) + '</div></div>' +
+            '<div class="section-kpi"><div class="section-kpi-label">自記錄起</div><div class="section-kpi-val">' + fmtPriceChange({pct: totalChg}) + '</div></div>' +
+            '</div>' +
+            '<div style="height:240px"><canvas id="stock-price-trend-chart"></canvas></div>' +
+            '<div style="font-size:11px;color:var(--muted);margin-top:8px">共 ' + arr.length + ' 筆紀錄（' + arr[0].date + ' ~ ' + arr[arr.length-1].date + '）</div>';
+    }
+    ov.innerHTML = '<div class="modal" style="width:560px;max-width:94vw">' +
+        '<h3><i class="ti ti-chart-line"></i> ' + esc(stockId) + ' ' + esc(name) + ' 價格走勢</h3>' +
+        body +
+        '<div class="modal-btns" style="margin-top:12px"><button onclick="this.closest(\'.overlay\').remove()" style="flex:1">關閉</button></div>' +
+        '</div>';
+    document.body.appendChild(ov);
+    ov.addEventListener('click', function(e){ if (e.target === ov) { ov.remove(); if (_stockPriceTrendChart) { try { _stockPriceTrendChart.destroy(); } catch(_){} _stockPriceTrendChart = null; } } });
+    if (arr.length >= 2) {
+        var canvas = document.getElementById('stock-price-trend-chart');
+        if (canvas) {
+            if (_stockPriceTrendChart) { try { _stockPriceTrendChart.destroy(); } catch(_){} }
+            _stockPriceTrendChart = new Chart(canvas.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: arr.map(function(e){ return e.date; }),
+                    datasets: [{ data: arr.map(function(e){ return e.price; }), borderColor: '#0284C7', backgroundColor: 'rgba(2,132,199,0.1)', fill: true, tension: 0.3, pointRadius: 2, borderWidth: 2 }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, animation: false,
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(ctx){ return '價格 ' + ctx.parsed.y; } } } }
+                }
+            });
+        }
     }
 }
 
