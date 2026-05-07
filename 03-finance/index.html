@@ -5455,7 +5455,7 @@ function renderStockAnalysis() {
     var stockPct = totalMarket > 0 ? (stockSum / totalMarket * 100) : 0;
     var bondPct  = totalMarket > 0 ? (bondSum  / totalMarket * 100) : 0;
     html += '<div class="analysis-summary" style="background:var(--card);border-radius:var(--radius);padding:12px 16px;margin-bottom:14px;box-shadow:var(--shadow);font-size:13px">';
-    html += '<span class="as-total"><span style="color:var(--muted);font-size:12px">總市值</span><br><b style="font-size:22px;color:var(--text);letter-spacing:-0.5px">' + fmt(Math.round(totalMarket)) + '</b></span>';
+    html += '<span class="as-total"><span style="color:var(--muted)">總市值 </span><b style="font-size:20px;color:var(--text);letter-spacing:-0.5px">' + fmt(Math.round(totalMarket)) + '</b></span>';
     html += '<span class="as-stock"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#c8a45a;margin-right:6px;vertical-align:1px"></span><span style="color:var(--muted)">股票 </span><b>' + fmt(Math.round(stockSum)) + '</b> <span style="color:var(--muted)">(' + stockPct.toFixed(1) + '%)</span></span>';
     html += '<span class="as-bond"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#1a3a5c;margin-right:6px;vertical-align:1px"></span><span style="color:var(--muted)">債券 </span><b>' + fmt(Math.round(bondSum)) + '</b> <span style="color:var(--muted)">(' + bondPct.toFixed(1) + '%)</span></span>';
     html += '<span class="as-count" style="color:var(--muted)">持股 ' + rows.length + ' 檔</span>';
