@@ -4323,6 +4323,8 @@ function checkDividendAlerts() {
         // 去重 key：id 歸一（trim+大寫）+ 日期歸一，避免不同來源/格式造成的重複
         var idKey = String(h.id || '').trim().toUpperCase();
         var key = idKey + '|' + exDateNorm;
+        // 歷史事件持久化：不論是否在未來範圍內，都先存到 dividendHistory 用於還原權息計算
+        recordDividendHistory(h.id, exDateNorm, Number(cash) || 0, Number(stockDiv) || 0);
         if (seen[key]) return;
         var exDiff = _diffDays(exDateNorm);
         if (exDiff === null) return;
@@ -5460,8 +5462,28 @@ var _stockRegionChart = null;
 var _stockHoldingChart = null;
 var _stockPriceTrendChart = null;
 
-// 從 priceHistory 取得 N 天前對比現價的漲跌幅
-// 回傳 { pct, daysBack, latestPrice } 或 null（資料不足）
+// 把除權息事件寫入 stockData.dividendHistory 持久化（每筆 {stockId, exDate, cash, stockDiv}）
+// 提供給「還原權息」計算使用，覆蓋過去與未來所有事件
+function recordDividendHistory(stockId, exDate, cash, stockDiv) {
+    if (!stockId || !exDate) return;
+    if (!stockData) return;
+    if (!stockData.dividendHistory) stockData.dividendHistory = [];
+    if (!cash && !stockDiv) return; // 沒配也沒分股就跳過
+    var idKey = String(stockId).trim().toUpperCase();
+    var existing = stockData.dividendHistory.find(function(e){ return e.stockId === idKey && e.exDate === exDate; });
+    if (existing) {
+        var changed = false;
+        if (cash > 0 && existing.cash !== cash) { existing.cash = cash; changed = true; }
+        if (stockDiv > 0 && existing.stockDiv !== stockDiv) { existing.stockDiv = stockDiv; changed = true; }
+        if (changed && typeof saveStockData === 'function') saveStockData();
+    } else {
+        stockData.dividendHistory.push({ stockId: idKey, exDate: exDate, cash: cash, stockDiv: stockDiv });
+        if (typeof saveStockData === 'function') saveStockData();
+    }
+}
+
+// 從 priceHistory 取得 N 天前對比現價的漲跌幅（已還原權息／股票股利／分割）
+// 回傳 { pct, daysBack, latestPrice, startPrice, startDate, adjusted } 或 null（資料不足）
 function getStockPriceChange(stockId, daysBack) {
     var arr = (stockData.priceHistory && stockData.priceHistory[stockId]) || [];
     if (arr.length < 2) return null;
@@ -5469,14 +5491,40 @@ function getStockPriceChange(stockId, daysBack) {
     var target = new Date();
     target.setDate(target.getDate() - daysBack);
     var tStr = target.getFullYear() + '-' + String(target.getMonth()+1).padStart(2,'0') + '-' + String(target.getDate()).padStart(2,'0');
-    // 找 date <= tStr 的最後一筆
     var startEntry = null;
     for (var i = arr.length - 1; i >= 0; i--) {
         if (arr[i].date <= tStr) { startEntry = arr[i]; break; }
     }
     if (!startEntry) return null;
     if (startEntry.price === 0) return null;
-    return { pct: (latest.price - startEntry.price) / startEntry.price * 100, daysBack: daysBack, latestPrice: latest.price, startPrice: startEntry.price, startDate: startEntry.date };
+    // 把 startPrice 還原：找出 startDate < exDate <= latestDate 的所有事件，累積調整
+    var adj = adjustForCorporateActions(stockId, startEntry.price, startEntry.date, latest.date);
+    var adjustedStart = adj.adjustedPrice;
+    var pct = (latest.price - adjustedStart) / adjustedStart * 100;
+    return { pct: pct, daysBack: daysBack, latestPrice: latest.price, startPrice: startEntry.price, adjustedStart: adjustedStart, startDate: startEntry.date, adjusted: adj.eventCount > 0 };
+}
+
+// 把舊價格依期間內的除權息／股票股利／分割事件還原
+// 回傳 { adjustedPrice, eventCount }
+// 邏輯：對於每個 startDate < exDate <= endDate 的事件
+//   - 現金股利 cash：還原後舊價 = 舊價 − cash（每股配息直接扣）
+//   - 股票股利 stockDiv（單位：每股配 stockDiv/10 股；分割 1:N 視為 stockDiv = (N-1)*10）：還原後舊價 = 舊價 / (1 + stockDiv/10)
+function adjustForCorporateActions(stockId, oldPrice, startDate, endDate) {
+    var events = (stockData && Array.isArray(stockData.dividendHistory)) ? stockData.dividendHistory : [];
+    var idKey = String(stockId).trim().toUpperCase();
+    var price = oldPrice;
+    var count = 0;
+    events.forEach(function(ev) {
+        if (ev.stockId !== idKey) return;
+        if (!ev.exDate) return;
+        if (ev.exDate <= startDate || ev.exDate > endDate) return;
+        var cash = Number(ev.cash) || 0;
+        var stockDiv = Number(ev.stockDiv) || 0;
+        if (cash > 0) { price = price - cash; count++; }
+        if (stockDiv > 0) { price = price / (1 + stockDiv / 10); count++; }
+    });
+    if (price < 0.01) price = 0.01; // 防呆
+    return { adjustedPrice: price, eventCount: count };
 }
 
 function fmtPriceChange(change) {
@@ -5561,10 +5609,10 @@ function renderStockAnalysis() {
     html += '<th style="text-align:right">成本</th>';
     html += '<th style="text-align:right">市值</th>';
     html += '<th style="text-align:right" title="目前市值 − 總成本，受定期定額影響不代表年化報酬">帳面損益</th>';
-    html += '<th class="col-price-chg col-7d" style="text-align:right" title="近 7 日純價格漲跌，不受定期定額影響">7 日</th>';
-    html += '<th class="col-price-chg col-30d" style="text-align:right" title="近 30 日純價格漲跌，不受定期定額影響">30 日</th>';
-    html += '<th class="col-price-chg col-90d" style="text-align:right" title="近 90 日純價格漲跌，不受定期定額影響">90 日</th>';
-    html += '<th class="col-price-chg col-365d" style="text-align:right" title="近 1 年純價格漲跌，不受定期定額影響">1 年</th>';
+    html += '<th class="col-price-chg col-7d" style="text-align:right" title="近 7 日純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響">7 日</th>';
+    html += '<th class="col-price-chg col-30d" style="text-align:right" title="近 30 日純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響">30 日</th>';
+    html += '<th class="col-price-chg col-90d" style="text-align:right" title="近 90 日純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響">90 日</th>';
+    html += '<th class="col-price-chg col-365d" style="text-align:right" title="近 1 年純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響">1 年</th>';
     html += '<th style="text-align:right">佔比</th>';
     html += '</tr></thead><tbody>';
 
@@ -5862,7 +5910,8 @@ function showStockPriceTrend(stockId) {
             '<div class="section-kpi"><div class="section-kpi-label">近 1 年</div><div class="section-kpi-val">' + fmtPriceChange(c365) + '</div></div>' +
             '</div>' +
             '<div style="height:240px"><canvas id="stock-price-trend-chart"></canvas></div>' +
-            '<div style="font-size:11px;color:var(--muted);margin-top:8px">共 ' + arr.length + ' 筆紀錄（' + arr[0].date + ' ~ ' + arr[arr.length-1].date + '）　自記錄起 ' + fmtPriceChange({pct: totalChg}) + '</div>';
+            '<div style="font-size:11px;color:var(--muted);margin-top:8px">共 ' + arr.length + ' 筆紀錄（' + arr[0].date + ' ~ ' + arr[arr.length-1].date + '）　自記錄起 ' + fmtPriceChange({pct: totalChg}) + '</div>' +
+            '<div style="font-size:11px;color:var(--muted);margin-top:4px">※ 漲跌已自動還原權息／股票股利／分割（資料來源：除權息提醒）</div>';
     }
     ov.innerHTML = '<div class="modal" style="width:560px;max-width:94vw">' +
         '<h3><i class="ti ti-chart-line"></i> ' + esc(stockId) + ' ' + esc(name) + ' 價格走勢</h3>' +
