@@ -688,12 +688,15 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+.dividend-alert-compact .alert-date-short { display: none; }
 @keyframes div-spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
 @media (max-width: 600px) {
     .stock-sub-tabs-row { flex-direction: column; align-items: stretch; gap: 10px; }
     .stock-summary-bar { display: grid !important; grid-template-columns: 1fr 1.8fr; gap: 4px 12px !important; padding: 8px 12px !important; font-size: 15px !important; }
     .stock-summary-bar .year-dividend-cell { display: none; }
     .dividend-alert-compact { font-size: 12px; padding: 5px 10px; }
+    .dividend-alert-compact .alert-date-full { display: none; }
+    .dividend-alert-compact .alert-date-short { display: inline; }
     .analysis-summary { display: grid !important; grid-template-columns: 1fr 1fr; gap: 8px 12px !important; }
     .analysis-summary .as-total { grid-row: 1; grid-column: 1; }
     .analysis-summary .as-count { grid-row: 1; grid-column: 2; justify-self: end; }
@@ -4409,7 +4412,15 @@ function renderDividendAlerts() {
             showDate = first.exDate;
             showLabel = '（已除息）';
         }
-        summary = '<b>' + esc(first.stockId) + ' ' + esc(first.stockName) + '</b> ' + esc(showDate) + ' ' + showLabel;
+        // 日期：桌機顯示完整 YYYY-MM-DD；手機在同一年時簡化為 M/D，跨年才保留年份
+        var nowY = new Date().getFullYear();
+        var dParts = String(showDate).split('-'); // ['YYYY','MM','DD']
+        var shortDate = (Number(dParts[0]) === nowY)
+            ? (Number(dParts[1]) + '/' + Number(dParts[2]))
+            : (dParts[0] + '/' + Number(dParts[1]) + '/' + Number(dParts[2]));
+        summary = '<b>' + esc(first.stockId) + ' ' + esc(first.stockName) + '</b> ' +
+                  '<span class="alert-date-full">' + esc(showDate) + '</span>' +
+                  '<span class="alert-date-short">' + esc(shortDate) + '</span> ' + showLabel;
         if (count > 1) summary += ' <span style="color:var(--text-light);">+' + (count-1) + ' 筆</span>';
     }
     var onclick = count > 0 ? ' onclick="showDividendAlertModal()"' : '';
