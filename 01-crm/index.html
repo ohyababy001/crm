@@ -4087,7 +4087,7 @@ function render() {
         var ctEl = _ctEls[t] || (_ctEls[t] = document.getElementById('ct-'+t));
         if (ctEl) ctEl.textContent = active;
         var archEl = _caEls[t] || (_caEls[t] = document.getElementById('ca-'+t));
-        if (archEl) archEl.textContent = arch ? '（封存 '+arch+'）' : '';
+        if (archEl) archEl.textContent = arch ? '（'+arch+'）' : '';
     });
     // 封存切換按鈕：僅在可封存的類型頁面顯示
     var showToggle = ARCHIVABLE.includes(curFilter) && (_typeArch[curFilter] || 0) > 0;
