@@ -3848,6 +3848,13 @@ function guessAssetType(stockId) {
     // 代號末碼 B 通常是債券 ETF（00937B、00679B…）
     return /B$/i.test(stockId || '') ? 'bond' : 'stock';
 }
+// 切換券商過濾：自動跳回持股總覽
+function onBrokerFilterChange(val) {
+    currentBroker = val || '';
+    stockSubTab = 'holdings';
+    renderStock();
+}
+
 // 從 holdings 撈出曾用過的券商清單（去重、去空白）
 function getKnownBrokers() {
     var set = {};
@@ -4951,6 +4958,20 @@ function renderStock() {
 
     // 子頁籤 + 除權息提醒（並排）
     html += '<div class="stock-sub-tabs-row">';
+    // 券商過濾下拉（最左）— 只在「持股總覽」分頁時可用
+    var _knownBrokers = getKnownBrokers();
+    if (_knownBrokers.length > 0) {
+        var _brokerOpts = '<option value=""' + (currentBroker===''?' selected':'') + '>全部券商</option>' +
+            _knownBrokers.map(function(b){
+                return '<option value="'+esc(b)+'"' + (currentBroker===b?' selected':'') + '>'+esc(b)+'</option>';
+            }).join('');
+        var _disabled = stockSubTab !== 'holdings';
+        var _bg = _disabled ? '#F5F5F4' : 'white';
+        var _color = _disabled ? 'var(--muted-2)' : 'var(--lux-navy)';
+        var _border = _disabled ? 'var(--border)' : 'var(--lux-navy)';
+        var _title = _disabled ? '券商過濾僅適用於持股總覽' : '切換券商';
+        html += '<select class="stock-broker-filter"' + (_disabled?' disabled':'') + ' onchange="onBrokerFilterChange(this.value)" title="' + _title + '" style="padding:8px 12px;border:1px solid ' + _border + ';border-radius:var(--radius-xs);background:' + _bg + ';color:' + _color + ';font-family:inherit;font-size:13px;font-weight:600;cursor:' + (_disabled?'not-allowed':'pointer') + '">' + _brokerOpts + '</select>';
+    }
     html += '<div class="stock-sub-tabs">';
     html += '<button class="stock-sub-tab' + (stockSubTab==='holdings'?' active':'') + '" onclick="stockSubTab=\'holdings\';renderStock()"><span class="lbl-full">持股總覽</span><span class="lbl-short">總覽</span></button>';
     html += '<button class="stock-sub-tab' + (stockSubTab==='dividend'?' active':'') + '" onclick="stockSubTab=\'dividend\';renderStock()"><span class="lbl-full">股利紀錄</span><span class="lbl-short">股利</span></button>';
@@ -4985,15 +5006,6 @@ function renderStockHoldings() {
     html += '<button class="btn-refresh" id="btn-fetch-price" onclick="refreshPrices()"><i class="ti ti-antenna-bars-5"></i> <span class="lbl-full">更新股價</span><span class="lbl-short">更新</span></button>';
     html += '<button class="btn-refresh" style="background:linear-gradient(135deg,#0f2847 0%,#1a3a5c 50%,#2a5a8c 100%);border:1px solid var(--lux-gold)" onclick="toggleStockColumn()"><i class="ti ti-columns"></i> 欄位</button>';
     html += '<button class="btn-refresh" onclick="manageHoldings()"><i class="ti ti-list-details"></i> <span class="lbl-full">管理持股</span><span class="lbl-short">管理</span></button>';
-    // 券商過濾下拉（僅持股總覽用）
-    var knownBrokers = getKnownBrokers();
-    var brokerOpts = '<option value=""' + (currentBroker===''?' selected':'') + '>全部券商</option>' +
-        knownBrokers.map(function(b){
-            return '<option value="'+esc(b)+'"' + (currentBroker===b?' selected':'') + '>'+esc(b)+'</option>';
-        }).join('');
-    if (knownBrokers.length > 0) {
-        html += '<select onchange="currentBroker=this.value;renderStock()" style="padding:8px 12px;border:1px solid var(--lux-navy);border-radius:var(--radius-xs);background:white;color:var(--lux-navy);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer">' + brokerOpts + '</select>';
-    }
     html += '<span class="last-update" style="color:var(--yellow)"><span class="lbl-full">※ 顯示前一交易日收盤價</span><span class="lbl-short">※ 顯示昨日收盤價</span></span>';
     html += '</div>';
 
