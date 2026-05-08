@@ -3357,7 +3357,11 @@ var STOCK_COLUMNS = [
     { key: 'pl',      label: '總損益（含報酬率）',   default: true },
     { key: 'shares',  label: '股數（含質押）',       default: true },
     { key: 'cost',    label: '均價（含總成本）',     default: true },
-    { key: 'market',  label: '市值（含佔比）',       default: true }
+    { key: 'market',  label: '市值（含佔比）',       default: true },
+    { key: 'chg7d',   label: '近 7 日漲跌',          default: true },
+    { key: 'chg30d',  label: '近 30 日漲跌',         default: true },
+    { key: 'chg90d',  label: '近 90 日漲跌',         default: true },
+    { key: 'chg365d', label: '近 1 年漲跌',          default: true }
 ];
 var _stockColVisible = null;
 function getStockColVisible() {
@@ -5052,6 +5056,10 @@ function renderStockHoldings() {
     if (vis.shares !== false) html += '<th class="col-shares" style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'shares\')"><span class="col-title">股數</span>' + _sArr('shares') + '</th>';
     if (vis.cost !== false) html += '<th class="col-cost" style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'cost\')"><span class="col-title">均價</span><br><span class="stock-sub-label" style="font-size:11px;color:var(--muted);font-weight:400">總成本</span>' + _sArr('cost') + '</th>';
     if (vis.market !== false) html += '<th class="col-market" style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'market\')"><span class="col-title">市值</span><br><span class="stock-sub-label" style="font-size:11px;color:var(--muted);font-weight:400">佔比</span>' + _sArr('market') + '</th>';
+    if (vis.chg7d   !== false) html += '<th class="col-price-chg col-7d" style="text-align:right" title="近 7 日純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響">7 日</th>';
+    if (vis.chg30d  !== false) html += '<th class="col-price-chg col-30d" style="text-align:right" title="近 30 日純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響">30 日</th>';
+    if (vis.chg90d  !== false) html += '<th class="col-price-chg col-90d" style="text-align:right" title="近 90 日純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響">90 日</th>';
+    if (vis.chg365d !== false) html += '<th class="col-price-chg col-365d" style="text-align:right" title="近 1 年純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響">1 年</th>';
     html += '</tr></thead><tbody>';
 
     rows.forEach(function(r) {
@@ -5098,6 +5106,11 @@ function renderStockHoldings() {
             var weightHtml = r.weight !== null ? '<br><span class="stock-sub-val" style="font-size:11px;color:var(--muted);font-weight:400">' + r.weight.toFixed(1) + '%</span>' : '';
             html += '<td style="font-weight:600">' + marketHtml + weightHtml + '</td>';
         }
+        // 7 / 30 / 90 / 1 年 漲跌
+        if (vis.chg7d   !== false) html += '<td class="col-price-chg col-7d" style="text-align:right">'   + fmtPriceChange(getStockPriceChange(h.id, 7))   + '</td>';
+        if (vis.chg30d  !== false) html += '<td class="col-price-chg col-30d" style="text-align:right">'  + fmtPriceChange(getStockPriceChange(h.id, 30))  + '</td>';
+        if (vis.chg90d  !== false) html += '<td class="col-price-chg col-90d" style="text-align:right">'  + fmtPriceChange(getStockPriceChange(h.id, 90))  + '</td>';
+        if (vis.chg365d !== false) html += '<td class="col-price-chg col-365d" style="text-align:right">' + fmtPriceChange(getStockPriceChange(h.id, 365)) + '</td>';
         html += '</tr>';
     });
 
@@ -5609,10 +5622,6 @@ function renderStockAnalysis() {
     html += '<th style="text-align:right">成本</th>';
     html += '<th style="text-align:right">市值</th>';
     html += '<th style="text-align:right" title="目前市值 − 總成本，受定期定額影響不代表年化報酬">帳面損益</th>';
-    html += '<th class="col-price-chg col-7d" style="text-align:right" title="近 7 日純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響">7 日</th>';
-    html += '<th class="col-price-chg col-30d" style="text-align:right" title="近 30 日純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響">30 日</th>';
-    html += '<th class="col-price-chg col-90d" style="text-align:right" title="近 90 日純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響">90 日</th>';
-    html += '<th class="col-price-chg col-365d" style="text-align:right" title="近 1 年純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響">1 年</th>';
     html += '<th style="text-align:right">佔比</th>';
     html += '</tr></thead><tbody>';
 
@@ -5634,10 +5643,6 @@ function renderStockAnalysis() {
             ? '<b style="color:' + pnlColor + '">' + (pnl >= 0 ? '+' : '') + fmt(Math.round(pnl)) + '</b>' +
               (pnlPct !== null ? ' <span style="color:' + pnlColor + ';font-size:11px">(' + (pnlPct >= 0 ? '+' : '') + pnlPct.toFixed(1) + '%)</span>' : '')
             : '<span style="color:var(--muted);font-size:11px" title="無現價">—</span>';
-        var c7   = getStockPriceChange(r.h.id, 7);
-        var c30  = getStockPriceChange(r.h.id, 30);
-        var c90  = getStockPriceChange(r.h.id, 90);
-        var c365 = getStockPriceChange(r.h.id, 365);
         html += '<tr>';
         html += '<td><b style="cursor:pointer;color:var(--lux-navy);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px" onclick="showStockPriceTrend(\'' + esc(r.h.id) + '\')" title="點開看價格走勢">' + esc(r.h.id) + '</b> <span style="color:var(--muted);font-size:12px">' + esc(r.h.name || '') + '</span></td>';
         html += '<td style="text-align:center"><select onchange="updateHoldingClassification(\'' + esc(r.h.id) + '\', \'assetType\', this.value)" style="padding:4px 6px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:13px">' +
@@ -5647,10 +5652,6 @@ function renderStockAnalysis() {
         html += '<td style="text-align:right">' + fmt(Math.round(cost)) + '</td>';
         html += '<td style="text-align:right">' + fmt(Math.round(r.market)) + '</td>';
         html += '<td style="text-align:right">' + pnlStr + '</td>';
-        html += '<td class="col-price-chg col-7d" style="text-align:right">' + fmtPriceChange(c7) + '</td>';
-        html += '<td class="col-price-chg col-30d" style="text-align:right">' + fmtPriceChange(c30) + '</td>';
-        html += '<td class="col-price-chg col-90d" style="text-align:right">' + fmtPriceChange(c90) + '</td>';
-        html += '<td class="col-price-chg col-365d" style="text-align:right">' + fmtPriceChange(c365) + '</td>';
         html += '<td style="text-align:right">' + pct.toFixed(1) + '%</td>';
         html += '</tr>';
     });
@@ -5663,7 +5664,6 @@ function renderStockAnalysis() {
     html += '<td style="text-align:right">' + fmt(Math.round(totalMarket)) + '</td>';
     html += '<td style="text-align:right;color:' + totalPnlColor + '">' + (totalPnL >= 0 ? '+' : '') + fmt(Math.round(totalPnL)) +
             (totalPnlPct !== null ? ' <span style="font-size:11px;font-weight:400">(' + (totalPnlPct >= 0 ? '+' : '') + totalPnlPct.toFixed(1) + '%)</span>' : '') + '</td>';
-    html += '<td class="col-price-chg col-7d"></td><td class="col-price-chg col-30d"></td><td class="col-price-chg col-90d"></td><td class="col-price-chg col-365d"></td>';
     html += '<td style="text-align:right">100%</td>';
     html += '</tr>';
     html += '</tbody></table></div>';
