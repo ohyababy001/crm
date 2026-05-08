@@ -717,6 +717,10 @@ tfoot td:first-child { text-align: left; position: sticky; left: 0; background: 
     .holdings-detail .col-30d,
     .holdings-detail .col-90d,
     .holdings-detail .col-365d { display: none; }
+    /* 分析頁明細表：手機版隱藏成本／市值／帳面損益，留下持股／類型／區域／佔比 */
+    .holdings-detail .col-cost,
+    .holdings-detail .col-market,
+    .holdings-detail .col-pnl { display: none; }
 }
 /* 趨勢 modal 的四欄 KPI */
 .section-kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 0 0 14px; }
@@ -5626,9 +5630,9 @@ function renderStockAnalysis() {
     html += '<th style="text-align:left">持股</th>';
     html += '<th style="text-align:center">類型</th>';
     html += '<th style="text-align:center">區域</th>';
-    html += '<th style="text-align:right">成本</th>';
-    html += '<th style="text-align:right">市值</th>';
-    html += '<th style="text-align:right" title="目前市值 − 總成本，受定期定額影響不代表年化報酬">帳面損益</th>';
+    html += '<th class="col-cost" style="text-align:right">成本</th>';
+    html += '<th class="col-market" style="text-align:right">市值</th>';
+    html += '<th class="col-pnl" style="text-align:right" title="目前市值 − 總成本，受定期定額影響不代表年化報酬">帳面損益</th>';
     html += '<th style="text-align:right">佔比</th>';
     html += '</tr></thead><tbody>';
 
@@ -5656,9 +5660,9 @@ function renderStockAnalysis() {
             '<option value="stock"' + (r.assetType==='stock'?' selected':'') + '>股票</option>' +
             '<option value="bond"' + (r.assetType==='bond'?' selected':'') + '>債券</option></select></td>';
         html += '<td style="text-align:center"><select onchange="updateHoldingClassification(\'' + esc(r.h.id) + '\', \'region\', this.value)" style="padding:4px 6px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:13px">' + regionOpts + '</select></td>';
-        html += '<td style="text-align:right">' + fmt(Math.round(cost)) + '</td>';
-        html += '<td style="text-align:right">' + fmt(Math.round(r.market)) + '</td>';
-        html += '<td style="text-align:right">' + pnlStr + '</td>';
+        html += '<td class="col-cost" style="text-align:right">' + fmt(Math.round(cost)) + '</td>';
+        html += '<td class="col-market" style="text-align:right">' + fmt(Math.round(r.market)) + '</td>';
+        html += '<td class="col-pnl" style="text-align:right">' + pnlStr + '</td>';
         html += '<td style="text-align:right">' + pct.toFixed(1) + '%</td>';
         html += '</tr>';
     });
@@ -5667,9 +5671,9 @@ function renderStockAnalysis() {
     var totalPnlColor = totalPnL > 0 ? 'var(--green)' : totalPnL < 0 ? 'var(--red)' : 'var(--muted)';
     html += '<tr style="border-top:2px solid var(--border);font-weight:700;background:rgba(0,0,0,0.02)">';
     html += '<td colspan="3" style="text-align:left">合計</td>';
-    html += '<td style="text-align:right">' + fmt(Math.round(totalCost)) + '</td>';
-    html += '<td style="text-align:right">' + fmt(Math.round(totalMarket)) + '</td>';
-    html += '<td style="text-align:right;color:' + totalPnlColor + '">' + (totalPnL >= 0 ? '+' : '') + fmt(Math.round(totalPnL)) +
+    html += '<td class="col-cost" style="text-align:right">' + fmt(Math.round(totalCost)) + '</td>';
+    html += '<td class="col-market" style="text-align:right">' + fmt(Math.round(totalMarket)) + '</td>';
+    html += '<td class="col-pnl" style="text-align:right;color:' + totalPnlColor + '">' + (totalPnL >= 0 ? '+' : '') + fmt(Math.round(totalPnL)) +
             (totalPnlPct !== null ? ' <span style="font-size:11px;font-weight:400">(' + (totalPnlPct >= 0 ? '+' : '') + totalPnlPct.toFixed(1) + '%)</span>' : '') + '</td>';
     html += '<td style="text-align:right">100%</td>';
     html += '</tr>';
