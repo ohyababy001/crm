@@ -5065,8 +5065,15 @@ function renderStockHoldings() {
     rows.forEach(function(r) {
         var h = r.h;
         html += '<tr>';
-        // 庫存股
-        html += '<td class="stock-name-cell" style="cursor:pointer" onclick="editHolding(' + r.idx + ')">' + esc(h.id) + '<br><span class="stock-name-sub" style="font-size:12px;color:var(--muted);font-weight:400">' + esc(h.name) + '</span></td>';
+        // 庫存股：代號／名稱點擊看走勢，右側鉛筆編輯持股
+        html += '<td class="stock-name-cell">' +
+            '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px">' +
+                '<span style="cursor:pointer;flex:1;min-width:0" onclick="showStockPriceTrend(\'' + esc(h.id) + '\')" title="點看價格走勢">' +
+                    '<b style="text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px;color:var(--lux-navy)">' + esc(h.id) + '</b>' +
+                    '<br><span class="stock-name-sub" style="font-size:12px;color:var(--muted);font-weight:400">' + esc(h.name) + '</span>' +
+                '</span>' +
+                '<button onclick="event.stopPropagation();editHolding(' + r.idx + ')" title="編輯持股" style="background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;flex-shrink:0;font-size:14px;line-height:1"><i class="ti ti-pencil"></i></button>' +
+            '</div></td>';
         // 今日損益
         if (vis.dayPL !== false) {
             html += '<td class="col-daypl ' + (r.dayPL !== null ? (r.dayPL >= 0 ? 'pos' : 'neg') : '') + '" style="font-weight:600">' + (r.dayPL !== null ? (r.dayPL >= 0 ? '+' : '') + fmt(r.dayPL) : '-') + '</td>';
