@@ -4498,7 +4498,7 @@ function renderDividendAlerts() {
             ? (Number(dParts[1]) + '/' + Number(dParts[2]))
             : (dParts[0] + '/' + Number(dParts[1]) + '/' + Number(dParts[2]));
         summary = '<b>' + esc(first.stockId) + ' ' + esc(first.stockName) + '</b> ' +
-                  '<span class="alert-date-full">' + esc(showDate) + '</span>' +
+                  '<span class="alert-date-full">' + esc(shortDate) + '</span>' +
                   '<span class="alert-date-short">' + esc(shortDate) + '</span> ' + showLabel;
         if (count > 1) summary += ' <span style="color:var(--text-light);">+' + (count-1) + ' 筆</span>';
     }
