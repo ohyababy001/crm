@@ -3353,6 +3353,7 @@ var STOCK_SNAPSHOT_KEY = 'finTracker_stock_snapshots'; // 輪替快照：最多�
 var STOCK_LAST_COUNT_KEY = 'finTracker_stock_lastCount'; // 上次啟動時的筆數
 var stockData = null;
 var stockSubTab = 'holdings'; // holdings | dividend | pledge | analysis
+var currentBroker = ''; // '' = 全部，否則為券商名稱（僅作用於持股總覽）
 
 // 台股持股欄位可見性
 var STOCK_COLUMNS = [
@@ -3847,6 +3848,17 @@ function guessAssetType(stockId) {
     // 代號末碼 B 通常是債券 ETF（00937B、00679B…）
     return /B$/i.test(stockId || '') ? 'bond' : 'stock';
 }
+// 從 holdings 撈出曾用過的券商清單（去重、去空白）
+function getKnownBrokers() {
+    var set = {};
+    var list = [];
+    ((stockData && stockData.holdings) || []).forEach(function(h){
+        var b = (h && h.broker) ? String(h.broker).trim() : '';
+        if (b && !set[b]) { set[b] = true; list.push(b); }
+    });
+    list.sort();
+    return list;
+}
 function getHoldingAssetType(h) {
     if (h && h.assetType) return h.assetType;
     return guessAssetType(h && h.id);
@@ -3873,6 +3885,9 @@ function addHolding() {
             '<div style="flex:1"><label style="font-size:12px;color:var(--muted)">區域</label>' +
                 '<select id="stock-region" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:14px">' + regionOpts + '</select></div>' +
         '</div>' +
+        '<label style="font-size:12px;color:var(--muted);margin-top:6px;display:block">券商（可空白）</label>' +
+        '<input type="text" id="stock-broker" list="broker-list-add" placeholder="例：永豐、富邦" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:14px">' +
+        '<datalist id="broker-list-add">' + getKnownBrokers().map(function(b){ return '<option value="'+esc(b)+'">'; }).join('') + '</datalist>' +
         '<div class="modal-btns"><button onclick="this.closest(\'.overlay\').remove()">取消</button>' +
         '<button class="btn-primary" id="stock-save">確定</button></div></div>';
     document.body.appendChild(ov);
@@ -3907,13 +3922,14 @@ function addHolding() {
         var cost = parseFloat(document.getElementById('stock-cost').value) || 0;
         var assetType = document.getElementById('stock-asset-type').value || 'stock';
         var region = document.getElementById('stock-region').value || '台灣';
+        var broker = (document.getElementById('stock-broker').value || '').trim();
         if (!id) { toast('請輸入股票代號', true); return; }
         if (!name) { toast('請輸入股票名稱', true); return; }
         if (shares <= 0) { toast('請輸入持有股數', true); return; }
         // 檢查是否已存在
         var exists = stockData.holdings.find(function(h){ return h.id === id; });
         if (exists) { toast('持股已存在，請直接編輯', true); return; }
-        stockData.holdings.push({ id: id, name: name, shares: shares, cost: cost, assetType: assetType, region: region });
+        stockData.holdings.push({ id: id, name: name, shares: shares, cost: cost, assetType: assetType, region: region, broker: broker });
         saveStockData();
         ov.remove();
         renderStock();
@@ -3949,6 +3965,9 @@ function editHolding(idx) {
             '<div style="flex:1"><label style="font-size:12px;color:var(--muted)">區域</label>' +
                 '<select id="edit-stock-region" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:14px">' + regionOpts + '</select></div>' +
         '</div>' +
+        '<label style="font-size:12px;color:var(--muted);margin-top:6px;display:block">券商（可空白）</label>' +
+        '<input type="text" id="edit-stock-broker" list="broker-list-edit" value="' + esc(h.broker || '') + '" placeholder="例：永豐、富邦" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:14px">' +
+        '<datalist id="broker-list-edit">' + getKnownBrokers().map(function(b){ return '<option value="'+esc(b)+'">'; }).join('') + '</datalist>' +
         '<div class="modal-btns"><button onclick="this.closest(\'.overlay\').remove()">取消</button>' +
         '<button class="btn-primary" id="edit-stock-save">儲存</button></div></div>';
     document.body.appendChild(ov);
@@ -3959,6 +3978,7 @@ function editHolding(idx) {
         if (!isNaN(totalCost) && h.shares > 0) h.cost = totalCost / h.shares;
         h.assetType = document.getElementById('edit-stock-asset-type').value || 'stock';
         h.region = document.getElementById('edit-stock-region').value || '台灣';
+        h.broker = (document.getElementById('edit-stock-broker').value || '').trim();
         saveStockData();
         ov.remove();
         renderStock();
@@ -4965,12 +4985,26 @@ function renderStockHoldings() {
     html += '<button class="btn-refresh" id="btn-fetch-price" onclick="refreshPrices()"><i class="ti ti-antenna-bars-5"></i> <span class="lbl-full">更新股價</span><span class="lbl-short">更新</span></button>';
     html += '<button class="btn-refresh" style="background:linear-gradient(135deg,#0f2847 0%,#1a3a5c 50%,#2a5a8c 100%);border:1px solid var(--lux-gold)" onclick="toggleStockColumn()"><i class="ti ti-columns"></i> 欄位</button>';
     html += '<button class="btn-refresh" onclick="manageHoldings()"><i class="ti ti-list-details"></i> <span class="lbl-full">管理持股</span><span class="lbl-short">管理</span></button>';
+    // 券商過濾下拉（僅持股總覽用）
+    var knownBrokers = getKnownBrokers();
+    var brokerOpts = '<option value=""' + (currentBroker===''?' selected':'') + '>全部券商</option>' +
+        knownBrokers.map(function(b){
+            return '<option value="'+esc(b)+'"' + (currentBroker===b?' selected':'') + '>'+esc(b)+'</option>';
+        }).join('');
+    if (knownBrokers.length > 0) {
+        html += '<select onchange="currentBroker=this.value;renderStock()" style="padding:8px 12px;border:1px solid var(--lux-navy);border-radius:var(--radius-xs);background:white;color:var(--lux-navy);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer">' + brokerOpts + '</select>';
+    }
     html += '<span class="last-update" style="color:var(--yellow)"><span class="lbl-full">※ 顯示前一交易日收盤價</span><span class="lbl-short">※ 顯示昨日收盤價</span></span>';
     html += '</div>';
 
-    // 計算總覽
+    // 券商過濾後的持股清單（保留原 stockData.holdings 索引以便 editHolding 對應）
+    var visibleHoldings = currentBroker
+        ? stockData.holdings.filter(function(h){ return (h.broker || '') === currentBroker; })
+        : stockData.holdings;
+
+    // 計算總覽（用過濾後的範圍）
     var totalCost = 0, totalMarket = 0, todayPL = 0;
-    stockData.holdings.forEach(function(h) {
+    visibleHoldings.forEach(function(h) {
         var cost = h.shares * h.cost;
         var p = stockData.prices[h.id];
         var market = p ? h.shares * p.price : cost;
@@ -5004,6 +5038,10 @@ function renderStockHoldings() {
         html += '<div style="text-align:center;padding:40px;color:var(--muted)">尚未新增持股，請點擊「＋ 新增持股」開始</div>';
         return html;
     }
+    if (visibleHoldings.length === 0) {
+        html += '<div style="text-align:center;padding:40px;color:var(--muted)">「' + esc(currentBroker) + '」目前沒有持股</div>';
+        return html;
+    }
 
     var vis = getStockColVisible();
 
@@ -5015,7 +5053,7 @@ function renderStockHoldings() {
         return ' <span style="color:var(--lux-gold);font-size:11px">' + (ss.dir === 'desc' ? '▼' : '▲') + '</span>';
     }
 
-    // 每列預先計算
+    // 每列預先計算（保留原索引讓 editHolding 仍能對應到 stockData.holdings）
     var rows = stockData.holdings.map(function(h, idx) {
         var p = stockData.prices[h.id];
         var curPrice = p ? p.price : null;
@@ -5031,6 +5069,10 @@ function renderStockHoldings() {
         if (stockData.pledges) stockData.pledges.forEach(function(pp){ if (pp.stockId === h.id) pledgedShares += pp.shares; });
         return { h:h, idx:idx, curPrice:curPrice, change:change, changePct:changePct, cost:cost, market:market, pl:pl, rate:rate, weight:weight, dayPL:dayPL, pledgedShares:pledgedShares };
     });
+    // 套用券商過濾
+    if (currentBroker) {
+        rows = rows.filter(function(r){ return (r.h.broker || '') === currentBroker; });
+    }
 
     // 排序
     if (ss.col) {
