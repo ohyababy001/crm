@@ -7537,7 +7537,7 @@ function addTodo(prefill) {
     box.style.padding = '16px'; box.style.minWidth = '300px'; box.style.maxWidth = '360px';
     var preClient = pre.clientId ? DB.find(function(x){ return x.id === pre.clientId; }) : null;
     var preName = preClient ? preClient.name : '';
-    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px"><i class="ti ti-checkbox" style="color:#7C3AED"></i> 待辦事項</div>' +
+    box.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><div style="font-weight:700;font-size:15px"><i class="ti ti-checkbox" style="color:#7C3AED"></i> 待辦事項</div><button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" aria-label="關閉" style="background:none;border:none;font-size:20px;line-height:1;cursor:pointer;color:#94A3B8;padding:4px 8px;font-family:inherit">✕</button></div>' +
         '<div style="margin-bottom:10px;position:relative">' +
             '<label style="font-size:12px;color:#64748B;display:block;margin-bottom:4px">關聯客戶（可留空=個人待辦）</label>' +
             '<input id="td-client-search" type="text" placeholder="搜尋姓名、電話、社區…" value="'+esc(preName)+'" autocomplete="off" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit">' +
@@ -7841,7 +7841,7 @@ function addPersonalSchedule(editId) {
     var _psTypeVal = ps.schedType || (curFilter && curFilter !== 'all' ? curFilter : '');
     var _psTypeOpts = [['','不限'],['經營買方','買方'],['庫存屋主','庫存'],['房東','房東'],['租客','租客'],['成交客戶','成交'],['商機募集','商機']];
     var _psTypeHtml = _psTypeOpts.map(function(o){ return '<option value="'+o[0]+'"'+(_psTypeVal===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('');
-    box.innerHTML = '<div style="font-weight:700;font-size:15px;margin-bottom:12px"><i class="ti ti-calendar-plus" style="color:#2563EB"></i> ' + (editing ? '個人行程' : '新增行程') + '</div>' +
+    box.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><div style="font-weight:700;font-size:15px"><i class="ti ti-calendar-plus" style="color:#2563EB"></i> ' + (editing ? '個人行程' : '新增行程') + '</div><button type="button" onclick="closeOverlay(this.closest(\'.fill-overlay\'))" aria-label="關閉" style="background:none;border:none;font-size:20px;line-height:1;cursor:pointer;color:#94A3B8;padding:4px 8px;font-family:inherit">✕</button></div>' +
         clientSearchHtml +
         '<div style="display:flex;gap:8px;margin-bottom:10px">' +
             '<select id="ps-type" style="width:70px;padding:8px 4px;border:1px solid var(--border);border-radius:8px;font-size:13px">'+_psTypeHtml+'</select>' +
