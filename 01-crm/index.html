@@ -7577,11 +7577,13 @@ function addTodo(prefill) {
         }
     }
     function _tdAdjustListMaxHeight() {
-        listEl.style.maxHeight = '';
         var rect = listEl.getBoundingClientRect();
         var avail = window.innerHeight - rect.top - 12;
-        var cap = Math.max(120, avail);
-        if (listEl.scrollHeight > cap) listEl.style.maxHeight = cap + 'px';
+        listEl.style.maxHeight = Math.max(120, avail) + 'px';
+        var newRect = listEl.getBoundingClientRect();
+        if (newRect.bottom > window.innerHeight - 8) {
+            listEl.scrollIntoView({ block: 'end', behavior: 'instant' });
+        }
     }
     searchEl.oninput = function() {
         idEl.value = '';
@@ -7889,11 +7891,13 @@ function addPersonalSchedule(editId) {
             }
         }
         function _psAdjustListMaxHeight() {
-            listEl.style.maxHeight = '';
             var rect = listEl.getBoundingClientRect();
             var avail = window.innerHeight - rect.top - 12;
-            var cap = Math.max(120, avail);
-            if (listEl.scrollHeight > cap) listEl.style.maxHeight = cap + 'px';
+            listEl.style.maxHeight = Math.max(120, avail) + 'px';
+            var newRect = listEl.getBoundingClientRect();
+            if (newRect.bottom > window.innerHeight - 8) {
+                listEl.scrollIntoView({ block: 'end', behavior: 'instant' });
+            }
         }
         searchEl.oninput = function() {
             idEl.value = '';
