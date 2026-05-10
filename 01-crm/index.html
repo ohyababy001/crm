@@ -415,14 +415,16 @@
         #dashExpiringSeller::-webkit-scrollbar-thumb:hover,
         #dashBirthday::-webkit-scrollbar-thumb:hover,
         #dashExpiringRental::-webkit-scrollbar-thumb:hover { background: rgba(200,164,90,0.5); }
+        #td-client-list,
+        #ps-client-list { padding-top: 4px; padding-bottom: 4px; }
         #td-client-list::-webkit-scrollbar,
         #ps-client-list::-webkit-scrollbar { width: 6px; }
         #td-client-list::-webkit-scrollbar-track,
-        #ps-client-list::-webkit-scrollbar-track { background: transparent; margin: 8px 0; }
+        #ps-client-list::-webkit-scrollbar-track { background: transparent; }
         #td-client-list::-webkit-scrollbar-thumb,
-        #ps-client-list::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.3); border-radius: 3px; }
+        #ps-client-list::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.35); border-radius: 3px; }
         #td-client-list::-webkit-scrollbar-thumb:hover,
-        #ps-client-list::-webkit-scrollbar-thumb:hover { background: rgba(124,58,237,0.5); }
+        #ps-client-list::-webkit-scrollbar-thumb:hover { background: rgba(124,58,237,0.55); }
         .dash-cards-wrap.collapsed .dash-cards { display: none !important; }
         .card-mobile-only { display: none !important; }
 
@@ -7551,7 +7553,7 @@ function addTodo(prefill) {
             '<input id="td-client-search" type="text" placeholder="搜尋姓名、電話、社區…" value="'+esc(preName)+'" autocomplete="off" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit">' +
             '<input id="td-client-id" type="hidden" value="'+esc(pre.clientId||'')+'">' +
             '<div id="td-client-hint" style="font-size:12px;color:'+(preClient?'#7C3AED':'#94A3B8')+';margin-top:4px">'+(preClient?'✓ 已選取：'+esc(preName):'未輸入=個人待辦')+'</div>' +
-            '<div id="td-client-list" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1px solid var(--border);border-radius:8px;max-height:260px;overflow-y:auto;overscroll-behavior:contain;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,0.1);margin-top:2px;padding-bottom:4px"></div>' +
+            '<div id="td-client-list" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1px solid var(--border);border-radius:8px;overflow-y:auto;overscroll-behavior:contain;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,0.1);margin-top:2px"></div>' +
         '</div>' +
         '<div style="margin-bottom:12px"><input id="td-memo" type="text" placeholder="待辦內容" value="'+esc(pre.memo||'')+'" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit"></div>' +
         '<div style="display:flex;gap:8px">' +
@@ -7575,9 +7577,11 @@ function addTodo(prefill) {
         }
     }
     function _tdAdjustListMaxHeight() {
+        listEl.style.maxHeight = '';
         var rect = listEl.getBoundingClientRect();
         var avail = window.innerHeight - rect.top - 12;
-        listEl.style.maxHeight = Math.max(120, avail) + 'px';
+        var cap = Math.max(120, avail);
+        if (listEl.scrollHeight > cap) listEl.style.maxHeight = cap + 'px';
     }
     searchEl.oninput = function() {
         idEl.value = '';
@@ -7843,7 +7847,7 @@ function addPersonalSchedule(editId) {
             '<input id="ps-client-search" type="text" placeholder="搜尋姓名、電話、社區…" autocomplete="off" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit">' +
             '<input id="ps-client-id" type="hidden" value="">' +
             '<div id="ps-client-hint" style="font-size:12px;color:#94A3B8;margin-top:4px">未輸入=個人行程</div>' +
-            '<div id="ps-client-list" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1px solid var(--border);border-radius:8px;max-height:260px;overflow-y:auto;overscroll-behavior:contain;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,0.1);margin-top:2px;padding-bottom:4px"></div>' +
+            '<div id="ps-client-list" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1px solid var(--border);border-radius:8px;overflow-y:auto;overscroll-behavior:contain;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,0.1);margin-top:2px"></div>' +
         '</div>';
     // 行程分類下拉（與 quickSchedule 同款）；編輯個人行程時讀回舊值
     var _psTypeVal = ps.schedType || (curFilter && curFilter !== 'all' ? curFilter : '');
@@ -7885,9 +7889,11 @@ function addPersonalSchedule(editId) {
             }
         }
         function _psAdjustListMaxHeight() {
+            listEl.style.maxHeight = '';
             var rect = listEl.getBoundingClientRect();
             var avail = window.innerHeight - rect.top - 12;
-            listEl.style.maxHeight = Math.max(120, avail) + 'px';
+            var cap = Math.max(120, avail);
+            if (listEl.scrollHeight > cap) listEl.style.maxHeight = cap + 'px';
         }
         searchEl.oninput = function() {
             idEl.value = '';
