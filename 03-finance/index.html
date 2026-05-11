@@ -5255,6 +5255,64 @@ function setDivCardMode(mode) {
     window._divCardMode = (mode === 'thisYear') ? 'thisYear' : 'cumulative';
     renderStock();
 }
+
+// 顯示單檔歷史股利紀錄 modal（按年份分組）
+function showStockDividendHistory(stockId) {
+    var holding = (stockData.holdings || []).find(function(h){ return h.id === stockId; });
+    var label = holding ? (holding.id + ' ' + (holding.name || '')) : stockId;
+    var records = (stockData.dividends || []).filter(function(d){ return d.stockId === stockId; });
+    // 按日期由新到舊
+    records.sort(function(a, b){ return (b.date || '').localeCompare(a.date || ''); });
+
+    // 按年份分組
+    var byYear = {};
+    var grandCash = 0, grandStock = 0;
+    records.forEach(function(d) {
+        var y = d.date ? d.date.substring(0,4) : '未知';
+        if (!byYear[y]) byYear[y] = { items: [], cash: 0, stock: 0 };
+        byYear[y].items.push(d);
+        byYear[y].cash += (d.cash || 0);
+        byYear[y].stock += (d.stockShares || 0);
+        grandCash += (d.cash || 0);
+        grandStock += (d.stockShares || 0);
+    });
+    var years = Object.keys(byYear).sort(function(a, b){ return b.localeCompare(a); });
+
+    var ov = document.createElement('div');
+    ov.className = 'overlay';
+    var html = '<div class="modal" style="width:560px;max-width:92vw;max-height:80vh;display:flex;flex-direction:column">';
+    html += '<h3><i class="ti ti-history"></i> ' + esc(label) + ' 歷史股利</h3>';
+    if (records.length === 0) {
+        html += '<div style="padding:30px;text-align:center;color:var(--muted)">尚無股利紀錄</div>';
+    } else {
+        html += '<div style="font-size:13px;color:var(--muted);margin-bottom:8px">累積：現金 <b style="color:var(--lux-navy)">$' + fmt(grandCash) + '</b>';
+        if (grandStock > 0) html += '　股票 <b style="color:var(--lux-navy)">' + grandStock.toFixed(2) + ' 股</b>';
+        html += '　共 ' + records.length + ' 筆</div>';
+        html += '<div style="flex:1;overflow-y:auto;border-top:1px solid var(--border)">';
+        years.forEach(function(y) {
+            var g = byYear[y];
+            html += '<div style="padding:8px 0 4px 0;font-weight:700;color:var(--lux-navy);border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--card)">';
+            html += y + ' 年 <span style="font-size:12px;font-weight:400;color:var(--muted)">$' + fmt(g.cash);
+            if (g.stock > 0) html += '　' + g.stock.toFixed(2) + ' 股';
+            html += '　(' + g.items.length + ' 筆)</span></div>';
+            g.items.forEach(function(d) {
+                html += '<div style="display:flex;justify-content:space-between;padding:6px 4px;border-bottom:1px solid var(--border);font-size:13px">';
+                html += '<span>' + esc(d.date || '—') + '</span>';
+                var amts = [];
+                if (d.cash > 0) amts.push('現金 <b style="color:var(--green)">$' + fmt(d.cash) + '</b>');
+                if (d.stockShares > 0) amts.push('股票 <b style="color:var(--green)">' + d.stockShares.toFixed(2) + ' 股</b>');
+                html += '<span>' + (amts.join('　') || '—') + '</span>';
+                html += '</div>';
+            });
+        });
+        html += '</div>';
+    }
+    html += '<div class="modal-btns" style="margin-top:12px"><button class="btn-primary" onclick="this.closest(\'.overlay\').remove()">關閉</button></div>';
+    html += '</div>';
+    ov.innerHTML = html;
+    document.body.appendChild(ov);
+}
+
 function renderStockDividend() {
     var html = '';
 
@@ -5289,7 +5347,12 @@ function renderStockDividend() {
     stockData.holdings.forEach(function(h) {
         var t = totals[h.id];
         if (t.sum <= 0) return;
-        html += '<div style="padding:3px 14px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);font-size:13px">';
+        // 累積模式才能點看歷史
+        var clickable = mode === 'cumulative';
+        var cardStyle = 'padding:3px 14px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);font-size:13px';
+        if (clickable) cardStyle += ';cursor:pointer';
+        var onClickAttr = clickable ? ' onclick="showStockDividendHistory(\'' + esc(h.id) + '\')" title="點看歷史股利紀錄"' : '';
+        html += '<div style="' + cardStyle + '"' + onClickAttr + '>';
         html += '<div style="color:var(--muted);font-size:11px">' + esc(t.label) + '<span class="lbl-cum">' + cumLabel + '</span></div>';
         html += '<div style="font-weight:700;color:var(--lux-navy);font-size:15px">$' + fmt(t.sum) + '</div>';
         html += '</div>';
