@@ -5319,7 +5319,7 @@ function addSellerProperty(data) {
             '<button type="button" class="grade-btn grade-c'+(d.grade==='C'?' on':'')+'" style="font-size:11px;padding:1px 8px" onclick="pickSpGrade(this,\'C\')">C級</button>' +
             '<input type="hidden" data-f="grade" value="'+esc(d.grade||'')+'">' +
             '<input type="hidden" data-f="spArchived" value="'+(d.spArchived||'')+'">' +
-            '<div style="flex:1"></div><button type="button" class="sp-archive-btn" onclick="toggleSpArchive(this)" style="font-size:12px;padding:3px 10px;border:1px solid #D6CFC7;border-radius:6px;background:'+(d.spArchived?'#059669':'#F5F0EB')+';color:'+(d.spArchived?'white':'#8B7355')+';cursor:pointer;margin-right:4px">'+(d.spArchived?'恢復銷售':'暫停銷售')+'</button><button type="button" class="c-del" onclick="this.parentElement.parentElement.remove()">✕</button></div>' +
+            '<div style="flex:1"></div><button type="button" onclick="moveSpToDev(this)" title="把此物件複製到「商機」" style="font-size:12px;padding:3px 10px;border:1px solid #FCD9B6;border-radius:6px;background:#FFF7ED;color:#92400E;cursor:pointer;margin-right:6px">轉商機</button><button type="button" class="sp-archive-btn" onclick="toggleSpArchive(this)" style="font-size:12px;padding:3px 10px;border:1px solid #D6CFC7;border-radius:6px;background:'+(d.spArchived?'#059669':'#F5F0EB')+';color:'+(d.spArchived?'white':'#8B7355')+';cursor:pointer;margin-right:4px">'+(d.spArchived?'恢復銷售':'暫停銷售')+'</button><button type="button" class="c-del" onclick="this.parentElement.parentElement.remove()">✕</button></div>' +
         // 約種
         '<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">' +
             '<span style="font-size:13px;font-weight:600;color:var(--text);flex-shrink:0">約種</span>' +
@@ -5395,6 +5395,29 @@ function addSellerProperty(data) {
         block._spPauseHistory = d.spPauseHistory || [];
         if (d.spArchived) applySpArchiveStyle(block, true, d.spArchiveReason || '');
     }
+}
+function moveSpToDev(btn) {
+    var block = btn.closest('.person-block'); if (!block) return;
+    var get = function(f){ var el = block.querySelector('[data-f="'+f+'"]'); return el ? el.value.trim() : ''; };
+    var community = get('community'), addr = get('addr');
+    if (!community && !addr) { showToast('請先填寫社區或地址', 'warn'); return; }
+    var bldgSz = (parseFloat(get('mainBldg'))||0) + (parseFloat(get('ancBldg'))||0) + (parseFloat(get('common'))||0);
+    var parking = get('parking');
+    if (!selectedTypes.includes('商機募集')) selectedTypes.push('商機募集');
+    activeView = '商機募集';
+    applyTypePicker();
+    addDAddrRow({
+        devType: '出售',
+        community: community,
+        addr: addr,
+        bldgSz: bldgSz ? bldgSz.toFixed(2) : '',
+        landSz: get('landShare'),
+        hasParking: parking ? '有' : '無',
+        parking: parking
+    });
+    var list = document.getElementById('dAddrList');
+    if (list && list.lastElementChild) list.lastElementChild.scrollIntoView({ behavior:'smooth', block:'center' });
+    showToast('已複製到商機物件，記得儲存', 'ok');
 }
 function toggleSpArchive(btn) {
     var block = btn.closest('.person-block'); if (!block) return;
