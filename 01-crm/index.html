@@ -7266,7 +7266,12 @@ function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo, prefillT
     var c = DB.find(function(x){ return x.id === clientId; });
     if (!c) return;
     var _qsTypeVal = prefillType || (curFilter && curFilter !== 'all' ? curFilter : '');
-    var _stOpts = [['','不限'],['經營買方','買方'],['庫存屋主','庫存'],['房東','房東'],['租客','租客'],['成交客戶','成交'],['商機募集','商機']];
+    var _allOpts = [['經營買方','買方'],['庫存屋主','庫存'],['房東','房東'],['租客','租客'],['成交客戶','成交'],['商機募集','商機']];
+    var _cTypes = (c.types && c.types.length) ? c.types : (c.type ? [c.type] : []);
+    var _stOpts = _allOpts.filter(function(o){ return _cTypes.indexOf(o[0]) >= 0; });
+    if (!_stOpts.length) _stOpts = _allOpts.slice();
+    if (_qsTypeVal && !_stOpts.some(function(o){ return o[0] === _qsTypeVal; })) _qsTypeVal = _stOpts[0][0];
+    else if (!_qsTypeVal) _qsTypeVal = _stOpts[0][0];
     var _stHtml = _stOpts.map(function(o){ return '<option value="'+o[0]+'"'+(_qsTypeVal===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('');
     var overlay = document.createElement('div');
     overlay.className = 'fill-overlay';
