@@ -2534,6 +2534,7 @@ function autoFetchCloud(force, onDone) {
                         var lu = cur.updatedAt || '';
                         if (cu && lu) {
                             if (cu > lu) contentMap[ck] = it;
+                            else if (cu === lu && cur._deleted && !it._deleted) contentMap[ck] = it;
                         } else if (cu && !lu) {
                             contentMap[ck] = it;
                         } else if (!cu && !lu) {
@@ -7298,19 +7299,27 @@ function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo, prefillT
         var memo = document.getElementById('qs-memo').value.trim();
         if (!date) { showToast('請選擇日期', 'warn'); return; }
         if (!c.schedules) c.schedules = [];
-        // 編輯模式：軟刪舊筆
-        if (prefillDate) {
-            c.schedules.forEach(function(s) {
-                if (!s._deleted && s.date === prefillDate && (s.time||'') === (prefillTime||'')) {
-                    s._deleted = true; s.updatedAt = _nowISO();
-                }
-            });
-        }
         var _qsTypeEl = document.getElementById('qs-type'); var _qsType = _qsTypeEl ? _qsTypeEl.value : '';
         var _qsRecurEl = document.getElementById('qs-recur'); var _qsRecur = _qsRecurEl ? _qsRecurEl.value : '';
-        var _qsObj = { id:_newSchedId(), date:date, time:time, memo:memo, schedType:_qsType, updatedAt:_nowISO() };
-        if (_qsRecur) _qsObj.recurrence = _qsRecur;
-        c.schedules.push(_qsObj);
+        // 編輯模式：找到原筆直接更新（保留 id，避免合併去重時把活版誤判為已刪）
+        var _updated = false;
+        if (prefillDate) {
+            for (var _i = 0; _i < c.schedules.length; _i++) {
+                var _s = c.schedules[_i];
+                if (!_s._deleted && _s.date === prefillDate && (_s.time||'') === (prefillTime||'')) {
+                    _s.date = date; _s.time = time; _s.memo = memo; _s.schedType = _qsType;
+                    if (_qsRecur) _s.recurrence = _qsRecur; else delete _s.recurrence;
+                    _s.updatedAt = _nowISO();
+                    _updated = true;
+                    break;
+                }
+            }
+        }
+        if (!_updated) {
+            var _qsObj = { id:_newSchedId(), date:date, time:time, memo:memo, schedType:_qsType, updatedAt:_nowISO() };
+            if (_qsRecur) _qsObj.recurrence = _qsRecur;
+            c.schedules.push(_qsObj);
+        }
         persistAndSyncNow();
         overlay.remove();
         render();
