@@ -3887,6 +3887,100 @@ function guessAssetType(stockId) {
     return /B$/i.test(stockId || '') ? 'bond' : 'stock';
 }
 // 切換券商過濾：自動跳回持股總覽（臨時切換，不影響鎖定值）
+// 券商排序 modal
+function openBrokerOrderModal() {
+    var brokers = getKnownBrokers();
+    if (brokers.length < 2) { toast('券商少於 2 家不需排序'); return; }
+    var ov = document.createElement('div');
+    ov.className = 'overlay';
+    var rows = brokers.map(function(b, i) {
+        return '<div class="brk-drag-row" data-idx="' + i + '" style="display:flex;align-items:center;gap:8px;padding:10px 8px;border-bottom:1px solid var(--border);background:var(--card)">' +
+            '<span class="brk-drag-handle" style="cursor:grab;color:var(--muted);user-select:none;padding:0 4px;touch-action:none"><i class="ti ti-grip-vertical" style="font-size:18px"></i></span>' +
+            '<span style="flex:1;font-size:14px;font-weight:600">' + esc(b) + '</span>' +
+            '</div>';
+    }).join('');
+    ov.innerHTML = '<div class="modal" style="max-width:400px"><h3><i class="ti ti-arrows-sort"></i> 調整券商順序</h3>' +
+        '<div style="font-size:11px;color:var(--muted);margin-bottom:10px">拖曳左側 ⋮⋮ 調整順序</div>' +
+        '<div class="brk-drag-list" style="border:1px solid var(--border);border-radius:8px;overflow:hidden">' + rows + '</div>' +
+        '<div class="modal-btns" style="margin-top:12px"><button class="btn-primary" onclick="this.closest(\'.overlay\').remove();renderStock()">完成</button></div></div>';
+    document.body.appendChild(ov);
+    bindBrokerDrag(ov.querySelector('.brk-drag-list'), brokers);
+}
+function bindBrokerDrag(listEl, brokers) {
+    if (!listEl) return;
+    var dragging = null, startY = 0, originalIdx = -1, placeholder = null;
+    var working = brokers.slice();
+    listEl.querySelectorAll('.brk-drag-handle').forEach(function(handle) {
+        handle.addEventListener('pointerdown', function(e) {
+            e.preventDefault();
+            var row = handle.closest('.brk-drag-row');
+            if (!row) return;
+            dragging = row;
+            originalIdx = parseInt(row.dataset.idx, 10);
+            startY = e.clientY;
+            var rect = row.getBoundingClientRect();
+            placeholder = document.createElement('div');
+            placeholder.style.height = rect.height + 'px';
+            placeholder.style.background = 'rgba(200,164,90,0.15)';
+            placeholder.style.borderBottom = '1px solid var(--border)';
+            row.parentNode.insertBefore(placeholder, row);
+            row.style.position = 'fixed';
+            row.style.left = rect.left + 'px';
+            row.style.top = rect.top + 'px';
+            row.style.width = rect.width + 'px';
+            row.style.zIndex = '300';
+            row.style.boxShadow = '0 8px 24px rgba(0,0,0,0.2)';
+            row.style.opacity = '0.95';
+            handle.setPointerCapture(e.pointerId);
+        });
+        handle.addEventListener('pointermove', function(e) {
+            if (!dragging) return;
+            var dy = e.clientY - startY;
+            dragging.style.top = (parseFloat(dragging.style.top) + dy) + 'px';
+            startY = e.clientY;
+            var siblings = listEl.querySelectorAll('.brk-drag-row');
+            var insertBefore = null;
+            for (var i = 0; i < siblings.length; i++) {
+                var s = siblings[i];
+                if (s === dragging) continue;
+                var r = s.getBoundingClientRect();
+                if (e.clientY < r.top + r.height / 2) { insertBefore = s; break; }
+            }
+            if (insertBefore) listEl.insertBefore(placeholder, insertBefore);
+            else listEl.appendChild(placeholder);
+        });
+        function endDrag() {
+            if (!dragging) return;
+            var allChildren = Array.prototype.slice.call(listEl.children);
+            var placeholderIdx = allChildren.indexOf(placeholder);
+            var draggingIdx = allChildren.indexOf(dragging);
+            var newIdx = placeholderIdx;
+            if (draggingIdx >= 0 && draggingIdx < placeholderIdx) newIdx--;
+            dragging.style.position = '';
+            dragging.style.left = '';
+            dragging.style.top = '';
+            dragging.style.width = '';
+            dragging.style.zIndex = '';
+            dragging.style.boxShadow = '';
+            dragging.style.opacity = '';
+            placeholder.parentNode.insertBefore(dragging, placeholder);
+            placeholder.remove();
+            placeholder = null;
+            if (newIdx !== originalIdx && newIdx >= 0) {
+                var item = working.splice(originalIdx, 1)[0];
+                working.splice(newIdx, 0, item);
+                saveBrokerOrder(working);
+                // 重新編號 data-idx
+                Array.prototype.slice.call(listEl.querySelectorAll('.brk-drag-row')).forEach(function(r, i){ r.dataset.idx = i; });
+            }
+            dragging = null;
+            originalIdx = -1;
+        }
+        handle.addEventListener('pointerup', endDrag);
+        handle.addEventListener('pointercancel', endDrag);
+    });
+}
+
 function onBrokerFilterChange(val) {
     currentBroker = val || '';
     stockSubTab = 'holdings';
@@ -3910,6 +4004,7 @@ function toggleLockBroker() {
 }
 
 // 從 holdings 撈出曾用過的券商清單（去重、去空白）
+// 依使用者自訂順序排序（localStorage.brokerOrder），未排序的依字典序排在後面
 function getKnownBrokers() {
     var set = {};
     var list = [];
@@ -3917,8 +4012,21 @@ function getKnownBrokers() {
         var b = (h && h.broker) ? String(h.broker).trim() : '';
         if (b && !set[b]) { set[b] = true; list.push(b); }
     });
-    list.sort();
+    var order = [];
+    try { order = JSON.parse(localStorage.getItem('brokerOrder') || '[]'); } catch(e) {}
+    var orderMap = {};
+    order.forEach(function(b, i){ orderMap[b] = i; });
+    list.sort(function(a, b) {
+        var ai = orderMap[a], bi = orderMap[b];
+        if (ai !== undefined && bi !== undefined) return ai - bi;
+        if (ai !== undefined) return -1;
+        if (bi !== undefined) return 1;
+        return a.localeCompare(b);
+    });
     return list;
+}
+function saveBrokerOrder(list) {
+    try { localStorage.setItem('brokerOrder', JSON.stringify(list)); } catch(e) {}
 }
 function getHoldingAssetType(h) {
     if (h && h.assetType) return h.assetType;
@@ -5045,7 +5153,14 @@ function renderStock() {
         var _lockDisabled = _disabled;
         var _lockBg = _lockDisabled ? '#F5F5F4' : 'white';
         var _lockCursor = _lockDisabled ? 'not-allowed' : 'pointer';
-        html += '<button' + (_lockDisabled?' disabled':'') + ' onclick="toggleLockBroker()" title="' + esc(_lockTitle) + '" style="padding:8px 10px;border:1px solid ' + _border + ';border-top-right-radius:var(--radius-xs);border-bottom-right-radius:var(--radius-xs);background:' + _lockBg + ';color:' + _lockColor + ';font-family:inherit;font-size:14px;cursor:' + _lockCursor + ';display:inline-flex;align-items:center;justify-content:center"><i class="ti ' + _lockIcon + '"></i></button>';
+        // 鎖頭按鈕：若有排序按鈕則右邊不圓角，沒有則右邊圓角
+        var _hasSortBtn = _knownBrokers.length >= 2;
+        var _lockRightRadius = _hasSortBtn ? '' : 'border-top-right-radius:var(--radius-xs);border-bottom-right-radius:var(--radius-xs);';
+        var _lockBorderRight = _hasSortBtn ? 'border-right:none;' : '';
+        html += '<button' + (_lockDisabled?' disabled':'') + ' onclick="toggleLockBroker()" title="' + esc(_lockTitle) + '" style="padding:8px 10px;border:1px solid ' + _border + ';' + _lockBorderRight + _lockRightRadius + 'background:' + _lockBg + ';color:' + _lockColor + ';font-family:inherit;font-size:14px;cursor:' + _lockCursor + ';display:inline-flex;align-items:center;justify-content:center"><i class="ti ' + _lockIcon + '"></i></button>';
+        if (_hasSortBtn) {
+            html += '<button onclick="openBrokerOrderModal()" title="調整券商順序" style="padding:8px 10px;border:1px solid ' + _border + ';border-top-right-radius:var(--radius-xs);border-bottom-right-radius:var(--radius-xs);background:white;color:var(--lux-navy);font-family:inherit;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center"><i class="ti ti-arrows-sort"></i></button>';
+        }
         html += '</div>';
     }
     html += '<div class="stock-sub-tabs">';
