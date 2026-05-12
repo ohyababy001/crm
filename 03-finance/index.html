@@ -6435,11 +6435,31 @@ function maybeAutoSnapshot() {
     } catch(e) { console.error('[maybeAutoSnapshot]', e); }
 }
 
+// 推算 TWSE 回傳的價格實際對應的交易日（考慮收盤時間 + 週末）
+// 規則：台灣時間 13:30 後 → 今天；之前 / 週末 → 上一個交易日（往前找最近的工作日）
+function _inferTradeDate() {
+    // 用台灣時區
+    var now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Taipei' }));
+    var hour = now.getHours();
+    var minute = now.getMinutes();
+    var afterClose = (hour > 13) || (hour === 13 && minute >= 30);
+    var d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    if (!afterClose) d.setDate(d.getDate() - 1);
+    // 倒退到最近的工作日（跳過週末）
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1);
+    var y = d.getFullYear();
+    var m = d.getMonth() + 1;
+    var day = d.getDate();
+    return y + '-' + (m < 10 ? '0' + m : m) + '-' + (day < 10 ? '0' + day : day);
+}
+
 // 將當日股價寫入 stockData.priceHistory[id] = [{date,price}, ...]
+// 注意：date 是「資料實際對應的交易日」，不是「執行 snapshot 的今日」
 function snapshotStockPrices(today) {
     if (!stockData) return;
     if (!stockData.priceHistory) stockData.priceHistory = {};
     if (!stockData.holdings || !stockData.prices) return;
+    var tradeDate = _inferTradeDate();
     var dirty = false;
     stockData.holdings.forEach(function(h) {
         var p = stockData.prices[h.id];
@@ -6447,10 +6467,10 @@ function snapshotStockPrices(today) {
         if (!stockData.priceHistory[h.id]) stockData.priceHistory[h.id] = [];
         var arr = stockData.priceHistory[h.id];
         var lastEntry = arr[arr.length - 1];
-        if (lastEntry && lastEntry.date === today) {
+        if (lastEntry && lastEntry.date === tradeDate) {
             if (lastEntry.price !== p.price) { lastEntry.price = p.price; dirty = true; }
         } else {
-            arr.push({ date: today, price: p.price });
+            arr.push({ date: tradeDate, price: p.price });
             if (arr.length > 1500) arr.splice(0, arr.length - 1500); // 約 4 年上限
             dirty = true;
         }
