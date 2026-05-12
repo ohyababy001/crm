@@ -1532,7 +1532,7 @@ th.sortable.sort-active .sort-arrow { color: var(--lux-gold); font-weight: 700; 
     <div class="header-btns">
         <span id="last-edit" style="color:rgba(255,255,255,.85);font-size:12px;margin-right:8px"></span>
         <span id="cloudStatus" style="color:rgba(255,255,255,.85);font-size:12px;margin-right:8px"></span>
-        <button onclick="cloudSyncNow({skipCheck:true})" title="立即上傳到雲端（覆蓋雲端）"><span class="lbl-full">雲端上傳</span><span class="lbl-short">上傳</span></button>
+        <button onclick="cloudSyncNow()" title="立即上傳到雲端"><span class="lbl-full">雲端上傳</span><span class="lbl-short">上傳</span></button>
         <button onclick="cloudRestore({force:true})" title="從雲端下載資料覆蓋本機"><span class="lbl-full">雲端下載</span><span class="lbl-short">下載</span></button>
         <div style="position:relative;display:inline-block">
             <button onclick="toggleSettingsMenu(event)" title="進階設定" style="padding-left:10px;padding-right:10px"><i class="ti ti-settings" style="font-size:16px"></i></button>
@@ -1792,8 +1792,7 @@ function _clearPendingSync() {
 function _hasPendingSync() {
     try { return localStorage.getItem('finTracker_pendingSync') === '1'; } catch(e) { return false; }
 }
-function cloudSyncNow(opts) {
-    opts = opts || {};
+function cloudSyncNow() {
     // 離線時直接標記待同步
     if (typeof navigator !== 'undefined' && navigator.onLine === false) {
         _markPendingSync();
@@ -1801,50 +1800,18 @@ function cloudSyncNow(opts) {
         return;
     }
     _setCloudStatus('<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#F59E0B;margin-right:4px;vertical-align:middle"></span>同步中…');
+    var stockRaw = null;
+    try { stockRaw = JSON.parse(localStorage.getItem('finTracker_stock') || 'null'); } catch(e) {}
+    var payload = JSON.stringify({ finTracker: DATA, finTracker_stock: stockRaw });
     if (!window.fetch) { _onCloudSyncFail(); return; }
-
-    // 上傳前先比對雲端時間：若雲端比本機新，改成拉雲端（避免舊資料蓋掉新資料）
-    var doUpload = function() {
-        var stockRaw = null;
-        try { stockRaw = JSON.parse(localStorage.getItem('finTracker_stock') || 'null'); } catch(e) {}
-        var payload = JSON.stringify({ finTracker: DATA, finTracker_stock: stockRaw });
-        _markPendingSync(); // 上傳前先標記，成功才清
-        fetch(CLOUD_URL, { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:'payload='+encodeURIComponent(payload), mode:'no-cors' })
-        .then(function() {
-            _setCloudStatus('<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#22C55E;margin-right:4px;vertical-align:middle"></span>已同步 ' + new Date().toLocaleTimeString('zh-TW'));
-            _cloudSyncRetryCount = 0;
-            _clearPendingSync();
-        })
-        .catch(_onCloudSyncFail);
-    };
-
-    // opts.skipCheck=true 時跳過時間比對（例如手動點上傳，使用者明確要求覆蓋）
-    if (opts.skipCheck) { doUpload(); return; }
-
-    fetchWithTimeout(CLOUD_URL + '?format=json&t=' + Date.now(), {}, 8000)
-        .then(function(r){ return r.json(); })
-        .catch(function(){ return null; })
-        .then(function(cloud) {
-            var localEdit = (DATA && DATA._lastEditAt) ? new Date(DATA._lastEditAt).getTime() : 0;
-            var cloudEdit = (cloud && cloud.finTracker && cloud.finTracker._lastEditAt) ? new Date(cloud.finTracker._lastEditAt).getTime() : 0;
-            if (cloudEdit > localEdit) {
-                // 雲端比較新 → 反向拉，不上傳，避免舊資料覆蓋
-                _clearPendingSync();
-                if (cloud.finTracker) {
-                    try { localStorage.setItem('finTracker', JSON.stringify(cloud.finTracker)); } catch(e) {}
-                }
-                if (cloud.finTracker_stock) {
-                    try { localStorage.setItem('finTracker_stock', JSON.stringify(cloud.finTracker_stock)); } catch(e) {}
-                }
-                _setCloudStatus('<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#22C55E;margin-right:4px;vertical-align:middle"></span>已同步雲端最新資料');
-                try { loadData(); } catch(e) { console.error('[cloudSyncNow loadData]', e); }
-                try { loadStockData(); } catch(e) { console.error('[cloudSyncNow loadStockData]', e); }
-                try { render(); } catch(e) { console.error('[cloudSyncNow render]', e); }
-                return;
-            }
-            // 本機 >= 雲端 → 正常上傳
-            doUpload();
-        });
+    _markPendingSync(); // 上傳前先標記，成功才清
+    fetch(CLOUD_URL, { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:'payload='+encodeURIComponent(payload), mode:'no-cors' })
+    .then(function() {
+        _setCloudStatus('<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#22C55E;margin-right:4px;vertical-align:middle"></span>已同步 ' + new Date().toLocaleTimeString('zh-TW'));
+        _cloudSyncRetryCount = 0;
+        _clearPendingSync();
+    })
+    .catch(_onCloudSyncFail);
 }
 function _onCloudSyncFail() {
     if (_cloudSyncRetryCount < 3) {
