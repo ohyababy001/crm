@@ -3090,10 +3090,7 @@ function getTabLastContact(c, tab) {
     function _toDate(s) { return s ? String(s).slice(0,10) : ''; }
     var _fallback = _toDate(c.lastContact);
     if (!c.contactLog || !c.contactLog.length) return _fallback;
-    var _t = tab && tab !== 'all' ? tab : '';
-    var filtered = _t ? c.contactLog.filter(function(log){ return _getLogTab(log,c) === _t || !_getLogTab(log,c); }) : c.contactLog;
-    if (!filtered.length) return _fallback;
-    var logMax = filtered.reduce(function(m, log){
+    var logMax = c.contactLog.reduce(function(m, log){
         var d = log.date || _toDate(log.time);
         return d > m ? d : m;
     }, '');
@@ -3102,17 +3099,13 @@ function getTabLastContact(c, tab) {
 
 function getTabLastContactSortKey(c, tab) {
     function _toDate(s) { return s ? String(s).slice(0,10) : ''; }
-    var _t = tab && tab !== 'all' ? tab : '';
     var hasLog = false, logMax = '';
     if (c.contactLog && c.contactLog.length) {
-        var filtered = _t ? c.contactLog.filter(function(log){ return _getLogTab(log,c) === _t || !_getLogTab(log,c); }) : c.contactLog;
-        if (filtered.length) {
-            hasLog = true;
-            logMax = filtered.reduce(function(m, log){
-                var d = log.date || _toDate(log.time);
-                return d > m ? d : m;
-            }, '');
-        }
+        hasLog = true;
+        logMax = c.contactLog.reduce(function(m, log){
+            var d = log.date || _toDate(log.time);
+            return d > m ? d : m;
+        }, '');
     }
     var fallback = _toDate(c.lastContact);
     if (hasLog) return '1|' + logMax;
@@ -4540,9 +4533,7 @@ function renderCard(c) {
                 ${_schedHtml}
                 ${(function(){
                     if (!c.contactLog || !c.contactLog.length) return '';
-                    var _curTab = curFilter && curFilter !== 'all' ? curFilter : '';
                     var indexed = c.contactLog.map(function(log,i){ return {log:log,idx:i}; })
-                        .filter(function(item){ var lt = _getLogTab(item.log,c); return !_curTab || lt === _curTab || !lt; })
                         .sort(function(a,b){ var d = (b.log.date||'').localeCompare(a.log.date||''); return d !== 0 ? d : (b.log.time||'').localeCompare(a.log.time||''); });
                     if (!indexed.length) return '';
                     var show = indexed.slice(0, 3);
@@ -7385,7 +7376,7 @@ function completeSchedule(clientId, date, time) {
             // 完成行程時自動寫入聯繫紀錄
             if (!c.contactLog) c.contactLog = [];
             var _logMemo = (time ? time + ' ' : '') + (memo || '行程完成');
-            c.contactLog.unshift({ date:date, memo:_logMemo, time:new Date().toISOString(), tab: schedType || '' });
+            c.contactLog.unshift({ date:date, memo:_logMemo, time:new Date().toISOString() });
             c.lastContact = new Date().toISOString();
             // _addDoneSchedule 會自己 persistAndSyncNow，不需在外層重推
             _addDoneSchedule({ id:_newSchedId(), clientId:clientId, clientName:c.name, date:date, time:time, memo:memo, doneAt:new Date().toISOString(), updatedAt:_nowISO() });
@@ -7431,13 +7422,12 @@ function quickContactLog(clientId, editIdx) {
         if (!date) { showToast('請選擇日期', 'warn'); return; }
         if (!memo) { showToast('請輸入紀錄內容', 'warn'); return; }
         if (!c.contactLog) c.contactLog = [];
-        var _logTab = curFilter && curFilter !== 'all' ? curFilter : '';
         if (editing && old) {
-            c.contactLog[editIdx] = { date:date, memo:memo, time:new Date().toISOString(), tab: old.tab || _logTab };
+            c.contactLog[editIdx] = { date:date, memo:memo, time:new Date().toISOString() };
         } else {
-            c.contactLog.unshift({ date:date, memo:memo, time:new Date().toISOString(), tab: _logTab });
+            c.contactLog.unshift({ date:date, memo:memo, time:new Date().toISOString() });
         }
-        if (!_logTab) c.lastContact = new Date().toISOString();
+        c.lastContact = new Date().toISOString();
         persistAndSyncNow();
         overlay.remove();
         render();
@@ -7449,9 +7439,7 @@ function quickContactLog(clientId, editIdx) {
 function showContactLog(clientId) {
     var c = DB.find(function(x){ return x.id === clientId; });
     if (!c || !c.contactLog || !c.contactLog.length) return;
-    var _curTab = curFilter && curFilter !== 'all' ? curFilter : '';
     var sorted = c.contactLog.slice()
-        .filter(function(log){ var lt = _getLogTab(log,c); return !_curTab || lt === _curTab || !lt; })
         .sort(function(a,b){ var d = (b.date||'').localeCompare(a.date||''); return d !== 0 ? d : (b.time||'').localeCompare(a.time||''); });
     if (!sorted.length) return;
     var overlay = document.createElement('div');
