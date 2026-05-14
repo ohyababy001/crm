@@ -7324,16 +7324,32 @@ function quickSchedule(clientId, prefillDate, prefillTime, prefillMemo, prefillT
     if (!window.matchMedia('(max-width:768px)').matches) document.getElementById('qs-memo').focus();
 }
 
-function confirmAction(msg, onConfirm) {
+function confirmAction(msg, onConfirm, opts) {
+    opts = opts || {};
     var overlay = document.createElement('div');
     overlay.className = 'fill-overlay';
     var box = document.createElement('div');
     box.className = 'fill-menu';
-    box.style.cssText = 'padding:20px;min-width:260px;max-width:320px;text-align:center';
+    var hasInput = typeof opts.editPrefill === 'string';
+    box.style.cssText = 'padding:20px;min-width:' + (hasInput ? '300px' : '260px') + ';max-width:' + (hasInput ? '380px' : '320px') + ';text-align:' + (hasInput ? 'left' : 'center');
     var msgDiv = document.createElement('div');
-    msgDiv.style.cssText = 'font-size:15px;margin-bottom:16px;line-height:1.5;white-space:pre-line';
+    msgDiv.style.cssText = 'font-size:15px;margin-bottom:12px;line-height:1.5;white-space:pre-line' + (hasInput ? ';font-weight:700' : '');
     msgDiv.textContent = String(msg == null ? '' : msg);
     box.appendChild(msgDiv);
+    var inputEl = null;
+    if (hasInput) {
+        if (opts.editLabel) {
+            var lbl = document.createElement('div');
+            lbl.style.cssText = 'font-size:12px;color:#64748B;margin-bottom:4px';
+            lbl.textContent = opts.editLabel;
+            box.appendChild(lbl);
+        }
+        inputEl = document.createElement('input');
+        inputEl.type = 'text';
+        inputEl.value = opts.editPrefill;
+        inputEl.style.cssText = 'width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:14px;box-sizing:border-box';
+        box.appendChild(inputEl);
+    }
     var btnRow = document.createElement('div');
     btnRow.style.cssText = 'display:flex;gap:8px';
     btnRow.innerHTML = '<button id="cf-no" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;font-size:14px;cursor:pointer;font-family:inherit">取消</button>' +
@@ -7342,18 +7358,32 @@ function confirmAction(msg, onConfirm) {
     overlay.appendChild(box);
     document.body.appendChild(overlay);
     document.getElementById('cf-no').onclick = function() { overlay.remove(); };
-    document.getElementById('cf-yes').onclick = function() { overlay.remove(); onConfirm(); };
+    document.getElementById('cf-yes').onclick = function() {
+        var val = inputEl ? inputEl.value.trim() : undefined;
+        overlay.remove();
+        onConfirm(val);
+    };
+    if (inputEl) {
+        inputEl.addEventListener('keydown', function(e){ if (e.key === 'Enter') { e.preventDefault(); document.getElementById('cf-yes').click(); } });
+        if (!window.matchMedia('(max-width:768px)').matches) setTimeout(function(){ inputEl.focus(); inputEl.select(); }, 50);
+    }
 }
 
 function completeSchedule(clientId, date, time) {
-    confirmAction('確定完成此行程？', function() {
+    var _c = DB.find(function(x){ return x.id === clientId; });
+    if (!_c || !_c.schedules) return;
+    var _s = _c.schedules.find(function(s) {
+        return !s._deleted && s.date === date && (s.time||'') === (time||'');
+    });
+    var _prefill = _s ? (_s.memo || '') : '';
+    confirmAction('確定完成此行程？', function(editedMemo) {
         var c = DB.find(function(x){ return x.id === clientId; });
         if (!c || !c.schedules) return;
         var found = c.schedules.find(function(s) {
             return !s._deleted && s.date === date && (s.time||'') === (time||'');
         });
         if (!found) return;
-        var memo = found.memo || '';
+        var memo = (typeof editedMemo === 'string') ? editedMemo : (found.memo || '');
         var recurrence = found.recurrence || '';
         var schedType = found.schedType || '';
         // 只軟刪命中的那一筆（透過 id），不要牽連到同日同時段其他 memo 的行程
@@ -7384,7 +7414,7 @@ function completeSchedule(clientId, date, time) {
             persistAndSyncNow();
         }
         render();
-    });
+    }, { editPrefill: _prefill, editLabel: '行程內容（可修改）' });
 }
 
 // ── 快速新增聯繫紀錄 ──
@@ -8006,16 +8036,20 @@ function addPersonalSchedule(editId) {
 function editPersonalSchedule(id) { addPersonalSchedule(id); }
 
 function completePersonalSchedule(id) {
-    confirmAction('確定完成此行程？', function() {
+    var _arr = _getPS();
+    var _orig = _arr.find(function(s){ return s.id === id && !s._deleted; });
+    var _prefill = _orig ? (_orig.memo || '') : '';
+    confirmAction('確定完成此行程？', function(editedMemo) {
         var arr = _getPS();
         var item = arr.find(function(s){ return s.id === id && !s._deleted; });
         if (!item) return;
+        var memo = (typeof editedMemo === 'string') ? editedMemo : (item.memo || '');
         // 循環行程：保留原筆並產生下一筆（同一 id 更新 date，並新增一筆舊日期的歷史記錄？這裡採用：軟刪舊筆、推下一筆）
         _softDeleteById(arr, id);
         if (item.recurrence) {
             var nextDate = calcNextRecurDate(item.date, item.recurrence);
             if (nextDate) {
-                var nextObj = { id:_newSchedId(), date:nextDate, time:item.time, memo:item.memo, recurrence:item.recurrence, updatedAt:_nowISO() };
+                var nextObj = { id:_newSchedId(), date:nextDate, time:item.time, memo:memo, recurrence:item.recurrence, updatedAt:_nowISO() };
                 if (item.recurrence === 'daily' || item.recurrence === 'custom:1d') nextObj.hideBeforeDate = nextDate;
                 arr.push(nextObj);
                 showToast('已產生下一筆循環行程：' + isoToROC(nextDate), 'ok');
@@ -8024,12 +8058,12 @@ function completePersonalSchedule(id) {
             // 非循環行程：加入已完成列表（直接修改 rec，避免 _addDoneSchedule 內另起一次 persist）
             var rec = _getPSRecord();
             if (!rec.doneSchedules) rec.doneSchedules = [];
-            rec.doneSchedules.unshift({ id:_newSchedId(), clientId:'', clientName:'個人行程', date:item.date, time:item.time, memo:item.memo, doneAt:new Date().toISOString(), personal:true, updatedAt:_nowISO() });
+            rec.doneSchedules.unshift({ id:_newSchedId(), clientId:'', clientName:'個人行程', date:item.date, time:item.time, memo:memo, doneAt:new Date().toISOString(), personal:true, updatedAt:_nowISO() });
         }
         // schedules 已被上面就地修改，_savePS 會把指標寫回並觸發一次同步（含 doneSchedules 新增）
         _savePS(arr);
         render();
-    });
+    }, { editPrefill: _prefill, editLabel: '行程內容（可修改）' });
 }
 function deletePersonalSchedule(id) {
     confirmAction('確定刪除此行程？', function() {
