@@ -5603,8 +5603,8 @@ function renderStockDividend() {
                 html += '<tr>';
                 html += '<td style="text-align:left">' + esc(_toROCDate(d.date)) + '</td>';
                 html += '<td style="text-align:left">' + esc(d.stockId) + ' <span class="div-stock-name">' + esc(d.stockName) + '</span></td>';
-                html += '<td>' + (d.cashPerShare > 0 ? '$' + d.cashPerShare.toFixed(3) : '-') + '</td>';
-                html += '<td style="color:var(--green);font-weight:600">' + (d.cash > 0 ? '$' + fmt(d.cash) : '-') + '</td>';
+                html += '<td>' + (d.cashPerShare > 0 ? d.cashPerShare.toFixed(3) : '-') + '</td>';
+                html += '<td style="color:var(--green);font-weight:600">' + (d.cash > 0 ? fmt(d.cash) : '-') + '</td>';
                 html += '<td>' + (d.stockShares > 0 ? d.stockShares + ' 股' : '-') + '</td>';
                 html += '<td style="width:64px;white-space:nowrap">' +
                     '<button onclick="editDividend(' + item.idx + ')" title="編輯" style="background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;font-size:14px;line-height:1"><i class="ti ti-pencil"></i></button>' +
