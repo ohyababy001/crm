@@ -4456,6 +4456,77 @@ function deleteDividend(idx) {
     });
 }
 
+function editDividend(idx) {
+    var rec = stockData.dividends[idx];
+    if (!rec) return;
+    var options = stockData.holdings.map(function(h) {
+        return '<option value="' + esc(h.id) + '"' + (h.id === rec.stockId ? ' selected' : '') + '>' + esc(h.id + ' ' + h.name) + '</option>';
+    }).join('');
+    var ov = document.createElement('div');
+    ov.className = 'overlay';
+    ov.innerHTML = '<div class="modal"><h3>編輯股利紀錄</h3>' +
+        '<label style="font-size:12px;color:var(--muted)">股票</label>' +
+        '<select id="edit-div-stock">' + options + '</select>' +
+        '<label style="font-size:12px;color:var(--muted)">發放日期</label>' +
+        '<input type="text" id="edit-div-date" placeholder="YYYY-MM-DD" value="' + esc(rec.date || '') + '">' +
+        '<label style="font-size:12px;color:var(--muted)">現金股利（元）</label>' +
+        '<input type="number" id="edit-div-cash" placeholder="0" step="0.01" value="' + (rec.cash || 0) + '">' +
+        '<label style="font-size:12px;color:var(--muted)">每股配息（元/股）</label>' +
+        '<input type="number" id="edit-div-cash-per-share" placeholder="0" step="0.001" value="' + (rec.cashPerShare || 0) + '">' +
+        '<label style="font-size:12px;color:var(--muted)">股票股利（股）</label>' +
+        '<input type="number" id="edit-div-stock-shares" placeholder="0" step="0.01" value="' + (rec.stockShares || 0) + '">' +
+        '<div class="modal-btns"><button onclick="this.closest(\'.overlay\').remove()">取消</button>' +
+        '<button class="btn-primary" id="edit-div-save">儲存</button></div></div>';
+    document.body.appendChild(ov);
+    bindDateInput(document.getElementById('edit-div-date'));
+    document.getElementById('edit-div-save').onclick = function() {
+        var newStockId = document.getElementById('edit-div-stock').value;
+        var newDate = document.getElementById('edit-div-date').value;
+        var newCash = parseFloat(document.getElementById('edit-div-cash').value) || 0;
+        var newCps = parseFloat(document.getElementById('edit-div-cash-per-share').value) || 0;
+        var newStockShares = parseFloat(document.getElementById('edit-div-stock-shares').value) || 0;
+        if (!newStockId) { toast('請選擇股票', true); return; }
+        if (!newDate) { toast('請選擇日期', true); return; }
+        if (newCash <= 0 && newStockShares <= 0) { toast('請輸入股利金額', true); return; }
+
+        // 處理同步差額：先反向扣除舊值，再正向加入新值
+        var oldCash = rec.cash || 0;
+        var oldDate = rec.date;
+        var wasSyncedP = rec._syncedToPassive && oldCash > 0;
+        var wasSyncedI = rec._syncedToIncome && oldCash > 0;
+        if (wasSyncedP) _applyDividendToPassive(oldDate, oldCash, -1);
+        if (wasSyncedI) _applyDividendToIncome(oldDate, oldCash, -1);
+
+        // 更新記錄
+        var holding = stockData.holdings.find(function(h){ return h.id === newStockId; });
+        rec.stockId = newStockId;
+        rec.stockName = holding ? holding.name : newStockId;
+        rec.date = newDate;
+        rec.cash = newCash;
+        rec.cashPerShare = newCps;
+        rec.stockShares = newStockShares;
+
+        // 重新同步新值（保留標記）
+        if (newCash > 0) {
+            var syncedP = _applyDividendToPassive(newDate, newCash, +1);
+            rec._syncedToPassive = !!syncedP;
+            var syncedI = _applyDividendToIncome(newDate, newCash, +1);
+            rec._syncedToIncome = !!syncedI;
+        } else {
+            delete rec._syncedToPassive;
+            delete rec._syncedToIncome;
+        }
+
+        stockData.dividends.sort(function(a,b){ return b.date.localeCompare(a.date); });
+        saveStockData();
+        ov.remove();
+        renderStock();
+        if (currentTab === 'passive') renderPassive();
+        if (currentTab === 'income') renderIncomeExpense('income');
+        toast('已更新股利紀錄');
+    };
+}
+
 // ── 除權息通知 ──
 var _dividendAlerts = [];
 var _dividendAlertChecked = false;
@@ -5544,7 +5615,7 @@ function renderStockDividend() {
         html += '<h3 style="cursor:pointer;user-select:none" onclick="toggleDivYear(\'' + esc(y) + '\')">' + arrow + ' ' + (parseInt(y,10) ? (parseInt(y,10) - 1911) : y) + ' 年<span class="dividend-year-total">合計 $' + fmt(yearTotal) + '</span></h3>';
         if (expanded) {
             html += '<div class="table-wrap"><table class="stock-table dividend-table"><thead><tr>';
-            html += '<th>日期</th><th>股票</th><th>現金股利</th><th>每股配息</th><th>股票股利</th><th style="width:32px"></th>';
+            html += '<th>日期</th><th>股票</th><th>現金股利</th><th>每股配息</th><th>股票股利</th><th style="width:64px"></th>';
             html += '</tr></thead><tbody>';
 
             items.forEach(function(item) {
@@ -5555,7 +5626,10 @@ function renderStockDividend() {
                 html += '<td style="color:var(--green);font-weight:600">' + (d.cash > 0 ? '$' + fmt(d.cash) : '-') + '</td>';
                 html += '<td>' + (d.cashPerShare > 0 ? '$' + d.cashPerShare.toFixed(3) : '-') + '</td>';
                 html += '<td>' + (d.stockShares > 0 ? d.stockShares + ' 股' : '-') + '</td>';
-                html += '<td style="width:32px"><button class="btn-del" onclick="deleteDividend(' + item.idx + ')"><i class="ti ti-x" style="font-size:14px"></i></button></td>';
+                html += '<td style="width:64px;white-space:nowrap">' +
+                    '<button onclick="editDividend(' + item.idx + ')" title="編輯" style="background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;font-size:14px;line-height:1"><i class="ti ti-pencil"></i></button>' +
+                    '<button class="btn-del" onclick="deleteDividend(' + item.idx + ')"><i class="ti ti-x" style="font-size:14px"></i></button>' +
+                    '</td>';
                 html += '</tr>';
             });
 
