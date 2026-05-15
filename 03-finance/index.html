@@ -5505,6 +5505,7 @@ function showStockDividendHistory(stockId) {
                 html += '<div style="display:flex;justify-content:space-between;padding:6px 4px;border-bottom:1px solid var(--border);font-size:13px">';
                 html += '<span>' + esc(_toROCDate(d.date) || '—') + '</span>';
                 var amts = [];
+                if (d.cashPerShare > 0) amts.push('每股 <b style="color:var(--lux-navy)">$' + d.cashPerShare.toFixed(3) + '</b>');
                 if (d.cash > 0) amts.push('現金 <b style="color:var(--green)">$' + fmt(d.cash) + '</b>');
                 if (d.stockShares > 0) amts.push('股票 <b style="color:var(--green)">' + d.stockShares.toFixed(2) + ' 股</b>');
                 html += '<span>' + (amts.join('　') || '—') + '</span>';
