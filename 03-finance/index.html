@@ -5305,10 +5305,10 @@ function renderStockHoldings() {
     if (vis.shares !== false) html += '<th class="col-shares" style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'shares\')"><span class="col-title">股數</span>' + _sArr('shares') + '</th>';
     if (vis.cost !== false) html += '<th class="col-cost" style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'cost\')"><span class="col-title">均價</span><br><span class="stock-sub-label" style="font-size:11px;color:var(--muted);font-weight:400">總成本</span>' + _sArr('cost') + '</th>';
     if (vis.market !== false) html += '<th class="col-market" style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'market\')"><span class="col-title">市值</span><br><span class="stock-sub-label" style="font-size:11px;color:var(--muted);font-weight:400">佔比</span>' + _sArr('market') + '</th>';
-    if (vis.chg7d   !== false) html += '<th class="col-price-chg col-7d" style="text-align:right" title="近 7 日純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響">7 日</th>';
-    if (vis.chg30d  !== false) html += '<th class="col-price-chg col-30d" style="text-align:right" title="近 30 日純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響">30 日</th>';
-    if (vis.chg90d  !== false) html += '<th class="col-price-chg col-90d" style="text-align:right" title="近 90 日純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響">90 日</th>';
-    if (vis.chg365d !== false) html += '<th class="col-price-chg col-365d" style="text-align:right" title="近 1 年純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響">1 年</th>';
+    if (vis.chg7d   !== false) html += '<th class="col-price-chg col-7d" style="text-align:right" title="近 7 日純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響">7 D</th>';
+    if (vis.chg30d  !== false) html += '<th class="col-price-chg col-30d" style="text-align:right" title="近 30 日純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響">30 D</th>';
+    if (vis.chg90d  !== false) html += '<th class="col-price-chg col-90d" style="text-align:right" title="近 90 日純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響">90 D</th>';
+    if (vis.chg365d !== false) html += '<th class="col-price-chg col-365d" style="text-align:right" title="近 1 年純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響">1 Y</th>';
     html += '</tr></thead><tbody>';
 
     rows.forEach(function(r) {
