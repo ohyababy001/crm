@@ -5324,7 +5324,11 @@ function renderStockHoldings() {
         var dayPL = change !== null ? h.shares * change : null;
         var pledgedShares = 0;
         if (stockData.pledges) stockData.pledges.forEach(function(pp){ if (pp.stockId === h.id) pledgedShares += pp.shares; });
-        return { h:h, idx:idx, curPrice:curPrice, change:change, changePct:changePct, cost:cost, market:market, pl:pl, rate:rate, weight:weight, dayPL:dayPL, pledgedShares:pledgedShares };
+        var chg7d   = getStockPriceChange(h.id, 7);
+        var chg30d  = getStockPriceChange(h.id, 30);
+        var chg90d  = getStockPriceChange(h.id, 90);
+        var chg365d = getStockPriceChange(h.id, 365);
+        return { h:h, idx:idx, curPrice:curPrice, change:change, changePct:changePct, cost:cost, market:market, pl:pl, rate:rate, weight:weight, dayPL:dayPL, pledgedShares:pledgedShares, chg7d:chg7d, chg30d:chg30d, chg90d:chg90d, chg365d:chg365d };
     });
     // 套用券商過濾
     if (currentBroker) {
@@ -5345,6 +5349,10 @@ function renderStockHoldings() {
                 case 'shares':  va = a.h.shares || 0; vb = b.h.shares || 0; break;
                 case 'cost':    va = a.h.cost || 0; vb = b.h.cost || 0; break;
                 case 'market':  va = a.market !== null ? a.market : nullLow; vb = b.market !== null ? b.market : nullLow; break;
+                case 'chg7d':   va = (a.chg7d   && typeof a.chg7d.pct   === 'number') ? a.chg7d.pct   : nullLow; vb = (b.chg7d   && typeof b.chg7d.pct   === 'number') ? b.chg7d.pct   : nullLow; break;
+                case 'chg30d':  va = (a.chg30d  && typeof a.chg30d.pct  === 'number') ? a.chg30d.pct  : nullLow; vb = (b.chg30d  && typeof b.chg30d.pct  === 'number') ? b.chg30d.pct  : nullLow; break;
+                case 'chg90d':  va = (a.chg90d  && typeof a.chg90d.pct  === 'number') ? a.chg90d.pct  : nullLow; vb = (b.chg90d  && typeof b.chg90d.pct  === 'number') ? b.chg90d.pct  : nullLow; break;
+                case 'chg365d': va = (a.chg365d && typeof a.chg365d.pct === 'number') ? a.chg365d.pct : nullLow; vb = (b.chg365d && typeof b.chg365d.pct === 'number') ? b.chg365d.pct : nullLow; break;
                 default: return 0;
             }
             return (va - vb) * dir;
@@ -5359,10 +5367,10 @@ function renderStockHoldings() {
     if (vis.shares !== false) html += '<th class="col-shares" style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'shares\')"><span class="col-title">股數</span>' + _sArr('shares') + '</th>';
     if (vis.cost !== false) html += '<th class="col-cost" style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'cost\')"><span class="col-title">均價</span><br><span class="stock-sub-label" style="font-size:11px;color:var(--muted);font-weight:400">總成本</span>' + _sArr('cost') + '</th>';
     if (vis.market !== false) html += '<th class="col-market" style="cursor:pointer;user-select:none" onclick="toggleStockSort(\'market\')"><span class="col-title">市值</span><br><span class="stock-sub-label" style="font-size:11px;color:var(--muted);font-weight:400">佔比</span>' + _sArr('market') + '</th>';
-    if (vis.chg7d   !== false) html += '<th class="col-price-chg col-7d" style="text-align:right" title="近 7 日純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響">7 D</th>';
-    if (vis.chg30d  !== false) html += '<th class="col-price-chg col-30d" style="text-align:right" title="近 30 日純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響">30 D</th>';
-    if (vis.chg90d  !== false) html += '<th class="col-price-chg col-90d" style="text-align:right" title="近 90 日純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響">90 D</th>';
-    if (vis.chg365d !== false) html += '<th class="col-price-chg col-365d" style="text-align:right" title="近 1 年純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響">1 Y</th>';
+    if (vis.chg7d   !== false) html += '<th class="col-price-chg col-7d" style="text-align:right;cursor:pointer;user-select:none" title="近 7 日純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響" onclick="toggleStockSort(\'chg7d\')">7 D' + _sArr('chg7d') + '</th>';
+    if (vis.chg30d  !== false) html += '<th class="col-price-chg col-30d" style="text-align:right;cursor:pointer;user-select:none" title="近 30 日純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響" onclick="toggleStockSort(\'chg30d\')">30 D' + _sArr('chg30d') + '</th>';
+    if (vis.chg90d  !== false) html += '<th class="col-price-chg col-90d" style="text-align:right;cursor:pointer;user-select:none" title="近 90 日純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響" onclick="toggleStockSort(\'chg90d\')">90 D' + _sArr('chg90d') + '</th>';
+    if (vis.chg365d !== false) html += '<th class="col-price-chg col-365d" style="text-align:right;cursor:pointer;user-select:none" title="近 1 年純價格漲跌（已還原權息／股票股利／分割），不受定期定額影響" onclick="toggleStockSort(\'chg365d\')">1 Y' + _sArr('chg365d') + '</th>';
     html += '</tr></thead><tbody>';
 
     rows.forEach(function(r) {
@@ -5417,10 +5425,10 @@ function renderStockHoldings() {
             html += '<td style="font-weight:600">' + marketHtml + weightHtml + '</td>';
         }
         // 7 / 30 / 90 / 1 年 漲跌
-        if (vis.chg7d   !== false) html += '<td class="col-price-chg col-7d" style="text-align:right">'   + fmtPriceChange(getStockPriceChange(h.id, 7))   + '</td>';
-        if (vis.chg30d  !== false) html += '<td class="col-price-chg col-30d" style="text-align:right">'  + fmtPriceChange(getStockPriceChange(h.id, 30))  + '</td>';
-        if (vis.chg90d  !== false) html += '<td class="col-price-chg col-90d" style="text-align:right">'  + fmtPriceChange(getStockPriceChange(h.id, 90))  + '</td>';
-        if (vis.chg365d !== false) html += '<td class="col-price-chg col-365d" style="text-align:right">' + fmtPriceChange(getStockPriceChange(h.id, 365)) + '</td>';
+        if (vis.chg7d   !== false) html += '<td class="col-price-chg col-7d" style="text-align:right">'   + fmtPriceChange(r.chg7d)   + '</td>';
+        if (vis.chg30d  !== false) html += '<td class="col-price-chg col-30d" style="text-align:right">'  + fmtPriceChange(r.chg30d)  + '</td>';
+        if (vis.chg90d  !== false) html += '<td class="col-price-chg col-90d" style="text-align:right">'  + fmtPriceChange(r.chg90d)  + '</td>';
+        if (vis.chg365d !== false) html += '<td class="col-price-chg col-365d" style="text-align:right">' + fmtPriceChange(r.chg365d) + '</td>';
         html += '</tr>';
     });
 
